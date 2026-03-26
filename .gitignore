@@ -1,41 +1,64 @@
-# Miscellaneous
+# Misc
 *.class
-*.lock
 *.log
 *.pyc
 *.swp
-.buildlog/
-.history
+.DS_Store
+Thumbs.db
 
+# Editors / IDE
+.idea/
+.vscode/
+*.iml
 
-
-# Flutter repo-specific
-/bin/cache/
-/bin/internal/bootstrap.bat
-/bin/internal/bootstrap.sh
-/bin/mingit/
-/dev/benchmarks/mega_gallery/
-/dev/bots/.recipe_deps
-/dev/bots/android_tools/
-/dev/devicelab/ABresults*.json
-/dev/docs/doc/
-/dev/docs/flutter.docs.zip
-/dev/docs/lib/
-/dev/docs/pubspec.yaml
-/dev/integration_tests/**/xcuserdata
-/dev/integration_tests/**/Pods
-/packages/flutter/coverage/
-version
-analysis_benchmark.json
-
-# packages file containing multi-root paths
-.packages.generated
-
-# Flutter/Dart/Pub related
-**/doc/api/
+# Flutter / Dart / Pub
 .dart_tool/
+.packages
+.packages.generated
+.pub/
+build/
+coverage/
+
 .flutter-plugins
 .flutter-plugins-dependencies
-.pub/
+.metadata
+.melos_tool/
 
+# Generated symbols
 app.*.symbols
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/android/captures/
+
+# iOS
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Runner.xcworkspace/
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+
+# macOS
+**/macos/Flutter/ephemeral/
+
+# Linux
+**/linux/flutter/ephemeral/
+
+# Windows
+**/windows/flutter/ephemeral/
+
+# Web build outputs
+**/web/build/
+
+# Documentation
+**/doc/api/
+
+# Test / reports
+test_driver/failure_screenshots/
+coverage/

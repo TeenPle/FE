@@ -1,10 +1,10 @@
 class PostSummary {
   final int id;
-  final String authorName;
-  final bool isAnonymous;
-  final String boardName;
   final String title;
-  final String contentPreview;
+  final String content;
+  final String username;
+  final bool anonymous;
+  final String boardName;
   final String createdAt;
   final int likeCount;
   final int dislikeCount;
@@ -13,15 +13,17 @@ class PostSummary {
 
   const PostSummary({
     required this.id,
-    required this.authorName,
-    required this.isAnonymous,
-    required this.boardName,
     required this.title,
-    required this.contentPreview,
+    required this.content,
+    required this.username,
+    required this.anonymous,
+    required this.boardName,
     required this.createdAt,
     required this.likeCount,
     required this.dislikeCount,
     required this.commentCount,
     required this.viewCount,
   });
+
+  String get displayAuthorName => anonymous ? '익명' : username;
 }

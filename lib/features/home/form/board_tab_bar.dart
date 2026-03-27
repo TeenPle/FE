@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../model/board_model.dart';
+import '../models/board_model.dart';
 
 class BoardTabBar extends StatelessWidget {
   final List<BoardModel> boards;

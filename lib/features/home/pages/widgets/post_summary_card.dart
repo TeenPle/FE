@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../model/post_summary.dart';
+import '../../models/post_summary.dart';
 
 class PostSummaryCard extends StatelessWidget {
   final PostSummary post;
@@ -44,7 +44,7 @@ class PostSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              post.contentPreview,
+              post.content,
               style: const TextStyle(
                 fontSize: 18,
                 height: 1.5,
@@ -70,7 +70,7 @@ class _TopRow extends StatelessWidget {
     return Row(
       children: [
         _Tag(
-          text: post.isAnonymous ? '익명' : post.authorName,
+          text: post.anonymous ? '익명' : post.username,
           backgroundColor: const Color(0xFFF1F5F9),
           textColor: const Color(0xFF4B5563),
         ),

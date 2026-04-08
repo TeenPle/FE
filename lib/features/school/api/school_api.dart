@@ -1,0 +1,3 @@
+class SchoolApi {
+  const SchoolApi();
+}

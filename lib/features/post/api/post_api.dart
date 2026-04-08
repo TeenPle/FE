@@ -1,0 +1,3 @@
+class PostApi {
+  const PostApi();
+}

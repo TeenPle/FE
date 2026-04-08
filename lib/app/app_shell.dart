@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/widgets/app_bottom_nav_bar.dart';
-import '../features/home/pages/home_page.dart';
+import '../features/home/pages/school_page.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});

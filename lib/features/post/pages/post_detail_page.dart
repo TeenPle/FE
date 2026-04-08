@@ -108,7 +108,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         ),
       )
           : ListView(
-        padding: const EdgeInsets.only(bottom: 8),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 120),
         children: [
           PostContentCard(post: post),
           const Divider(

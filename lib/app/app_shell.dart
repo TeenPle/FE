@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/widgets/app_bottom_nav_bar.dart';
-import '../features/home/pages/school_page.dart';
+import '../features/school/pages/school_page.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -13,7 +13,7 @@ class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
   late final List<Widget> _pages = [
-    const HomePage(),
+    const SchoolPage(),
     const _PlaceholderPage(title: '급식'),
     const _PlaceholderPage(title: '채팅'),
     const _PlaceholderPage(title: '알림'),

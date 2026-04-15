@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/post_repository.dart';
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
-import 'post_detail_state.dart';
 import '../models/post_detail.dart';
+import '../models/update_comment_request.dart';
+import '../models/update_post_request.dart';
+import 'post_detail_state.dart';
 
+/// 게시글 상세 화면 상태 관리 Notifier
 class PostDetailNotifier extends StateNotifier<PostDetailState> {
   final PostRepository repository;
 
@@ -13,10 +17,13 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     required this.repository,
   }) : super(PostDetailState.initial(postId));
 
-  Future<void> loadPostDetail() async {
+  /// 게시글 상세 데이터를 조회
+  Future<void> loadPostDetail({bool isRefresh = false}) async {
     state = state.copyWith(
-      isLoading: true,
+      isLoading: !isRefresh && state.post == null,
+      isRefreshing: isRefresh,
       clearError: true,
+      clearSuccess: true,
     );
 
     try {
@@ -26,22 +33,36 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         post: post,
         comments: post.comments,
         isLoading: false,
+        isRefreshing: false,
       );
-    } catch (e) {
+    } catch (_) {
       state = state.copyWith(
         isLoading: false,
+        isRefreshing: false,
         errorMessage: '게시글을 불러오지 못했습니다.',
       );
     }
   }
 
+  /// 당겨서 새로고침 시 상세 데이터를 다시 조회
+  Future<void> refresh() {
+    return loadPostDetail(isRefresh: true);
+  }
+
+  /// 게시글 공감 처리
   Future<void> toggleLike() async {
-    if (state.post == null) return;
+    if (state.post == null || state.isSubmittingReaction) return;
+
+    state = state.copyWith(
+      isSubmittingReaction: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       final result = await repository.applyPostLike(state.postId);
-
       final currentPost = state.post!;
+
       final updatedPost = PostDetail(
         postId: currentPost.postId,
         title: currentPost.title,
@@ -53,38 +74,112 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         postStatus: currentPost.postStatus,
         username: currentPost.username,
         createdAt: currentPost.createdAt,
-        comments: currentPost.comments,
+        comments: state.comments,
       );
 
       state = state.copyWith(
         post: updatedPost,
         likedByMe: result.liked,
+        isSubmittingReaction: false,
       );
-    } catch (e) {
-      state = state.copyWith(errorMessage: '좋아요 처리에 실패했습니다.');
+    } catch (_) {
+      state = state.copyWith(
+        isSubmittingReaction: false,
+        errorMessage: '공감 처리에 실패했습니다.',
+      );
     }
   }
 
+  /// 댓글 공감 처리
+  Future<void> likeComment(int commentId) async {
+    if (state.isSubmittingReaction) return;
+
+    state = state.copyWith(
+      isSubmittingReaction: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      final result = await repository.applyCommentLike(commentId);
+
+      final updatedComments = state.comments.map((comment) {
+        if (comment.commentId != commentId) return comment;
+
+        return CommentModel(
+          commentId: comment.commentId,
+          content: comment.content,
+          author: comment.author,
+          likeCount: result.likeCount,
+          dislikeCount: result.dislikeCount,
+          anonymous: comment.anonymous,
+          depth: comment.depth,
+          parentId: comment.parentId,
+          createdAt: comment.createdAt,
+        );
+      }).toList();
+
+      final currentPost = state.post;
+
+      state = state.copyWith(
+        comments: updatedComments,
+        post: currentPost == null
+            ? null
+            : PostDetail(
+          postId: currentPost.postId,
+          title: currentPost.title,
+          content: currentPost.content,
+          viewCount: currentPost.viewCount,
+          anonymous: currentPost.anonymous,
+          likeCount: currentPost.likeCount,
+          dislikeCount: currentPost.dislikeCount,
+          postStatus: currentPost.postStatus,
+          username: currentPost.username,
+          createdAt: currentPost.createdAt,
+          comments: updatedComments,
+        ),
+        isSubmittingReaction: false,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isSubmittingReaction: false,
+        errorMessage: '댓글 공감 처리에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 댓글 익명 여부 토글
   void toggleCommentAnonymous(bool value) {
     state = state.copyWith(commentAnonymous: value);
   }
 
+  /// 답글 작성 대상을 설정
   void startReply(int commentId, {required bool isReply}) {
-    if (isReply) return; // 1depth 제한: 대댓글에는 다시 답글 달기 불가
+    if (isReply) return;
 
-    state = state.copyWith(replyingToCommentId: commentId);
+    state = state.copyWith(
+      replyingToCommentId: commentId,
+      clearError: true,
+      clearSuccess: true,
+    );
   }
 
+  /// 답글 작성 상태를 해제
   void cancelReply() {
     state = state.copyWith(clearReplying: true);
   }
 
+  /// 댓글 작성 요청 후 상세 재조회
   Future<void> submitComment(String content) async {
-    if (content.trim().isEmpty) return;
+    if (content.trim().isEmpty || state.isSubmittingComment) return;
+
+    debugPrint('댓글 작성 대상 postId = ${state.postId}');
+    debugPrint('현재 보고 있는 post 제목 = ${state.post?.title}');
 
     state = state.copyWith(
       isSubmittingComment: true,
       clearError: true,
+      clearSuccess: true,
     );
 
     try {
@@ -93,6 +188,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         anonymous: state.commentAnonymous,
         parentId: state.replyingToCommentId,
       );
+
 
       await repository.createComment(
         postId: state.postId,
@@ -104,12 +200,203 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       state = state.copyWith(
         isSubmittingComment: false,
         clearReplying: true,
+        successMessage: '댓글이 등록되었습니다.',
       );
-    } catch (e) {
+    } catch (_) {
       state = state.copyWith(
         isSubmittingComment: false,
         errorMessage: '댓글 작성에 실패했습니다.',
       );
     }
+  }
+
+  /// 게시글 신고 요청
+  Future<void> reportPost(String reportReason) async {
+    if (state.post == null || state.isReporting) return;
+
+    state = state.copyWith(
+      isReporting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await repository.reportPost(state.postId, reportReason);
+
+      state = state.copyWith(
+        isReporting: false,
+        successMessage: '게시글을 신고했습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isReporting: false,
+        errorMessage: '게시글 신고에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 댓글 신고 요청
+  Future<void> reportComment(int commentId, String reportReason) async {
+    if (state.isReporting) return;
+
+    state = state.copyWith(
+      isReporting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await repository.reportComment(commentId, reportReason);
+
+      state = state.copyWith(
+        isReporting: false,
+        successMessage: '댓글을 신고했습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isReporting: false,
+        errorMessage: '댓글 신고에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 게시글 수정 요청 후 상세 재조회
+  Future<void> updatePost({
+    required String title,
+    required String content,
+    required bool anonymous,
+  }) async {
+    if (state.isUpdating) return;
+
+    state = state.copyWith(
+      isUpdating: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await repository.updatePost(
+        postId: state.postId,
+        request: UpdatePostRequest(
+          title: title,
+          content: content,
+          anonymous: anonymous,
+        ),
+      );
+
+      await loadPostDetail();
+
+      state = state.copyWith(
+        isUpdating: false,
+        successMessage: '게시글이 수정되었습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isUpdating: false,
+        errorMessage: '게시글 수정에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 게시글 삭제 요청 후 화면 종료 플래그를 올림
+  Future<void> deletePost() async {
+    if (state.isDeleting) return;
+
+    state = state.copyWith(
+      isDeleting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await repository.deletePost(state.postId);
+
+      state = state.copyWith(
+        isDeleting: false,
+        successMessage: '게시글이 삭제되었습니다.',
+        shouldClosePage: true,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isDeleting: false,
+        errorMessage: '게시글 삭제에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 댓글 수정 요청 후 상세 재조회
+  Future<void> updateComment({
+    required int commentId,
+    required String content,
+    required bool anonymous,
+  }) async {
+    if (state.isUpdating) return;
+
+    state = state.copyWith(
+      isUpdating: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await repository.updateComment(
+        commentId: commentId,
+        request: UpdateCommentRequest(
+          content: content,
+          anonymous: anonymous,
+        ),
+      );
+
+      await loadPostDetail();
+
+      state = state.copyWith(
+        isUpdating: false,
+        successMessage: '댓글이 수정되었습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isUpdating: false,
+        errorMessage: '댓글 수정에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 댓글 삭제 요청 후 상세 재조회
+  Future<void> deleteComment(int commentId) async {
+    if (state.isDeleting) return;
+
+    state = state.copyWith(
+      isDeleting: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      await repository.deleteComment(commentId);
+      await loadPostDetail();
+
+      state = state.copyWith(
+        isDeleting: false,
+        successMessage: '댓글이 삭제되었습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isDeleting: false,
+        errorMessage: '댓글 삭제에 실패했습니다.',
+      );
+    }
+  }
+
+  /// 에러/성공 메시지를 초기화
+  void clearMessages() {
+    state = state.copyWith(
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  /// 페이지 종료 플래그를 해제
+  void clearClosePageFlag() {
+    state = state.copyWith(shouldClosePage: false);
   }
 }

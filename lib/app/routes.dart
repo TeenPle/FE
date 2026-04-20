@@ -16,10 +16,7 @@ import '../features/auth/pages/signup_school_page.dart';
 import '../features/auth/pages/signup_student_card_page.dart';
 import '../features/auth/pages/signup_student_info_page.dart';
 import '../features/post/pages/post_detail_page.dart';
-import '../features/post/pages/write_post_page.dart';
-import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
-import '../features/search/pages/search_page.dart';
 
 /// 앱 전체에서 사용하는 라우트 경로 상수
 class AppRoutes {
@@ -69,22 +66,6 @@ class AppRoutes {
 
   /// 로그인 완료 후 진입할 일반 유저 메인 페이지
   static const school = '/school';
-
-  /// 게시글 상세 페이지
-  static const postDetail = '/post/:postId';
-
-  /// 게시글 작성 페이지
-  static const writePost = '/write-post';
-
-  /// 게시판 상세 페이지
-  static const boardDetail = '/board/:boardId';
-
-  /// 검색 페이지
-  static const search = '/search';
-
-  /// 실제 이동에 쓰기 좋은 helper
-  static String postDetailPath(int postId) => '/post/$postId';
-  static String boardDetailPath(int boardId) => '/board/$boardId';
 }
 
 /// 앱 전체 라우터
@@ -180,44 +161,10 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
-      path: AppRoutes.postDetail,
+      path: '/post/:postId',
       builder: (context, state) {
         final postId = int.parse(state.pathParameters['postId']!);
         return PostDetailPage(postId: postId);
-      },
-    ),
-
-    GoRoute(
-      path: AppRoutes.writePost,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>;
-        return WritePostPage(
-          boardId: extra['boardId'] as int,
-          boardTitle: extra['boardTitle'] as String,
-        );
-      },
-    ),
-
-    GoRoute(
-      path: AppRoutes.boardDetail,
-      builder: (context, state) {
-        final boardId = int.parse(state.pathParameters['boardId']!);
-        final extra = state.extra as Map<String, dynamic>?;
-
-        return BoardDetailPage(
-          boardId: boardId,
-          boardTitle: extra?['boardTitle'] as String? ?? '',
-        );
-      },
-    ),
-
-    GoRoute(
-      path: AppRoutes.search,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return SearchPage(
-          initialKeyword: extra?['keyword'] as String?,
-        );
       },
     ),
   ],

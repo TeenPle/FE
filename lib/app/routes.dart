@@ -16,7 +16,10 @@ import '../features/auth/pages/signup_school_page.dart';
 import '../features/auth/pages/signup_student_card_page.dart';
 import '../features/auth/pages/signup_student_info_page.dart';
 import '../features/post/pages/post_detail_page.dart';
+import '../features/post/pages/write_post_page.dart';
+import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
+import '../features/search/pages/search_page.dart';
 
 /// 앱 전체에서 사용하는 라우트 경로 상수
 class AppRoutes {
@@ -66,6 +69,15 @@ class AppRoutes {
 
   /// 로그인 완료 후 진입할 일반 유저 메인 페이지
   static const school = '/school';
+
+  /// 게시판 상세 페이지
+  static const boardDetail = '/board/:boardId';
+
+  /// 게시글 작성/수정 페이지
+  static const writePost = '/write-post';
+
+  /// 검색 페이지
+  static const search = '/search';
 }
 
 /// 앱 전체 라우터
@@ -165,6 +177,43 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final postId = int.parse(state.pathParameters['postId']!);
         return PostDetailPage(postId: postId);
+      },
+    ),
+
+    GoRoute(
+      path: '/board/:boardId',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return BoardDetailPage(
+          boardId: extra['boardId'] as int,
+          boardTitle: extra['boardTitle'] as String,
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/write-post',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return WritePostPage(
+          boardId: extra['boardId'] as int,
+          boardTitle: extra['boardTitle'] as String,
+          isEditMode: extra['isEditMode'] as bool? ?? false,
+          postId: extra['postId'] as int?,
+          initialTitle: extra['initialTitle'] as String?,
+          initialContent: extra['initialContent'] as String?,
+          initialAnonymous: extra['initialAnonymous'] as bool?,
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/search',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return SearchPage(
+          initialKeyword: extra?['keyword'] as String?,
+        );
       },
     ),
   ],

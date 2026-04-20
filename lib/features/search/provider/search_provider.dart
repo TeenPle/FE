@@ -2,32 +2,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/app_api_client.dart';
 import '../../../core/network/token_provider.dart';
+import '../../../core/storage/token_storage.dart';
 import '../../school/models/board_post_page.dart';
 import '../../school/models/post_summary.dart';
 import '../api/search_api.dart';
 import '../models/search_state.dart';
 import '../services/recent_search_service.dart';
 
-/// 토큰 없이 개발할 때 사용하는 더미 구현체
-class DummyTokenProvider implements TokenProvider {
-  @override
-  Future<String?> getAccessToken() async {
-    return null;
-  }
-}
+class _StorageTokenProvider implements TokenProvider {
+  final TokenStorage _storage;
+  _StorageTokenProvider(this._storage);
 
-/// 검색용 토큰 provider
-final searchTokenProviderProvider = Provider<TokenProvider>((ref) {
-  return DummyTokenProvider();
-});
+  @override
+  Future<String?> getAccessToken() => _storage.getAccessToken();
+}
 
 /// 검색용 공통 API 클라이언트 생성
 final searchApiClientProvider = Provider<AppApiClient>((ref) {
-  final tokenProvider = ref.watch(searchTokenProviderProvider);
+  final tokenStorage = ref.watch(tokenStorageProvider);
 
   return AppApiClient(
     baseUrl: 'http://10.0.2.2:8080',
-    tokenProvider: tokenProvider,
+    tokenProvider: _StorageTokenProvider(tokenStorage),
   );
 });
 

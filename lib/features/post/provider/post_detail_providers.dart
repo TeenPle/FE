@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/app_api_client.dart';
 import '../../../core/network/token_provider.dart';
+import '../../../core/storage/token_storage.dart';
 import '../api/live_post_repository.dart';
 import '../api/post_api.dart';
 import '../api/post_repository.dart';
@@ -8,23 +9,20 @@ import '../api/temporary_post_repository.dart';
 import 'post_detail_provider.dart';
 import 'post_detail_state.dart';
 
-class DummyTokenProvider implements TokenProvider {
+class _StorageTokenProvider implements TokenProvider {
+  final TokenStorage _storage;
+  _StorageTokenProvider(this._storage);
+
   @override
-  Future<String?> getAccessToken() async {
-    return null;
-  }
+  Future<String?> getAccessToken() => _storage.getAccessToken();
 }
 
-final tokenProviderProvider = Provider<TokenProvider>((ref) {
-  return DummyTokenProvider();
-});
-
 final appApiClientProvider = Provider<AppApiClient>((ref) {
-  final tokenProvider = ref.watch(tokenProviderProvider);
+  final tokenStorage = ref.watch(tokenStorageProvider);
 
   return AppApiClient(
     baseUrl: 'http://10.0.2.2:8080',
-    tokenProvider: tokenProvider,
+    tokenProvider: _StorageTokenProvider(tokenStorage),
   );
 });
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'api_exception.dart';
 import 'token_provider.dart';
 
@@ -63,6 +64,56 @@ class AppApiClient {
       body: body == null ? null : jsonEncode(body),
     );
 
+    return _decodeResponse(response);
+  }
+
+  /// multipart/form-data POST (게시글 작성 등 files 포함 요청)
+  Future<Map<String, dynamic>> postMultipart(
+      String path, {
+        required Object jsonBody,
+        List<http.MultipartFile> files = const [],
+      }) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final token = await tokenProvider.getAccessToken();
+
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(http.MultipartFile.fromString(
+      'data',
+      jsonEncode(jsonBody),
+      contentType: MediaType('application', 'json'),
+    ));
+    request.files.addAll(files);
+
+    final streamed = await _client.send(request);
+    final response = await http.Response.fromStream(streamed);
+    return _decodeResponse(response);
+  }
+
+  /// multipart/form-data PATCH (게시글 수정 등 files 포함 요청)
+  Future<Map<String, dynamic>> patchMultipart(
+      String path, {
+        required Object jsonBody,
+        List<http.MultipartFile> files = const [],
+      }) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final token = await tokenProvider.getAccessToken();
+
+    final request = http.MultipartRequest('PATCH', uri);
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(http.MultipartFile.fromString(
+      'data',
+      jsonEncode(jsonBody),
+      contentType: MediaType('application', 'json'),
+    ));
+    request.files.addAll(files);
+
+    final streamed = await _client.send(request);
+    final response = await http.Response.fromStream(streamed);
     return _decodeResponse(response);
   }
 

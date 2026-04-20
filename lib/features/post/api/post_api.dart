@@ -105,14 +105,14 @@ class PostApi {
     return response.result!;
   }
 
-  /// 게시글 작성 API 호출
+  /// 게시글 작성 API 호출 (multipart/form-data)
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
   }) async {
-    final json = await client.post(
+    final json = await client.postMultipart(
       '/api/boards/$boardId/posts',
-      body: request.toJson(),
+      jsonBody: request.toJson(),
     );
 
     final response = ApiResponse.fromJson(
@@ -127,14 +127,14 @@ class PostApi {
     return response.result!;
   }
 
-  /// 게시글 수정 API 호출
+  /// 게시글 수정 API 호출 (multipart/form-data)
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
   }) async {
-    final json = await client.patch(
+    final json = await client.patchMultipart(
       '/api/posts/$postId',
-      body: request.toJson(),
+      jsonBody: request.toJson(),
     );
 
     final response = ApiResponse.fromJson(

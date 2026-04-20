@@ -31,14 +31,14 @@ class PostDetail {
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
     return PostDetail(
-      postId: json['postId'] as int,
+      postId: (json['postId'] as num).toInt(),
       isMine: json['isMine'] as bool? ?? false,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
-      viewCount: json['viewCount'] as int? ?? 0,
+      viewCount: json['viewCount'] != null ? (json['viewCount'] as num).toInt() : 0,
       anonymous: json['anonymous'] as bool? ?? false,
-      likeCount: json['likeCount'] as int? ?? 0,
-      dislikeCount: json['dislikeCount'] as int? ?? 0,
+      likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
+      dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
       postStatus: json['postStatus'] as String? ?? '',
       username: json['username'] as String? ?? '',
       createdAt: json['createdAt'] as String? ?? '',

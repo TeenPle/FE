@@ -20,7 +20,7 @@ class SchoolResponse {
 
   factory SchoolResponse.fromJson(Map<String, dynamic> json) {
     return SchoolResponse(
-      schoolId: json['schoolId'] as int,
+      schoolId: (json['schoolId'] as num).toInt(),
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       boards: (json['boards'] as List<dynamic>? ?? [])

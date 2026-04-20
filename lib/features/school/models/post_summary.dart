@@ -29,18 +29,18 @@ class PostSummary {
 
   factory PostSummary.fromJson(Map<String, dynamic> json) {
     return PostSummary(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
       postStatus: json['postStatus'] as String? ?? '',
-      viewCount: json['viewCount'] as int? ?? 0,
+      viewCount: json['viewCount'] != null ? (json['viewCount'] as num).toInt() : 0,
       anonymous: json['anonymous'] as bool? ?? false,
-      likeCount: json['likeCount'] as int? ?? 0,
-      dislikeCount: json['dislikeCount'] as int? ?? 0,
-      boardId: json['boardId'] as int? ?? 0,
-      userId: json['userId'] as int? ?? 0,
+      likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
+      dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
+      boardId: json['boardId'] != null ? (json['boardId'] as num).toInt() : 0,
+      userId: json['userId'] != null ? (json['userId'] as num).toInt() : 0,
       username: json['username'] as String? ?? '',
-      commentCount: json['commentCount'] as int? ?? 0,
+      commentCount: json['commentCount'] != null ? (json['commentCount'] as num).toInt() : 0,
     );
   }
 

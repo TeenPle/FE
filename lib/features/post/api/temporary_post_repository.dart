@@ -19,6 +19,8 @@ class TemporaryPostRepository implements PostRepository {
     final comments = <CommentModel>[
       CommentModel(
         commentId: 1,
+        isMine: true,
+        commentStatus: 'ACTIVE',
         content: '이 글 진짜 공감돼요.',
         author: '익명',
         likeCount: 3,
@@ -30,6 +32,8 @@ class TemporaryPostRepository implements PostRepository {
       ),
       CommentModel(
         commentId: 2,
+        isMine: false,
+        commentStatus: 'ACTIVE',
         content: '저도 비슷한 경험 있었어요.',
         author: '익명',
         likeCount: 1,
@@ -43,6 +47,7 @@ class TemporaryPostRepository implements PostRepository {
 
     return PostDetail(
       postId: postId,
+      isMine: true,
       title: '샘플 게시글 제목입니다',
       content: '이곳은 게시글 본문 영역입니다. 실제 서버 연동 전까지는 임시 데이터로 화면을 확인할 수 있도록 구성했습니다.',
       viewCount: 128,

@@ -39,7 +39,6 @@ class PostDetailState {
     required this.shouldClosePage,
   });
 
-  /// 초기 상태 생성
   factory PostDetailState.initial(int postId) {
     return PostDetailState(
       postId: postId,

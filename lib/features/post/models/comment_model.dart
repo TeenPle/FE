@@ -1,5 +1,7 @@
 class CommentModel {
   final int commentId;
+  final bool isMine;
+  final String commentStatus;
   final String content;
   final String author;
   final int likeCount;
@@ -11,6 +13,8 @@ class CommentModel {
 
   const CommentModel({
     required this.commentId,
+    required this.isMine,
+    required this.commentStatus,
     required this.content,
     required this.author,
     required this.likeCount,
@@ -24,6 +28,8 @@ class CommentModel {
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       commentId: json['commentId'] as int,
+      isMine: json['isMine'] as bool? ?? false,
+      commentStatus: json['commentStatus'] as String? ?? 'ACTIVE',
       content: json['content'] as String? ?? '',
       author: json['author'] as String? ?? '',
       likeCount: json['likeCount'] as int? ?? 0,
@@ -36,6 +42,7 @@ class CommentModel {
   }
 
   bool get isReply => parentId != null;
+  bool get isDeleted => commentStatus == 'DELETED';
 
   String get displayAuthorName => anonymous ? '익명' : author;
 }

@@ -7,9 +7,10 @@ class CommentItem extends StatelessWidget {
   final List<CommentModel> replies;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
-  final VoidCallback? onReportTap;
-  final VoidCallback? onEditTap;
-  final VoidCallback? onDeleteTap;
+  final void Function(CommentModel comment)? onEditTap;
+  final void Function(int commentId)? onDeleteTap;
+  final void Function(int commentId)? onReportTap;
+  final VoidCallback? onChatTap;
 
   const CommentItem({
     super.key,
@@ -17,9 +18,10 @@ class CommentItem extends StatelessWidget {
     required this.replies,
     this.onReplyTap,
     this.onLikeTap,
-    this.onReportTap,
     this.onEditTap,
     this.onDeleteTap,
+    this.onReportTap,
+    this.onChatTap,
   });
 
   @override
@@ -31,16 +33,18 @@ class CommentItem extends StatelessWidget {
           _CommentBody(
             comment: comment,
             showReplyButton: !comment.isReply,
+            isMyComment: comment.isMine,
             onReplyTap: onReplyTap,
             onLikeTap: onLikeTap,
-            onReportTap: onReportTap,
-            onEditTap: onEditTap,
-            onDeleteTap: onDeleteTap,
+            onEditTap: () => onEditTap?.call(comment),
+            onDeleteTap: () => onDeleteTap?.call(comment.commentId),
+            onReportTap: () => onReportTap?.call(comment.commentId),
+            onChatTap: onChatTap,
           ),
           if (replies.isNotEmpty) const SizedBox(height: 14),
           if (replies.isNotEmpty)
             ...replies.map(
-                  (reply) => Padding(
+              (reply) => Padding(
                 padding: const EdgeInsets.only(left: 12, top: 10),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -66,10 +70,12 @@ class CommentItem extends StatelessWidget {
                         child: _CommentBody(
                           comment: reply,
                           showReplyButton: false,
+                          isMyComment: reply.isMine,
                           onLikeTap: () {},
-                          onReportTap: () {},
-                          onEditTap: () {},
-                          onDeleteTap: () {},
+                          onEditTap: () => onEditTap?.call(reply),
+                          onDeleteTap: () => onDeleteTap?.call(reply.commentId),
+                          onReportTap: () => onReportTap?.call(reply.commentId),
+                          onChatTap: onChatTap,
                         ),
                       ),
                     ],
@@ -87,29 +93,37 @@ class CommentItem extends StatelessWidget {
 class _CommentBody extends StatelessWidget {
   final CommentModel comment;
   final bool showReplyButton;
+  final bool isMyComment;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
-  final VoidCallback? onReportTap;
   final VoidCallback? onEditTap;
   final VoidCallback? onDeleteTap;
+  final VoidCallback? onReportTap;
+  final VoidCallback? onChatTap;
 
   const _CommentBody({
     required this.comment,
     required this.showReplyButton,
+    required this.isMyComment,
     this.onReplyTap,
     this.onLikeTap,
-    this.onReportTap,
     this.onEditTap,
     this.onDeleteTap,
+    this.onReportTap,
+    this.onChatTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    // 삭제된 댓글은 플레이스홀더만 표시
+    if (comment.isDeleted) {
+      return _DeletedCommentPlaceholder();
+    }
+
     final createdAtText =
-    (comment.createdAt != null && comment.createdAt!.isNotEmpty)
-        ? comment.createdAt!
-        : '방금 전';
-    final isDeletedStyle = comment.author.contains('(삭제)');
+        (comment.createdAt != null && comment.createdAt!.isNotEmpty)
+            ? comment.createdAt!
+            : '방금 전';
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,55 +156,67 @@ class _CommentBody extends StatelessWidget {
                       children: [
                         Text(
                           comment.displayAuthorName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: isDeletedStyle
-                                ? const Color(0xFF95A3AF)
-                                : const Color(0xFF111111),
+                            color: Color(0xFF111111),
                           ),
                         ),
-                        if (!isDeletedStyle)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F6FA),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              createdAtText,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF7D8790),
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F6FA),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            createdAtText,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF7D8790),
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
 
-                  /// 댓글 수정/삭제 메뉴
+                  /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고
                   PopupMenuButton<String>(
                     color: Colors.white,
                     onSelected: (value) {
-                      if (value == 'edit') {
-                        onEditTap?.call();
-                      } else if (value == 'delete') {
-                        onDeleteTap?.call();
+                      switch (value) {
+                        case 'edit':
+                          onEditTap?.call();
+                        case 'delete':
+                          onDeleteTap?.call();
+                        case 'chat':
+                          onChatTap?.call();
+                        case 'report':
+                          onReportTap?.call();
                       }
                     },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Text('수정하기'),
+                    itemBuilder: (context) => [
+                      if (isMyComment) ...[
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Text('수정하기'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('삭제하기'),
+                        ),
+                      ],
+                      const PopupMenuItem(
+                        value: 'chat',
+                        child: Text('채팅'),
                       ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text('삭제하기'),
+                      const PopupMenuItem(
+                        value: 'report',
+                        child: Text('신고하기'),
                       ),
                     ],
                     child: const Padding(
@@ -208,12 +234,10 @@ class _CommentBody extends StatelessWidget {
               if (comment.content.isNotEmpty)
                 Text(
                   comment.content,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     height: 1.5,
-                    color: isDeletedStyle
-                        ? const Color(0xFF95A3AF)
-                        : const Color(0xFF2F3740),
+                    color: Color(0xFF2F3740),
                   ),
                 ),
               const SizedBox(height: 10),
@@ -231,15 +255,42 @@ class _CommentBody extends StatelessWidget {
                     label: '공감 ${comment.likeCount}',
                     onTap: onLikeTap,
                   ),
-                  const SizedBox(width: 10),
-                  _InlineActionButton(
-                    icon: Icons.flag_outlined,
-                    label: '신고',
-                    onTap: onReportTap,
-                  ),
                 ],
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 삭제된 댓글 플레이스홀더 (대댓글이 있어서 남겨두는 경우)
+class _DeletedCommentPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0F4F8),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.person_rounded,
+            color: Color(0xFFBCC8D4),
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Text(
+          '삭제된 댓글입니다.',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF95A3AF),
+            fontStyle: FontStyle.italic,
           ),
         ),
       ],

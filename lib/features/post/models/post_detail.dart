@@ -2,6 +2,7 @@ import 'comment_model.dart';
 
 class PostDetail {
   final int postId;
+  final bool isMine;
   final String title;
   final String content;
   final int viewCount;
@@ -15,6 +16,7 @@ class PostDetail {
 
   const PostDetail({
     required this.postId,
+    required this.isMine,
     required this.title,
     required this.content,
     required this.viewCount,
@@ -30,6 +32,7 @@ class PostDetail {
   factory PostDetail.fromJson(Map<String, dynamic> json) {
     return PostDetail(
       postId: json['postId'] as int,
+      isMine: json['isMine'] as bool? ?? false,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
       viewCount: json['viewCount'] as int? ?? 0,

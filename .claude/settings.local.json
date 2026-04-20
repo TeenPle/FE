@@ -8,7 +8,8 @@
       "Bash(xargs cat *)",
       "Bash(curl -s \"http://localhost:8080/api/posts/1\" -H \"Authorization: Bearer dummy\")",
       "Bash(python -m json.tool)",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "Bash(java -version)"
     ]
   }
 }

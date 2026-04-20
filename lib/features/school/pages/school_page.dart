@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../../features/auth/provider/login_provider.dart';
 import '../form/board_tab_bar.dart';
 import '../models/board_model.dart';
 import '../provider/school_providers.dart';
@@ -25,9 +26,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage> {
   void initState() {
     super.initState();
 
-    /// 앱 시작 시 schoolId=2 기준으로 학교 데이터를 불러옴
     Future.microtask(() {
-      ref.read(schoolProvider.notifier).loadInitialSchool(2);
+      final schoolId = ref.read(loginProvider).loginResponse?.schoolId;
+      if (schoolId != null) {
+        ref.read(schoolProvider.notifier).loadInitialSchool(schoolId);
+      }
     });
   }
 

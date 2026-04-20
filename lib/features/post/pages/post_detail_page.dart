@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
-import '../models/post_detail.dart';
 import '../provider/post_detail_providers.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
@@ -118,6 +117,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 if (confirmed == true) {
                   await notifier.deletePost();
                 }
+              } else if (value == 'chat') {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
+                );
               } else if (value == 'report') {
                 _showReportSheet(
                   context,
@@ -127,16 +130,22 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 );
               }
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'edit',
-                child: Text('수정하기'),
+            itemBuilder: (context) => [
+              if (post != null && post.isMine) ...[
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Text('수정하기'),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text('삭제하기'),
+                ),
+              ],
+              const PopupMenuItem(
+                value: 'chat',
+                child: Text('채팅'),
               ),
-              PopupMenuItem(
-                value: 'delete',
-                child: Text('삭제하기'),
-              ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'report',
                 child: Text('신고하기'),
               ),
@@ -196,6 +205,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     notifier.startReply(commentId, isReply: isReply);
                   },
                   onCommentLikeTap: notifier.likeComment,
+                  onCommentChatTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
+                    );
+                  },
                   onCommentReportTap: (commentId) {
                     _showReportSheet(
                       context,
@@ -243,6 +257,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     required List<CommentModel> comments,
     required void Function(int commentId, bool isReply) onReplyTap,
     required void Function(int commentId) onCommentLikeTap,
+    required VoidCallback onCommentChatTap,
     required void Function(int commentId) onCommentReportTap,
     required void Function(CommentModel comment) onCommentEditTap,
     required void Function(int commentId) onCommentDeleteTap,
@@ -281,9 +296,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             replies: replies,
             onReplyTap: () => onReplyTap(parent.commentId, false),
             onLikeTap: () => onCommentLikeTap(parent.commentId),
-            onReportTap: () => onCommentReportTap(parent.commentId),
-            onEditTap: () => onCommentEditTap(parent),
-            onDeleteTap: () => onCommentDeleteTap(parent.commentId),
+            onChatTap: onCommentChatTap,
+            onReportTap: onCommentReportTap,
+            onEditTap: onCommentEditTap,
+            onDeleteTap: onCommentDeleteTap,
           ),
           if (index != parents.length - 1)
             const Divider(

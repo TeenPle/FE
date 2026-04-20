@@ -65,6 +65,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       final updatedPost = PostDetail(
         postId: currentPost.postId,
+        isMine: currentPost.isMine,
         title: currentPost.title,
         content: currentPost.content,
         viewCount: currentPost.viewCount,
@@ -108,6 +109,8 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
         return CommentModel(
           commentId: comment.commentId,
+          isMine: comment.isMine,
+          commentStatus: comment.commentStatus,
           content: comment.content,
           author: comment.author,
           likeCount: result.likeCount,
@@ -127,6 +130,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
             ? null
             : PostDetail(
           postId: currentPost.postId,
+          isMine: currentPost.isMine,
           title: currentPost.title,
           content: currentPost.content,
           viewCount: currentPost.viewCount,

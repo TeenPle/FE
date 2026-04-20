@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.dart$\")",
+      "Bash(flutter analyze *)",
+      "Bash(xargs grep *)",
+      "Bash(./gradlew compileJava)",
+      "Bash(xargs cat *)",
+      "Bash(curl -s \"http://localhost:8080/api/posts/1\" -H \"Authorization: Bearer dummy\")",
+      "Bash(python -m json.tool)",
+      "Bash(xargs ls *)"
+    ]
+  }
+}

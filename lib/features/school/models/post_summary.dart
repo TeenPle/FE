@@ -1,3 +1,5 @@
+import '../../../features/post/models/post_media_item.dart';
+
 class PostSummary {
   final int id;
   final String title;
@@ -11,6 +13,7 @@ class PostSummary {
   final int userId;
   final String username;
   final int commentCount;
+  final List<PostMediaItem> mediaList;
 
   const PostSummary({
     required this.id,
@@ -25,6 +28,7 @@ class PostSummary {
     required this.userId,
     required this.username,
     required this.commentCount,
+    this.mediaList = const [],
   });
 
   factory PostSummary.fromJson(Map<String, dynamic> json) {
@@ -41,8 +45,13 @@ class PostSummary {
       userId: json['userId'] != null ? (json['userId'] as num).toInt() : 0,
       username: json['username'] as String? ?? '',
       commentCount: json['commentCount'] != null ? (json['commentCount'] as num).toInt() : 0,
+      mediaList: (json['mediaList'] as List<dynamic>? ?? [])
+          .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
+
+  List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
   String get displayAuthorName => anonymous ? '익명' : username;
 }

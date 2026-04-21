@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/app_api_client.dart';
+import '../../../core/network/base_url.dart';
 import '../../../core/network/token_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../api/live_school_repository.dart';
@@ -21,7 +22,7 @@ final schoolApiClientProvider = Provider<AppApiClient>((ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
 
   return AppApiClient(
-    baseUrl: 'http://10.0.2.2:8080',
+    baseUrl: apiBaseUrl,
     tokenProvider: _StorageTokenProvider(tokenStorage),
   );
 });

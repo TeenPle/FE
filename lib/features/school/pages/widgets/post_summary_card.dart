@@ -16,10 +16,17 @@ class PostSummaryCard extends StatelessWidget {
     this.compact = false,
   });
 
-  /// 썸네일 박스 노출 여부를 결정
-  bool get _showThumbnailBox {
-    return post.id % 3 == 1;
+  /// 첫 번째 이미지 URL (없으면 null)
+  String? get _thumbnailUrl {
+    for (final media in post.mediaList) {
+      if (media.isImage) return media.url;
+    }
+    return null;
   }
+
+  bool get _hasNonImageFile => post.mediaList.any((m) => !m.isImage);
+
+  bool get _showThumbnailBox => _thumbnailUrl != null;
 
   /// 좋아요 수 텍스트를 화면용으로 변환
   String get _likeText {
@@ -33,23 +40,6 @@ class PostSummaryCard extends StatelessWidget {
     return '${post.commentCount}';
   }
 
-  /// 날짜/시간 표시를 간단한 더미 규칙으로 변환
-  String get _timeText {
-    switch (post.id % 6) {
-      case 0:
-        return '10/13';
-      case 1:
-        return '2분 전';
-      case 2:
-        return '2시간 전';
-      case 3:
-        return '12/25';
-      case 4:
-        return '12/24';
-      default:
-        return '12/23';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,12 +72,26 @@ class PostSummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (_showThumbnailBox) ...[
-                  Container(
-                    width: compact ? 74 : 76,
-                    height: compact ? 74 : 76,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.circular(12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      _thumbnailUrl!,
+                      width: compact ? 74 : 76,
+                      height: compact ? 74 : 76,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: compact ? 74 : 76,
+                        height: compact ? 74 : 76,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD9D9D9),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.broken_image_rounded,
+                          color: Colors.white54,
+                          size: 24,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -112,9 +116,9 @@ class PostSummaryCard extends StatelessWidget {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Text(
-                            _timeText,
-                            style: const TextStyle(
+                          const Text(
+                            '방금 전',
+                            style: TextStyle(
                               fontSize: 13,
                               color: Color(0xFF8E8E8E),
                               fontWeight: FontWeight.w500,
@@ -138,6 +142,14 @@ class PostSummaryCard extends StatelessWidget {
                             ),
                           ),
                           const Spacer(),
+                          if (_hasNonImageFile) ...[
+                            const Icon(
+                              Icons.attach_file_rounded,
+                              size: 14,
+                              color: Color(0xFF9AA7B2),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           _MetaText(
                             icon: Icons.favorite_border_rounded,
                             text: _likeText,

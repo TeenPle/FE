@@ -41,18 +41,211 @@ class PostContentCard extends StatelessWidget {
               color: Color(0xFF2F3740),
             ),
           ),
+          if (post.mediaUrls.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _MediaGallery(mediaUrls: post.mediaUrls),
+          ],
         ],
       ),
     );
   }
 }
 
+/// 첨부 미디어 갤러리
+class _MediaGallery extends StatelessWidget {
+  final List<String> mediaUrls;
+
+  const _MediaGallery({required this.mediaUrls});
+
+  bool _isImageUrl(String url) {
+    final lower = url.toLowerCase().split('?').first;
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.gif') ||
+        lower.endsWith('.webp');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrls = mediaUrls.where(_isImageUrl).toList();
+    final fileUrls = mediaUrls.where((u) => !_isImageUrl(u)).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (imageUrls.isNotEmpty) ...[
+          Container(
+            height: 1,
+            color: const Color(0xFFEEF3F7),
+            margin: const EdgeInsets.only(bottom: 14),
+          ),
+          // 이미지가 1개면 전체 너비, 여러 개면 가로 스크롤
+          if (imageUrls.length == 1)
+            _SingleImage(url: imageUrls.first)
+          else
+            _ImageRow(urls: imageUrls),
+        ],
+        if (fileUrls.isNotEmpty) ...[
+          if (imageUrls.isNotEmpty) const SizedBox(height: 10),
+          ...fileUrls.map((url) => _FileAttachmentChip(url: url)),
+        ],
+      ],
+    );
+  }
+}
+
+class _SingleImage extends StatelessWidget {
+  final String url;
+  const _SingleImage({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _openImageViewer(context, url),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          url,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _imagePlaceholder(),
+        ),
+      ),
+    );
+  }
+}
+
+class _ImageRow extends StatelessWidget {
+  final List<String> urls;
+  const _ImageRow({required this.urls});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 160,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: urls.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          return GestureDetector(
+            onTap: () => _openImageViewer(context, urls[i]),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                urls[i],
+                width: 160,
+                height: 160,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 160,
+                  height: 160,
+                  color: const Color(0xFFF0F4F8),
+                  child: const Icon(
+                    Icons.broken_image_rounded,
+                    color: Color(0xFF9AA7B2),
+                    size: 32,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _FileAttachmentChip extends StatelessWidget {
+  final String url;
+  const _FileAttachmentChip({required this.url});
+
+  String get _filename {
+    final decoded = Uri.decodeFull(url);
+    return decoded.split('/').last.split('?').first;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F8FB),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFD6DEE7)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.insert_drive_file_rounded,
+              size: 18,
+              color: Color(0xFF5A8EA8),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                _filename,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF3D6A85),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _imagePlaceholder() {
+  return Container(
+    height: 200,
+    color: const Color(0xFFF0F4F8),
+    child: const Center(
+      child: Icon(Icons.broken_image_rounded, color: Color(0xFF9AA7B2), size: 36),
+    ),
+  );
+}
+
+void _openImageViewer(BuildContext context, String url) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: EdgeInsets.zero,
+      child: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: InteractiveViewer(
+            child: Image.network(
+              url,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Center(
+                child: Icon(Icons.broken_image_rounded,
+                    color: Colors.white54, size: 60),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class _PostMetaRow extends StatelessWidget {
   final PostDetail post;
 
-  const _PostMetaRow({
-    required this.post,
-  });
+  const _PostMetaRow({required this.post});
 
   @override
   Widget build(BuildContext context) {

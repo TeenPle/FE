@@ -1,4 +1,5 @@
 import 'comment_model.dart';
+import 'post_media_item.dart';
 
 class PostDetail {
   final int postId;
@@ -13,6 +14,7 @@ class PostDetail {
   final String username;
   final String createdAt;
   final List<CommentModel> comments;
+  final List<PostMediaItem> mediaList;
 
   const PostDetail({
     required this.postId,
@@ -27,6 +29,7 @@ class PostDetail {
     required this.username,
     required this.createdAt,
     required this.comments,
+    this.mediaList = const [],
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
@@ -45,8 +48,13 @@ class PostDetail {
       comments: (json['comments'] as List<dynamic>? ?? [])
           .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      mediaList: (json['mediaList'] as List<dynamic>? ?? [])
+          .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
+
+  List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
   String get displayAuthorName => anonymous ? '익명' : username;
 }

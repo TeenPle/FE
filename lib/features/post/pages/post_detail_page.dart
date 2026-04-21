@@ -100,6 +100,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                       initialTitle: post.title,
                       initialContent: post.content,
                       initialAnonymous: post.anonymous,
+                      initialMediaList: post.mediaList,
                     ),
                   ),
                 );

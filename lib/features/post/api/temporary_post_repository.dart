@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
@@ -58,6 +60,7 @@ class TemporaryPostRepository implements PostRepository {
       username: '익명',
       createdAt: '방금 전',
       comments: comments,
+      mediaList: const [],
     );
   }
 
@@ -119,6 +122,7 @@ class TemporaryPostRepository implements PostRepository {
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
+    List<http.MultipartFile> files = const [],
   }) async {
     await Future.delayed(const Duration(milliseconds: 350));
     return 999;
@@ -129,6 +133,7 @@ class TemporaryPostRepository implements PostRepository {
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
+    List<http.MultipartFile> files = const [],
   }) async {
     await Future.delayed(const Duration(milliseconds: 200));
   }

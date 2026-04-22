@@ -51,4 +51,14 @@ class LoginApi {
 
     return LoginResponseModel.fromJson(result);
   }
+
+  /// 로그아웃 - 서버에서 refresh token 무효화
+  ///
+  /// POST /api/auth/logout
+  Future<void> logout(String refreshToken) async {
+    await _dio.post(
+      '/api/auth/logout',
+      data: {'refreshToken': refreshToken},
+    );
+  }
 }

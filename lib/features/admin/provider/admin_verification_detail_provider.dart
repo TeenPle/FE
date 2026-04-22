@@ -6,7 +6,8 @@ import '../models/verification_decision_request_model.dart';
 import 'admin_verification_detail_state.dart';
 
 /// 관리자 인증 요청 상세 provider
-final adminVerificationDetailProvider = StateNotifierProvider.family<
+/// autoDispose: 페이지를 떠나면 상태 초기화 → 재진입 시 항상 최신 상태로 조회
+final adminVerificationDetailProvider = StateNotifierProvider.autoDispose.family<
     AdminVerificationDetailNotifier, AdminVerificationDetailState, int>(
       (ref, requestId) {
     final api = ref.read(adminVerificationApiProvider);

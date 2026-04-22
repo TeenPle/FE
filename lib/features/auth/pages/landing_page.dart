@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/storage/token_storage.dart';
 
-class LandingPage extends StatefulWidget {
+class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  ConsumerState<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage>
+class _LandingPageState extends ConsumerState<LandingPage>
     with SingleTickerProviderStateMixin {
   static const Duration splashDelay = Duration(milliseconds: 1500);
 
@@ -41,10 +44,41 @@ class _LandingPageState extends State<LandingPage>
 
     _controller.forward();
 
-    Future.delayed(splashDelay, () {
-      if (!mounted) return;
-      context.go(AppRoutes.login);
-    });
+    Future.delayed(splashDelay, _handleAutoLogin);
+  }
+
+  Future<void> _handleAutoLogin() async {
+    if (!mounted) return;
+
+    final tokenStorage = ref.read(tokenStorageProvider);
+    final autoLogin = await tokenStorage.getAutoLogin();
+
+    if (autoLogin) {
+      final accessToken = await tokenStorage.getAccessToken();
+      final refreshToken = await tokenStorage.getRefreshToken();
+
+      if (accessToken != null && accessToken.isNotEmpty &&
+          refreshToken != null && refreshToken.isNotEmpty) {
+        // 메모리 세션에 두 토큰 모두 복원
+        ref.read(authSessionProvider.notifier).setTokens(accessToken, refreshToken);
+
+        final role = await tokenStorage.getUserRole();
+        if (!mounted) return;
+
+        if (role == 'ADMIN') {
+          context.go(AppRoutes.adminHome);
+        } else {
+          context.go(AppRoutes.school);
+        }
+        return;
+      }
+
+      // 자동로그인 플래그는 있지만 토큰이 없는 경우 → 정리 후 로그인
+      await tokenStorage.clearAll();
+    }
+
+    if (!mounted) return;
+    context.go(AppRoutes.login);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../form/board_tab_bar.dart';
@@ -26,8 +27,12 @@ class _SchoolPageState extends ConsumerState<SchoolPage> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      final schoolId = ref.read(loginProvider).loginResponse?.schoolId;
+    Future.microtask(() async {
+      // 일반 로그인: loginResponse에서 schoolId 사용
+      // 자동로그인: loginResponse가 null이므로 디스크에서 복원
+      int? schoolId = ref.read(loginProvider).loginResponse?.schoolId;
+      schoolId ??= await ref.read(tokenStorageProvider).getSchoolId();
+
       if (schoolId != null) {
         ref.read(schoolProvider.notifier).loadInitialSchool(schoolId);
       }

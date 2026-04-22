@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../auth/provider/login_provider.dart';
 
 /// 관리자 메인 페이지
-class AdminHomePage extends StatelessWidget {
+class AdminHomePage extends ConsumerWidget {
   const AdminHomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -16,6 +18,13 @@ class AdminHomePage extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () => _confirmLogout(context, ref),
+            icon: const Icon(Icons.logout_rounded),
+            tooltip: '로그아웃',
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -60,5 +69,37 @@ class AdminHomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _confirmLogout(BuildContext context, WidgetRef ref) {
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('로그아웃'),
+        content: const Text('로그아웃 하시겠어요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text(
+              '취소',
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(
+              '로그아웃',
+              style: TextStyle(color: Color(0xFFFF4D3A)),
+            ),
+          ),
+        ],
+      ),
+    ).then((confirmed) async {
+      if (confirmed != true) return;
+      await ref.read(loginProvider.notifier).logout();
+      if (context.mounted) {
+        context.go(AppRoutes.login);
+      }
+    });
   }
 }

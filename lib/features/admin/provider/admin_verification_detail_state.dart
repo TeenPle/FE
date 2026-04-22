@@ -10,7 +10,7 @@ class AdminVerificationDetailState {
   final bool isActionSuccess;
 
   const AdminVerificationDetailState({
-    this.isLoading = false,
+    this.isLoading = true,
     this.isActionLoading = false,
     this.detail,
     this.errorMessage,

@@ -76,6 +76,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     await ref.read(loginProvider.notifier).login(
       email: email,
       password: password,
+      keepLoggedIn: _keepLoggedIn,
     );
 
     final latestState = ref.read(loginProvider);

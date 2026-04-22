@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
@@ -34,14 +34,14 @@ abstract class PostRepository {
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
-    List<http.MultipartFile> files,
+    List<MultipartFile> files,
   });
 
   /// 게시글 수정 (files: 새로 추가할 첨부파일 목록, 없으면 빈 리스트)
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
-    List<http.MultipartFile> files,
+    List<MultipartFile> files,
   });
 
   /// 게시글 삭제

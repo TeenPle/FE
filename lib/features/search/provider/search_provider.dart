@@ -1,31 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/app_api_client.dart';
-import '../../../core/network/base_url.dart';
-import '../../../core/network/token_provider.dart';
-import '../../../core/storage/token_storage.dart';
+import '../../../core/network/dio_provider.dart';
 import '../../school/models/board_post_page.dart';
 import '../../school/models/post_summary.dart';
 import '../api/search_api.dart';
 import '../models/search_state.dart';
 import '../services/recent_search_service.dart';
 
-class _StorageTokenProvider implements TokenProvider {
-  final TokenStorage _storage;
-  _StorageTokenProvider(this._storage);
-
-  @override
-  Future<String?> getAccessToken() => _storage.getAccessToken();
-}
-
 /// 검색용 공통 API 클라이언트 생성
 final searchApiClientProvider = Provider<AppApiClient>((ref) {
-  final tokenStorage = ref.watch(tokenStorageProvider);
-
-  return AppApiClient(
-    baseUrl: apiBaseUrl,
-    tokenProvider: _StorageTokenProvider(tokenStorage),
-  );
+  return AppApiClient(ref.watch(dioProvider));
 });
 
 /// 검색 API 생성

@@ -1,5 +1,5 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
 
 import '../../../core/network/api_response.dart';
 import '../../../core/network/app_api_client.dart';
@@ -110,7 +110,7 @@ class PostApi {
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
-    List<http.MultipartFile> files = const [],
+    List<MultipartFile> files = const [],
   }) async {
     final json = await client.postMultipart(
       '/api/boards/$boardId/posts',
@@ -134,7 +134,7 @@ class PostApi {
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
-    List<http.MultipartFile> files = const [],
+    List<MultipartFile> files = const [],
   }) async {
     final json = await client.patchMultipart(
       '/api/posts/$postId',

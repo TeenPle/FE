@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../models/create_post_request.dart';
@@ -87,20 +87,14 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
   void _refresh() => setState(() {});
 
-  /// PlatformFile → http.MultipartFile 변환
-  Future<http.MultipartFile> _toMultipartFile(PlatformFile pf) async {
+  /// PlatformFile → dio.MultipartFile 변환
+  Future<MultipartFile> _toMultipartFile(PlatformFile pf) async {
     final contentType = _guessMediaType(pf.extension);
-    if (pf.path != null) {
-      return http.MultipartFile.fromBytes(
-        'files',
-        await File(pf.path!).readAsBytes(),
-        filename: pf.name,
-        contentType: contentType,
-      );
-    }
-    return http.MultipartFile.fromBytes(
-      'files',
-      pf.bytes!,
+    final bytes = pf.path != null
+        ? await File(pf.path!).readAsBytes()
+        : pf.bytes!;
+    return MultipartFile.fromBytes(
+      bytes,
       filename: pf.name,
       contentType: contentType,
     );

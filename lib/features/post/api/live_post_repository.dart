@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
@@ -90,7 +90,7 @@ class LivePostRepository implements PostRepository {
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
-    List<http.MultipartFile> files = const [],
+    List<MultipartFile> files = const [],
   }) {
     return api.createPost(
       boardId: boardId,
@@ -104,7 +104,7 @@ class LivePostRepository implements PostRepository {
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
-    List<http.MultipartFile> files = const [],
+    List<MultipartFile> files = const [],
   }) {
     return api.updatePost(
       postId: postId,

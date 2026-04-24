@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "427560280036",
+    "project_id": "teenple-61eab",
+    "storage_bucket": "teenple-61eab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427560280036:android:aa6899fd88695b028071f1",
+        "android_client_info": {
+          "package_name": "com.teenple.teenple_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfjatYRfQzw7sG1mfUT4bJb9iQ85vFPvo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/widgets/app_bottom_nav_bar.dart';
+import '../features/profile/pages/profile_page.dart';
 import '../features/school/pages/school_page.dart';
 
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> {
   int _currentIndex = 0;
 
   late final List<Widget> _pages = [
     const SchoolPage(),
-    const _PlaceholderPage(title: '급식'),
     const _PlaceholderPage(title: '채팅'),
-    const _PlaceholderPage(title: '알림'),
-    const _PlaceholderPage(title: '설정'),
+    const _PlaceholderPage(title: '급식'),
+    const _PlaceholderPage(title: '시간표'),
+    const ProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _onTap(int index) {
     setState(() {

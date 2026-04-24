@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app/routes.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
+import '../../../features/notification/provider/notification_provider.dart';
+import '../../../features/notification/service/fcm_service.dart';
 import '../form/board_tab_bar.dart';
 import '../models/board_model.dart';
 import '../provider/school_providers.dart';
@@ -18,7 +21,8 @@ class SchoolPage extends ConsumerStatefulWidget {
   ConsumerState<SchoolPage> createState() => _SchoolPageState();
 }
 
-class _SchoolPageState extends ConsumerState<SchoolPage> {
+class _SchoolPageState extends ConsumerState<SchoolPage>
+    with WidgetsBindingObserver {
   static const int _previewCount = 4;
 
   int _bottomIndex = 0;
@@ -26,10 +30,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     Future.microtask(() async {
-      // 일반 로그인: loginResponse에서 schoolId 사용
-      // 자동로그인: loginResponse가 null이므로 디스크에서 복원
       int? schoolId = ref.read(loginProvider).loginResponse?.schoolId;
       schoolId ??= await ref.read(tokenStorageProvider).getSchoolId();
 
@@ -37,6 +40,31 @@ class _SchoolPageState extends ConsumerState<SchoolPage> {
         ref.read(schoolProvider.notifier).loadInitialSchool(schoolId);
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final fcm = ref.read(fcmServiceProvider);
+      fcm.init().catchError((e) {
+        // ignore: avoid_print
+        print('[FCM ERROR] $e');
+      });
+      // 앱이 종료 상태에서 알림 탭으로 실행된 경우 처리
+      fcm.handleInitialMessage();
+      ref.read(notificationProvider.notifier).loadUnreadCount();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // 백그라운드에서 앱으로 복귀 시 배지 갱신
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(notificationProvider.notifier).loadUnreadCount();
+    }
   }
 
   @override
@@ -107,9 +135,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _bottomIndex,
-
-        /// 하단 네비게이션 탭 변경
         onTap: (index) {
+          if (index == 4) {
+            context.push(AppRoutes.profile);
+            return;
+          }
           setState(() {
             _bottomIndex = index;
           });

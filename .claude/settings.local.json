@@ -9,7 +9,19 @@
       "Bash(curl -s \"http://localhost:8080/api/posts/1\" -H \"Authorization: Bearer dummy\")",
       "Bash(python -m json.tool)",
       "Bash(xargs ls *)",
-      "Bash(java -version)"
+      "Bash(java -version)",
+      "Bash(dart analyze *)",
+      "Bash(git checkout *)",
+      "Bash(./gradlew build *)",
+      "Bash(grep -v \"^$\")",
+      "Read(//c/develop//**)",
+      "Read(//c//**)",
+      "Bash(./gradlew :backend:compileJava)",
+      "Bash(flutter pub *)",
+      "Bash(pip show *)",
+      "Bash(pip install *)",
+      "Bash(python *)",
+      "Bash(explorer \"C:\\\\develop\\\\FE\\\\docs\\\\legal\")"
     ]
   }
 }

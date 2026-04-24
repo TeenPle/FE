@@ -98,6 +98,17 @@ class AppApiClient {
     return _decodeResponse(response);
   }
 
+  Future<Map<String, dynamic>> patchMultipartFile(
+    String path, {
+    required MultipartFile file,
+    String fieldName = 'file',
+  }) async {
+    final formData = FormData();
+    formData.files.add(MapEntry(fieldName, file));
+    final response = await _dio.patch<dynamic>(path, data: formData);
+    return _decodeResponse(response);
+  }
+
   Map<String, dynamic> _decodeResponse(Response<dynamic> response) {
     final data = response.data;
     if (data is! Map<String, dynamic>) {

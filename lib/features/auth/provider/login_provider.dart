@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../notification/service/fcm_service.dart';
 import '../api/login_api.dart';
 import '../models/login_blocked_reason.dart';
 import '../models/login_request_model.dart';
@@ -12,15 +13,17 @@ final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
   final loginApi = ref.read(loginApiProvider);
   final tokenStorage = ref.read(tokenStorageProvider);
   final authSession = ref.read(authSessionProvider.notifier);
-  return LoginNotifier(loginApi, tokenStorage, authSession);
+  final fcmService = ref.read(fcmServiceProvider);
+  return LoginNotifier(loginApi, tokenStorage, authSession, fcmService);
 });
 
 class LoginNotifier extends StateNotifier<LoginState> {
   final LoginApi _loginApi;
   final TokenStorage _tokenStorage;
   final AuthSessionNotifier _authSession;
+  final FcmService _fcmService;
 
-  LoginNotifier(this._loginApi, this._tokenStorage, this._authSession)
+  LoginNotifier(this._loginApi, this._tokenStorage, this._authSession, this._fcmService)
       : super(const LoginState());
 
   /// [keepLoggedIn]이 true인 경우에만 토큰을 디스크에 저장.
@@ -114,6 +117,11 @@ class LoginNotifier extends StateNotifier<LoginState> {
   Future<void> logout() async {
     final refreshToken = _authSession.state.refreshToken
         ?? await _tokenStorage.getRefreshToken();
+
+    // FCM 토큰 서버 삭제 및 로컬 삭제
+    try {
+      await _fcmService.deleteToken();
+    } catch (_) {}
 
     // 서버에 refresh token 무효화 (실패해도 로컬은 반드시 초기화)
     if (refreshToken != null) {

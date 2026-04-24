@@ -15,8 +15,16 @@ import '../features/auth/pages/signup_profile_info_page.dart';
 import '../features/auth/pages/signup_school_page.dart';
 import '../features/auth/pages/signup_student_card_page.dart';
 import '../features/auth/pages/signup_student_info_page.dart';
+import '../features/notification/pages/notification_page.dart';
 import '../features/post/pages/post_detail_page.dart';
 import '../features/post/pages/write_post_page.dart';
+import '../features/profile/pages/edit_nickname_page.dart';
+import '../features/profile/pages/edit_password_page.dart';
+import '../features/profile/pages/my_comments_page.dart';
+import '../features/profile/pages/my_liked_posts_page.dart';
+import '../features/profile/pages/my_posts_page.dart';
+import '../features/profile/pages/profile_page.dart';
+import '../features/profile/pages/settings_page.dart';
 import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
 import '../features/search/pages/search_page.dart';
@@ -78,6 +86,30 @@ class AppRoutes {
 
   /// 검색 페이지
   static const search = '/search';
+
+  /// 내 프로필 페이지
+  static const profile = '/profile';
+
+  /// 닉네임 변경 페이지
+  static const editNickname = '/profile/edit-nickname';
+
+  /// 비밀번호 변경 페이지
+  static const editPassword = '/settings/edit-password';
+
+  /// 내가 쓴 글 페이지
+  static const myPosts = '/profile/my-posts';
+
+  /// 내가 쓴 댓글 페이지
+  static const myComments = '/profile/my-comments';
+
+  /// 설정 페이지
+  static const settings = '/settings';
+
+  /// 내가 공감한 글 페이지
+  static const myLikedPosts = '/profile/liked-posts';
+
+  /// 알림 목록 페이지
+  static const notifications = '/notifications';
 }
 
 /// 앱 전체 라우터
@@ -215,6 +247,46 @@ final GoRouter router = GoRouter(
           initialKeyword: extra?['keyword'] as String?,
         );
       },
+    ),
+
+    GoRoute(
+      path: AppRoutes.profile,
+      builder: (context, state) => const ProfilePage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.editNickname,
+      builder: (context, state) => const EditNicknamePage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.editPassword,
+      builder: (context, state) => const EditPasswordPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.myPosts,
+      builder: (context, state) => const MyPostsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.myComments,
+      builder: (context, state) => const MyCommentsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.settings,
+      builder: (context, state) => const SettingsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.myLikedPosts,
+      builder: (context, state) => const MyLikedPostsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.notifications,
+      builder: (context, state) => const NotificationPage(),
     ),
   ],
 );

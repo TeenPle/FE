@@ -55,6 +55,12 @@ class AppBottomNavBar extends StatelessWidget {
               selected: currentIndex == 3,
               onTap: () => onTap(3),
             ),
+            _NavItem(
+              icon: Icons.person_outline_rounded,
+              label: '프로필',
+              selected: currentIndex == 4,
+              onTap: () => onTap(4),
+            ),
           ],
         ),
       ),

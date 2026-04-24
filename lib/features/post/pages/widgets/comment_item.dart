@@ -44,7 +44,7 @@ class CommentItem extends StatelessWidget {
           if (replies.isNotEmpty) const SizedBox(height: 14),
           if (replies.isNotEmpty)
             ...replies.map(
-              (reply) => Padding(
+                  (reply) => Padding(
                 padding: const EdgeInsets.only(left: 12, top: 10),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -121,9 +121,9 @@ class _CommentBody extends StatelessWidget {
     }
 
     final createdAtText =
-        (comment.createdAt != null && comment.createdAt!.isNotEmpty)
-            ? comment.createdAt!
-            : '방금 전';
+    (comment.createdAt != null && comment.createdAt!.isNotEmpty)
+        ? comment.createdAt!
+        : '방금 전';
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

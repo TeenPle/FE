@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 백엔드 API 호출을 위한 인터넷 권한 -->
+    <!-- 인터넷 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 푸시 알림 (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 정확한 알림음 재생 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:label="teenple_frontend"
@@ -33,6 +37,16 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- FCM 기본 알림 채널 (Android 8.0+) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="teenple_default" />
+
+        <!-- FCM 기본 알림 아이콘 -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
     </application>
 
     <!-- 텍스트 처리 가능한 외부 앱 조회용 설정 -->

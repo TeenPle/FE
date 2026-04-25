@@ -181,7 +181,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
             icon: Icons.notifications_outlined,
             label: '전체 알림',
             value: setting.allowPush,
-            onChanged: (v) => _update(ref, {'allowPush': v}),
+            onChanged: (v) => _update(context, ref, {'allowPush': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -189,7 +189,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '댓글 알림',
             value: setting.allowCommentNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(ref, {'allowCommentNotification': v}),
+            onChanged: (v) => _update(context, ref, {'allowCommentNotification': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -197,7 +197,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '답글 알림',
             value: setting.allowReplyNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(ref, {'allowReplyNotification': v}),
+            onChanged: (v) => _update(context, ref, {'allowReplyNotification': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -205,7 +205,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '좋아요 알림',
             value: setting.allowLikeNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(ref, {'allowLikeNotification': v}),
+            onChanged: (v) => _update(context, ref, {'allowLikeNotification': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -213,15 +213,21 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '채팅 알림',
             value: setting.allowChatNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(ref, {'allowChatNotification': v}),
+            onChanged: (v) => _update(context, ref, {'allowChatNotification': v}),
           ),
         ],
       ),
     );
   }
 
-  void _update(WidgetRef ref, Map<String, dynamic> patch) {
-    ref.read(notificationSettingProvider.notifier).updateSetting(patch);
+  void _update(BuildContext context, WidgetRef ref, Map<String, dynamic> patch) {
+    ref.read(notificationSettingProvider.notifier).updateSetting(patch).catchError((_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('설정 저장에 실패했습니다.')),
+        );
+      }
+    });
   }
 }
 

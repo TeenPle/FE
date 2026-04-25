@@ -38,7 +38,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- FCM 기본 알림 채널 (Android 8.0+) -->
+        <!-- FCM 기본 알림 채널 (Android 8.0+): fcm_service.dart의 fcmChannelId와 일치해야 함 -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="teenple_default" />

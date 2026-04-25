@@ -21,7 +21,10 @@
       "Bash(pip show *)",
       "Bash(pip install *)",
       "Bash(python *)",
-      "Bash(explorer \"C:\\\\develop\\\\FE\\\\docs\\\\legal\")"
+      "Bash(explorer \"C:\\\\develop\\\\FE\\\\docs\\\\legal\")",
+      "Bash(flutter clean *)",
+      "Bash(flutter build *)",
+      "Bash(./gradlew --stop)"
     ]
   }
 }

@@ -51,14 +51,14 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> loadNotifications() async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true, currentPage: 0, hasMore: true);
+    state = state.copyWith(isLoading: true, notifications: [], currentPage: 0, hasMore: true);
     try {
-      final items = await _api.getNotifications(page: 0);
+      final (:items, :hasNext) = await _api.getNotifications(page: 0);
       state = state.copyWith(
         notifications: items,
         isLoading: false,
         currentPage: 0,
-        hasMore: items.length >= 20,
+        hasMore: hasNext,
       );
     } catch (e) {
       // ignore: avoid_print
@@ -72,12 +72,12 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     state = state.copyWith(isLoading: true);
     try {
       final nextPage = state.currentPage + 1;
-      final items = await _api.getNotifications(page: nextPage);
+      final (:items, :hasNext) = await _api.getNotifications(page: nextPage);
       state = state.copyWith(
         notifications: [...state.notifications, ...items],
         isLoading: false,
         currentPage: nextPage,
-        hasMore: items.length >= 20,
+        hasMore: hasNext,
       );
     } catch (e) {
       // ignore: avoid_print

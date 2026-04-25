@@ -15,14 +15,23 @@ final fcmServiceProvider = Provider<FcmService>((ref) {
   return FcmService(ref.watch(notificationApiProvider), ref);
 });
 
-const _channelId = 'teenple_default';
-const _channelName = 'Teenple 알림';
+// main.dart에서도 참조하므로 public으로 선언
+const fcmChannelId = 'teenple_default';
+const fcmChannelName = 'Teenple 알림';
+
+// 내부 사용 별칭
+const _channelId = fcmChannelId;
+const _channelName = fcmChannelName;
 
 final _localNotifications = FlutterLocalNotificationsPlugin();
 
 Future<void> showLocalNotification(RemoteMessage message) async {
   final notification = message.notification;
-  if (notification == null) return;
+  if (notification == null) {
+    // ignore: avoid_print
+    print('[FCM] showLocalNotification: notification payload is null, skip');
+    return;
+  }
 
   const androidDetails = AndroidNotificationDetails(
     _channelId,
@@ -33,12 +42,16 @@ Future<void> showLocalNotification(RemoteMessage message) async {
   );
   const details = NotificationDetails(android: androidDetails);
 
-  await _localNotifications.show(
-    notification.hashCode,
-    notification.title,
-    notification.body,
-    details,
-  );
+  // hashCode는 음수가 될 수 있어 Android에서 문제 발생 가능 → timestamp 기반 ID 사용
+  final id = DateTime.now().millisecondsSinceEpoch % 100000;
+  try {
+    await _localNotifications.show(id, notification.title, notification.body, details);
+    // ignore: avoid_print
+    print('[FCM] local notification shown: id=$id title=${notification.title}');
+  } catch (e) {
+    // ignore: avoid_print
+    print('[FCM] showLocalNotification error: $e');
+  }
 }
 
 class FcmService {
@@ -62,6 +75,8 @@ class FcmService {
 
     // 포그라운드: 로컬 알림 표시 + 배지 카운트 갱신
     FirebaseMessaging.onMessage.listen((message) async {
+      // ignore: avoid_print
+      print('[FCM] onMessage fired: ${message.notification?.title}');
       await showLocalNotification(message);
       _refreshUnreadCount();
     });
@@ -114,16 +129,19 @@ class FcmService {
     );
     await _localNotifications.initialize(initSettings);
 
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(
-          const AndroidNotificationChannel(
-            _channelId,
-            _channelName,
-            importance: Importance.high,
-          ),
-        );
+    final androidPlugin = _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        _channelId,
+        _channelName,
+        importance: Importance.high,
+        enableVibration: true,
+        playSound: true,
+      ),
+    );
+    // ignore: avoid_print
+    print('[FCM] notification channel created: $_channelId');
   }
 
   Future<void> _requestPermission() async {
@@ -161,6 +179,12 @@ class FcmService {
       // ignore: avoid_print
       print('[FCM ERROR] $e');
     }
+  }
+
+  /// 앱 재개(resume) 등 필요한 시점에 토큰만 재등록. 리스너 중복 방지를 위해 init() 대신 사용.
+  Future<void> reRegisterToken() async {
+    if (!_isMobile) return;
+    await _registerToken();
   }
 
   Future<void> deleteToken() async {

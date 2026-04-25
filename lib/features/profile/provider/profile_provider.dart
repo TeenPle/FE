@@ -120,20 +120,165 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }
 }
 
-// 내가 쓴 글 목록 — FutureProvider (간단한 단방향 로드)
-final myPostsProvider =
-    FutureProvider.family<List<MyPostModel>, int>((ref, page) async {
-  return ref.watch(profileApiProvider).getMyPosts(page: page);
+// ─────────────────────────────────────────────
+// 공통 페이지네이션 상태
+// ─────────────────────────────────────────────
+
+class _PagedState<T> {
+  final List<T> items;
+  final bool isLoading;
+  final bool hasMore;
+  final int currentPage;
+
+  const _PagedState({
+    this.items = const [],
+    this.isLoading = false,
+    this.hasMore = true,
+    this.currentPage = 0,
+  });
+
+  _PagedState<T> copyWith({
+    List<T>? items,
+    bool? isLoading,
+    bool? hasMore,
+    int? currentPage,
+  }) =>
+      _PagedState(
+        items: items ?? this.items,
+        isLoading: isLoading ?? this.isLoading,
+        hasMore: hasMore ?? this.hasMore,
+        currentPage: currentPage ?? this.currentPage,
+      );
+}
+
+// ─────────────────────────────────────────────
+// 내가 쓴 글
+// ─────────────────────────────────────────────
+
+typedef MyPostsState = _PagedState<MyPostModel>;
+
+class MyPostsNotifier extends StateNotifier<MyPostsState> {
+  final ProfileApi _api;
+  MyPostsNotifier(this._api) : super(const _PagedState());
+
+  Future<void> load() async {
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    try {
+      final items = await _api.getMyPosts(page: 0);
+      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final nextPage = state.currentPage + 1;
+      final items = await _api.getMyPosts(page: nextPage);
+      state = state.copyWith(
+        isLoading: false,
+        items: [...state.items, ...items],
+        currentPage: nextPage,
+        hasMore: items.length >= 20,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+}
+
+final myPostsNotifierProvider =
+    StateNotifierProvider<MyPostsNotifier, MyPostsState>((ref) {
+  return MyPostsNotifier(ref.watch(profileApiProvider));
 });
 
-// 내가 쓴 댓글 목록
-final myCommentsProvider =
-    FutureProvider.family<List<MyCommentModel>, int>((ref, page) async {
-  return ref.watch(profileApiProvider).getMyComments(page: page);
+// ─────────────────────────────────────────────
+// 내가 쓴 댓글
+// ─────────────────────────────────────────────
+
+typedef MyCommentsState = _PagedState<MyCommentModel>;
+
+class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
+  final ProfileApi _api;
+  MyCommentsNotifier(this._api) : super(const _PagedState());
+
+  Future<void> load() async {
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    try {
+      final items = await _api.getMyComments(page: 0);
+      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final nextPage = state.currentPage + 1;
+      final items = await _api.getMyComments(page: nextPage);
+      state = state.copyWith(
+        isLoading: false,
+        items: [...state.items, ...items],
+        currentPage: nextPage,
+        hasMore: items.length >= 20,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+}
+
+final myCommentsNotifierProvider =
+    StateNotifierProvider<MyCommentsNotifier, MyCommentsState>((ref) {
+  return MyCommentsNotifier(ref.watch(profileApiProvider));
 });
 
-// 내가 공감한 글 목록
-final myLikedPostsProvider =
-    FutureProvider.family<List<MyPostModel>, int>((ref, page) async {
-  return ref.watch(profileApiProvider).getLikedPosts(page: page);
+// ─────────────────────────────────────────────
+// 내가 공감한 글
+// ─────────────────────────────────────────────
+
+typedef MyLikedPostsState = _PagedState<MyPostModel>;
+
+class MyLikedPostsNotifier extends StateNotifier<MyLikedPostsState> {
+  final ProfileApi _api;
+  MyLikedPostsNotifier(this._api) : super(const _PagedState());
+
+  Future<void> load() async {
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    try {
+      final items = await _api.getLikedPosts(page: 0);
+      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final nextPage = state.currentPage + 1;
+      final items = await _api.getLikedPosts(page: nextPage);
+      state = state.copyWith(
+        isLoading: false,
+        items: [...state.items, ...items],
+        currentPage: nextPage,
+        hasMore: items.length >= 20,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+}
+
+final myLikedPostsNotifierProvider =
+    StateNotifierProvider<MyLikedPostsNotifier, MyLikedPostsState>((ref) {
+  return MyLikedPostsNotifier(ref.watch(profileApiProvider));
 });

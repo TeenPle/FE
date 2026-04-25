@@ -59,11 +59,12 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     super.dispose();
   }
 
-  // 백그라운드에서 앱으로 복귀 시 배지 갱신
+  // 백그라운드에서 앱으로 복귀 시 배지 갱신 + FCM 토큰 재등록
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(notificationProvider.notifier).loadUnreadCount();
+      ref.read(fcmServiceProvider).reRegisterToken();
     }
   }
 

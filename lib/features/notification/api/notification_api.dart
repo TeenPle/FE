@@ -34,13 +34,18 @@ class NotificationApi {
     await _client.delete('/api/push-tokens', queryParameters: {'token': token});
   }
 
-  Future<List<NotificationModel>> getNotifications({int page = 0, int size = 20}) async {
+  Future<({List<NotificationModel> items, bool hasNext})> getNotifications({int page = 0, int size = 20}) async {
     final res = await _client.get('/api/notifications', queryParameters: {
       'page': '$page',
       'size': '$size',
     });
-    final content = (res['result']['content'] as List<dynamic>);
-    return content.map((e) => NotificationModel.fromJson(e as Map<String, dynamic>)).toList();
+    final result = res['result'] as Map<String, dynamic>;
+    final content = result['content'] as List<dynamic>;
+    final hasNext = result['hasNext'] as bool? ?? false;
+    final items = content
+        .map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+    return (items: items, hasNext: hasNext);
   }
 
   Future<int> getUnreadCount() async {

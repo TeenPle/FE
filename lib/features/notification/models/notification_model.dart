@@ -18,14 +18,19 @@ class NotificationModel {
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    final createdAtRaw = json['createdAt'];
+    final createdAt = createdAtRaw != null
+        ? DateTime.tryParse(createdAtRaw as String) ?? DateTime.now()
+        : DateTime.now();
+
     return NotificationModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       type: json['type'] as String,
       targetType: json['targetType'] as String,
-      targetId: json['targetId'] as int,
+      targetId: (json['targetId'] as num).toInt(),
       message: json['message'] as String,
-      isRead: json['isRead'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      isRead: json['isRead'] as bool? ?? false,
+      createdAt: createdAt,
     );
   }
 

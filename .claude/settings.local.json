@@ -24,7 +24,8 @@
       "Bash(explorer \"C:\\\\develop\\\\FE\\\\docs\\\\legal\")",
       "Bash(flutter clean *)",
       "Bash(flutter build *)",
-      "Bash(./gradlew --stop)"
+      "Bash(./gradlew --stop)",
+      "Bash(grep -E \"\\\\.java$\")"
     ]
   }
 }

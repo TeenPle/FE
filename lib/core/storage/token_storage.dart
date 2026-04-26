@@ -11,6 +11,7 @@ class TokenStorage {
   static const _autoLoginKey = 'auto_login';
   static const _userRoleKey = 'user_role';
   static const _schoolIdKey = 'school_id';
+  static const _classRoomKey = 'class_room';
 
   Future<void> saveAccessToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,6 +63,16 @@ class TokenStorage {
     return prefs.getInt(_schoolIdKey);
   }
 
+  Future<void> saveClassRoom(String classRoom) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_classRoomKey, classRoom);
+  }
+
+  Future<String?> getClassRoom() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_classRoomKey);
+  }
+
   /// 토큰·자동로그인 플래그·역할·학교 ID 모두 삭제
   Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
@@ -70,5 +81,6 @@ class TokenStorage {
     await prefs.remove(_autoLoginKey);
     await prefs.remove(_userRoleKey);
     await prefs.remove(_schoolIdKey);
+    await prefs.remove(_classRoomKey);
   }
 }

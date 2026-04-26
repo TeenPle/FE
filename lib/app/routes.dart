@@ -15,7 +15,9 @@ import '../features/auth/pages/signup_profile_info_page.dart';
 import '../features/auth/pages/signup_school_page.dart';
 import '../features/auth/pages/signup_student_card_page.dart';
 import '../features/auth/pages/signup_student_info_page.dart';
+import '../features/meal/pages/meal_page.dart';
 import '../features/notification/pages/notification_page.dart';
+import '../features/timetable/pages/timetable_page.dart';
 import '../features/post/pages/post_detail_page.dart';
 import '../features/post/pages/write_post_page.dart';
 import '../features/profile/pages/edit_nickname_page.dart';
@@ -110,6 +112,12 @@ class AppRoutes {
 
   /// 알림 목록 페이지
   static const notifications = '/notifications';
+
+  /// 급식 페이지
+  static const meal = '/meal';
+
+  /// 시간표 페이지
+  static const timetable = '/timetable';
 }
 
 /// 앱 전체 라우터
@@ -287,6 +295,16 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.notifications,
       builder: (context, state) => const NotificationPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.meal,
+      builder: (context, state) => const MealPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.timetable,
+      builder: (context, state) => const TimetablePage(),
     ),
   ],
 );

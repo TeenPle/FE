@@ -76,12 +76,14 @@ class LoginNotifier extends StateNotifier<LoginState> {
         await _tokenStorage.saveRefreshToken(result.refreshToken);
         await _tokenStorage.saveAutoLogin(true);
         await _tokenStorage.saveUserRole(result.role);
-        if (result.schoolId != null) {
-          await _tokenStorage.saveSchoolId(result.schoolId!);
-        }
       } else {
-        // 자동로그인 미체크: 이전 디스크 데이터 클리어
+        // 자동로그인 미체크: 이전 토큰/역할 클리어
         await _tokenStorage.clearAll();
+      }
+
+      // 학교 ID는 자동로그인 여부와 무관하게 항상 저장 (급식/시간표 기능에 필요)
+      if (result.schoolId != null) {
+        await _tokenStorage.saveSchoolId(result.schoolId!);
       }
 
       state = state.copyWith(isLoading: false, loginResponse: result);

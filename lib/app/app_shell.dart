@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/widgets/app_bottom_nav_bar.dart';
+import '../features/meal/pages/meal_page.dart';
 import '../features/profile/pages/profile_page.dart';
 import '../features/school/pages/school_page.dart';
+import '../features/timetable/pages/timetable_page.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -17,15 +19,10 @@ class _AppShellState extends ConsumerState<AppShell> {
   late final List<Widget> _pages = [
     const SchoolPage(),
     const _PlaceholderPage(title: '채팅'),
-    const _PlaceholderPage(title: '급식'),
-    const _PlaceholderPage(title: '시간표'),
+    const MealPage(),
+    const TimetablePage(),
     const ProfilePage(),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void _onTap(int index) {
     setState(() {

@@ -137,6 +137,14 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _bottomIndex,
         onTap: (index) {
+          if (index == 2) {
+            context.push(AppRoutes.meal);
+            return;
+          }
+          if (index == 3) {
+            context.push(AppRoutes.timetable);
+            return;
+          }
           if (index == 4) {
             context.push(AppRoutes.profile);
             return;

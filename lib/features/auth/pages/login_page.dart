@@ -55,6 +55,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           );
       });
     }
+
+    final resetStatus =
+        GoRouterState.of(context).uri.queryParameters['reset'];
+
+    if (!_hasShownSignupSuccessMessage && resetStatus == 'success') {
+      _hasShownSignupSuccessMessage = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.'),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
+            ),
+          );
+      });
+    }
   }
 
   void _showComingSoonSnackBar(String label) {
@@ -341,7 +362,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const Spacer(),
                       TextButton(
                         onPressed: () {
-                          _showComingSoonSnackBar('아이디 찾기');
+                          context.push(AppRoutes.findEmail);
                         },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
@@ -369,7 +390,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          _showComingSoonSnackBar('비밀번호 찾기');
+                          context.push(AppRoutes.findPassword);
                         },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,

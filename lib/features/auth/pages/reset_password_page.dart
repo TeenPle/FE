@@ -1,0 +1,252 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/routes.dart';
+import '../provider/reset_password_provider.dart';
+
+class ResetPasswordPage extends ConsumerStatefulWidget {
+  final String verificationToken;
+
+  const ResetPasswordPage({super.key, required this.verificationToken});
+
+  @override
+  ConsumerState<ResetPasswordPage> createState() => _ResetPasswordPageState();
+}
+
+class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
+  final _newCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+
+  final _passwordRegex = RegExp(
+    r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$',
+  );
+
+  @override
+  void dispose() {
+    _newCtrl.dispose();
+    _confirmCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _isValidPassword => _passwordRegex.hasMatch(_newCtrl.text);
+
+  bool get _isPasswordMatch =>
+      _newCtrl.text == _confirmCtrl.text && _confirmCtrl.text.isNotEmpty;
+
+  bool get _canSubmit => _isValidPassword && _isPasswordMatch;
+
+  Future<void> _submit() async {
+    await ref.read(resetPasswordProvider.notifier).resetPassword(
+          verificationToken: widget.verificationToken,
+          newPassword: _newCtrl.text,
+        );
+
+    if (!mounted) return;
+
+    if (ref.read(resetPasswordProvider).isSuccess) {
+      context.go('${AppRoutes.login}?reset=success');
+    }
+  }
+
+  InputDecoration _inputDecoration({
+    required String hintText,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 14),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+      prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF7A7A7A)),
+      suffixIcon: IconButton(
+        onPressed: onToggle,
+        icon: Icon(
+          obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+          color: const Color(0xFF7A7A7A),
+          size: 20,
+        ),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFFE3E7EF)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFFE3E7EF)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFF4A67F2), width: 1.3),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(resetPasswordProvider);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFD),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+        child: SizedBox(
+          height: 54,
+          child: ElevatedButton(
+            onPressed: (_canSubmit && !state.isLoading) ? _submit : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4A67F2),
+              disabledBackgroundColor: const Color(0xFFD7DEFF),
+              foregroundColor: Colors.white,
+              disabledForegroundColor: Colors.white70,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: state.isLoading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text(
+                    '비밀번호 변경',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconButton(
+                onPressed: () { if (context.canPop()) context.pop(); },
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerLeft,
+                splashRadius: 22,
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                '비밀번호 재설정',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF4A67F2),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              const Text(
+                '새 비밀번호를\n설정해주세요.',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  height: 1.3,
+                  letterSpacing: -0.5,
+                  color: Color(0xFF111111),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              const Text(
+                '영문, 숫자, 특수문자 포함 8~20자로 입력해주세요.',
+                style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF555555)),
+              ),
+
+              const SizedBox(height: 32),
+
+              const Text(
+                '새 비밀번호',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF666666),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                obscureText: _obscureNew,
+                controller: _newCtrl,
+                textInputAction: TextInputAction.next,
+                onChanged: (_) => setState(() {}),
+                decoration: _inputDecoration(
+                  hintText: '새 비밀번호를 입력해주세요.',
+                  obscure: _obscureNew,
+                  onToggle: () => setState(() => _obscureNew = !_obscureNew),
+                ),
+              ),
+
+              if (_newCtrl.text.isNotEmpty && !_isValidPassword) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  '영문, 숫자, 특수문자를 포함한 8~20자로 입력해주세요.',
+                  style: TextStyle(fontSize: 12, color: Colors.red),
+                ),
+              ],
+
+              const SizedBox(height: 20),
+
+              const Text(
+                '새 비밀번호 확인',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF666666),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                obscureText: _obscureConfirm,
+                controller: _confirmCtrl,
+                textInputAction: TextInputAction.done,
+                onChanged: (_) => setState(() {}),
+                onSubmitted: (_) {
+                  if (_canSubmit && !state.isLoading) _submit();
+                },
+                decoration: _inputDecoration(
+                  hintText: '비밀번호를 한 번 더 입력해주세요.',
+                  obscure: _obscureConfirm,
+                  onToggle: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
+                ),
+              ),
+
+              if (_confirmCtrl.text.isNotEmpty && !_isPasswordMatch) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  '비밀번호가 일치하지 않습니다.',
+                  style: TextStyle(fontSize: 12, color: Colors.red),
+                ),
+              ],
+
+              if (state.errorMessage != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  state.errorMessage!,
+                  style: const TextStyle(fontSize: 12, color: Colors.red),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

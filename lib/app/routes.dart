@@ -3,6 +3,10 @@ import 'package:go_router/go_router.dart';
 import '../features/admin/pages/admin_home_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
+import '../features/auth/pages/find_email_page.dart';
+import '../features/auth/pages/find_email_result_page.dart';
+import '../features/auth/pages/find_password_page.dart';
+import '../features/auth/pages/reset_password_page.dart';
 import '../features/auth/pages/landing_page.dart';
 import '../features/auth/pages/login_page.dart';
 import '../features/auth/pages/school_verification_rejected_page.dart';
@@ -118,6 +122,18 @@ class AppRoutes {
 
   /// 시간표 페이지
   static const timetable = '/timetable';
+
+  /// 아이디 찾기 페이지
+  static const findEmail = '/find-email';
+
+  /// 아이디 찾기 결과 페이지
+  static const findEmailResult = '/find-email/result';
+
+  /// 비밀번호 찾기 페이지
+  static const findPassword = '/find-password';
+
+  /// 비밀번호 재설정 페이지
+  static const resetPassword = '/find-password/reset';
 }
 
 /// 앱 전체 라우터
@@ -305,6 +321,32 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.timetable,
       builder: (context, state) => const TimetablePage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.findEmail,
+      builder: (context, state) => const FindEmailPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.findEmailResult,
+      builder: (context, state) {
+        final maskedEmail = state.extra as String;
+        return FindEmailResultPage(maskedEmail: maskedEmail);
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.findPassword,
+      builder: (context, state) => const FindPasswordPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.resetPassword,
+      builder: (context, state) {
+        final token = state.extra as String;
+        return ResetPasswordPage(verificationToken: token);
+      },
     ),
   ],
 );

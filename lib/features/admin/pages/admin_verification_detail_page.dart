@@ -262,44 +262,45 @@ class _AdminVerificationDetailPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 학생증 이미지 영역
-            Container(
-              width: double.infinity,
-              height: 320,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: const Color(0xFFE3E7EF),
+            /// 학생증 이미지 영역 (심사 대기 중일 때만 표시)
+            if (isPending) ...[
+              Container(
+                width: double.infinity,
+                height: 320,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: const Color(0xFFE3E7EF),
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: imageUrl.isEmpty
+                    ? const _ImagePlaceholderCard(
+                  message: '학생증 이미지가 없습니다.',
+                )
+                    : InteractiveViewer(
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) {
+                        return child;
+                      }
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                    errorBuilder: (_, __, ___) {
+                      return const _ImagePlaceholderCard(
+                        message: '이미지를 불러오지 못했습니다.',
+                      );
+                    },
+                  ),
                 ),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: imageUrl.isEmpty
-                  ? const _ImagePlaceholderCard(
-                message: '학생증 이미지는 추후 연동 예정입니다.',
-              )
-                  : InteractiveViewer(
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                  loadingBuilder: (context, child, progress) {
-                    if (progress == null) {
-                      return child;
-                    }
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  },
-                  errorBuilder: (_, __, ___) {
-                    return const _ImagePlaceholderCard(
-                      message: '학생증 이미지는 추후 연동 예정입니다.',
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
+            ],
 
             /// 상태 카드
             Container(

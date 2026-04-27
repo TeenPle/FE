@@ -1,6 +1,9 @@
 import 'package:go_router/go_router.dart';
 
 import '../features/admin/pages/admin_home_page.dart';
+import '../features/admin/pages/admin_report_detail_page.dart';
+import '../features/admin/pages/admin_penalty_list_page.dart';
+import '../features/admin/pages/admin_report_list_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
 import '../features/auth/pages/find_email_page.dart';
@@ -20,6 +23,7 @@ import '../features/auth/pages/signup_school_page.dart';
 import '../features/auth/pages/signup_student_card_page.dart';
 import '../features/auth/pages/signup_student_info_page.dart';
 import '../features/meal/pages/meal_page.dart';
+import '../features/penalty/pages/my_penalty_page.dart';
 import '../features/notification/pages/notification_page.dart';
 import '../features/timetable/pages/timetable_page.dart';
 import '../features/post/pages/post_detail_page.dart';
@@ -81,6 +85,15 @@ class AppRoutes {
   /// 관리자 인증 요청 목록 페이지
   static const adminVerificationList = '/admin/verification-requests';
 
+  /// 관리자 신고 목록 페이지
+  static const adminReportList = '/admin/reports';
+
+  /// 관리자 제재 목록 페이지
+  static const adminPenaltyList = '/admin/penalties';
+
+  /// 관리자 신고 상세 페이지
+  static String adminReportDetail(int id) => '/admin/reports/$id';
+
   /// 로그인 완료 후 진입할 일반 유저 메인 페이지
   static const school = '/school';
 
@@ -113,6 +126,9 @@ class AppRoutes {
 
   /// 내가 공감한 글 페이지
   static const myLikedPosts = '/profile/liked-posts';
+
+  /// 제재 이력 페이지
+  static const myPenalties = '/settings/penalties';
 
   /// 알림 목록 페이지
   static const notifications = '/notifications';
@@ -224,6 +240,24 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
+      path: AppRoutes.adminReportList,
+      builder: (context, state) => const AdminReportListPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.adminPenaltyList,
+      builder: (context, state) => const AdminPenaltyListPage(),
+    ),
+
+    GoRoute(
+      path: '/admin/reports/:reportId',
+      builder: (context, state) {
+        final reportId = int.parse(state.pathParameters['reportId']!);
+        return AdminReportDetailPage(reportId: reportId);
+      },
+    ),
+
+    GoRoute(
       path: AppRoutes.school,
       builder: (context, state) => const SchoolPage(),
     ),
@@ -301,6 +335,11 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.settings,
       builder: (context, state) => const SettingsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.myPenalties,
+      builder: (context, state) => const MyPenaltyPage(),
     ),
 
     GoRoute(

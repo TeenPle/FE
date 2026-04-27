@@ -52,6 +52,12 @@ class SettingsPage extends ConsumerWidget {
                 label: '비밀번호 변경',
                 onTap: () => context.push(AppRoutes.editPassword),
               ),
+              const _Divider(),
+              _SettingsTile(
+                icon: Icons.gavel_rounded,
+                label: '제재 이력',
+                onTap: () => context.push(AppRoutes.myPenalties),
+              ),
             ],
           ),
 

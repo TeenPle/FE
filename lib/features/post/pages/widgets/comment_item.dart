@@ -248,12 +248,16 @@ class _CommentBody extends StatelessWidget {
                       icon: Icons.chat_bubble_outline_rounded,
                       label: '답글',
                       onTap: onReplyTap,
+                      isActive: false,
                     ),
                   if (showReplyButton) const SizedBox(width: 10),
                   _InlineActionButton(
-                    icon: Icons.thumb_up_alt_outlined,
+                    icon: comment.likedByMe
+                        ? Icons.thumb_up
+                        : Icons.thumb_up_alt_outlined,
                     label: '공감 ${comment.likeCount}',
                     onTap: onLikeTap,
+                    isActive: comment.likedByMe,
                   ),
                 ],
               ),
@@ -303,15 +307,18 @@ class _InlineActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
+  final bool isActive;
 
   const _InlineActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.isActive = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = isActive ? const Color(0xFF14A3F7) : const Color(0xFF7D8790);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -320,18 +327,14 @@ class _InlineActionButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: const Color(0xFF7D8790),
-            ),
+            Icon(icon, size: 16, color: color),
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF7D8790),
+                color: color,
               ),
             ),
           ],

@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
+import '../models/post_detail.dart';
 import '../provider/post_detail_providers.dart';
+import '../../chat/api/chat_api.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
@@ -40,8 +43,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     final state = ref.watch(postDetailProvider(widget.postId));
     final notifier = ref.read(postDetailProvider(widget.postId).notifier);
     final post = state.post;
-
-    debugPrint('현재 화면 postId=${state.postId}, postTitle=${state.post?.title}');
 
     ref.listen(postDetailProvider(widget.postId), (previous, next) async {
       if (!mounted) return;
@@ -119,9 +120,23 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   await notifier.deletePost();
                 }
               } else if (value == 'chat') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
-                );
+                if (post == null) return;
+                if (post.isMine) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('자신의 게시글에는 채팅할 수 없습니다.')),
+                  );
+                } else if (post.authorId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('채팅을 시작할 수 없습니다.')),
+                  );
+                } else {
+                  await _startChat(
+                    context: context,
+                    ref: ref,
+                    otherUserId: post.authorId!,
+                    post: post,
+                  );
+                }
               } else if (value == 'report') {
                 _showReportSheet(
                   context,
@@ -206,9 +221,19 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     notifier.startReply(commentId, isReply: isReply);
                   },
                   onCommentLikeTap: notifier.likeComment,
-                  onCommentChatTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
+                  onCommentChatTap: (comment) async {
+                    if (comment.isMine) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('자신의 댓글에는 채팅할 수 없습니다.')),
+                      );
+                      return;
+                    }
+                    if (comment.authorUserId == null || post == null) return;
+                    await _startChat(
+                      context: context,
+                      ref: ref,
+                      otherUserId: comment.authorUserId!,
+                      post: post,
                     );
                   },
                   onCommentReportTap: (commentId) {
@@ -258,7 +283,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     required List<CommentModel> comments,
     required void Function(int commentId, bool isReply) onReplyTap,
     required void Function(int commentId) onCommentLikeTap,
-    required VoidCallback onCommentChatTap,
+    required void Function(CommentModel comment) onCommentChatTap,
     required void Function(int commentId) onCommentReportTap,
     required void Function(CommentModel comment) onCommentEditTap,
     required void Function(int commentId) onCommentDeleteTap,
@@ -311,6 +336,42 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         ],
       );
     }).toList();
+  }
+
+  // 채팅방 생성/조회 후 이동
+  Future<void> _startChat({
+    required BuildContext context,
+    required WidgetRef ref,
+    required int otherUserId,
+    required PostDetail post,
+  }) async {
+    try {
+      final api = ref.read(chatApiProvider);
+      final result = await api.createOrGetDm(
+        otherUserId: otherUserId,
+        sourcePostId: post.postId,
+        roomTitle: post.title,
+      );
+
+      // 채팅방 목록 갱신
+      ref.read(chatRoomListProvider.notifier).load();
+
+      if (context.mounted) {
+        context.push('/chat/rooms/${result['roomId']}', extra: {
+          'otherUserId': result['otherUserId'],
+          'displayName': result['displayName'] as String? ?? post.title,
+          'blocked': result['blocked'] as bool? ?? false,
+          'blockedByMe': result['blockedByMe'] as bool? ?? false,
+          'blockedByOther': result['blockedByOther'] as bool? ?? false,
+        });
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('채팅을 시작할 수 없습니다: $e')),
+        );
+      }
+    }
   }
 }
 

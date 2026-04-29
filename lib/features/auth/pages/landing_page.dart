@@ -56,11 +56,16 @@ class _LandingPageState extends ConsumerState<LandingPage>
     if (autoLogin) {
       final accessToken = await tokenStorage.getAccessToken();
       final refreshToken = await tokenStorage.getRefreshToken();
+      final userId = await tokenStorage.getUserId();
 
       if (accessToken != null && accessToken.isNotEmpty &&
           refreshToken != null && refreshToken.isNotEmpty) {
         // 메모리 세션에 두 토큰 모두 복원
-        ref.read(authSessionProvider.notifier).setTokens(accessToken, refreshToken);
+        ref.read(authSessionProvider.notifier).setTokens(
+          accessToken,
+          refreshToken,
+          userId: userId,
+        );
 
         final role = await tokenStorage.getUserRole();
         if (!mounted) return;

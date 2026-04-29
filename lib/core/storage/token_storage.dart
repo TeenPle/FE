@@ -9,6 +9,7 @@ class TokenStorage {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _autoLoginKey = 'auto_login';
+  static const _userIdKey = 'user_id';
   static const _userRoleKey = 'user_role';
   static const _schoolIdKey = 'school_id';
   static const _classRoomKey = 'class_room';
@@ -41,6 +42,16 @@ class TokenStorage {
   Future<bool> getAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_autoLoginKey) ?? false;
+  }
+
+  Future<void> saveUserId(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_userIdKey, userId);
+  }
+
+  Future<int?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_userIdKey);
   }
 
   Future<void> saveUserRole(String role) async {
@@ -79,6 +90,7 @@ class TokenStorage {
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
     await prefs.remove(_autoLoginKey);
+    await prefs.remove(_userIdKey);
     await prefs.remove(_userRoleKey);
     await prefs.remove(_schoolIdKey);
     await prefs.remove(_classRoomKey);

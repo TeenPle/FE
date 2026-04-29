@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AuthSession {
   final String? accessToken;
   final String? refreshToken;
+  final int? userId;
 
-  const AuthSession({this.accessToken, this.refreshToken});
+  const AuthSession({this.accessToken, this.refreshToken, this.userId});
 }
 
 final authSessionProvider =
@@ -15,8 +16,12 @@ final authSessionProvider =
 class AuthSessionNotifier extends StateNotifier<AuthSession> {
   AuthSessionNotifier() : super(const AuthSession());
 
-  void setTokens(String accessToken, String refreshToken) {
-    state = AuthSession(accessToken: accessToken, refreshToken: refreshToken);
+  void setTokens(String accessToken, String refreshToken, {int? userId}) {
+    state = AuthSession(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      userId: userId ?? state.userId,
+    );
   }
 
   void clearTokens() => state = const AuthSession();

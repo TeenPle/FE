@@ -10,7 +10,7 @@ class CommentItem extends StatelessWidget {
   final void Function(CommentModel comment)? onEditTap;
   final void Function(int commentId)? onDeleteTap;
   final void Function(int commentId)? onReportTap;
-  final VoidCallback? onChatTap;
+  final void Function(CommentModel comment)? onChatTap;
 
   const CommentItem({
     super.key,
@@ -39,7 +39,7 @@ class CommentItem extends StatelessWidget {
             onEditTap: () => onEditTap?.call(comment),
             onDeleteTap: () => onDeleteTap?.call(comment.commentId),
             onReportTap: () => onReportTap?.call(comment.commentId),
-            onChatTap: onChatTap,
+            onChatTap: () => onChatTap?.call(comment),
           ),
           if (replies.isNotEmpty) const SizedBox(height: 14),
           if (replies.isNotEmpty)
@@ -75,7 +75,7 @@ class CommentItem extends StatelessWidget {
                           onEditTap: () => onEditTap?.call(reply),
                           onDeleteTap: () => onDeleteTap?.call(reply.commentId),
                           onReportTap: () => onReportTap?.call(reply.commentId),
-                          onChatTap: onChatTap,
+                          onChatTap: () => onChatTap?.call(reply),
                         ),
                       ),
                     ],

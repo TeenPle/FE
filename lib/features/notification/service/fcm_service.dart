@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/routes.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
 import '../api/notification_api.dart';
 import '../provider/notification_provider.dart';
 
@@ -57,10 +58,15 @@ Future<void> showLocalNotification(RemoteMessage message) async {
 class FcmService {
   final NotificationApi _api;
   final Ref _ref;
+  bool _initialized = false;
 
   FcmService(this._api, this._ref);
 
   Future<void> init() async {
+    // SchoolPage가 다시 생성되더라도 FCM 리스너가 중복 등록되지 않도록 한 번만 초기화한다.
+    if (_initialized) return;
+    _initialized = true;
+
     // ignore: avoid_print
     print('[FCM] init() called, platform: $defaultTargetPlatform');
     if (!_isMobile) {
@@ -79,6 +85,7 @@ class FcmService {
       print('[FCM] onMessage fired: ${message.notification?.title}');
       await showLocalNotification(message);
       _refreshUnreadCount();
+      _refreshChatRoomsIfChatMessage(message);
     });
 
     // 백그라운드 상태에서 알림 탭: 해당 게시글로 이동 + 배지 갱신
@@ -96,9 +103,16 @@ class FcmService {
 
   void _handleMessageTap(RemoteMessage message) {
     _refreshUnreadCount();
+    _refreshChatRoomsIfChatMessage(message);
+
     final data = message.data;
     final targetType = data['targetType'];
     final targetIdStr = data['targetId'];
+
+    if (_isChatMessage(data)) {
+      router.push(AppRoutes.chat);
+      return;
+    }
 
     if (targetType == 'POST' && targetIdStr != null) {
       final id = int.tryParse(targetIdStr);
@@ -113,6 +127,19 @@ class FcmService {
   void _refreshUnreadCount() {
     try {
       _ref.read(notificationProvider.notifier).loadUnreadCount();
+    } catch (_) {}
+  }
+
+  bool _isChatMessage(Map<String, dynamic> data) {
+    return data['type'] == 'CHAT' || data['targetType'] == 'CHAT_MSG';
+  }
+
+  void _refreshChatRoomsIfChatMessage(RemoteMessage message) {
+    // 채팅 푸시를 받은 시점에만 채팅방 목록을 갱신해 하단 채팅 배지를 최신화한다.
+    // 주기 폴링 없이 이벤트 기반으로 동작하므로 배포 환경에서 불필요한 API 호출을 줄인다.
+    if (!_isChatMessage(message.data)) return;
+    try {
+      _ref.read(chatRoomListProvider.notifier).load();
     } catch (_) {}
   }
 

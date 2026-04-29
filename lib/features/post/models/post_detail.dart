@@ -4,6 +4,7 @@ import 'post_media_item.dart';
 class PostDetail {
   final int postId;
   final bool isMine;
+  final int? authorId;  // 게시글 작성자 userId (채팅 유입용)
   final String title;
   final String content;
   final int viewCount;
@@ -19,6 +20,7 @@ class PostDetail {
   const PostDetail({
     required this.postId,
     required this.isMine,
+    this.authorId,
     required this.title,
     required this.content,
     required this.viewCount,
@@ -36,6 +38,7 @@ class PostDetail {
     return PostDetail(
       postId: (json['postId'] as num).toInt(),
       isMine: json['isMine'] as bool? ?? false,
+      authorId: json['authorId'] != null ? (json['authorId'] as num).toInt() : null,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
       viewCount: json['viewCount'] != null ? (json['viewCount'] as num).toInt() : 0,

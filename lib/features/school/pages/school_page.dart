@@ -5,6 +5,7 @@ import '../../../app/routes.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
+import '../../../features/chat/provider/chat_room_list_provider.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/notification/service/fcm_service.dart';
 import '../form/board_tab_bar.dart';
@@ -50,6 +51,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       // 앱이 종료 상태에서 알림 탭으로 실행된 경우 처리
       fcm.handleInitialMessage();
       ref.read(notificationProvider.notifier).loadUnreadCount();
+      // 하단 채팅 버튼 위 미읽음 배지를 표시하기 위해 채팅방 목록의 unreadCount를 미리 가져온다.
+      ref.read(chatRoomListProvider.notifier).load();
+      // 앱이 켜져 있는 동안 채팅 목록/배지는 유저별 STOMP 이벤트로 즉시 갱신한다.
+      ref.read(chatRoomListProvider.notifier).startRealtime();
     });
   }
 
@@ -64,6 +69,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(notificationProvider.notifier).loadUnreadCount();
+      // 백그라운드에서 받은 채팅도 홈 복귀 시 배지에 반영한다.
+      ref.read(chatRoomListProvider.notifier).load();
       ref.read(fcmServiceProvider).reRegisterToken();
     }
   }
@@ -72,6 +79,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   Widget build(BuildContext context) {
     final state = ref.watch(schoolProvider);
     final notifier = ref.read(schoolProvider.notifier);
+    // 채팅 버튼 배지는 모든 채팅방의 미읽음 메시지 수를 합산해서 표시한다.
+    final chatUnreadCount = ref.watch(chatRoomListProvider).rooms
+        .fold(0, (sum, room) => sum + room.unreadCount);
 
     final BoardModel? selectedBoard = state.boards.where(
           (board) => board.id == state.selectedBoardId,
@@ -136,7 +146,14 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _bottomIndex,
+        chatUnreadCount: chatUnreadCount,
         onTap: (index) {
+          if (index == 1) {
+            // 채팅 탭을 누르는 순간 최신 미읽음 수를 다시 동기화한다.
+            ref.read(chatRoomListProvider.notifier).load();
+            context.push(AppRoutes.chat);
+            return;
+          }
           if (index == 2) {
             context.push(AppRoutes.meal);
             return;

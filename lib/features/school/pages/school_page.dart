@@ -269,6 +269,33 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                           ),
                         ),
                       ),
+
+                    // 이번 주 인기글 섹션
+                    if (state.isHotLoading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (state.hotPosts.isNotEmpty) ...[
+                      const _SectionHeader(
+                        icon: Icons.local_fire_department_rounded,
+                        label: '이번 주 인기글',
+                      ),
+                      _SectionCard(
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < state.hotPosts.length; i++)
+                              PostSummaryCard(
+                                post: state.hotPosts[i],
+                                showDivider: i != state.hotPosts.length - 1,
+                                onTap: () {
+                                  context.push('/post/${state.hotPosts[i].id}');
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -554,6 +581,35 @@ class _SectionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
       ),
       child: child,
+    );
+  }
+}
+
+/// 섹션 타이틀 헤더 (아이콘 + 텍스트)
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _SectionHeader({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 8, 18, 0),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFFFF6B35)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF222222),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

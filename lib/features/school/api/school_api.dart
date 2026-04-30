@@ -77,4 +77,30 @@ class SchoolApi {
 
     return response.result!;
   }
+
+  /// 최근 3일간 해당 학교의 좋아요 많은 순 인기글 조회
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    int size = 5,
+  }) async {
+    final json = await client.get(
+      '/api/schools/$schoolId/posts/hot',
+      queryParameters: {'size': '$size'},
+    );
+
+    final response = ApiResponse.fromJson(
+      json,
+      (data) => data == null
+          ? <PostSummary>[]
+          : (data as List<dynamic>)
+              .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+              .toList(),
+    );
+
+    if (!response.isSuccess) {
+      throw Exception(response.message);
+    }
+
+    return response.result ?? [];
+  }
 }

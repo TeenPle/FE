@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
@@ -306,6 +307,17 @@ class _AppInfoCardState extends State<_AppInfoCard> {
     });
   }
 
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('페이지를 열 수 없습니다.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return _SettingsCard(
@@ -315,13 +327,13 @@ class _AppInfoCardState extends State<_AppInfoCard> {
         _SettingsTile(
           icon: Icons.description_outlined,
           label: '이용약관',
-          onTap: () {}, // TODO: 약관 URL 연결
+          onTap: () => _launchUrl('https://teenple.com/terms'),
         ),
         const _Divider(),
         _SettingsTile(
           icon: Icons.privacy_tip_outlined,
           label: '개인정보처리방침',
-          onTap: () {}, // TODO: 개인정보처리방침 URL 연결
+          onTap: () => _launchUrl('https://teenple.com/privacy'),
         ),
       ],
     );

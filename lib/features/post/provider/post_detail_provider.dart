@@ -115,6 +115,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           author: comment.author,
           likeCount: result.likeCount,
           dislikeCount: result.dislikeCount,
+          likedByMe: result.liked,
           anonymous: comment.anonymous,
           depth: comment.depth,
           parentId: comment.parentId,

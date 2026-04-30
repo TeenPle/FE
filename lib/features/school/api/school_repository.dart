@@ -1,5 +1,6 @@
 import '../models/board_post_page.dart';
 import '../models/post_sort_type.dart';
+import '../models/post_summary.dart';
 import '../models/school_response.dart';
 
 /// 학교/게시판 목록 관련 추상 Repository
@@ -17,5 +18,11 @@ abstract class SchoolRepository {
     required PostSortType sortType,
     int page = 0,
     int size = 10,
+  });
+
+  /// 최근 3일간 해당 학교의 좋아요 많은 순 인기글 조회
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    int size = 5,
   });
 }

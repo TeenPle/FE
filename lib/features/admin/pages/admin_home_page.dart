@@ -65,6 +65,78 @@ class AdminHomePage extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () {
+                context.push(AppRoutes.adminReportList);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3F3),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '신고 관리',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFE05C7B),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '신고된 게시글·댓글을 확인하고\n제재 또는 거절 처리할 수 있어요.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: Color(0xFF666666),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () {
+                context.push(AppRoutes.adminPenaltyList);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F0FF),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '제재 내역',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF7B5EA7),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '제재가 적용된 유저 목록과\n제재 기간을 확인할 수 있어요.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: Color(0xFF666666),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

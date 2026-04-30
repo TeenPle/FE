@@ -1,5 +1,6 @@
 import '../models/board_post_page.dart';
 import '../models/post_sort_type.dart';
+import '../models/post_summary.dart';
 import '../models/school_response.dart';
 import 'school_api.dart';
 import 'school_repository.dart';
@@ -44,5 +45,14 @@ class LiveSchoolRepository implements SchoolRepository {
       sortBy: sortBy,
       sortDirection: sortDirection,
     );
+  }
+
+  /// 최근 3일간 해당 학교의 이번 주 인기글을 서버에서 조회
+  @override
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    int size = 5,
+  }) {
+    return api.getHotPosts(schoolId: schoolId, size: size);
   }
 }

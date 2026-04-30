@@ -12,6 +12,7 @@ class PostSummary {
   final int boardId;
   final int userId;
   final String username;
+  final String? authorProfileImageUrl;
   final int commentCount;
   final List<PostMediaItem> mediaList;
 
@@ -27,11 +28,13 @@ class PostSummary {
     required this.boardId,
     required this.userId,
     required this.username,
+    this.authorProfileImageUrl,
     required this.commentCount,
     this.mediaList = const [],
   });
 
   factory PostSummary.fromJson(Map<String, dynamic> json) {
+    final rawProfileUrl = json['authorProfileImageUrl'] as String?;
     return PostSummary(
       id: (json['id'] as num).toInt(),
       title: json['title'] as String? ?? '',
@@ -44,6 +47,9 @@ class PostSummary {
       boardId: json['boardId'] != null ? (json['boardId'] as num).toInt() : 0,
       userId: json['userId'] != null ? (json['userId'] as num).toInt() : 0,
       username: json['username'] as String? ?? '',
+      authorProfileImageUrl: (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
+          ? rawProfileUrl
+          : null,
       commentCount: json['commentCount'] != null ? (json['commentCount'] as num).toInt() : 0,
       mediaList: (json['mediaList'] as List<dynamic>? ?? [])
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))

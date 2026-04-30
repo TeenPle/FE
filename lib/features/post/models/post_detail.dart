@@ -12,6 +12,7 @@ class PostDetail {
   final int dislikeCount;
   final String postStatus;
   final String username;
+  final String? authorProfileImageUrl;
   final String createdAt;
   final List<CommentModel> comments;
   final List<PostMediaItem> mediaList;
@@ -27,12 +28,14 @@ class PostDetail {
     required this.dislikeCount,
     required this.postStatus,
     required this.username,
+    this.authorProfileImageUrl,
     required this.createdAt,
     required this.comments,
     this.mediaList = const [],
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
+    final rawProfileUrl = json['authorProfileImageUrl'] as String?;
     return PostDetail(
       postId: (json['postId'] as num).toInt(),
       isMine: json['isMine'] as bool? ?? false,
@@ -44,6 +47,9 @@ class PostDetail {
       dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
       postStatus: json['postStatus'] as String? ?? '',
       username: json['username'] as String? ?? '',
+      authorProfileImageUrl: (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
+          ? rawProfileUrl
+          : null,
       createdAt: json['createdAt'] as String? ?? '',
       comments: (json['comments'] as List<dynamic>? ?? [])
           .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))

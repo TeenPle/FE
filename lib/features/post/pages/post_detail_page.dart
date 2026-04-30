@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../provider/post_detail_providers.dart';
+import '../../penalty/provider/penalty_provider.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
@@ -154,13 +155,21 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ),
         ],
       ),
-      bottomNavigationBar: CommentInputBar(
-        anonymous: state.commentAnonymous,
-        isSubmitting: state.isSubmittingComment,
-        replyingToCommentId: state.replyingToCommentId,
-        onAnonymousChanged: notifier.toggleCommentAnonymous,
-        onSubmit: notifier.submitComment,
-        onCancelReply: notifier.cancelReply,
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          final isPenalized = ref.watch(
+            activePenaltyProvider.select((s) => s.isPenalized),
+          );
+          if (isPenalized) return const SizedBox.shrink();
+          return CommentInputBar(
+            anonymous: state.commentAnonymous,
+            isSubmitting: state.isSubmittingComment,
+            replyingToCommentId: state.replyingToCommentId,
+            onAnonymousChanged: notifier.toggleCommentAnonymous,
+            onSubmit: notifier.submitComment,
+            onCancelReply: notifier.cancelReply,
+          );
+        },
       ),
       body: state.isLoading && post == null
           ? const Center(child: CircularProgressIndicator())
@@ -183,7 +192,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               likeCount: post.likeCount,
               commentCount: state.comments.length,
               likedByMe: state.likedByMe,
-              onLikeTap: notifier.toggleLike,
+              onLikeTap: () => _confirmReaction(context, notifier.toggleLike),
               onShareTap: () {
                 debugPrint('share post: ${post.postId}');
               },
@@ -205,7 +214,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   onReplyTap: (commentId, isReply) {
                     notifier.startReply(commentId, isReply: isReply);
                   },
-                  onCommentLikeTap: notifier.likeComment,
+                  onCommentLikeTap: (commentId) =>
+                      _confirmReaction(context, () => notifier.likeComment(commentId)),
                   onCommentChatTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
@@ -348,6 +358,30 @@ class _CommentSectionHeader extends StatelessWidget {
   }
 }
 
+/// 공감 확인 다이얼로그
+void _confirmReaction(BuildContext context, VoidCallback onConfirm) {
+  showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      title: const Text('공감', style: TextStyle(fontWeight: FontWeight.w800)),
+      content: const Text('공감을 누르시겠습니까?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('취소', style: TextStyle(color: Color(0xFF888888))),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('공감', style: TextStyle(color: Color(0xFF14A3F7), fontWeight: FontWeight.w700)),
+        ),
+      ],
+    ),
+  ).then((confirmed) {
+    if (confirmed == true) onConfirm();
+  });
+}
+
 /// 신고 사유 선택 바텀시트
 void _showReportSheet(
     BuildContext context, {
@@ -360,12 +394,13 @@ void _showReportSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     builder: (context) {
-      final reasons = [
-        'SPAM',
-        'ABUSE',
-        'SEXUAL',
-        'VIOLENCE',
-        'ETC',
+      const reasons = [
+        ('SPAM',       '스팸'),
+        ('ABUSE',      '욕설/모욕'),
+        ('OBSCENE',    '음란물/선정적 내용'),
+        ('ILLEGAL',    '불법 콘텐츠'),
+        ('HARASSMENT', '괴롭힘'),
+        ('ETC',        '기타'),
       ];
 
       return SafeArea(
@@ -384,12 +419,12 @@ void _showReportSheet(
               ),
               const SizedBox(height: 16),
               ...reasons.map(
-                    (reason) => ListTile(
+                (r) => ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(reason),
+                  title: Text(r.$2),
                   onTap: () {
                     Navigator.pop(context);
-                    onSubmit(reason);
+                    onSubmit(r.$1);
                   },
                 ),
               ),

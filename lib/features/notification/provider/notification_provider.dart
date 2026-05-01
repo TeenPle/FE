@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/notification_api.dart';
 import '../models/notification_model.dart';
@@ -44,8 +45,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       final count = await _api.getUnreadCount();
       state = state.copyWith(unreadCount: count);
     } catch (e) {
-      // ignore: avoid_print
-      print('[Notification] unread count error: $e');
+      if (kDebugMode) debugPrint('[Notification] unread count error: $e');
     }
   }
 
@@ -61,8 +61,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         hasMore: hasNext,
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[Notification] loadNotifications error: $e');
+      if (kDebugMode) debugPrint('[Notification] loadNotifications error: $e');
       state = state.copyWith(isLoading: false);
     }
   }
@@ -80,8 +79,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         hasMore: hasNext,
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[Notification] loadMore error: $e');
+      if (kDebugMode) debugPrint('[Notification] loadMore error: $e');
       state = state.copyWith(isLoading: false);
     }
   }
@@ -92,8 +90,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       final updated = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
       state = state.copyWith(notifications: updated, unreadCount: 0);
     } catch (e) {
-      // ignore: avoid_print
-      print('[Notification] markAllAsRead error: $e');
+      if (kDebugMode) debugPrint('[Notification] markAllAsRead error: $e');
     }
   }
 
@@ -106,8 +103,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       final newUnread = updated.where((n) => !n.isRead).length;
       state = state.copyWith(notifications: updated, unreadCount: newUnread);
     } catch (e) {
-      // ignore: avoid_print
-      print('[Notification] markAsRead error: $e');
+      if (kDebugMode) debugPrint('[Notification] markAsRead error: $e');
     }
   }
 }

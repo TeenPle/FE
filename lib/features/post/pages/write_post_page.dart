@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -679,10 +680,11 @@ class _ExistingMediaThumb extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: isImage
-                ? Image.network(
-                    url,
+                ? CachedNetworkImage(
+                    imageUrl: url,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    placeholder: (_, __) => Container(color: const Color(0xFFF0F4F8)),
+                    errorWidget: (_, __, ___) => const Icon(
                       Icons.broken_image_rounded,
                       color: Color(0xFF9AA7B2),
                     ),

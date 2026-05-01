@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -280,22 +281,15 @@ class _AdminVerificationDetailPageState
                   message: '학생증 이미지가 없습니다.',
                 )
                     : InteractiveViewer(
-                  child: Image.network(
-                    imageUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
                     fit: BoxFit.contain,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) {
-                        return child;
-                      }
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    },
-                    errorBuilder: (_, __, ___) {
-                      return const _ImagePlaceholderCard(
-                        message: '이미지를 불러오지 못했습니다.',
-                      );
-                    },
+                    placeholder: (_, __) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    errorWidget: (_, __, ___) => const _ImagePlaceholderCard(
+                      message: '이미지를 불러오지 못했습니다.',
+                    ),
                   ),
                 ),
               ),

@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/storage/token_storage.dart';
 import '../features/admin/pages/admin_home_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
@@ -29,8 +31,11 @@ import '../features/profile/pages/edit_password_page.dart';
 import '../features/profile/pages/my_comments_page.dart';
 import '../features/profile/pages/my_liked_posts_page.dart';
 import '../features/profile/pages/my_posts_page.dart';
+import '../features/dday/pages/dday_settings_page.dart';
+import '../features/profile/pages/privacy_policy_page.dart';
 import '../features/profile/pages/profile_page.dart';
 import '../features/profile/pages/settings_page.dart';
+import '../features/profile/pages/terms_page.dart';
 import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
 import '../features/search/pages/search_page.dart';
@@ -134,6 +139,15 @@ class AppRoutes {
 
   /// 비밀번호 재설정 페이지
   static const resetPassword = '/find-password/reset';
+
+  /// 이용약관 페이지
+  static const terms = '/settings/terms';
+
+  /// 개인정보처리방침 페이지
+  static const privacyPolicy = '/settings/privacy-policy';
+
+  /// D-Day 설정 페이지
+  static const ddaySettings = '/settings/dday';
 }
 
 /// 앱 전체 라우터
@@ -207,16 +221,19 @@ final GoRouter router = GoRouter(
 
     GoRoute(
       path: AppRoutes.adminHome,
+      redirect: _adminOnly,
       builder: (context, state) => const AdminHomePage(),
     ),
 
     GoRoute(
       path: AppRoutes.adminVerificationList,
+      redirect: _adminOnly,
       builder: (context, state) => const AdminVerificationListPage(),
     ),
 
     GoRoute(
       path: '${AppRoutes.adminVerificationList}/:requestId',
+      redirect: _adminOnly,
       builder: (context, state) {
         final requestId = int.parse(state.pathParameters['requestId']!);
         return AdminVerificationDetailPage(requestId: requestId);
@@ -348,5 +365,26 @@ final GoRouter router = GoRouter(
         return ResetPasswordPage(verificationToken: token);
       },
     ),
+
+    GoRoute(
+      path: AppRoutes.terms,
+      builder: (context, state) => const TermsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.privacyPolicy,
+      builder: (context, state) => const PrivacyPolicyPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.ddaySettings,
+      builder: (context, state) => const DDaySettingsPage(),
+    ),
   ],
 );
+
+Future<String?> _adminOnly(BuildContext context, GoRouterState state) async {
+  final role = await TokenStorage().getUserRole();
+  if (role != 'ADMIN') return AppRoutes.login;
+  return null;
+}

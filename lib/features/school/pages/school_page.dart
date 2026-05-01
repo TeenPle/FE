@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,8 @@ import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/notification/service/fcm_service.dart';
+import '../../../core/widgets/post_summary_skeleton.dart';
+import '../../../features/dday/widgets/dday_strip.dart';
 import '../form/board_tab_bar.dart';
 import '../models/board_model.dart';
 import '../provider/school_providers.dart';
@@ -44,8 +47,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final fcm = ref.read(fcmServiceProvider);
       fcm.init().catchError((e) {
-        // ignore: avoid_print
-        print('[FCM ERROR] $e');
+        if (kDebugMode) debugPrint('[FCM ERROR] $e');
       });
       // 앱이 종료 상태에서 알림 탭으로 실행된 경우 처리
       fcm.handleInitialMessage();
@@ -59,12 +61,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     super.dispose();
   }
 
-  // 백그라운드에서 앱으로 복귀 시 배지 갱신 + FCM 토큰 재등록
+  // 백그라운드에서 앱으로 복귀 시 배지 갱신 (토큰 재등록은 onTokenRefresh 리스너가 담당)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(notificationProvider.notifier).loadUnreadCount();
-      ref.read(fcmServiceProvider).reRegisterToken();
     }
   }
 
@@ -161,6 +162,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
               schoolName: state.schoolName.isEmpty ? '학교 로딩 중...' : state.schoolName,
             ),
             const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
+            const DDayStrip(),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
             BoardTabBar(
               boards: state.boards,
               selectedBoardId: state.selectedBoardId,
@@ -172,7 +175,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
             ),
             Expanded(
               child: state.isLoading && !state.hasLoadedOnce
-                  ? const Center(child: CircularProgressIndicator())
+                  ? ListView(
+                      padding: EdgeInsets.zero,
+                      children: const [PostListSkeleton(count: 4)],
+                    )
                   : RefreshIndicator(
                 /// 메인 미리보기 목록 새로고침
                 onRefresh: notifier.refreshPosts,

@@ -122,10 +122,18 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         );
       }).toList();
 
+      final updatedLikedCommentIds = Set<int>.from(state.likedCommentIds);
+      if (result.liked) {
+        updatedLikedCommentIds.add(commentId);
+      } else {
+        updatedLikedCommentIds.remove(commentId);
+      }
+
       final currentPost = state.post;
 
       state = state.copyWith(
         comments: updatedComments,
+        likedCommentIds: updatedLikedCommentIds,
         post: currentPost == null
             ? null
             : PostDetail(

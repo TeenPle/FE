@@ -16,6 +16,7 @@ class PostDetailState {
   final bool commentAnonymous;
   final int? replyingToCommentId;
   final bool likedByMe;
+  final Set<int> likedCommentIds;
   final String? errorMessage;
   final String? successMessage;
   final bool shouldClosePage;
@@ -34,6 +35,7 @@ class PostDetailState {
     required this.commentAnonymous,
     required this.replyingToCommentId,
     required this.likedByMe,
+    required this.likedCommentIds,
     required this.errorMessage,
     required this.successMessage,
     required this.shouldClosePage,
@@ -54,6 +56,7 @@ class PostDetailState {
       commentAnonymous: true,
       replyingToCommentId: null,
       likedByMe: false,
+      likedCommentIds: const {},
       errorMessage: null,
       successMessage: null,
       shouldClosePage: false,
@@ -75,6 +78,7 @@ class PostDetailState {
     int? replyingToCommentId,
     bool clearReplying = false,
     bool? likedByMe,
+    Set<int>? likedCommentIds,
     String? errorMessage,
     bool clearError = false,
     String? successMessage,
@@ -97,6 +101,7 @@ class PostDetailState {
           ? null
           : (replyingToCommentId ?? this.replyingToCommentId),
       likedByMe: likedByMe ?? this.likedByMe,
+      likedCommentIds: likedCommentIds ?? this.likedCommentIds,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       successMessage:
       clearSuccess ? null : (successMessage ?? this.successMessage),

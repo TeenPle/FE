@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app/routes.dart';
+import '../../../features/notification/provider/notification_provider.dart';
 import '../models/post_sort_type.dart';
 import '../provider/school_providers.dart';
 import 'widgets/post_summary_card.dart';
@@ -96,17 +98,27 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () => context.push(AppRoutes.profile),
                             icon: const Icon(
-                              Icons.settings_outlined,
+                              Icons.account_circle_outlined,
                               color: Color(0xFF111111),
-                              size: 22,
+                              size: 26,
                             ),
                           ),
+                          _BoardNotificationButton(
+                            onTap: () async {
+                              await context.push(AppRoutes.notifications);
+                              if (context.mounted) {
+                                ref
+                                    .read(notificationProvider.notifier)
+                                    .loadUnreadCount();
+                              }
+                            },
+                          ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () => context.push(AppRoutes.settings),
                             icon: const Icon(
-                              Icons.menu_rounded,
+                              Icons.settings_outlined,
                               color: Color(0xFF111111),
                               size: 24,
                             ),
@@ -251,6 +263,61 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 게시판 상단바 알림 아이콘 (배지 포함)
+class _BoardNotificationButton extends ConsumerWidget {
+  final Future<void> Function() onTap;
+
+  const _BoardNotificationButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(
+      notificationProvider.select((s) => s.unreadCount),
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(
+              Icons.notifications_none,
+              size: 26,
+              color: Color(0xFF111111),
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  constraints:
+                      const BoxConstraints(minWidth: 16, minHeight: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE05C7B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 99 ? '99+' : '$unreadCount',
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

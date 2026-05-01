@@ -25,7 +25,10 @@
       "Bash(flutter clean *)",
       "Bash(flutter build *)",
       "Bash(./gradlew --stop)",
-      "Bash(grep -E \"\\\\.java$\")"
+      "Bash(grep -E \"\\\\.java$\")",
+      "Bash(git -C /mnt/c/develop/BE diff --stat)",
+      "Bash(git -C \"C:/develop/BE\" diff --stat)",
+      "Bash(git *)"
     ]
   }
 }

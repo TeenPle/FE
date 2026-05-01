@@ -5,6 +5,7 @@ import '../../models/comment_model.dart';
 class CommentItem extends StatelessWidget {
   final CommentModel comment;
   final List<CommentModel> replies;
+  final bool likedByMe;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
   final void Function(CommentModel comment)? onEditTap;
@@ -16,6 +17,7 @@ class CommentItem extends StatelessWidget {
     super.key,
     required this.comment,
     required this.replies,
+    this.likedByMe = false,
     this.onReplyTap,
     this.onLikeTap,
     this.onEditTap,
@@ -34,6 +36,7 @@ class CommentItem extends StatelessWidget {
             comment: comment,
             showReplyButton: !comment.isReply,
             isMyComment: comment.isMine,
+            likedByMe: likedByMe,
             onReplyTap: onReplyTap,
             onLikeTap: onLikeTap,
             onEditTap: () => onEditTap?.call(comment),
@@ -44,7 +47,7 @@ class CommentItem extends StatelessWidget {
           if (replies.isNotEmpty) const SizedBox(height: 14),
           if (replies.isNotEmpty)
             ...replies.map(
-                  (reply) => Padding(
+              (reply) => Padding(
                 padding: const EdgeInsets.only(left: 12, top: 10),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -71,6 +74,7 @@ class CommentItem extends StatelessWidget {
                           comment: reply,
                           showReplyButton: false,
                           isMyComment: reply.isMine,
+                          likedByMe: false,
                           onLikeTap: () {},
                           onEditTap: () => onEditTap?.call(reply),
                           onDeleteTap: () => onDeleteTap?.call(reply.commentId),
@@ -94,6 +98,7 @@ class _CommentBody extends StatelessWidget {
   final CommentModel comment;
   final bool showReplyButton;
   final bool isMyComment;
+  final bool likedByMe;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
   final VoidCallback? onEditTap;
@@ -105,6 +110,7 @@ class _CommentBody extends StatelessWidget {
     required this.comment,
     required this.showReplyButton,
     required this.isMyComment,
+    required this.likedByMe,
     this.onReplyTap,
     this.onLikeTap,
     this.onEditTap,
@@ -115,15 +121,14 @@ class _CommentBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 삭제된 댓글은 플레이스홀더만 표시
     if (comment.isDeleted) {
       return _DeletedCommentPlaceholder();
     }
 
     final createdAtText =
-    (comment.createdAt != null && comment.createdAt!.isNotEmpty)
-        ? comment.createdAt!
-        : '방금 전';
+        (comment.createdAt != null && comment.createdAt!.isNotEmpty)
+            ? comment.createdAt!
+            : '방금 전';
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,9 +256,12 @@ class _CommentBody extends StatelessWidget {
                     ),
                   if (showReplyButton) const SizedBox(width: 10),
                   _InlineActionButton(
-                    icon: Icons.thumb_up_alt_outlined,
+                    icon: likedByMe
+                        ? Icons.thumb_up_alt
+                        : Icons.thumb_up_alt_outlined,
                     label: '공감 ${comment.likeCount}',
                     onTap: onLikeTap,
+                    active: likedByMe,
                   ),
                 ],
               ),
@@ -303,15 +311,20 @@ class _InlineActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
+  final bool active;
 
   const _InlineActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.active = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color =
+        active ? const Color(0xFF14A3F7) : const Color(0xFF7D8790);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -320,18 +333,14 @@ class _InlineActionButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: const Color(0xFF7D8790),
-            ),
+            Icon(icon, size: 16, color: color),
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF7D8790),
+                color: color,
               ),
             ),
           ],

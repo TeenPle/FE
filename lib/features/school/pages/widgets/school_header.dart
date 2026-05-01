@@ -47,7 +47,6 @@ class SchoolHeader extends ConsumerWidget {
             GestureDetector(
               onTap: () async {
                 await context.push(AppRoutes.notifications);
-                // Refresh unread count after returning from notification page
                 if (context.mounted) {
                   ref.read(notificationProvider.notifier).loadUnreadCount();
                 }
@@ -58,7 +57,10 @@ class SchoolHeader extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const _CircleIcon(icon: Icons.menu),
+            GestureDetector(
+              onTap: () => context.push(AppRoutes.settings),
+              child: const _CircleIcon(icon: Icons.settings_outlined),
+            ),
           ],
         ),
       ),

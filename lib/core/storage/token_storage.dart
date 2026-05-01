@@ -1,11 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) {
   return TokenStorage();
 });
 
 class TokenStorage {
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _autoLoginKey = 'auto_login';
@@ -13,74 +17,41 @@ class TokenStorage {
   static const _schoolIdKey = 'school_id';
   static const _classRoomKey = 'class_room';
 
-  Future<void> saveAccessToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_accessTokenKey, token);
-  }
+  Future<void> saveAccessToken(String token) =>
+      _storage.write(key: _accessTokenKey, value: token);
 
-  Future<String?> getAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_accessTokenKey);
-  }
+  Future<String?> getAccessToken() => _storage.read(key: _accessTokenKey);
 
-  Future<void> saveRefreshToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_refreshTokenKey, token);
-  }
+  Future<void> saveRefreshToken(String token) =>
+      _storage.write(key: _refreshTokenKey, value: token);
 
-  Future<String?> getRefreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_refreshTokenKey);
-  }
+  Future<String?> getRefreshToken() => _storage.read(key: _refreshTokenKey);
 
-  Future<void> saveAutoLogin(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_autoLoginKey, value);
-  }
+  Future<void> saveAutoLogin(bool value) =>
+      _storage.write(key: _autoLoginKey, value: value.toString());
 
   Future<bool> getAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_autoLoginKey) ?? false;
+    final val = await _storage.read(key: _autoLoginKey);
+    return val == 'true';
   }
 
-  Future<void> saveUserRole(String role) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userRoleKey, role);
-  }
+  Future<void> saveUserRole(String role) =>
+      _storage.write(key: _userRoleKey, value: role);
 
-  Future<String?> getUserRole() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userRoleKey);
-  }
+  Future<String?> getUserRole() => _storage.read(key: _userRoleKey);
 
-  Future<void> saveSchoolId(int schoolId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_schoolIdKey, schoolId);
-  }
+  Future<void> saveSchoolId(int schoolId) =>
+      _storage.write(key: _schoolIdKey, value: schoolId.toString());
 
   Future<int?> getSchoolId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_schoolIdKey);
+    final val = await _storage.read(key: _schoolIdKey);
+    return val != null ? int.tryParse(val) : null;
   }
 
-  Future<void> saveClassRoom(String classRoom) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_classRoomKey, classRoom);
-  }
+  Future<void> saveClassRoom(String classRoom) =>
+      _storage.write(key: _classRoomKey, value: classRoom);
 
-  Future<String?> getClassRoom() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_classRoomKey);
-  }
+  Future<String?> getClassRoom() => _storage.read(key: _classRoomKey);
 
-  /// 토큰·자동로그인 플래그·역할·학교 ID 모두 삭제
-  Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_accessTokenKey);
-    await prefs.remove(_refreshTokenKey);
-    await prefs.remove(_autoLoginKey);
-    await prefs.remove(_userRoleKey);
-    await prefs.remove(_schoolIdKey);
-    await prefs.remove(_classRoomKey);
-  }
+  Future<void> clearAll() => _storage.deleteAll();
 }

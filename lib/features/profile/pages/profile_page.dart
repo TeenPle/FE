@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -385,12 +386,13 @@ class _AvatarWidget extends StatelessWidget {
     if (hasImage) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(26),
-        child: Image.network(
-          profile.profileImageUrl,
+        child: CachedNetworkImage(
+          imageUrl: profile.profileImageUrl,
           width: 80,
           height: 80,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _defaultAvatar(),
+          placeholder: (_, __) => _defaultAvatar(),
+          errorWidget: (_, __, ___) => _defaultAvatar(),
         ),
       );
     }

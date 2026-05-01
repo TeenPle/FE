@@ -183,7 +183,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               likeCount: post.likeCount,
               commentCount: state.comments.length,
               likedByMe: state.likedByMe,
-              onLikeTap: notifier.toggleLike,
+              onLikeTap: () async {
+                final confirmed = await _showLikeConfirmDialog(
+                  context,
+                  isPost: true,
+                  alreadyLiked: state.likedByMe,
+                );
+                if (confirmed == true) notifier.toggleLike();
+              },
               onShareTap: () {
                 debugPrint('share post: ${post.postId}');
               },
@@ -205,7 +212,17 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   onReplyTap: (commentId, isReply) {
                     notifier.startReply(commentId, isReply: isReply);
                   },
-                  onCommentLikeTap: notifier.likeComment,
+                  onCommentLikeTap: (commentId) async {
+                    final alreadyLiked =
+                        state.likedCommentIds.contains(commentId);
+                    final confirmed = await _showLikeConfirmDialog(
+                      context,
+                      isPost: false,
+                      alreadyLiked: alreadyLiked,
+                    );
+                    if (confirmed == true) notifier.likeComment(commentId);
+                  },
+                  likedCommentIds: state.likedCommentIds,
                   onCommentChatTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
@@ -262,6 +279,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     required void Function(int commentId) onCommentReportTap,
     required void Function(CommentModel comment) onCommentEditTap,
     required void Function(int commentId) onCommentDeleteTap,
+    required Set<int> likedCommentIds,
   }) {
     final parents = comments.where((e) => e.parentId == null).toList();
 
@@ -295,6 +313,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           CommentItem(
             comment: parent,
             replies: replies,
+            likedByMe: likedCommentIds.contains(parent.commentId),
             onReplyTap: () => onReplyTap(parent.commentId, false),
             onLikeTap: () => onCommentLikeTap(parent.commentId),
             onChatTap: onCommentChatTap,
@@ -346,6 +365,38 @@ class _CommentSectionHeader extends StatelessWidget {
       ],
     );
   }
+}
+
+/// 공감 확인 다이얼로그
+Future<bool?> _showLikeConfirmDialog(
+  BuildContext context, {
+  required bool isPost,
+  required bool alreadyLiked,
+}) {
+  final target = isPost ? '게시글' : '댓글';
+  final action = alreadyLiked ? '공감을 취소' : '공감';
+
+  return showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text('$target $action'),
+      content: Text('이 $target에 ${alreadyLiked ? '공감을 취소하시겠습니까?' : '공감하시겠습니까?'}'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(
+            alreadyLiked ? '취소하기' : '공감하기',
+            style: const TextStyle(color: Color(0xFF14A3F7)),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 /// 신고 사유 선택 바텀시트

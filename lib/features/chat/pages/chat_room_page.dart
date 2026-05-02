@@ -1,10 +1,14 @@
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../models/chat_message_model.dart';
 import '../provider/chat_message_provider.dart';
 import '../provider/chat_room_list_provider.dart';
+import '../provider/muted_rooms_provider.dart';
 
 class ChatRoomPage extends ConsumerStatefulWidget {
   final int roomId;
@@ -31,10 +35,20 @@ class ChatRoomPage extends ConsumerStatefulWidget {
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _isLoadingOlder = false;
+  PlatformFile? _pendingImage;
+  bool _isSearchActive = false;
+  final _messageSearchController = TextEditingController();
+  String _messageSearchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_handleScroll);
+    _messageSearchController.addListener(() {
+      setState(() => _messageSearchQuery =
+          _messageSearchController.text.trim().toLowerCase());
+    });
     Future.microtask(() async {
       final notifier =
           ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier);
@@ -51,9 +65,41 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_handleScroll);
     _inputController.dispose();
     _scrollController.dispose();
+    _messageSearchController.dispose();
     super.dispose();
+  }
+
+  void _handleScroll() {
+    _loadOlderIfNeeded();
+  }
+
+  Future<void> _loadOlderIfNeeded() async {
+    if (_isLoadingOlder || !_scrollController.hasClients) return;
+    if (_scrollController.position.pixels > 80) return;
+
+    final providerKey = (widget.roomId, widget.otherUserId);
+    final state = ref.read(chatRoomProvider(providerKey));
+    if (!state.hasMore || state.isLoadingMore || state.messages.isEmpty) return;
+
+    _isLoadingOlder = true;
+    final beforeMaxExtent = _scrollController.position.maxScrollExtent;
+    await ref.read(chatRoomProvider(providerKey).notifier).loadOlderMessages();
+    if (!mounted || !_scrollController.hasClients) {
+      _isLoadingOlder = false;
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        final delta =
+            _scrollController.position.maxScrollExtent - beforeMaxExtent;
+        _scrollController.jumpTo(_scrollController.position.pixels + delta);
+      }
+      _isLoadingOlder = false;
+    });
   }
 
   void _scrollToBottom() {
@@ -69,6 +115,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   Future<void> _sendMessage() async {
+    if (_pendingImage != null) {
+      await _sendPendingImage();
+      return;
+    }
+
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
     if (ref.read(chatRoomProvider((widget.roomId, widget.otherUserId))).isBlocked) {
@@ -77,6 +128,68 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _inputController.clear();
     await ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier).sendMessage(text);
     _scrollToBottom();
+  }
+
+  Future<void> _pickImage() async {
+    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    if (state.isBlocked || state.isSending) return;
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    setState(() {
+      _pendingImage = result.files.single;
+    });
+  }
+
+  Future<void> _sendPendingImage() async {
+    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    if (state.isBlocked || state.isSending) return;
+
+    final picked = _pendingImage;
+    if (picked == null) return;
+
+    final ext = (picked.extension ?? '').toLowerCase();
+    final contentType = ext == 'png'
+        ? MediaType('image', 'png')
+        : MediaType('image', 'jpeg');
+    final filename = picked.name.isNotEmpty ? picked.name : 'chat-image.$ext';
+
+    final MultipartFile file;
+    if (picked.bytes != null) {
+      file = MultipartFile.fromBytes(
+        picked.bytes!,
+        filename: filename,
+        contentType: contentType,
+      );
+    } else if (picked.path != null) {
+      file = await MultipartFile.fromFile(
+        picked.path!,
+        filename: filename,
+        contentType: contentType,
+      );
+    } else {
+      return;
+    }
+
+    await ref
+        .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+        .sendImage(file);
+    if (!mounted) return;
+    setState(() {
+      _pendingImage = null;
+    });
+    _scrollToBottom();
+  }
+
+  void _clearPendingImage() {
+    setState(() {
+      _pendingImage = null;
+    });
   }
 
   void _showMoreMenu() {
@@ -285,6 +398,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatRoomProvider((widget.roomId, widget.otherUserId)));
     final isBlocked = state.isBlocked;
+    final isMuted = ref.watch(mutedRoomsProvider).contains(widget.roomId);
+
+    // 검색 활성 시 텍스트 메시지만 내용으로 필터링 (이미지는 검색 대상 아님)
+    final isSearchFiltered = _messageSearchQuery.isNotEmpty;
+    final messages = isSearchFiltered
+        ? state.messages
+            .where((m) =>
+                !m.isImage &&
+                (m.content?.toLowerCase().contains(_messageSearchQuery) ?? false))
+            .toList()
+        : state.messages;
 
     // 새 메시지 오면 스크롤
     ref.listen(chatRoomProvider((widget.roomId, widget.otherUserId)), (prev, next) {
@@ -326,23 +450,89 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ],
         ),
         actions: [
+          // 채팅방 알림 on/off 토글 (꺼진 상태면 회색 종 아이콘)
+          IconButton(
+            icon: Icon(
+              isMuted
+                  ? Icons.notifications_off_rounded
+                  : Icons.notifications_rounded,
+              color: isMuted
+                  ? const Color(0xFF9AA7B2)
+                  : const Color(0xFF111111),
+            ),
+            onPressed: () =>
+                ref.read(mutedRoomsProvider.notifier).toggle(widget.roomId),
+          ),
+          // 검색 아이콘: 활성 시 X로 전환하여 닫기
+          IconButton(
+            icon: Icon(
+              _isSearchActive ? Icons.close_rounded : Icons.search_rounded,
+              color: const Color(0xFF111111),
+            ),
+            onPressed: () => setState(() {
+              _isSearchActive = !_isSearchActive;
+              if (!_isSearchActive) {
+                _messageSearchQuery = '';
+                _messageSearchController.clear();
+              }
+            }),
+          ),
           IconButton(
             icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF111111)),
             onPressed: _showMoreMenu,
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: const Color(0xFFEEEEEE)),
+        ),
       ),
       body: Column(
         children: [
+          // 채팅 이용 안내 배너: 메시지가 하나도 없을 때만 표시
+          if (!_isSearchActive && state.messages.isEmpty) const _ChatNoticeBar(),
+
+          // 검색창 (검색 활성 시에만 표시)
+          if (_isSearchActive)
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+              child: TextField(
+                controller: _messageSearchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: '메시지 검색',
+                  hintStyle:
+                      const TextStyle(fontSize: 15, color: Color(0xFFB0BEC5)),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFFB0BEC5),
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F7FA),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                style:
+                    const TextStyle(fontSize: 15, color: Color(0xFF111111)),
+              ),
+            ),
+
           // 메시지 목록
           Expanded(
             child: state.isLoading && state.messages.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : state.messages.isEmpty
-                    ? const Center(
+                : messages.isEmpty
+                    ? Center(
                         child: Text(
-                          '첫 메시지를 보내보세요!',
-                          style: TextStyle(
+                          isSearchFiltered
+                              ? '검색 결과가 없어요.'
+                              : '첫 메시지를 보내보세요!',
+                          style: const TextStyle(
                             fontSize: 15,
                             color: Color(0xFF9AA7B2),
                           ),
@@ -351,14 +541,33 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                     : ListView.builder(
                         controller: _scrollController,
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                        itemCount: state.messages.length,
+                        // 검색 중에는 페이지네이션 스피너 숨김
+                        itemCount: messages.length +
+                            (isSearchFiltered ? 0 : (state.isLoadingMore ? 1 : 0)),
                         itemBuilder: (context, index) {
-                          final msg = state.messages[index];
+                          if (!isSearchFiltered && state.isLoadingMore && index == 0) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              ),
+                            );
+                          }
+                          final messageIndex = !isSearchFiltered && state.isLoadingMore
+                              ? index - 1
+                              : index;
+                          final msg = messages[messageIndex];
                           final isMe = msg.senderId != widget.otherUserId;
                           final previous =
-                              index > 0 ? state.messages[index - 1] : null;
-                          final next = index < state.messages.length - 1
-                              ? state.messages[index + 1]
+                              messageIndex > 0
+                                  ? messages[messageIndex - 1]
+                                  : null;
+                          final next = messageIndex < messages.length - 1
+                              ? messages[messageIndex + 1]
                               : null;
                           final isFirstInGroup =
                               !_isSameMinuteGroup(previous, msg);
@@ -368,13 +577,26 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               isLastInGroup &&
                               (state.otherLastReadMessageId == null ||
                                   msg.messageId > state.otherLastReadMessageId!);
-                          return _MessageBubble(
-                            message: msg,
-                            isMe: isMe,
-                            showUnread: showUnread,
-                            showProfile: !isMe && isFirstInGroup,
-                            showMeta: isLastInGroup,
-                            isLastInGroup: isLastInGroup,
+
+                          // 날짜가 바뀌는 첫 메시지 앞에 날짜 구분선을 표시한다.
+                          final showDateSeparator = msg.createdAt != null &&
+                              (previous == null ||
+                                  previous.createdAt == null ||
+                                  !_isSameDay(previous.createdAt!, msg.createdAt!));
+
+                          return Column(
+                            children: [
+                              if (showDateSeparator && msg.createdAt != null)
+                                _DateSeparator(date: msg.createdAt!),
+                              _MessageBubble(
+                                message: msg,
+                                isMe: isMe,
+                                showUnread: showUnread,
+                                showProfile: !isMe && isFirstInGroup,
+                                showMeta: isLastInGroup,
+                                isLastInGroup: isLastInGroup,
+                              ),
+                            ],
                           );
                         },
                       ),
@@ -401,6 +623,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               : _MessageInputBar(
                   controller: _inputController,
                   isSending: state.isSending,
+                  pendingImage: _pendingImage,
+                  onClearImage: _clearPendingImage,
+                  onImage: _pickImage,
                   onSend: _sendMessage,
                 ),
         ],
@@ -411,6 +636,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   bool get _blockedByMe {
     final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
     return state.blockedByMe;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   bool _isSameMinuteGroup(ChatMessageModel? current, ChatMessageModel? other) {
@@ -555,6 +784,61 @@ class _MessageBubble extends StatelessWidget {
                               message.imageUrl!,
                               width: 180,
                               fit: BoxFit.cover,
+                              // 이미지 로딩 중 프로그레스 표시
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  width: 180,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    color: isMe
+                                        ? const Color(0xFF1888D0)
+                                        : const Color(0xFFEEEEEE),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: isMe ? Colors.white70 : const Color(0xFF9AA7B2),
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                              // S3 CORS 차단 등 로드 실패 시 대체 UI 표시
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 180,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: isMe
+                                        ? const Color(0xFF1888D0)
+                                        : const Color(0xFFEEEEEE),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image_rounded,
+                                        size: 28,
+                                        color: isMe ? Colors.white60 : const Color(0xFF9AA7B2),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '이미지를 불러올 수 없습니다',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: isMe ? Colors.white60 : const Color(0xFF9AA7B2),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           )
                         : Text(
@@ -601,11 +885,17 @@ class _MessageBubble extends StatelessWidget {
 class _MessageInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool isSending;
+  final PlatformFile? pendingImage;
+  final VoidCallback onClearImage;
+  final VoidCallback onImage;
   final VoidCallback onSend;
 
   const _MessageInputBar({
     required this.controller,
     required this.isSending,
+    required this.pendingImage,
+    required this.onClearImage,
+    required this.onImage,
     required this.onSend,
   });
 
@@ -619,65 +909,117 @@ class _MessageInputBar extends StatelessWidget {
         top: 10,
         bottom: MediaQuery.of(context).viewInsets.bottom + 12,
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F6FF),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: TextField(
-                controller: controller,
-                maxLines: 4,
-                minLines: 1,
-                textInputAction: TextInputAction.newline,
-                decoration: const InputDecoration(
-                  hintText: '메시지 입력...',
-                  hintStyle: TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF9AA7B2),
+          if (pendingImage?.bytes != null) ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.memory(
+                      pendingImage!.bytes!,
+                      width: 92,
+                      height: 92,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  border: InputBorder.none,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                ),
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF111111),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: isSending ? null : onSend,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: isSending
-                    ? const Color(0xFFB0BEC5)
-                    : const Color(0xFF1DA1F2),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: isSending
-                  ? const Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: isSending ? null : onClearImage,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: Color(0xAA000000),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
                           color: Colors.white,
+                          size: 16,
                         ),
                       ),
-                    )
-                  : const Icon(
-                      Icons.send_rounded,
-                      color: Colors.white,
-                      size: 20,
                     ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: 8),
+          ],
+          Row(
+            children: [
+              IconButton(
+                onPressed: isSending ? null : onImage,
+                icon: const Icon(
+                  Icons.photo_camera_outlined,
+                  color: Color(0xFF1DA1F2),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F6FF),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: TextField(
+                    controller: controller,
+                    enabled: pendingImage == null && !isSending,
+                    maxLines: 4,
+                    minLines: 1,
+                    textInputAction: TextInputAction.newline,
+                    decoration: InputDecoration(
+                      hintText: pendingImage == null ? '메시지 입력...' : '사진 전송 대기 중',
+                      hintStyle: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF9AA7B2),
+                      ),
+                      border: InputBorder.none,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF111111),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: isSending ? null : onSend,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: isSending
+                        ? const Color(0xFFB0BEC5)
+                        : const Color(0xFF1DA1F2),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: isSending
+                      ? const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.send_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -744,6 +1086,46 @@ class _BlockedInputBar extends StatelessWidget {
   }
 }
 
+// 날짜가 바뀌는 시점에 메시지 목록 사이에 삽입되는 날짜 구분선 (예: 5월 20일 (화))
+class _DateSeparator extends StatelessWidget {
+  final DateTime date;
+
+  const _DateSeparator({required this.date});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Divider(color: Color(0xFFDDE3E9), thickness: 1),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            _formatDate(date),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF9AA7B2),
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Divider(color: Color(0xFFDDE3E9), thickness: 1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime dt) {
+    const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+    final day = weekdays[dt.weekday - 1];
+    return '${dt.month}월 ${dt.day}일 ($day)';
+  }
+}
+
 class _BottomSheetItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -771,6 +1153,46 @@ class _BottomSheetItem extends StatelessWidget {
         ),
       ),
       onTap: onTap,
+    );
+  }
+}
+
+// 채팅방 상단 고정 운영 가이드 배너.
+// 스크롤과 무관하게 항상 노출되어 이용자가 규칙을 인지할 수 있도록 한다.
+class _ChatNoticeBar extends StatelessWidget {
+  const _ChatNoticeBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFFFFBEB),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: Icon(
+              Icons.info_outline_rounded,
+              size: 15,
+              color: Color(0xFFD97706),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text(
+              '욕설·비방·음란물·폭력적 내용 등 부적절한 메시지에 대한 책임은 작성자 본인에게 있습니다. '
+              '위반 시 신고를 통해 이용이 제한될 수 있습니다.',
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.5,
+                color: Color(0xFF92400E),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

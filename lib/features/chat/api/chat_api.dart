@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../core/network/api_response.dart';
 import '../../../core/network/app_api_client.dart';
 import '../models/chat_message_model.dart';
@@ -24,6 +26,16 @@ class ChatApi {
   final AppApiClient _client;
 
   const ChatApi(this._client);
+
+  Future<ChatImageUploadResult> uploadImage(MultipartFile file) async {
+    final json = await _client.postMultipartFile('/api/chat/images', file: file);
+    final resp = ApiResponse.fromJson(
+      json,
+      (data) => ChatImageUploadResult.fromJson(data as Map<String, dynamic>),
+    );
+    if (!resp.isSuccess || resp.result == null) throw Exception(resp.message);
+    return resp.result!;
+  }
 
   // 게시글 기반 1:1 채팅방 생성/조회
   Future<Map<String, dynamic>> createOrGetDm({
@@ -96,6 +108,20 @@ class ChatApi {
     return resp.result!;
   }
 
+  Future<ChatMessageModel> sendImageMessage(int roomId, int mediaId) async {
+    final json = await _client.post('/api/chat/rooms/$roomId/messages', body: {
+      'roomId': roomId,
+      'type': 'IMAGE',
+      'mediaId': mediaId,
+    });
+    final resp = ApiResponse.fromJson(
+      json,
+      (data) => ChatMessageModel.fromJson(data as Map<String, dynamic>),
+    );
+    if (!resp.isSuccess || resp.result == null) throw Exception(resp.message);
+    return resp.result!;
+  }
+
   // 읽음 처리
   Future<void> markRead(int roomId, int messageId) async {
     await _client.post('/api/chat/rooms/$roomId/read', body: {'messageId': messageId});
@@ -119,5 +145,22 @@ class ChatApi {
   // 채팅방 나가기
   Future<void> leave(int roomId) async {
     await _client.post('/api/chat/rooms/$roomId/leave');
+  }
+}
+
+class ChatImageUploadResult {
+  final int mediaId;
+  final String imageUrl;
+
+  const ChatImageUploadResult({
+    required this.mediaId,
+    required this.imageUrl,
+  });
+
+  factory ChatImageUploadResult.fromJson(Map<String, dynamic> json) {
+    return ChatImageUploadResult(
+      mediaId: (json['mediaId'] as num).toInt(),
+      imageUrl: json['imageUrl'] as String,
+    );
   }
 }

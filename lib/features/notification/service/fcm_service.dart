@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/routes.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
+import '../../chat/provider/muted_rooms_provider.dart';
 import '../api/notification_api.dart';
 import '../provider/notification_provider.dart';
 
@@ -79,10 +80,16 @@ class FcmService {
     await _requestPermission();
     await _registerToken();
 
-    // 포그라운드: 로컬 알림 표시 + 배지 카운트 갱신
+    // 포그라운드: 알림 OFF된 채팅방이면 로컬 알림 표시 생략
     FirebaseMessaging.onMessage.listen((message) async {
       // ignore: avoid_print
       print('[FCM] onMessage fired: ${message.notification?.title}');
+
+      if (_isMutedChatRoom(message.data)) {
+        _refreshChatRoomsIfChatMessage(message);
+        return;
+      }
+
       await showLocalNotification(message);
       _refreshUnreadCount();
       _refreshChatRoomsIfChatMessage(message);
@@ -132,6 +139,18 @@ class FcmService {
 
   bool _isChatMessage(Map<String, dynamic> data) {
     return data['type'] == 'CHAT' || data['targetType'] == 'CHAT_MSG';
+  }
+
+  // 채팅 메시지이면서 해당 채팅방 알림이 꺼진 경우 true
+  bool _isMutedChatRoom(Map<String, dynamic> data) {
+    if (!_isChatMessage(data)) return false;
+    final roomId = int.tryParse(data['targetId'] ?? '');
+    if (roomId == null) return false;
+    try {
+      return _ref.read(mutedRoomsProvider).contains(roomId);
+    } catch (_) {
+      return false;
+    }
   }
 
   void _refreshChatRoomsIfChatMessage(RemoteMessage message) {

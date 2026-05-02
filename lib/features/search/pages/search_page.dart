@@ -249,8 +249,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       keyword: state.keyword,
 
                       /// 검색 결과 게시글 클릭 시 상세 페이지로 이동
-                      onTap: () {
-                        context.push('/post/${post.id}');
+                      onTap: () async {
+                        final refreshed = await context.push<bool>('/post/${post.id}');
+                        if (refreshed == true && mounted) {
+                          ref.read(searchProvider.notifier).search();
+                        }
                       },
                     ),
                   );

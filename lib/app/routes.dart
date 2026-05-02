@@ -32,8 +32,10 @@ import '../features/profile/pages/my_comments_page.dart';
 import '../features/profile/pages/my_liked_posts_page.dart';
 import '../features/profile/pages/my_posts_page.dart';
 import '../features/dday/pages/dday_settings_page.dart';
+import '../features/school/pages/hot_board_page.dart';
 import '../features/profile/pages/privacy_policy_page.dart';
 import '../features/profile/pages/profile_page.dart';
+import '../features/profile/pages/blocked_users_page.dart';
 import '../features/profile/pages/settings_page.dart';
 import '../features/profile/pages/terms_page.dart';
 import '../features/school/pages/board_detail_page.dart';
@@ -148,6 +150,12 @@ class AppRoutes {
 
   /// D-Day 설정 페이지
   static const ddaySettings = '/settings/dday';
+
+  /// HOT 게시판 전체 보기
+  static const hotBoard = '/hot';
+
+  /// 차단 목록 페이지
+  static const blockedUsers = '/settings/blocked-users';
 }
 
 /// 앱 전체 라우터
@@ -379,6 +387,16 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.ddaySettings,
       builder: (context, state) => const DDaySettingsPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.hotBoard,
+      builder: (context, state) => const HotBoardPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.blockedUsers,
+      builder: (context, state) => const BlockedUsersPage(),
     ),
   ],
 );

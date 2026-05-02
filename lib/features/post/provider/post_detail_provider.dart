@@ -65,6 +65,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       final updatedPost = PostDetail(
         postId: currentPost.postId,
+        authorUserId: currentPost.authorUserId,
         isMine: currentPost.isMine,
         title: currentPost.title,
         content: currentPost.content,
@@ -76,6 +77,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         username: currentPost.username,
         createdAt: currentPost.createdAt,
         comments: state.comments,
+        mediaList: currentPost.mediaList,
       );
 
       state = state.copyWith(
@@ -109,6 +111,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
         return CommentModel(
           commentId: comment.commentId,
+          authorUserId: comment.authorUserId,
           isMine: comment.isMine,
           commentStatus: comment.commentStatus,
           content: comment.content,
@@ -138,6 +141,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
             ? null
             : PostDetail(
           postId: currentPost.postId,
+          authorUserId: currentPost.authorUserId,
           isMine: currentPost.isMine,
           title: currentPost.title,
           content: currentPost.content,
@@ -149,6 +153,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           username: currentPost.username,
           createdAt: currentPost.createdAt,
           comments: updatedComments,
+          mediaList: currentPost.mediaList,
         ),
         isSubmittingReaction: false,
       );

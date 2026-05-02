@@ -12,6 +12,7 @@ class CommentItem extends StatelessWidget {
   final void Function(int commentId)? onDeleteTap;
   final void Function(int commentId)? onReportTap;
   final VoidCallback? onChatTap;
+  final void Function(int authorUserId)? onBlockTap;
 
   const CommentItem({
     super.key,
@@ -24,6 +25,7 @@ class CommentItem extends StatelessWidget {
     this.onDeleteTap,
     this.onReportTap,
     this.onChatTap,
+    this.onBlockTap,
   });
 
   @override
@@ -43,6 +45,9 @@ class CommentItem extends StatelessWidget {
             onDeleteTap: () => onDeleteTap?.call(comment.commentId),
             onReportTap: () => onReportTap?.call(comment.commentId),
             onChatTap: onChatTap,
+            onBlockTap: comment.authorUserId != null
+                ? () => onBlockTap?.call(comment.authorUserId!)
+                : null,
           ),
           if (replies.isNotEmpty) const SizedBox(height: 14),
           if (replies.isNotEmpty)
@@ -80,6 +85,9 @@ class CommentItem extends StatelessWidget {
                           onDeleteTap: () => onDeleteTap?.call(reply.commentId),
                           onReportTap: () => onReportTap?.call(reply.commentId),
                           onChatTap: onChatTap,
+                          onBlockTap: reply.authorUserId != null
+                              ? () => onBlockTap?.call(reply.authorUserId!)
+                              : null,
                         ),
                       ),
                     ],
@@ -105,6 +113,7 @@ class _CommentBody extends StatelessWidget {
   final VoidCallback? onDeleteTap;
   final VoidCallback? onReportTap;
   final VoidCallback? onChatTap;
+  final VoidCallback? onBlockTap;
 
   const _CommentBody({
     required this.comment,
@@ -117,6 +126,7 @@ class _CommentBody extends StatelessWidget {
     this.onDeleteTap,
     this.onReportTap,
     this.onChatTap,
+    this.onBlockTap,
   });
 
   @override
@@ -189,7 +199,7 @@ class _CommentBody extends StatelessWidget {
                     ),
                   ),
 
-                  /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고
+                  /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고/차단
                   PopupMenuButton<String>(
                     color: Colors.white,
                     onSelected: (value) {
@@ -202,6 +212,8 @@ class _CommentBody extends StatelessWidget {
                           onChatTap?.call();
                         case 'report':
                           onReportTap?.call();
+                        case 'block':
+                          onBlockTap?.call();
                       }
                     },
                     itemBuilder: (context) => [
@@ -215,14 +227,24 @@ class _CommentBody extends StatelessWidget {
                           child: Text('삭제하기'),
                         ),
                       ],
-                      const PopupMenuItem(
-                        value: 'chat',
-                        child: Text('채팅'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'report',
-                        child: Text('신고하기'),
-                      ),
+                      if (!isMyComment) ...[
+                        const PopupMenuItem(
+                          value: 'chat',
+                          child: Text('채팅'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'report',
+                          child: Text('신고하기'),
+                        ),
+                        if (onBlockTap != null)
+                          const PopupMenuItem(
+                            value: 'block',
+                            child: Text(
+                              '차단하기',
+                              style: TextStyle(color: Color(0xFFE05C5C)),
+                            ),
+                          ),
+                      ],
                     ],
                     child: const Padding(
                       padding: EdgeInsets.all(4),

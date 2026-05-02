@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../features/notification/provider/notification_provider.dart';
+import '../form/board_tab_bar.dart';
 import '../models/post_sort_type.dart';
 import '../provider/school_providers.dart';
 import 'widgets/post_summary_card.dart';
@@ -166,6 +167,14 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
       ),
       body: Column(
         children: [
+          BoardTabBar(
+            boards: state.boards,
+            selectedBoardId: state.selectedBoardId,
+            onBoardSelected: (boardId) {
+              notifier.selectBoard(boardId);
+            },
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
           Container(
             width: double.infinity,
             color: const Color(0xFFEFF4F9),

@@ -1,6 +1,7 @@
 import '../../../core/network/api_response.dart';
 import '../../../core/network/app_api_client.dart';
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_summary.dart';
 import '../models/school_response.dart';
 
@@ -69,6 +70,34 @@ class SchoolApi {
           hasNext: map['hasNext'] as bool? ?? false,
         );
       },
+    );
+
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+
+    return response.result!;
+  }
+
+  /// HOT 게시글 목록 조회 (filter: TODAY / WEEK / ALL)
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    required HotFilter filter,
+    int size = 20,
+  }) async {
+    final json = await client.get(
+      '/api/schools/$schoolId/posts/hot',
+      queryParameters: {
+        'filter': filter.queryValue,
+        'size': '$size',
+      },
+    );
+
+    final response = ApiResponse.fromJson(
+      json,
+      (data) => (data as List<dynamic>)
+          .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
     if (!response.isSuccess || response.result == null) {

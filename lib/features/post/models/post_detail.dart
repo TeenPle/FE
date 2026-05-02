@@ -3,6 +3,7 @@ import 'post_media_item.dart';
 
 class PostDetail {
   final int postId;
+  final int? authorUserId;
   final bool isMine;
   final String title;
   final String content;
@@ -18,6 +19,7 @@ class PostDetail {
 
   const PostDetail({
     required this.postId,
+    this.authorUserId,
     required this.isMine,
     required this.title,
     required this.content,
@@ -35,6 +37,7 @@ class PostDetail {
   factory PostDetail.fromJson(Map<String, dynamic> json) {
     return PostDetail(
       postId: (json['postId'] as num).toInt(),
+      authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
       isMine: json['isMine'] as bool? ?? false,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',

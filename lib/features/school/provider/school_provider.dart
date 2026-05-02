@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/school_repository.dart';
 import '../models/board_model.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
 import 'school_state.dart';
@@ -42,6 +43,9 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         isLoadingMore: false,
         hasLoadedOnce: true,
       );
+
+      // HOT 게시글 병렬 조회
+      loadHotPosts();
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
@@ -161,6 +165,37 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
   Future<void> reloadCurrentBoard() async {
     if (state.selectedBoardId == null) return;
     await refreshPosts();
+  }
+
+  /// HOT 게시글을 현재 필터 기준으로 조회
+  Future<void> loadHotPosts() async {
+    if (state.isLoadingHot) return;
+
+    state = state.copyWith(isLoadingHot: true, clearError: true);
+
+    try {
+      final posts = await repository.getHotPosts(
+        schoolId: state.schoolId,
+        filter: state.hotFilter,
+        size: 20,
+      );
+      state = state.copyWith(
+        hotPosts: _filterVisiblePosts(posts),
+        isLoadingHot: false,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoadingHot: false,
+        errorMessage: 'HOT 게시글을 불러오지 못했습니다.',
+      );
+    }
+  }
+
+  /// HOT 필터 변경 후 재조회
+  Future<void> changeHotFilter(HotFilter filter) async {
+    if (state.hotFilter == filter) return;
+    state = state.copyWith(hotFilter: filter, hotPosts: const []);
+    await loadHotPosts();
   }
 
   /// 첫 페이지 조회를 공통 처리

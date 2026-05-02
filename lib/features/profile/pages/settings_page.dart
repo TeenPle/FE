@@ -53,6 +53,12 @@ class SettingsPage extends ConsumerWidget {
                 label: '비밀번호 변경',
                 onTap: () => context.push(AppRoutes.editPassword),
               ),
+              const _Divider(),
+              _SettingsTile(
+                icon: Icons.block_rounded,
+                label: '차단 목록',
+                onTap: () => context.push(AppRoutes.blockedUsers),
+              ),
             ],
           ),
 

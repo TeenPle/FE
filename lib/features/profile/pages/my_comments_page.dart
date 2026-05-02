@@ -108,6 +108,24 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
               children: [
                 Row(
                   children: [
+                    if (comment.boardTitle != null) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEAF7FF),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          comment.boardTitle!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF14A3F7),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
                     const Icon(Icons.article_outlined, size: 13, color: Color(0xFF9AA7B2)),
                     const SizedBox(width: 4),
                     Expanded(

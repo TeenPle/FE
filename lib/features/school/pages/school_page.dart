@@ -8,10 +8,13 @@ import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/notification/service/fcm_service.dart';
+import '../../../app/routes.dart';
 import '../../../core/widgets/post_summary_skeleton.dart';
 import '../../../features/dday/widgets/dday_strip.dart';
 import '../form/board_tab_bar.dart';
 import '../models/board_model.dart';
+import '../models/hot_filter.dart';
+import '../models/post_summary.dart';
 import '../provider/school_providers.dart';
 import 'widgets/post_summary_card.dart';
 import 'widgets/school_header.dart';
@@ -198,8 +201,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                                 showDivider: i != previewPosts.length - 1,
 
                                 /// 게시글 카드 클릭 시 게시글 상세 페이지로 이동
-                                onTap: () {
-                                  context.push('/post/${previewPosts[i].id}');
+                                onTap: () async {
+                                  final refreshed = await context.push<bool>('/post/${previewPosts[i].id}');
+                                  if (refreshed == true && mounted) {
+                                    notifier.reloadCurrentBoard();
+                                  }
                                 },
                               ),
                           ],
@@ -242,6 +248,23 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                           ),
                         ),
                       ),
+
+                    // HOT 섹션
+                    _HotSection(
+                      hotPosts: state.hotPosts,
+                      hotFilter: state.hotFilter,
+                      isLoading: state.isLoadingHot,
+                      onFilterChanged: (f) =>
+                          notifier.changeHotFilter(f),
+                      onPostTap: (postId) async {
+                        final refreshed = await context.push<bool>('/post/$postId');
+                        if (refreshed == true && mounted) {
+                          notifier.loadHotPosts();
+                        }
+                      },
+                      onMoreTap: () =>
+                          context.push(AppRoutes.hotBoard),
+                    ),
                   ],
                 ),
               ),
@@ -294,6 +317,169 @@ class _EmptyPreviewState extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// HOT 게시판 섹션 (메인 화면 하단)
+class _HotSection extends StatelessWidget {
+  final List<PostSummary> hotPosts;
+  final HotFilter hotFilter;
+  final bool isLoading;
+  final ValueChanged<HotFilter> onFilterChanged;
+  final ValueChanged<int> onPostTap;
+  final VoidCallback onMoreTap;
+
+  static const int _previewCount = 4;
+
+  const _HotSection({
+    required this.hotPosts,
+    required this.hotFilter,
+    required this.isLoading,
+    required this.onFilterChanged,
+    required this.onPostTap,
+    required this.onMoreTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = hotPosts.take(_previewCount).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 섹션 헤더
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 8),
+          child: Row(
+            children: [
+              const Text(
+                '🔥',
+                style: TextStyle(fontSize: 18),
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'HOT 게시판',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111111),
+                ),
+              ),
+              const Spacer(),
+              // 필터 칩
+              ...HotFilter.values.map((f) {
+                final selected = hotFilter == f;
+                return Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: GestureDetector(
+                    onTap: () => onFilterChanged(f),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? const Color(0xFFFF6B35)
+                            : const Color(0xFFF3F6FA),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        f.label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: selected
+                              ? Colors.white
+                              : const Color(0xFF9AA7B2),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+
+        // 게시글 카드
+        if (isLoading)
+          Container(
+            margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else if (hotPosts.isEmpty)
+          Container(
+            margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Center(
+              child: Text(
+                '${hotFilter.label} HOT 게시글이 없어요.',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF9AA7B2),
+                ),
+              ),
+            ),
+          )
+        else ...[
+          Container(
+            margin: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              children: [
+                for (int i = 0; i < preview.length; i++)
+                  PostSummaryCard(
+                    post: preview[i],
+                    showDivider: i != preview.length - 1,
+                    onTap: () => onPostTap(preview[i].id),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 10, 18, 14),
+            child: SizedBox(
+              height: 46,
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onMoreTap,
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(color: Color(0xFFFFCDB5)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text(
+                  '🔥 HOT 게시판 더보기',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFFF6B35),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

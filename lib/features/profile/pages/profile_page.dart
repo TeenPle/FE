@@ -214,19 +214,30 @@ class _ProfileHeaderCard extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           OutlinedButton(
-            onPressed: () => context.push(AppRoutes.editNickname),
+            onPressed: profile.canChangeNickname
+                ? () => context.push(AppRoutes.editNickname)
+                : null,
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF14A3F7),
-              side: const BorderSide(color: Color(0xFF14A3F7)),
+              foregroundColor: profile.canChangeNickname
+                  ? const Color(0xFF14A3F7)
+                  : const Color(0xFFB0BEC5),
+              side: BorderSide(
+                color: profile.canChangeNickname
+                    ? const Color(0xFF14A3F7)
+                    : const Color(0xFFD0D8E4),
+              ),
+              disabledForegroundColor: const Color(0xFFB0BEC5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               padding:
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             ),
-            child: const Text(
-              '닉네임 변경',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            child: Text(
+              profile.canChangeNickname
+                  ? '닉네임 변경'
+                  : '${profile.daysUntilNicknameChange}일 후 변경 가능',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
         ],
@@ -334,11 +345,13 @@ class _InfoRow extends StatelessWidget {
 }
 
 /// 활동 내역 섹션 — 내 글 / 내 댓글 / 공감한 글
-class _ActivitySection extends StatelessWidget {
+class _ActivitySection extends ConsumerWidget {
   const _ActivitySection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(profileProvider).profile;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -350,6 +363,7 @@ class _ActivitySection extends StatelessWidget {
           _ActivityTile(
             icon: Icons.article_outlined,
             label: '내가 쓴 글',
+            count: profile?.myPostCount,
             onTap: () => context.push(AppRoutes.myPosts),
           ),
           const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
@@ -357,6 +371,7 @@ class _ActivitySection extends StatelessWidget {
           _ActivityTile(
             icon: Icons.chat_bubble_outline_rounded,
             label: '내가 쓴 댓글',
+            count: profile?.myCommentCount,
             onTap: () => context.push(AppRoutes.myComments),
           ),
           const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
@@ -415,6 +430,7 @@ class _AvatarWidget extends StatelessWidget {
 class _ActivityTile extends StatelessWidget {
   final IconData icon;
   final String label;
+  final int? count;
   final VoidCallback onTap;
   final bool isLast;
 
@@ -422,6 +438,7 @@ class _ActivityTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.count,
     this.isLast = false,
   });
 
@@ -447,6 +464,16 @@ class _ActivityTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            if (count != null)
+              Text(
+                '$count',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF14A3F7),
+                ),
+              ),
+            const SizedBox(width: 4),
             const Icon(Icons.chevron_right_rounded,
                 color: Color(0xFFB0BEC5), size: 22),
           ],

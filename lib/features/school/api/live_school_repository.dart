@@ -1,5 +1,7 @@
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
+import '../models/post_summary.dart';
 import '../models/school_response.dart';
 import 'school_api.dart';
 import 'school_repository.dart';
@@ -44,5 +46,14 @@ class LiveSchoolRepository implements SchoolRepository {
       sortBy: sortBy,
       sortDirection: sortDirection,
     );
+  }
+
+  @override
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    required HotFilter filter,
+    int size = 20,
+  }) {
+    return api.getHotPosts(schoolId: schoolId, filter: filter, size: size);
   }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../form/comment_input_bar.dart';
 import '../../../models/comment_model.dart';
 import '../../../provider/post_detail_providers.dart';
+import '../../../../profile/provider/block_provider.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
@@ -103,6 +104,23 @@ class _PostDetailPageV3State extends ConsumerState<PostDetailPageV3> {
               } else if (value == 'report') {
                 _showReportSheet(context,
                     onSubmit: (reason) => notifier.reportPost(reason));
+              } else if (value == 'block' && post?.authorUserId != null) {
+                final confirmed = await _showBlockConfirmDialog(context);
+                if (confirmed == true && mounted) {
+                  try {
+                    await ref.read(blockActionProvider).block(post!.authorUserId!);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('해당 유저를 차단했습니다.')));
+                      context.pop(true);
+                    }
+                  } catch (_) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('차단에 실패했습니다.')));
+                    }
+                  }
+                }
               }
             },
             itemBuilder: (context) => [
@@ -110,8 +128,15 @@ class _PostDetailPageV3State extends ConsumerState<PostDetailPageV3> {
                 const PopupMenuItem(value: 'edit', child: Text('수정하기')),
                 const PopupMenuItem(value: 'delete', child: Text('삭제하기')),
               ],
-              const PopupMenuItem(value: 'chat', child: Text('채팅')),
-              const PopupMenuItem(value: 'report', child: Text('신고하기')),
+              if (post == null || !post.isMine) ...[
+                const PopupMenuItem(value: 'chat', child: Text('채팅')),
+                const PopupMenuItem(value: 'report', child: Text('신고하기')),
+                if (post != null && post.authorUserId != null)
+                  const PopupMenuItem(
+                    value: 'block',
+                    child: Text('차단하기', style: TextStyle(color: Color(0xFFE05C5C))),
+                  ),
+              ],
             ],
           ),
         ],
@@ -190,6 +215,24 @@ class _PostDetailPageV3State extends ConsumerState<PostDetailPageV3> {
                           description: '삭제한 댓글은 되돌릴 수 없습니다.');
                       if (ok == true) await notifier.deleteComment(id);
                     },
+                    onCommentBlockTap: (authorUserId) async {
+                      final confirmed = await _showBlockConfirmDialog(context);
+                      if (confirmed == true && mounted) {
+                        try {
+                          await ref.read(blockActionProvider).block(authorUserId);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('해당 유저를 차단했습니다.')));
+                            await notifier.loadPostDetail();
+                          }
+                        } catch (_) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('차단에 실패했습니다.')));
+                          }
+                        }
+                      }
+                    },
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -207,6 +250,7 @@ class _PostDetailPageV3State extends ConsumerState<PostDetailPageV3> {
     required void Function(int) onCommentReportTap,
     required void Function(CommentModel) onCommentEditTap,
     required void Function(int) onCommentDeleteTap,
+    required void Function(int authorUserId) onCommentBlockTap,
   }) {
     final parents = comments.where((e) => e.parentId == null).toList();
 
@@ -250,9 +294,29 @@ class _PostDetailPageV3State extends ConsumerState<PostDetailPageV3> {
         onReportTap: onCommentReportTap,
         onEditTap: onCommentEditTap,
         onDeleteTap: onCommentDeleteTap,
+        onBlockTap: onCommentBlockTap,
       );
     }).toList();
   }
+}
+
+Future<bool?> _showBlockConfirmDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('유저 차단'),
+      content: const Text('이 유저를 차단하면 해당 유저의 게시글과 댓글이 더 이상 보이지 않습니다.\n차단하시겠습니까?'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소')),
+        TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFFE05C5C)),
+            child: const Text('차단하기')),
+      ],
+    ),
+  );
 }
 
 void _showReportSheet(BuildContext context,

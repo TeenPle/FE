@@ -1,5 +1,6 @@
 import '../models/board_model.dart';
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
 import '../models/school_response.dart';
@@ -80,6 +81,18 @@ class TemporarySchoolRepository implements SchoolRepository {
       posts: pageItems,
       hasNext: end < source.length,
     );
+  }
+
+  @override
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    required HotFilter filter,
+    int size = 20,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final all = _postsByBoard.values.expand((list) => list).toList();
+    all.sort((a, b) => b.likeCount.compareTo(a.likeCount));
+    return all.take(size).toList();
   }
 
   static const Map<int, List<PostSummary>> _postsByBoard = {

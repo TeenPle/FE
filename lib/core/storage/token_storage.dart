@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) {
   return TokenStorage();
@@ -14,6 +15,7 @@ class TokenStorage {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _autoLoginKey = 'auto_login';
+  static const _userIdKey = 'user_id';
   static const _userRoleKey = 'user_role';
   static const _schoolIdKey = 'school_id';
   static const _classRoomKey = 'class_room';
@@ -36,10 +38,25 @@ class TokenStorage {
     return val == 'true';
   }
 
-  Future<void> saveUserRole(String role) =>
-      _storage.write(key: _userRoleKey, value: role);
+  Future<void> saveUserId(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_userIdKey, userId);
+  }
 
-  Future<String?> getUserRole() => _storage.read(key: _userRoleKey);
+  Future<int?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_userIdKey);
+  }
+
+  Future<void> saveUserRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userRoleKey, role);
+  }
+
+  Future<String?> getUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userRoleKey);
+  }
 
   Future<void> saveSchoolId(int schoolId) =>
       _storage.write(key: _schoolIdKey, value: schoolId.toString());
@@ -54,5 +71,10 @@ class TokenStorage {
 
   Future<String?> getClassRoom() => _storage.read(key: _classRoomKey);
 
-  Future<void> clearAll() => _storage.deleteAll();
+  Future<void> clearAll() async {
+    await _storage.deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userIdKey);
+    await prefs.remove(_userRoleKey);
+  }
 }

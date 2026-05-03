@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
 import '../../notification/service/fcm_service.dart';
 import '../api/login_api.dart';
 import '../models/login_blocked_reason.dart';
@@ -14,7 +15,7 @@ final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
   final tokenStorage = ref.read(tokenStorageProvider);
   final authSession = ref.read(authSessionProvider.notifier);
   final fcmService = ref.read(fcmServiceProvider);
-  return LoginNotifier(loginApi, tokenStorage, authSession, fcmService);
+  return LoginNotifier(loginApi, tokenStorage, authSession, fcmService, ref);
 });
 
 class LoginNotifier extends StateNotifier<LoginState> {
@@ -22,9 +23,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
   final TokenStorage _tokenStorage;
   final AuthSessionNotifier _authSession;
   final FcmService _fcmService;
+  final Ref _ref;
 
-  LoginNotifier(this._loginApi, this._tokenStorage, this._authSession, this._fcmService)
-      : super(const LoginState());
+  LoginNotifier(
+    this._loginApi,
+    this._tokenStorage,
+    this._authSession,
+    this._fcmService,
+    this._ref,
+  ) : super(const LoginState());
 
   /// [keepLoggedIn]이 true인 경우에만 토큰을 디스크에 저장.
   Future<void> login({
@@ -68,13 +75,18 @@ class LoginNotifier extends StateNotifier<LoginState> {
       );
 
       // 항상 메모리 세션에 저장
-      _authSession.setTokens(result.accessToken, result.refreshToken);
+      _authSession.setTokens(
+        result.accessToken,
+        result.refreshToken,
+        userId: result.userId,
+      );
 
       if (keepLoggedIn) {
         // 자동로그인 체크: 디스크에도 저장
         await _tokenStorage.saveAccessToken(result.accessToken);
         await _tokenStorage.saveRefreshToken(result.refreshToken);
         await _tokenStorage.saveAutoLogin(true);
+        await _tokenStorage.saveUserId(result.userId);
         await _tokenStorage.saveUserRole(result.role);
       } else {
         // 자동로그인 미체크: 이전 토큰/역할 클리어
@@ -124,6 +136,8 @@ class LoginNotifier extends StateNotifier<LoginState> {
     try {
       await _fcmService.deleteToken();
     } catch (_) {}
+    // 로그아웃 후에도 유저별 채팅 목록 STOMP 구독이 남지 않도록 정리한다.
+    _ref.read(chatRoomListProvider.notifier).stopRealtime();
 
     // 서버에 refresh token 무효화 (실패해도 로컬은 반드시 초기화)
     if (refreshToken != null) {

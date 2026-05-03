@@ -43,6 +43,8 @@ import '../features/profile/pages/profile_page.dart';
 import '../features/profile/pages/blocked_users_page.dart';
 import '../features/profile/pages/settings_page.dart';
 import '../features/profile/pages/terms_page.dart';
+import '../features/chat/pages/chat_room_list_page.dart';
+import '../features/chat/pages/chat_room_page.dart';
 import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
 import '../features/search/pages/search_page.dart';
@@ -146,6 +148,12 @@ class AppRoutes {
 
   /// 시간표 페이지
   static const timetable = '/timetable';
+
+  /// 채팅방 목록 페이지
+  static const chat = '/chat';
+
+  /// 채팅방 상세 페이지
+  static const chatRoom = '/chat/rooms/:roomId';
 
   /// 아이디 찾기 페이지
   static const findEmail = '/find-email';
@@ -389,6 +397,27 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.timetable,
       builder: (context, state) => const TimetablePage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.chat,
+      builder: (context, state) => const ChatRoomListPage(),
+    ),
+
+    GoRoute(
+      path: '/chat/rooms/:roomId',
+      builder: (context, state) {
+        final roomId = int.parse(state.pathParameters['roomId']!);
+        final extra = state.extra as Map<String, dynamic>;
+        return ChatRoomPage(
+          roomId: roomId,
+          otherUserId: (extra['otherUserId'] as num).toInt(),
+          displayName: extra['displayName'] as String? ?? '채팅방',
+          initialBlocked: extra['blocked'] as bool? ?? false,
+          initialBlockedByMe: extra['blockedByMe'] as bool? ?? false,
+          initialBlockedByOther: extra['blockedByOther'] as bool? ?? false,
+        );
+      },
     ),
 
     GoRoute(

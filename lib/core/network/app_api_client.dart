@@ -106,6 +106,17 @@ class AppApiClient {
     }
   }
 
+  Future<Map<String, dynamic>> postMultipartFile(
+    String path, {
+    required MultipartFile file,
+    String fieldName = 'file',
+  }) async {
+    final formData = FormData();
+    formData.files.add(MapEntry(fieldName, file));
+    final response = await _dio.post<dynamic>(path, data: formData);
+    return _decodeResponse(response);
+  }
+
   Map<String, dynamic> _decodeResponse(Response<dynamic> response) {
     final data = response.data;
     if (data is! Map<String, dynamic>) {

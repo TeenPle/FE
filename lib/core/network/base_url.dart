@@ -16,3 +16,9 @@ String get apiBaseUrl {
   }
   return 'http://localhost:8080';
 }
+
+/// WebSocket base URL (http → ws, https → wss)
+String get wsBaseUrl {
+  final http = apiBaseUrl;
+  return http.replaceFirst('http://', 'ws://').replaceFirst('https://', 'wss://');
+}

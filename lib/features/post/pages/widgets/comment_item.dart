@@ -11,7 +11,7 @@ class CommentItem extends StatelessWidget {
   final void Function(CommentModel comment)? onEditTap;
   final void Function(int commentId)? onDeleteTap;
   final void Function(int commentId)? onReportTap;
-  final VoidCallback? onChatTap;
+  final void Function(CommentModel comment)? onChatTap;
   final void Function(int authorUserId)? onBlockTap;
 
   const CommentItem({
@@ -44,7 +44,7 @@ class CommentItem extends StatelessWidget {
             onEditTap: () => onEditTap?.call(comment),
             onDeleteTap: () => onDeleteTap?.call(comment.commentId),
             onReportTap: () => onReportTap?.call(comment.commentId),
-            onChatTap: onChatTap,
+            onChatTap: () => onChatTap?.call(comment),
             onBlockTap: comment.authorUserId != null
                 ? () => onBlockTap?.call(comment.authorUserId!)
                 : null,
@@ -84,7 +84,7 @@ class CommentItem extends StatelessWidget {
                           onEditTap: () => onEditTap?.call(reply),
                           onDeleteTap: () => onDeleteTap?.call(reply.commentId),
                           onReportTap: () => onReportTap?.call(reply.commentId),
-                          onChatTap: onChatTap,
+                          onChatTap: () => onChatTap?.call(reply),
                           onBlockTap: reply.authorUserId != null
                               ? () => onBlockTap?.call(reply.authorUserId!)
                               : null,

@@ -199,4 +199,20 @@ class PostApi {
       throw Exception(response.message);
     }
   }
+
+  /// 북마크 토글 API 호출 — true: 추가됨, false: 해제됨
+  Future<bool> toggleBookmark(int postId) async {
+    final json = await client.post('/api/posts/$postId/bookmarks/toggle');
+
+    final response = ApiResponse.fromJson(
+      json,
+      (data) => (data as Map<String, dynamic>)['bookmarked'] as bool,
+    );
+
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+
+    return response.result!;
+  }
 }

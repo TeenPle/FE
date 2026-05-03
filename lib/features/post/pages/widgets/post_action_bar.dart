@@ -4,7 +4,9 @@ class PostActionBar extends StatelessWidget {
   final int likeCount;
   final int commentCount;
   final bool likedByMe;
+  final bool bookmarkedByMe;
   final VoidCallback onLikeTap;
+  final VoidCallback onBookmarkTap;
   final VoidCallback onShareTap;
 
   const PostActionBar({
@@ -12,7 +14,9 @@ class PostActionBar extends StatelessWidget {
     required this.likeCount,
     required this.commentCount,
     required this.likedByMe,
+    required this.bookmarkedByMe,
     required this.onLikeTap,
+    required this.onBookmarkTap,
     required this.onShareTap,
   });
 
@@ -46,7 +50,23 @@ class PostActionBar extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
+        _IconActionButton(
+          icon: bookmarkedByMe
+              ? Icons.bookmark_rounded
+              : Icons.bookmark_border_rounded,
+          iconColor: bookmarkedByMe
+              ? const Color(0xFFF5A623)
+              : const Color(0xFF6E7B87),
+          backgroundColor: bookmarkedByMe
+              ? const Color(0xFFFFF8ED)
+              : Colors.white,
+          borderColor: bookmarkedByMe
+              ? const Color(0xFFFFE0A0)
+              : const Color(0xFFE6EDF3),
+          onTap: onBookmarkTap,
+        ),
+        const SizedBox(width: 8),
         _IconActionButton(
           icon: Icons.ios_share_rounded,
           onTap: onShareTap,
@@ -145,10 +165,16 @@ class _StaticChip extends StatelessWidget {
 class _IconActionButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
+  final Color? iconColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
 
   const _IconActionButton({
     required this.icon,
     required this.onTap,
+    this.iconColor,
+    this.backgroundColor,
+    this.borderColor,
   });
 
   @override
@@ -160,14 +186,14 @@ class _IconActionButton extends StatelessWidget {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: backgroundColor ?? Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE6EDF3)),
+          border: Border.all(color: borderColor ?? const Color(0xFFE6EDF3)),
         ),
         child: Icon(
           icon,
           size: 20,
-          color: const Color(0xFF6E7B87),
+          color: iconColor ?? const Color(0xFF6E7B87),
         ),
       ),
     );

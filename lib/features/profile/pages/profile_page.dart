@@ -380,6 +380,13 @@ class _ActivitySection extends ConsumerWidget {
             icon: Icons.thumb_up_outlined,
             label: '내가 공감한 글',
             onTap: () => context.push(AppRoutes.myLikedPosts),
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
+              indent: 16, endIndent: 16),
+          _ActivityTile(
+            icon: Icons.bookmark_border_rounded,
+            label: '내 북마크',
+            onTap: () => context.push(AppRoutes.myBookmarks),
             isLast: true,
           ),
         ],

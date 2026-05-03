@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../models/post_detail.dart';
+import 'linkable_text.dart';
 
 class PostContentCard extends StatelessWidget {
   final PostDetail post;
@@ -34,8 +35,8 @@ class PostContentCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text(
-            post.content,
+          LinkableText(
+            text: post.content,
             style: const TextStyle(
               fontSize: 16,
               height: 1.7,

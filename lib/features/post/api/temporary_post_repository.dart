@@ -158,4 +158,10 @@ class TemporaryPostRepository implements PostRepository {
   Future<void> deleteComment(int commentId) async {
     await Future.delayed(const Duration(milliseconds: 200));
   }
+
+  @override
+  Future<bool> toggleBookmark(int postId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    return true;
+  }
 }

@@ -78,7 +78,7 @@ class FcmService {
       _refreshUnreadCount();
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
+    FirebaseMessaging.onMessageOpenedApp.listen((m) => _handleMessageTap(m));
 
     FirebaseMessaging.instance.onTokenRefresh.listen((_) => _registerToken());
   }
@@ -89,7 +89,7 @@ class FcmService {
     if (message != null) _handleMessageTap(message);
   }
 
-  void _handleMessageTap(RemoteMessage message) async {
+  Future<void> _handleMessageTap(RemoteMessage message) async {
     _refreshUnreadCount();
 
     // 로그인 여부 확인 후 라우팅

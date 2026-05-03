@@ -16,6 +16,7 @@ class PostDetail {
   final String createdAt;
   final List<CommentModel> comments;
   final List<PostMediaItem> mediaList;
+  final bool isBookmarked;
 
   const PostDetail({
     required this.postId,
@@ -32,6 +33,7 @@ class PostDetail {
     required this.createdAt,
     required this.comments,
     this.mediaList = const [],
+    this.isBookmarked = false,
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
@@ -54,6 +56,7 @@ class PostDetail {
       mediaList: (json['mediaList'] as List<dynamic>? ?? [])
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      isBookmarked: json['isBookmarked'] as bool? ?? false,
     );
   }
 

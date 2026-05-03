@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../models/post_detail.dart';
+import '../../../widgets/linkable_text.dart';
 
 // V3: 토스/카카오 소프트 카드 스타일 — 그림자 카드, 큰 아바타, 테마색 accent
 class PostContentCardV3 extends StatelessWidget {
@@ -42,8 +43,8 @@ class PostContentCardV3 extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              post.content,
+            LinkableText(
+              text: post.content,
               style: const TextStyle(
                 fontSize: 15,
                 height: 1.78,

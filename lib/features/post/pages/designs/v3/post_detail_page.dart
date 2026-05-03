@@ -168,7 +168,37 @@ class _PostDetailPageV3State extends ConsumerState<PostDetailPageV3> {
                     likeCount: post.likeCount,
                     commentCount: state.comments.length,
                     likedByMe: state.likedByMe,
+                    bookmarkedByMe: state.bookmarkedByMe,
                     onLikeTap: notifier.toggleLike,
+                    onBookmarkTap: () async {
+                      if (state.bookmarkedByMe) {
+                        notifier.toggleBookmark();
+                      } else {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                            title: const Text('북마크 추가'),
+                            content: const Text('이 게시글을 북마크에 추가할까요?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('취소'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text(
+                                  '추가',
+                                  style: TextStyle(color: Color(0xFFF5A623)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true) notifier.toggleBookmark();
+                      }
+                    },
                     onShareTap: () {},
                   ),
                   const SizedBox(height: 16),
@@ -413,5 +443,5 @@ Future<void> _showEditCommentDialog(BuildContext context,
         ],
       ),
     ),
-  );
+  ).whenComplete(controller.dispose);
 }

@@ -34,6 +34,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         comments: post.comments,
         isLoading: false,
         isRefreshing: false,
+        bookmarkedByMe: post.isBookmarked,
       );
     } catch (_) {
       state = state.copyWith(
@@ -78,6 +79,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         createdAt: currentPost.createdAt,
         comments: state.comments,
         mediaList: currentPost.mediaList,
+        isBookmarked: currentPost.isBookmarked,
       );
 
       state = state.copyWith(
@@ -154,6 +156,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           createdAt: currentPost.createdAt,
           comments: updatedComments,
           mediaList: currentPost.mediaList,
+          isBookmarked: currentPost.isBookmarked,
         ),
         isSubmittingReaction: false,
       );
@@ -415,5 +418,26 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
   /// 페이지 종료 플래그를 해제
   void clearClosePageFlag() {
     state = state.copyWith(shouldClosePage: false);
+  }
+
+  /// 북마크 토글
+  Future<void> toggleBookmark() async {
+    if (state.post == null || state.isBookmarking) return;
+
+    state = state.copyWith(isBookmarking: true, clearError: true, clearSuccess: true);
+
+    try {
+      final bookmarked = await repository.toggleBookmark(state.postId);
+      state = state.copyWith(
+        bookmarkedByMe: bookmarked,
+        isBookmarking: false,
+        successMessage: bookmarked ? '북마크에 추가되었습니다.' : '북마크가 해제되었습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isBookmarking: false,
+        errorMessage: '북마크 처리에 실패했습니다.',
+      );
+    }
   }
 }

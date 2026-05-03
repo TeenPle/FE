@@ -99,6 +99,7 @@ final dioProvider = Provider<Dio>((ref) {
           } finally {
             // finally로 completer를 반드시 한 번만 complete
             refreshCompleter!.complete(newAccessToken);
+            refreshCompleter = null;
             isRefreshing = false;
           }
 

@@ -29,6 +29,7 @@ import '../features/post/pages/write_post_page.dart';
 import '../features/profile/pages/edit_nickname_page.dart';
 import '../features/profile/pages/edit_password_page.dart';
 import '../features/profile/pages/my_comments_page.dart';
+import '../features/profile/pages/my_bookmarks_page.dart';
 import '../features/profile/pages/my_liked_posts_page.dart';
 import '../features/profile/pages/my_posts_page.dart';
 import '../features/dday/pages/dday_settings_page.dart';
@@ -156,6 +157,9 @@ class AppRoutes {
 
   /// 차단 목록 페이지
   static const blockedUsers = '/settings/blocked-users';
+
+  /// 내 북마크 페이지
+  static const myBookmarks = '/profile/bookmarks';
 }
 
 /// 앱 전체 라우터
@@ -397,6 +401,11 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.blockedUsers,
       builder: (context, state) => const BlockedUsersPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.myBookmarks,
+      builder: (context, state) => const MyBookmarksPage(),
     ),
   ],
 );

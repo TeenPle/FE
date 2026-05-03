@@ -62,6 +62,8 @@ class ReportSummaryModel {
 
 class ReportDetailModel extends ReportSummaryModel {
   final String targetContent;
+  final String? schoolName;
+  final String? boardTitle;
 
   const ReportDetailModel({
     required super.reportId,
@@ -72,6 +74,8 @@ class ReportDetailModel extends ReportSummaryModel {
     required super.targetType,
     required super.targetId,
     required this.targetContent,
+    this.schoolName,
+    this.boardTitle,
     required super.reportReason,
     required super.status,
     required super.createdAt,
@@ -88,6 +92,8 @@ class ReportDetailModel extends ReportSummaryModel {
       targetType: json['targetType'] as String? ?? '',
       targetId: (json['targetId'] as num).toInt(),
       targetContent: json['targetContent'] as String? ?? '',
+      schoolName: json['schoolName'] as String?,
+      boardTitle: json['boardTitle'] as String?,
       reportReason: json['reportReason'] as String? ?? '',
       status: json['status'] as String? ?? '',
       createdAt: DateTime.parse(json['createdAt'] as String),

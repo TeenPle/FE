@@ -99,6 +99,10 @@ class _AdminReportDetailPageState
                 _InfoRow('신고 사유', detail.reportReasonLabel),
                 _InfoRow('신고자', detail.reporterNickname),
                 _InfoRow('피신고자', detail.reportedUserNickname),
+                if (detail.schoolName != null)
+                  _InfoRow('학교', detail.schoolName!),
+                if (detail.boardTitle != null)
+                  _InfoRow('게시판', detail.boardTitle!),
                 _InfoRow('신고 일시', _formatDate(detail.createdAt)),
                 if (detail.processedAt != null)
                   _InfoRow('처리 일시', _formatDate(detail.processedAt!)),

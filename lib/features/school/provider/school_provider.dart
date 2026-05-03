@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/school_repository.dart';
 import '../models/board_model.dart';
+import '../models/board_post_page.dart';
 import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
@@ -89,7 +90,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
     await _loadBoardFirstPage(boardId: state.selectedBoardId!);
   }
 
-  /// 당겨서 새로고침 시 현재 게시판 첫 페이지를 다시 불러옴
+  /// 당겨서 새로고침 시 현재 게시판 첫 페이지와 인기글을 함께 새로고침
   Future<void> refreshPosts() async {
     if (state.selectedBoardId == null) return;
 
@@ -115,6 +116,9 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         isLoadingMore: false,
         hasLoadedOnce: true,
       );
+
+      // HOT 게시글 별도 새로고침
+      loadHotPosts();
     } catch (_) {
       state = state.copyWith(
         isRefreshing: false,

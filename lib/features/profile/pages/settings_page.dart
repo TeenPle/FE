@@ -59,6 +59,12 @@ class SettingsPage extends ConsumerWidget {
                 label: '차단 목록',
                 onTap: () => context.push(AppRoutes.blockedUsers),
               ),
+              const _Divider(),
+              _SettingsTile(
+                icon: Icons.gavel_rounded,
+                label: '제재 이력',
+                onTap: () => context.push(AppRoutes.myPenalties),
+              ),
             ],
           ),
 

@@ -213,6 +213,22 @@ class _FileAttachmentChip extends StatelessWidget {
   }
 }
 
+Widget _defaultAvatar() {
+  return Container(
+    width: 42,
+    height: 42,
+    decoration: BoxDecoration(
+      color: const Color(0xFFEAF3FB),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: const Icon(
+      Icons.person_rounded,
+      color: Color(0xFF8EA2B5),
+      size: 24,
+    ),
+  );
+}
+
 Widget _imagePlaceholder() {
   return Container(
     height: 200,
@@ -259,20 +275,24 @@ class _PostMetaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profileUrl = post.authorProfileImageUrl;
+    final showNetworkAvatar = !post.anonymous &&
+        profileUrl != null &&
+        profileUrl.isNotEmpty;
+
     return Row(
       children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAF3FB),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: const Icon(
-            Icons.person_rounded,
-            color: Color(0xFF8EA2B5),
-            size: 24,
-          ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: showNetworkAvatar
+              ? Image.network(
+                  profileUrl!,
+                  width: 42,
+                  height: 42,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _defaultAvatar(),
+                )
+              : _defaultAvatar(),
         ),
         const SizedBox(width: 12),
         Expanded(

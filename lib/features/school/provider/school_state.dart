@@ -11,6 +11,8 @@ class SchoolState {
   final List<BoardModel> boards;
   final int? selectedBoardId;
   final List<PostSummary> posts;
+  final List<PostSummary> hotPosts;
+  final bool isHotLoading;
   final PostSortType sortType;
   final int currentPage;
   final int pageSize;
@@ -31,6 +33,8 @@ class SchoolState {
     required this.boards,
     required this.selectedBoardId,
     required this.posts,
+    required this.hotPosts,
+    required this.isHotLoading,
     required this.sortType,
     required this.currentPage,
     required this.pageSize,
@@ -53,6 +57,8 @@ class SchoolState {
       boards: [],
       selectedBoardId: null,
       posts: [],
+      hotPosts: [],
+      isHotLoading: false,
       sortType: PostSortType.latest,
       currentPage: 0,
       pageSize: 5,
@@ -76,6 +82,8 @@ class SchoolState {
     List<BoardModel>? boards,
     int? selectedBoardId,
     List<PostSummary>? posts,
+    List<PostSummary>? hotPosts,
+    bool? isHotLoading,
     PostSortType? sortType,
     int? currentPage,
     int? pageSize,
@@ -97,6 +105,8 @@ class SchoolState {
       boards: boards ?? this.boards,
       selectedBoardId: selectedBoardId ?? this.selectedBoardId,
       posts: posts ?? this.posts,
+      hotPosts: hotPosts ?? this.hotPosts,
+      isHotLoading: isHotLoading ?? this.isHotLoading,
       sortType: sortType ?? this.sortType,
       currentPage: currentPage ?? this.currentPage,
       pageSize: pageSize ?? this.pageSize,

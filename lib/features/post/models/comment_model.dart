@@ -7,6 +7,7 @@ class CommentModel {
   final String author;
   final int likeCount;
   final int dislikeCount;
+  final bool likedByMe;
   final bool anonymous;
   final int depth;
   final int? parentId;
@@ -21,6 +22,7 @@ class CommentModel {
     required this.author,
     required this.likeCount,
     required this.dislikeCount,
+    required this.likedByMe,
     required this.anonymous,
     required this.depth,
     required this.parentId,
@@ -37,6 +39,7 @@ class CommentModel {
       author: json['author'] as String? ?? '',
       likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
       dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
+      likedByMe: json['likedByMe'] as bool? ?? false,
       anonymous: json['anonymous'] as bool? ?? false,
       depth: json['depth'] != null ? (json['depth'] as num).toInt() : 0,
       parentId: json['parentId'] != null ? (json['parentId'] as num).toInt() : null,
@@ -47,5 +50,5 @@ class CommentModel {
   bool get isReply => parentId != null;
   bool get isDeleted => commentStatus == 'DELETED';
 
-  String get displayAuthorName => anonymous ? '익명' : author;
+  String get displayAuthorName => anonymous ? author : author;
 }

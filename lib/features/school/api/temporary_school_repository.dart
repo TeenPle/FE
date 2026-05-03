@@ -43,6 +43,20 @@ class TemporarySchoolRepository implements SchoolRepository {
     );
   }
 
+  /// 좋아요 많은 순 mock 인기글 반환 (likeCount 내림차순 상위 N개)
+  @override
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    int size = 5,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final all = _postsByBoard.values.expand((list) => list).toList()
+      ..sort((a, b) => b.likeCount.compareTo(a.likeCount));
+
+    return all.take(size).toList();
+  }
+
   /// 게시판 게시글 목록을 정렬/페이지 기준으로 잘라서 반환
   @override
   Future<BoardPostPage> getPostsByBoard({

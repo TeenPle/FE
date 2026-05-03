@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../provider/post_detail_providers.dart';
+import '../../penalty/provider/penalty_provider.dart';
 import '../../profile/provider/block_provider.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
@@ -184,13 +185,21 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ),
         ],
       ),
-      bottomNavigationBar: CommentInputBar(
-        anonymous: state.commentAnonymous,
-        isSubmitting: state.isSubmittingComment,
-        replyingToCommentId: state.replyingToCommentId,
-        onAnonymousChanged: notifier.toggleCommentAnonymous,
-        onSubmit: notifier.submitComment,
-        onCancelReply: notifier.cancelReply,
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          final isPenalized = ref.watch(
+            activePenaltyProvider.select((s) => s.isPenalized),
+          );
+          if (isPenalized) return const SizedBox.shrink();
+          return CommentInputBar(
+            anonymous: state.commentAnonymous,
+            isSubmitting: state.isSubmittingComment,
+            replyingToCommentId: state.replyingToCommentId,
+            onAnonymousChanged: notifier.toggleCommentAnonymous,
+            onSubmit: notifier.submitComment,
+            onCancelReply: notifier.cancelReply,
+          );
+        },
       ),
       body: state.isLoading && post == null
           ? const Center(child: CircularProgressIndicator())
@@ -518,12 +527,13 @@ void _showReportSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     builder: (context) {
-      final reasons = [
-        'SPAM',
-        'ABUSE',
-        'SEXUAL',
-        'VIOLENCE',
-        'ETC',
+      const reasons = [
+        ('SPAM',       '스팸'),
+        ('ABUSE',      '욕설/모욕'),
+        ('OBSCENE',    '음란물/선정적 내용'),
+        ('ILLEGAL',    '불법 콘텐츠'),
+        ('HARASSMENT', '괴롭힘'),
+        ('ETC',        '기타'),
       ];
 
       return SafeArea(
@@ -542,12 +552,12 @@ void _showReportSheet(
               ),
               const SizedBox(height: 16),
               ...reasons.map(
-                    (reason) => ListTile(
+                (r) => ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(reason),
+                  title: Text(r.$2),
                   onTap: () {
                     Navigator.pop(context);
-                    onSubmit(reason);
+                    onSubmit(r.$1);
                   },
                 ),
               ),

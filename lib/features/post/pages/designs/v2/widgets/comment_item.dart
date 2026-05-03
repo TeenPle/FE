@@ -192,13 +192,13 @@ class _CommentBody extends StatelessWidget {
                   ],
                   // 공감 — 더 진한 색
                   _InlineActionButton(
-                    icon: comment.likeCount > 0
+                    icon: comment.likedByMe
                         ? Icons.thumb_up
                         : Icons.thumb_up_alt_outlined,
                     label: comment.likeCount > 0
                         ? '${comment.likeCount}'
                         : '공감',
-                    color: comment.likeCount > 0
+                    color: comment.likedByMe
                         ? const Color(0xFF2563EB)
                         : const Color(0xFF374151),
                     onTap: onLikeTap,

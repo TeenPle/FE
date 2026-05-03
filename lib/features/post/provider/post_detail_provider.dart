@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/network/api_exception.dart';
 import '../api/post_repository.dart';
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
@@ -248,10 +249,12 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         isReporting: false,
         successMessage: '게시글을 신고했습니다.',
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('reportPost error: $e\n$st');
+      final message = e is ApiException ? e.message : '게시글 신고에 실패했습니다.';
       state = state.copyWith(
         isReporting: false,
-        errorMessage: '게시글 신고에 실패했습니다.',
+        errorMessage: message,
       );
     }
   }
@@ -273,10 +276,12 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         isReporting: false,
         successMessage: '댓글을 신고했습니다.',
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('reportComment error: $e\n$st');
+      final message = e is ApiException ? e.message : '댓글 신고에 실패했습니다.';
       state = state.copyWith(
         isReporting: false,
-        errorMessage: '댓글 신고에 실패했습니다.',
+        errorMessage: message,
       );
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../models/create_post_request.dart';
 import '../models/post_media_item.dart';
 import '../models/update_post_request.dart';
 import '../provider/post_detail_providers.dart';
+import 'widgets/crisis_banner.dart';
 
 /// 게시글 작성/수정 페이지
 class WritePostPage extends ConsumerStatefulWidget {
@@ -39,9 +41,10 @@ class WritePostPage extends ConsumerStatefulWidget {
 }
 
 class _WritePostPageState extends ConsumerState<WritePostPage> {
-  static const int _titleLimit = 60;
+  static const int _titleLimit = 100;
   static const int _contentLimit = 2000;
   static const int _maxFiles = 5;
+  static const int _maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
 
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
@@ -54,6 +57,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
   int get _titleLength => _titleController.text.trim().length;
   int get _contentLength => _contentController.text.trim().length;
+  bool get _showCrisisBanner =>
+      CrisisBanner.containsCrisisKeyword(_titleController.text) ||
+      CrisisBanner.containsCrisisKeyword(_contentController.text);
 
   bool get _canSubmit {
     return _titleController.text.trim().isNotEmpty &&
@@ -90,11 +96,15 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   /// PlatformFile → dio.MultipartFile 변환
   Future<MultipartFile> _toMultipartFile(PlatformFile pf) async {
     final contentType = _guessMediaType(pf.extension);
-    final bytes = pf.path != null
-        ? await File(pf.path!).readAsBytes()
-        : pf.bytes!;
+    if (pf.path != null) {
+      return MultipartFile.fromFile(
+        pf.path!,
+        filename: pf.name,
+        contentType: contentType,
+      );
+    }
     return MultipartFile.fromBytes(
-      bytes,
+      pf.bytes!,
       filename: pf.name,
       contentType: contentType,
     );
@@ -141,9 +151,29 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
     if (result == null || result.files.isEmpty) return;
 
-    final toAdd = result.files.take(remaining).toList();
+    final oversized = result.files
+        .where((f) => (f.size) > _maxFileSizeBytes)
+        .map((f) => f.name)
+        .toList();
+
+    if (oversized.isNotEmpty && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '파일 크기는 10MB를 초과할 수 없습니다.\n초과 파일: ${oversized.join(', ')}',
+          ),
+        ),
+      );
+    }
+
+    final valid = result.files
+        .where((f) => f.size <= _maxFileSizeBytes)
+        .take(remaining)
+        .toList();
+
+    if (valid.isEmpty) return;
     setState(() {
-      _selectedFiles = [..._selectedFiles, ...toAdd];
+      _selectedFiles = [..._selectedFiles, ...valid];
     });
   }
 
@@ -504,6 +534,10 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                   ],
                 ),
               ),
+              if (_showCrisisBanner) ...[
+                const SizedBox(height: 14),
+                const CrisisBanner(),
+              ],
               const SizedBox(height: 14),
 
               // 첨부파일 섹션
@@ -679,10 +713,11 @@ class _ExistingMediaThumb extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: isImage
-                ? Image.network(
-                    url,
+                ? CachedNetworkImage(
+                    imageUrl: url,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    placeholder: (_, __) => Container(color: const Color(0xFFF0F4F8)),
+                    errorWidget: (_, __, ___) => const Icon(
                       Icons.broken_image_rounded,
                       color: Color(0xFF9AA7B2),
                     ),

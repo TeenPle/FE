@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../models/post_summary.dart';
 
@@ -74,12 +75,20 @@ class PostSummaryCard extends StatelessWidget {
                 if (_showThumbnailBox) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      _thumbnailUrl!,
+                    child: CachedNetworkImage(
+                      imageUrl: _thumbnailUrl!,
                       width: compact ? 74 : 76,
                       height: compact ? 74 : 76,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      placeholder: (_, __) => Container(
+                        width: compact ? 74 : 76,
+                        height: compact ? 74 : 76,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEEEEEE),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      errorWidget: (_, __, ___) => Container(
                         width: compact ? 74 : 76,
                         height: compact ? 74 : 76,
                         decoration: BoxDecoration(

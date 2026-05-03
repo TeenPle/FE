@@ -5,6 +5,7 @@ import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../provider/post_detail_providers.dart';
 import '../../penalty/provider/penalty_provider.dart';
+import '../../profile/provider/block_provider.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
@@ -130,6 +131,25 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     notifier.reportPost(reason);
                   },
                 );
+              } else if (value == 'block' && post != null && post.authorUserId != null) {
+                final confirmed = await _showBlockConfirmDialog(context);
+                if (confirmed == true && mounted) {
+                  try {
+                    await ref.read(blockActionProvider).block(post.authorUserId!);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
+                      );
+                      context.pop(true);
+                    }
+                  } catch (_) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('차단 처리에 실패했습니다.')),
+                      );
+                    }
+                  }
+                }
               }
             },
             itemBuilder: (context) => [
@@ -143,14 +163,24 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   child: Text('삭제하기'),
                 ),
               ],
-              const PopupMenuItem(
-                value: 'chat',
-                child: Text('채팅'),
-              ),
-              const PopupMenuItem(
-                value: 'report',
-                child: Text('신고하기'),
-              ),
+              if (post == null || !post.isMine) ...[
+                const PopupMenuItem(
+                  value: 'chat',
+                  child: Text('채팅'),
+                ),
+                const PopupMenuItem(
+                  value: 'report',
+                  child: Text('신고하기'),
+                ),
+                if (post != null && post.authorUserId != null)
+                  const PopupMenuItem(
+                    value: 'block',
+                    child: Text(
+                      '차단하기',
+                      style: TextStyle(color: Color(0xFFE05C5C)),
+                    ),
+                  ),
+              ],
             ],
           ),
         ],
@@ -192,7 +222,44 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               likeCount: post.likeCount,
               commentCount: state.comments.length,
               likedByMe: state.likedByMe,
-              onLikeTap: () => _confirmReaction(context, notifier.toggleLike),
+              bookmarkedByMe: state.bookmarkedByMe,
+              onBookmarkTap: () async {
+                if (state.bookmarkedByMe) {
+                  notifier.toggleBookmark();
+                } else {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      title: const Text('북마크 추가'),
+                      content: const Text('이 게시글을 북마크에 추가할까요?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('취소'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text(
+                            '추가',
+                            style: TextStyle(color: Color(0xFFF5A623)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) notifier.toggleBookmark();
+                }
+              },
+              onLikeTap: () async {
+                final confirmed = await _showLikeConfirmDialog(
+                  context,
+                  isPost: true,
+                  alreadyLiked: state.likedByMe,
+                );
+                if (confirmed == true) notifier.toggleLike();
+              },
               onShareTap: () {
                 debugPrint('share post: ${post.postId}');
               },
@@ -214,8 +281,17 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   onReplyTap: (commentId, isReply) {
                     notifier.startReply(commentId, isReply: isReply);
                   },
-                  onCommentLikeTap: (commentId) =>
-                      _confirmReaction(context, () => notifier.likeComment(commentId)),
+                  onCommentLikeTap: (commentId) async {
+                    final alreadyLiked =
+                        state.likedCommentIds.contains(commentId);
+                    final confirmed = await _showLikeConfirmDialog(
+                      context,
+                      isPost: false,
+                      alreadyLiked: alreadyLiked,
+                    );
+                    if (confirmed == true) notifier.likeComment(commentId);
+                  },
+                  likedCommentIds: state.likedCommentIds,
                   onCommentChatTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('채팅 기능은 준비 중입니다.')),
@@ -254,6 +330,26 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                       await notifier.deleteComment(commentId);
                     }
                   },
+                  onCommentBlockTap: (authorUserId) async {
+                    final confirmed = await _showBlockConfirmDialog(context);
+                    if (confirmed == true && mounted) {
+                      try {
+                        await ref.read(blockActionProvider).block(authorUserId);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
+                          );
+                          await notifier.loadPostDetail();
+                        }
+                      } catch (_) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('차단 처리에 실패했습니다.')),
+                          );
+                        }
+                      }
+                    }
+                  },
                 ),
               ),
             ),
@@ -272,6 +368,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     required void Function(int commentId) onCommentReportTap,
     required void Function(CommentModel comment) onCommentEditTap,
     required void Function(int commentId) onCommentDeleteTap,
+    required Set<int> likedCommentIds,
+    required void Function(int authorUserId) onCommentBlockTap,
   }) {
     final parents = comments.where((e) => e.parentId == null).toList();
 
@@ -305,12 +403,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           CommentItem(
             comment: parent,
             replies: replies,
+            likedByMe: likedCommentIds.contains(parent.commentId),
             onReplyTap: () => onReplyTap(parent.commentId, false),
             onLikeTap: () => onCommentLikeTap(parent.commentId),
             onChatTap: onCommentChatTap,
             onReportTap: onCommentReportTap,
             onEditTap: onCommentEditTap,
             onDeleteTap: onCommentDeleteTap,
+            onBlockTap: onCommentBlockTap,
           ),
           if (index != parents.length - 1)
             const Divider(
@@ -358,28 +458,61 @@ class _CommentSectionHeader extends StatelessWidget {
   }
 }
 
-/// 공감 확인 다이얼로그
-void _confirmReaction(BuildContext context, VoidCallback onConfirm) {
-  showDialog<bool>(
+/// 차단 확인 다이얼로그
+Future<bool?> _showBlockConfirmDialog(BuildContext context) {
+  return showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: const Text('공감', style: TextStyle(fontWeight: FontWeight.w800)),
-      content: const Text('공감을 누르시겠습니까?'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('사용자 차단'),
+      content: const Text('이 사용자를 차단하면 해당 사용자의 게시글과 댓글이 보이지 않습니다.\n차단하시겠습니까?'),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('취소', style: TextStyle(color: Color(0xFF888888))),
+          child: const Text('취소'),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('공감', style: TextStyle(color: Color(0xFF14A3F7), fontWeight: FontWeight.w700)),
+          child: const Text(
+            '차단하기',
+            style: TextStyle(color: Color(0xFFE05C5C)),
+          ),
         ),
       ],
     ),
-  ).then((confirmed) {
-    if (confirmed == true) onConfirm();
-  });
+  );
+}
+
+/// 공감 확인 다이얼로그
+Future<bool?> _showLikeConfirmDialog(
+  BuildContext context, {
+  required bool isPost,
+  required bool alreadyLiked,
+}) {
+  final target = isPost ? '게시글' : '댓글';
+  final action = alreadyLiked ? '공감을 취소' : '공감';
+
+  return showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text('$target $action'),
+      content: Text('이 $target에 ${alreadyLiked ? '공감을 취소하시겠습니까?' : '공감하시겠습니까?'}'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(
+            alreadyLiked ? '취소하기' : '공감하기',
+            style: const TextStyle(color: Color(0xFF14A3F7)),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 /// 신고 사유 선택 바텀시트
@@ -528,5 +661,5 @@ Future<void> _showEditCommentDialog(
         },
       );
     },
-  );
+  ).whenComplete(controller.dispose);
 }

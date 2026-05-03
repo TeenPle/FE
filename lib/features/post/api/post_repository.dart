@@ -55,4 +55,7 @@ abstract class PostRepository {
 
   /// 댓글 삭제
   Future<void> deleteComment(int commentId);
+
+  /// 북마크 토글 — true: 추가됨, false: 해제됨
+  Future<bool> toggleBookmark(int postId);
 }

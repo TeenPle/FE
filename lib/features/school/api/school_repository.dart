@@ -1,4 +1,5 @@
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
 import '../models/school_response.dart';
@@ -20,9 +21,10 @@ abstract class SchoolRepository {
     int size = 10,
   });
 
-  /// 최근 3일간 해당 학교의 좋아요 많은 순 인기글 조회
+  /// HOT 게시글 목록 조회
   Future<List<PostSummary>> getHotPosts({
     required int schoolId,
-    int size = 5,
+    required HotFilter filter,
+    int size = 20,
   });
 }

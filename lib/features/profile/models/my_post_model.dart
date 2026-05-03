@@ -6,6 +6,7 @@ class MyPostModel {
   final int likeCount;
   final int commentCount;
   final String? createdAt;
+  final String? boardTitle;
 
   const MyPostModel({
     required this.postId,
@@ -15,6 +16,7 @@ class MyPostModel {
     required this.likeCount,
     required this.commentCount,
     this.createdAt,
+    this.boardTitle,
   });
 
   factory MyPostModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class MyPostModel {
       likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
       commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
       createdAt: json['createdAt'] as String?,
+      boardTitle: json['boardTitle'] as String?,
     );
   }
 

@@ -3,6 +3,7 @@ import 'post_media_item.dart';
 
 class PostDetail {
   final int postId;
+  final int? authorUserId;
   final bool isMine;
   final String title;
   final String content;
@@ -16,9 +17,11 @@ class PostDetail {
   final String createdAt;
   final List<CommentModel> comments;
   final List<PostMediaItem> mediaList;
+  final bool isBookmarked;
 
   const PostDetail({
     required this.postId,
+    this.authorUserId,
     required this.isMine,
     required this.title,
     required this.content,
@@ -32,12 +35,14 @@ class PostDetail {
     required this.createdAt,
     required this.comments,
     this.mediaList = const [],
+    this.isBookmarked = false,
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
     final rawProfileUrl = json['authorProfileImageUrl'] as String?;
     return PostDetail(
       postId: (json['postId'] as num).toInt(),
+      authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
       isMine: json['isMine'] as bool? ?? false,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
@@ -57,6 +62,7 @@ class PostDetail {
       mediaList: (json['mediaList'] as List<dynamic>? ?? [])
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      isBookmarked: json['isBookmarked'] as bool? ?? false,
     );
   }
 

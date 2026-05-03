@@ -11,45 +11,30 @@ class AppApiClient {
   Future<Map<String, dynamic>> get(
     String path, {
     Map<String, String>? queryParameters,
-  }) async {
-    final response = await _dio.get<dynamic>(
-      path,
-      queryParameters: queryParameters,
-    );
-    return _decodeResponse(response);
-  }
+  }) =>
+      _execute(() => _dio.get<dynamic>(path, queryParameters: queryParameters));
 
   Future<Map<String, dynamic>> post(
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
-  }) async {
-    final response = await _dio.post<dynamic>(
-      path,
-      data: body,
-      queryParameters: queryParameters,
-    );
-    return _decodeResponse(response);
-  }
+  }) =>
+      _execute(() => _dio.post<dynamic>(path,
+          data: body, queryParameters: queryParameters));
 
   Future<Map<String, dynamic>> patch(
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
-  }) async {
-    final response = await _dio.patch<dynamic>(
-      path,
-      data: body,
-      queryParameters: queryParameters,
-    );
-    return _decodeResponse(response);
-  }
+  }) =>
+      _execute(() => _dio.patch<dynamic>(path,
+          data: body, queryParameters: queryParameters));
 
   Future<Map<String, dynamic>> postMultipart(
     String path, {
     required Object jsonBody,
     List<MultipartFile> files = const [],
-  }) async {
+  }) {
     final formData = FormData();
     formData.files.add(MapEntry(
       'data',
@@ -61,15 +46,14 @@ class AppApiClient {
     for (final file in files) {
       formData.files.add(MapEntry('files', file));
     }
-    final response = await _dio.post<dynamic>(path, data: formData);
-    return _decodeResponse(response);
+    return _execute(() => _dio.post<dynamic>(path, data: formData));
   }
 
   Future<Map<String, dynamic>> patchMultipart(
     String path, {
     required Object jsonBody,
     List<MultipartFile> files = const [],
-  }) async {
+  }) {
     final formData = FormData();
     formData.files.add(MapEntry(
       'data',
@@ -81,32 +65,45 @@ class AppApiClient {
     for (final file in files) {
       formData.files.add(MapEntry('files', file));
     }
-    final response = await _dio.patch<dynamic>(path, data: formData);
-    return _decodeResponse(response);
+    return _execute(() => _dio.patch<dynamic>(path, data: formData));
   }
 
   Future<Map<String, dynamic>> delete(
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
-  }) async {
-    final response = await _dio.delete<dynamic>(
-      path,
-      data: body,
-      queryParameters: queryParameters,
-    );
-    return _decodeResponse(response);
-  }
+  }) =>
+      _execute(() => _dio.delete<dynamic>(path,
+          data: body, queryParameters: queryParameters));
 
   Future<Map<String, dynamic>> patchMultipartFile(
     String path, {
     required MultipartFile file,
     String fieldName = 'file',
-  }) async {
+  }) {
     final formData = FormData();
     formData.files.add(MapEntry(fieldName, file));
-    final response = await _dio.patch<dynamic>(path, data: formData);
-    return _decodeResponse(response);
+    return _execute(() => _dio.patch<dynamic>(path, data: formData));
+  }
+
+  Future<Map<String, dynamic>> _execute(
+      Future<Response<dynamic>> Function() call) async {
+    try {
+      final response = await call();
+      return _decodeResponse(response);
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'] as String?;
+        if (message != null && message.isNotEmpty) {
+          throw ApiException(message, statusCode: e.response?.statusCode);
+        }
+      }
+      throw ApiException(
+        '네트워크 오류가 발생했습니다.',
+        statusCode: e.response?.statusCode,
+      );
+    }
   }
 
   Map<String, dynamic> _decodeResponse(Response<dynamic> response) {

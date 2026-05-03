@@ -121,6 +121,23 @@ class ProfileApi {
     return response.result!;
   }
 
+  Future<List<MyPostModel>> getMyBookmarks({int page = 0, int size = 20}) async {
+    final json = await client.get(
+      '/api/users/me/bookmarks',
+      queryParameters: {'page': '$page', 'size': '$size'},
+    );
+    final response = ApiResponse.fromJson(json, (data) {
+      final list = data as List<dynamic>;
+      return list
+          .map((e) => MyPostModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    });
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+    return response.result!;
+  }
+
   Future<void> deleteAccount() async {
     final json = await client.delete('/api/users/me');
     final response = ApiResponse.fromJson(json, (data) => data);

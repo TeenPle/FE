@@ -1,6 +1,7 @@
 import '../../../core/network/api_response.dart';
 import '../../../core/network/app_api_client.dart';
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_summary.dart';
 import '../models/school_response.dart';
 
@@ -78,29 +79,31 @@ class SchoolApi {
     return response.result!;
   }
 
-  /// 최근 3일간 해당 학교의 좋아요 많은 순 인기글 조회
+  /// HOT 게시글 목록 조회 (filter: TODAY / WEEK / ALL)
   Future<List<PostSummary>> getHotPosts({
     required int schoolId,
-    int size = 5,
+    required HotFilter filter,
+    int size = 20,
   }) async {
     final json = await client.get(
       '/api/schools/$schoolId/posts/hot',
-      queryParameters: {'size': '$size'},
+      queryParameters: {
+        'filter': filter.queryValue,
+        'size': '$size',
+      },
     );
 
     final response = ApiResponse.fromJson(
       json,
-      (data) => data == null
-          ? <PostSummary>[]
-          : (data as List<dynamic>)
-              .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
-              .toList(),
+      (data) => (data as List<dynamic>)
+          .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
-    if (!response.isSuccess) {
+    if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
     }
 
-    return response.result ?? [];
+    return response.result!;
   }
 }

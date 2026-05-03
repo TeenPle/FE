@@ -8,6 +8,9 @@ class ProfileModel {
   final String gender;
   final bool verified;
   final bool phoneVerified;
+  final int myPostCount;
+  final int myCommentCount;
+  final DateTime? nicknameChangedAt;
 
   const ProfileModel({
     required this.id,
@@ -19,6 +22,9 @@ class ProfileModel {
     required this.gender,
     required this.verified,
     required this.phoneVerified,
+    this.myPostCount = 0,
+    this.myCommentCount = 0,
+    this.nicknameChangedAt,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -32,7 +38,25 @@ class ProfileModel {
       gender: json['gender'] as String? ?? '',
       verified: json['verified'] as bool? ?? false,
       phoneVerified: json['phoneVerified'] as bool? ?? false,
+      myPostCount: (json['myPostCount'] as num?)?.toInt() ?? 0,
+      myCommentCount: (json['myCommentCount'] as num?)?.toInt() ?? 0,
+      nicknameChangedAt: json['nicknameChangedAt'] != null
+          ? DateTime.tryParse(json['nicknameChangedAt'] as String)
+          : null,
     );
+  }
+
+  bool get canChangeNickname {
+    if (nicknameChangedAt == null) return true;
+    return DateTime.now().difference(nicknameChangedAt!).inDays >= 30;
+  }
+
+  /// 변경 가능까지 남은 일수 (이미 가능하면 0)
+  int get daysUntilNicknameChange {
+    if (nicknameChangedAt == null) return 0;
+    final nextAllowed = nicknameChangedAt!.add(const Duration(days: 30));
+    final remaining = nextAllowed.difference(DateTime.now()).inDays + 1;
+    return remaining.clamp(0, 30);
   }
 
   String get gradeLabel {

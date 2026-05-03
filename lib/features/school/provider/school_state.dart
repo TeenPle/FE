@@ -1,4 +1,5 @@
 import '../models/board_model.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
 
@@ -20,6 +21,9 @@ class SchoolState {
   final bool isRefreshing;
   final bool isLoadingMore;
   final bool hasLoadedOnce;
+  final List<PostSummary> hotPosts;
+  final HotFilter hotFilter;
+  final bool isLoadingHot;
   final String? errorMessage;
 
   const SchoolState({
@@ -39,6 +43,9 @@ class SchoolState {
     required this.isRefreshing,
     required this.isLoadingMore,
     required this.hasLoadedOnce,
+    required this.hotPosts,
+    required this.hotFilter,
+    required this.isLoadingHot,
     required this.errorMessage,
   });
 
@@ -60,6 +67,9 @@ class SchoolState {
       isRefreshing: false,
       isLoadingMore: false,
       hasLoadedOnce: false,
+      hotPosts: const [],
+      hotFilter: HotFilter.week,
+      isLoadingHot: false,
       errorMessage: null,
     );
   }
@@ -82,6 +92,9 @@ class SchoolState {
     bool? isRefreshing,
     bool? isLoadingMore,
     bool? hasLoadedOnce,
+    List<PostSummary>? hotPosts,
+    HotFilter? hotFilter,
+    bool? isLoadingHot,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -102,6 +115,9 @@ class SchoolState {
       isRefreshing: isRefreshing ?? this.isRefreshing,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasLoadedOnce: hasLoadedOnce ?? this.hasLoadedOnce,
+      hotPosts: hotPosts ?? this.hotPosts,
+      hotFilter: hotFilter ?? this.hotFilter,
+      isLoadingHot: isLoadingHot ?? this.isLoadingHot,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }

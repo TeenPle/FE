@@ -5,23 +5,27 @@ import '../../models/comment_model.dart';
 class CommentItem extends StatelessWidget {
   final CommentModel comment;
   final List<CommentModel> replies;
+  final bool likedByMe;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
   final void Function(CommentModel comment)? onEditTap;
   final void Function(int commentId)? onDeleteTap;
   final void Function(int commentId)? onReportTap;
   final VoidCallback? onChatTap;
+  final void Function(int authorUserId)? onBlockTap;
 
   const CommentItem({
     super.key,
     required this.comment,
     required this.replies,
+    this.likedByMe = false,
     this.onReplyTap,
     this.onLikeTap,
     this.onEditTap,
     this.onDeleteTap,
     this.onReportTap,
     this.onChatTap,
+    this.onBlockTap,
   });
 
   @override
@@ -34,17 +38,21 @@ class CommentItem extends StatelessWidget {
             comment: comment,
             showReplyButton: !comment.isReply,
             isMyComment: comment.isMine,
+            likedByMe: likedByMe,
             onReplyTap: onReplyTap,
             onLikeTap: onLikeTap,
             onEditTap: () => onEditTap?.call(comment),
             onDeleteTap: () => onDeleteTap?.call(comment.commentId),
             onReportTap: () => onReportTap?.call(comment.commentId),
             onChatTap: onChatTap,
+            onBlockTap: comment.authorUserId != null
+                ? () => onBlockTap?.call(comment.authorUserId!)
+                : null,
           ),
           if (replies.isNotEmpty) const SizedBox(height: 14),
           if (replies.isNotEmpty)
             ...replies.map(
-                  (reply) => Padding(
+              (reply) => Padding(
                 padding: const EdgeInsets.only(left: 12, top: 10),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -71,11 +79,15 @@ class CommentItem extends StatelessWidget {
                           comment: reply,
                           showReplyButton: false,
                           isMyComment: reply.isMine,
+                          likedByMe: false,
                           onLikeTap: () {},
                           onEditTap: () => onEditTap?.call(reply),
                           onDeleteTap: () => onDeleteTap?.call(reply.commentId),
                           onReportTap: () => onReportTap?.call(reply.commentId),
                           onChatTap: onChatTap,
+                          onBlockTap: reply.authorUserId != null
+                              ? () => onBlockTap?.call(reply.authorUserId!)
+                              : null,
                         ),
                       ),
                     ],
@@ -94,36 +106,39 @@ class _CommentBody extends StatelessWidget {
   final CommentModel comment;
   final bool showReplyButton;
   final bool isMyComment;
+  final bool likedByMe;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
   final VoidCallback? onEditTap;
   final VoidCallback? onDeleteTap;
   final VoidCallback? onReportTap;
   final VoidCallback? onChatTap;
+  final VoidCallback? onBlockTap;
 
   const _CommentBody({
     required this.comment,
     required this.showReplyButton,
     required this.isMyComment,
+    required this.likedByMe,
     this.onReplyTap,
     this.onLikeTap,
     this.onEditTap,
     this.onDeleteTap,
     this.onReportTap,
     this.onChatTap,
+    this.onBlockTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 삭제된 댓글은 플레이스홀더만 표시
     if (comment.isDeleted) {
       return _DeletedCommentPlaceholder();
     }
 
     final createdAtText =
-    (comment.createdAt != null && comment.createdAt!.isNotEmpty)
-        ? comment.createdAt!
-        : '방금 전';
+        (comment.createdAt != null && comment.createdAt!.isNotEmpty)
+            ? comment.createdAt!
+            : '방금 전';
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,7 +199,7 @@ class _CommentBody extends StatelessWidget {
                     ),
                   ),
 
-                  /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고
+                  /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고/차단
                   PopupMenuButton<String>(
                     color: Colors.white,
                     onSelected: (value) {
@@ -197,6 +212,8 @@ class _CommentBody extends StatelessWidget {
                           onChatTap?.call();
                         case 'report':
                           onReportTap?.call();
+                        case 'block':
+                          onBlockTap?.call();
                       }
                     },
                     itemBuilder: (context) => [
@@ -210,14 +227,24 @@ class _CommentBody extends StatelessWidget {
                           child: Text('삭제하기'),
                         ),
                       ],
-                      const PopupMenuItem(
-                        value: 'chat',
-                        child: Text('채팅'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'report',
-                        child: Text('신고하기'),
-                      ),
+                      if (!isMyComment) ...[
+                        const PopupMenuItem(
+                          value: 'chat',
+                          child: Text('채팅'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'report',
+                          child: Text('신고하기'),
+                        ),
+                        if (onBlockTap != null)
+                          const PopupMenuItem(
+                            value: 'block',
+                            child: Text(
+                              '차단하기',
+                              style: TextStyle(color: Color(0xFFE05C5C)),
+                            ),
+                          ),
+                      ],
                     ],
                     child: const Padding(
                       padding: EdgeInsets.all(4),
@@ -252,12 +279,12 @@ class _CommentBody extends StatelessWidget {
                     ),
                   if (showReplyButton) const SizedBox(width: 10),
                   _InlineActionButton(
-                    icon: comment.likedByMe
-                        ? Icons.thumb_up
+                    icon: likedByMe
+                        ? Icons.thumb_up_alt
                         : Icons.thumb_up_alt_outlined,
                     label: '공감 ${comment.likeCount}',
                     onTap: onLikeTap,
-                    isActive: comment.likedByMe,
+                    isActive: likedByMe,
                   ),
                 ],
               ),

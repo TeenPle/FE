@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
 import '../provider/profile_provider.dart';
@@ -55,9 +55,37 @@ class SettingsPage extends ConsumerWidget {
               ),
               const _Divider(),
               _SettingsTile(
+                icon: Icons.block_rounded,
+                label: '차단 목록',
+                onTap: () => context.push(AppRoutes.blockedUsers),
+              ),
+              const _Divider(),
+              _SettingsTile(
                 icon: Icons.gavel_rounded,
                 label: '제재 이력',
                 onTap: () => context.push(AppRoutes.myPenalties),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // 화면 설정
+          _SectionHeader(label: '화면'),
+          const SizedBox(height: 8),
+          const _ThemeCard(),
+
+          const SizedBox(height: 20),
+
+          // D-Day
+          _SectionHeader(label: 'D-Day'),
+          const SizedBox(height: 8),
+          _SettingsCard(
+            children: [
+              _SettingsTile(
+                icon: Icons.event_available_outlined,
+                label: 'D-Day 관리',
+                onTap: () => context.push(AppRoutes.ddaySettings),
               ),
             ],
           ),
@@ -151,6 +179,104 @@ class SettingsPage extends ConsumerWidget {
     if (confirmed == true) {
       await ref.read(profileProvider.notifier).deleteAccount();
     }
+  }
+}
+
+// ────────────────────────────────────────────
+// 테마 설정 카드
+// ────────────────────────────────────────────
+
+class _ThemeCard extends ConsumerWidget {
+  const _ThemeCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    final notifier = ref.read(themeModeProvider.notifier);
+
+    return _SettingsCard(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.dark_mode_outlined,
+                size: 20,
+                color: Color(0xFF5A8EA8),
+              ),
+              const SizedBox(width: 14),
+              const Text(
+                '테마',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF111111),
+                ),
+              ),
+              const Spacer(),
+              _ThemeSegment(
+                label: '라이트',
+                selected: mode == ThemeMode.light,
+                onTap: () => notifier.setMode(ThemeMode.light),
+              ),
+              const SizedBox(width: 6),
+              _ThemeSegment(
+                label: '다크',
+                selected: mode == ThemeMode.dark,
+                onTap: () => notifier.setMode(ThemeMode.dark),
+              ),
+              const SizedBox(width: 6),
+              _ThemeSegment(
+                label: '자동',
+                selected: mode == ThemeMode.system,
+                onTap: () => notifier.setMode(ThemeMode.system),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThemeSegment extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeSegment({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF4A67F2) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected
+                ? const Color(0xFF4A67F2)
+                : const Color(0xFFD0D8E4),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: selected ? Colors.white : const Color(0xFF9AA7B2),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -307,17 +433,6 @@ class _AppInfoCardState extends State<_AppInfoCard> {
     });
   }
 
-  Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('페이지를 열 수 없습니다.')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return _SettingsCard(
@@ -327,13 +442,13 @@ class _AppInfoCardState extends State<_AppInfoCard> {
         _SettingsTile(
           icon: Icons.description_outlined,
           label: '이용약관',
-          onTap: () => _launchUrl('https://teenple.com/terms'),
+          onTap: () => context.push(AppRoutes.terms),
         ),
         const _Divider(),
         _SettingsTile(
           icon: Icons.privacy_tip_outlined,
           label: '개인정보처리방침',
-          onTap: () => _launchUrl('https://teenple.com/privacy'),
+          onTap: () => context.push(AppRoutes.privacyPolicy),
         ),
       ],
     );

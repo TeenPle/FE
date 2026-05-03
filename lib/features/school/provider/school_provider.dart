@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/school_repository.dart';
 import '../models/board_model.dart';
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
-import '../models/school_response.dart';
 import 'school_state.dart';
 
 /// 학교 메인 화면 상태 관리 Notifier
@@ -17,57 +17,44 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
   Future<void> loadInitialSchool(int schoolId) async {
     state = state.copyWith(
       isLoading: true,
-      isHotLoading: true,
       clearError: true,
     );
 
-    // 학교 상세 + 인기글 두 요청을 동시에 시작, 각각 독립적으로 에러 처리
-    final results = await Future.wait([
-      repository
-          .getSchoolDetail(schoolId: schoolId, page: 0, size: state.pageSize)
-          .then<Object?>((v) => v)
-          .catchError((e) => e),
-      repository
-          .getHotPosts(schoolId: schoolId)
-          .then<Object?>((v) => v)
-          .catchError((e) => e),
-    ]);
+    try {
+      final result = await repository.getSchoolDetail(
+        schoolId: schoolId,
+        page: 0,
+        size: state.pageSize,
+      );
 
-    final schoolResult = results[0];
-    final hotResult = results[1];
+      final defaultBoard = _findDefaultBoard(result.boards);
 
-    if (schoolResult is! SchoolResponse) {
+      state = state.copyWith(
+        schoolId: result.schoolId,
+        schoolName: result.name,
+        schoolDescription: result.description,
+        boards: result.boards,
+        selectedBoardId: defaultBoard?.id,
+        posts: _filterVisiblePosts(result.posts),
+        sortType: PostSortType.latest,
+        currentPage: 0,
+        hasNext: result.hasNext,
+        isLoading: false,
+        isRefreshing: false,
+        isLoadingMore: false,
+        hasLoadedOnce: true,
+      );
+
+      // HOT 게시글 병렬 조회
+      loadHotPosts();
+    } catch (_) {
       state = state.copyWith(
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
-        isHotLoading: false,
         errorMessage: '학교 정보를 불러오지 못했습니다.',
       );
-      return;
     }
-
-    final defaultBoard = _findDefaultBoard(schoolResult.boards);
-
-    final hotPosts = hotResult is List<PostSummary> ? hotResult : <PostSummary>[];
-
-    state = state.copyWith(
-      schoolId: schoolResult.schoolId,
-      schoolName: schoolResult.name,
-      schoolDescription: schoolResult.description,
-      boards: schoolResult.boards,
-      selectedBoardId: defaultBoard?.id,
-      posts: _filterVisiblePosts(schoolResult.posts),
-      hotPosts: _filterVisiblePosts(hotPosts),
-      sortType: PostSortType.latest,
-      currentPage: 0,
-      hasNext: schoolResult.hasNext,
-      isLoading: false,
-      isRefreshing: false,
-      isLoadingMore: false,
-      isHotLoading: false,
-      hasLoadedOnce: true,
-    );
   }
 
   /// 게시판을 바꾸면 첫 페이지부터 새로 조회
@@ -109,52 +96,35 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
 
     state = state.copyWith(
       isRefreshing: true,
-      isHotLoading: true,
       clearError: true,
     );
 
-    // 게시판 글 + 인기글 두 요청 동시에 시작, 각각 독립적으로 에러 처리
-    final results = await Future.wait([
-      repository
-          .getPostsByBoard(
-            boardId: state.selectedBoardId!,
-            sortType: state.sortType,
-            page: 0,
-            size: state.pageSize,
-          )
-          .then<Object?>((v) => v)
-          .catchError((e) => e),
-      repository
-          .getHotPosts(schoolId: state.schoolId)
-          .then<Object?>((v) => v)
-          .catchError((e) => e),
-    ]);
+    try {
+      final pageResult = await repository.getPostsByBoard(
+        boardId: state.selectedBoardId!,
+        sortType: state.sortType,
+        page: 0,
+        size: state.pageSize,
+      );
 
-    final boardResult = results[0];
-    final hotResult = results[1];
+      state = state.copyWith(
+        posts: _filterVisiblePosts(pageResult.posts),
+        currentPage: 0,
+        hasNext: pageResult.hasNext,
+        isLoading: false,
+        isRefreshing: false,
+        isLoadingMore: false,
+        hasLoadedOnce: true,
+      );
 
-    if (boardResult is! BoardPostPage) {
+      // HOT 게시글 별도 새로고침
+      loadHotPosts();
+    } catch (_) {
       state = state.copyWith(
         isRefreshing: false,
-        isHotLoading: false,
         errorMessage: '게시글 목록을 새로고침하지 못했습니다.',
       );
-      return;
     }
-
-    final hotPosts = hotResult is List<PostSummary> ? hotResult : <PostSummary>[];
-
-    state = state.copyWith(
-      posts: _filterVisiblePosts(boardResult.posts),
-      hotPosts: _filterVisiblePosts(hotPosts),
-      currentPage: 0,
-      hasNext: boardResult.hasNext,
-      isLoading: false,
-      isRefreshing: false,
-      isLoadingMore: false,
-      isHotLoading: false,
-      hasLoadedOnce: true,
-    );
   }
 
   /// 다음 페이지 게시글을 이어서 불러옴
@@ -199,6 +169,37 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
   Future<void> reloadCurrentBoard() async {
     if (state.selectedBoardId == null) return;
     await refreshPosts();
+  }
+
+  /// HOT 게시글을 현재 필터 기준으로 조회
+  Future<void> loadHotPosts() async {
+    if (state.isLoadingHot) return;
+
+    state = state.copyWith(isLoadingHot: true, clearError: true);
+
+    try {
+      final posts = await repository.getHotPosts(
+        schoolId: state.schoolId,
+        filter: state.hotFilter,
+        size: 20,
+      );
+      state = state.copyWith(
+        hotPosts: _filterVisiblePosts(posts),
+        isLoadingHot: false,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoadingHot: false,
+        errorMessage: 'HOT 게시글을 불러오지 못했습니다.',
+      );
+    }
+  }
+
+  /// HOT 필터 변경 후 재조회
+  Future<void> changeHotFilter(HotFilter filter) async {
+    if (state.hotFilter == filter) return;
+    state = state.copyWith(hotFilter: filter, hotPosts: const []);
+    await loadHotPosts();
   }
 
   /// 첫 페이지 조회를 공통 처리

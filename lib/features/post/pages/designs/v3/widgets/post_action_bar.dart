@@ -5,7 +5,9 @@ class PostActionBarV3 extends StatelessWidget {
   final int likeCount;
   final int commentCount;
   final bool likedByMe;
+  final bool bookmarkedByMe;
   final VoidCallback onLikeTap;
+  final VoidCallback onBookmarkTap;
   final VoidCallback onShareTap;
 
   const PostActionBarV3({
@@ -13,7 +15,9 @@ class PostActionBarV3 extends StatelessWidget {
     required this.likeCount,
     required this.commentCount,
     required this.likedByMe,
+    required this.bookmarkedByMe,
     required this.onLikeTap,
+    required this.onBookmarkTap,
     required this.onShareTap,
   });
 
@@ -107,6 +111,36 @@ class PostActionBarV3 extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            // 북마크
+            GestureDetector(
+              onTap: onBookmarkTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: bookmarkedByMe
+                      ? const Color(0xFFFFF8ED)
+                      : const Color(0xFFF5F8FB),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: bookmarkedByMe
+                        ? const Color(0xFFFFE0A0)
+                        : const Color(0xFFE2EAF0),
+                  ),
+                ),
+                child: Icon(
+                  bookmarkedByMe
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
+                  size: 18,
+                  color: bookmarkedByMe
+                      ? const Color(0xFFF5A623)
+                      : const Color(0xFF546E7A),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             // 공유
             GestureDetector(
               onTap: onShareTap,

@@ -106,6 +106,25 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (post.boardTitle != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEAF7FF),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        post.boardTitle!,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF14A3F7),
+                        ),
+                      ),
+                    ),
+                  ),
                 Text(
                   post.title,
                   style: const TextStyle(

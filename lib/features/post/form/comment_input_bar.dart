@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../pages/widgets/crisis_banner.dart';
 
 class CommentInputBar extends StatefulWidget {
   final bool anonymous;
@@ -24,10 +25,28 @@ class CommentInputBar extends StatefulWidget {
 
 class _CommentInputBarState extends State<CommentInputBar> {
   final TextEditingController _controller = TextEditingController();
+  static const int _maxLength = 500;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  int get _length => _controller.text.length;
+  bool get _isOverLimit => _length > _maxLength;
+  bool get _showCrisisBanner =>
+      CrisisBanner.containsCrisisKeyword(_controller.text);
 
   void _submit() {
     final text = _controller.text.trim();
-    if (text.isEmpty || widget.isSubmitting) return;
+    if (text.isEmpty || widget.isSubmitting || _isOverLimit) return;
 
     widget.onSubmit(text);
     _controller.clear();
@@ -43,7 +62,11 @@ class _CommentInputBarState extends State<CommentInputBar> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (widget.replyingToCommentId != null)
+            if (_showCrisisBanner) ...[
+            const CrisisBanner(),
+            const SizedBox(height: 8),
+          ],
+          if (widget.replyingToCommentId != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding:
@@ -115,33 +138,54 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      style: const TextStyle(
-                        color: Color(0xFF222222),
-                        fontSize: 15,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: '댓글을 입력하세요',
-                        hintStyle: TextStyle(
-                          color: Color(0xFF9AA7B2),
-                          fontSize: 15,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        TextField(
+                          controller: _controller,
+                          minLines: 1,
+                          maxLines: 4,
+                          style: TextStyle(
+                            color: _isOverLimit
+                                ? const Color(0xFFE05C5C)
+                                : const Color(0xFF222222),
+                            fontSize: 15,
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: '댓글을 입력하세요',
+                            hintStyle: TextStyle(
+                              color: Color(0xFF9AA7B2),
+                              fontSize: 15,
+                            ),
+                            border: InputBorder.none,
+                            isCollapsed: true,
+                          ),
                         ),
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                      ),
+                        if (_length > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '$_length/$_maxLength',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: _isOverLimit
+                                    ? const Color(0xFFE05C5C)
+                                    : const Color(0xFFB0BEC5),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   InkWell(
-                    onTap: widget.isSubmitting ? null : _submit,
+                    onTap: (widget.isSubmitting || _isOverLimit) ? null : _submit,
                     borderRadius: BorderRadius.circular(999),
                     child: Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: widget.isSubmitting
+                        color: (widget.isSubmitting || _isOverLimit)
                             ? const Color(0xFFD9EAF7)
                             : const Color(0xFF14A3F7),
                         shape: BoxShape.circle,

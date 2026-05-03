@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../models/post_detail.dart';
+import 'linkable_text.dart';
 
 class PostContentCard extends StatelessWidget {
   final PostDetail post;
@@ -33,8 +35,8 @@ class PostContentCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text(
-            post.content,
+          LinkableText(
+            text: post.content,
             style: const TextStyle(
               fontSize: 16,
               height: 1.7,
@@ -105,11 +107,12 @@ class _SingleImage extends StatelessWidget {
       onTap: () => _openImageViewer(context, url),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.network(
-          url,
+        child: CachedNetworkImage(
+          imageUrl: url,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _imagePlaceholder(),
+          placeholder: (_, __) => _imagePlaceholder(),
+          errorWidget: (_, __, ___) => _imagePlaceholder(),
         ),
       ),
     );
@@ -133,12 +136,17 @@ class _ImageRow extends StatelessWidget {
             onTap: () => _openImageViewer(context, urls[i]),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                urls[i],
+              child: CachedNetworkImage(
+                imageUrl: urls[i],
                 width: 160,
                 height: 160,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                placeholder: (_, __) => Container(
+                  width: 160,
+                  height: 160,
+                  color: const Color(0xFFF0F4F8),
+                ),
+                errorWidget: (_, __, ___) => Container(
                   width: 160,
                   height: 160,
                   color: const Color(0xFFF0F4F8),
@@ -243,12 +251,14 @@ void _openImageViewer(BuildContext context, String url) {
           width: double.infinity,
           height: double.infinity,
           child: InteractiveViewer(
-            child: Image.network(
-              url,
+            child: CachedNetworkImage(
+              imageUrl: url,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Center(
-                child: Icon(Icons.broken_image_rounded,
-                    color: Colors.white54, size: 60),
+              placeholder: (_, __) => const Center(
+                child: CircularProgressIndicator(color: Colors.white54, strokeWidth: 2),
+              ),
+              errorWidget: (_, __, ___) => const Center(
+                child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 60),
               ),
             ),
           ),

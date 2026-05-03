@@ -1,5 +1,6 @@
 class CommentModel {
   final int commentId;
+  final int? authorUserId;
   final bool isMine;
   final String commentStatus;
   final String content;
@@ -14,6 +15,7 @@ class CommentModel {
 
   const CommentModel({
     required this.commentId,
+    this.authorUserId,
     required this.isMine,
     required this.commentStatus,
     required this.content,
@@ -30,6 +32,7 @@ class CommentModel {
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       commentId: (json['commentId'] as num).toInt(),
+      authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
       isMine: json['isMine'] as bool? ?? false,
       commentStatus: json['commentStatus'] as String? ?? 'ACTIVE',
       content: json['content'] as String? ?? '',

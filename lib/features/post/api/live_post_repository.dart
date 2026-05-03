@@ -136,4 +136,10 @@ class LivePostRepository implements PostRepository {
   Future<void> deleteComment(int commentId) {
     return api.deleteComment(commentId);
   }
+
+  /// 북마크 토글 요청을 서버에 전달
+  @override
+  Future<bool> toggleBookmark(int postId) {
+    return api.toggleBookmark(postId);
+  }
 }

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
+import '../../../features/notification/provider/notification_provider.dart';
+import '../../../features/penalty/provider/penalty_provider.dart';
 import '../form/board_tab_bar.dart';
 import '../models/post_sort_type.dart';
 import '../provider/school_providers.dart';
 import '../provider/school_state.dart';
 import '../provider/school_provider.dart';
-import '../../../features/notification/provider/notification_provider.dart';
-import '../../../features/penalty/provider/penalty_provider.dart';
 import 'widgets/post_summary_card.dart';
 
 /// 특정 게시판의 전체 글 목록을 보여주는 상세 페이지
@@ -41,7 +41,6 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(schoolProvider);
     final notifier = ref.read(schoolProvider.notifier);
-    final unreadCount = ref.watch(notificationProvider.select((s) => s.unreadCount));
 
     // 현재 선택된 게시판 제목 (동적)
     final currentBoard = state.boards.where((b) => b.id == state.selectedBoardId).firstOrNull;
@@ -74,6 +73,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: IconButton(
+                      /// 이전 화면으로 이동
                       onPressed: () {
                         if (context.canPop()) {
                           context.pop();
@@ -100,65 +100,39 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                   ),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () => context.push(AppRoutes.profile),
-                          icon: const Icon(Icons.person_outline_rounded,
-                              color: Color(0xFF111111), size: 24),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          constraints: const BoxConstraints(),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            await context.push(AppRoutes.notifications);
-                            if (context.mounted) {
-                              ref.read(notificationProvider.notifier).loadUnreadCount();
-                            }
-                          },
-                          icon: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              const Icon(Icons.notifications_none_rounded,
-                                  color: Color(0xFF111111), size: 24),
-                              if (unreadCount > 0)
-                                Positioned(
-                                  top: -4,
-                                  right: -4,
-                                  child: Container(
-                                    constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
-                                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFE05C7B),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        unreadCount > 99 ? '99+' : '$unreadCount',
-                                        style: const TextStyle(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () => context.push(AppRoutes.profile),
+                            icon: const Icon(
+                              Icons.account_circle_outlined,
+                              color: Color(0xFF111111),
+                              size: 26,
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          constraints: const BoxConstraints(),
-                        ),
-                        IconButton(
-                          onPressed: () => context.push(AppRoutes.settings),
-                          icon: const Icon(Icons.settings_outlined,
-                              color: Color(0xFF111111), size: 24),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          constraints: const BoxConstraints(),
-                        ),
-                        const SizedBox(width: 4),
-                      ],
+                          _BoardNotificationButton(
+                            onTap: () async {
+                              await context.push(AppRoutes.notifications);
+                              if (context.mounted) {
+                                ref
+                                    .read(notificationProvider.notifier)
+                                    .loadUnreadCount();
+                              }
+                            },
+                          ),
+                          IconButton(
+                            onPressed: () => context.push(AppRoutes.settings),
+                            icon: const Icon(
+                              Icons.settings_outlined,
+                              color: Color(0xFF111111),
+                              size: 24,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -173,18 +147,14 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
       ),
       body: Column(
         children: [
-          // 게시판 목록 탭 (메인화면과 동일한 UI)
-          if (state.boards.isNotEmpty)
-            Container(
-              color: Colors.white,
-              child: BoardTabBar(
-                boards: state.boards,
-                selectedBoardId: state.selectedBoardId,
-                onBoardSelected: (boardId) {
-                  notifier.selectBoard(boardId);
-                },
-              ),
-            ),
+          BoardTabBar(
+            boards: state.boards,
+            selectedBoardId: state.selectedBoardId,
+            onBoardSelected: (boardId) {
+              notifier.selectBoard(boardId);
+            },
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
           Container(
             width: double.infinity,
             color: const Color(0xFFEFF4F9),
@@ -273,6 +243,61 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
   }
 }
 
+/// 게시판 상단바 알림 아이콘 (배지 포함)
+class _BoardNotificationButton extends ConsumerWidget {
+  final Future<void> Function() onTap;
+
+  const _BoardNotificationButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(
+      notificationProvider.select((s) => s.unreadCount),
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(
+              Icons.notifications_none,
+              size: 26,
+              color: Color(0xFF111111),
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  constraints:
+                      const BoxConstraints(minWidth: 16, minHeight: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE05C7B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 99 ? '99+' : '$unreadCount',
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// 최신순 드롭다운 모양 위젯
 class _SortDropdown extends StatelessWidget {
   final PostSortType selectedSortType;
@@ -356,9 +381,9 @@ class _EmptyBoardPostState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 40, 18, 0),
-      child: const Column(
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(18, 40, 18, 0),
+      child: Column(
         children: [
           Icon(Icons.forum_outlined, size: 40, color: Color(0xFF9AA7B2)),
           SizedBox(height: 12),
@@ -447,7 +472,7 @@ class _LoadMoreSection extends StatelessWidget {
   }
 }
 
-// 제재 상태를 반영한 글쓰기 FAB
+/// 제재 상태를 반영한 글쓰기 FAB
 class _WriteFab extends ConsumerWidget {
   final SchoolState state;
   final SchoolNotifier notifier;

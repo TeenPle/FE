@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/routes.dart';
+import '../../../core/storage/token_storage.dart';
 import '../api/notification_api.dart';
 import '../provider/notification_provider.dart';
 
@@ -28,8 +29,9 @@ final _localNotifications = FlutterLocalNotificationsPlugin();
 Future<void> showLocalNotification(RemoteMessage message) async {
   final notification = message.notification;
   if (notification == null) {
-    // ignore: avoid_print
-    print('[FCM] showLocalNotification: notification payload is null, skip');
+    if (kDebugMode) {
+      debugPrint('[FCM] showLocalNotification: notification payload is null, skip');
+    }
     return;
   }
 
@@ -42,15 +44,14 @@ Future<void> showLocalNotification(RemoteMessage message) async {
   );
   const details = NotificationDetails(android: androidDetails);
 
-  // hashCode는 음수가 될 수 있어 Android에서 문제 발생 가능 → timestamp 기반 ID 사용
   final id = DateTime.now().millisecondsSinceEpoch % 100000;
   try {
     await _localNotifications.show(id, notification.title, notification.body, details);
-    // ignore: avoid_print
-    print('[FCM] local notification shown: id=$id title=${notification.title}');
+    if (kDebugMode) {
+      debugPrint('[FCM] local notification shown: id=$id title=${notification.title}');
+    }
   } catch (e) {
-    // ignore: avoid_print
-    print('[FCM] showLocalNotification error: $e');
+    if (kDebugMode) debugPrint('[FCM] showLocalNotification error: $e');
   }
 }
 
@@ -61,11 +62,9 @@ class FcmService {
   FcmService(this._api, this._ref);
 
   Future<void> init() async {
-    // ignore: avoid_print
-    print('[FCM] init() called, platform: $defaultTargetPlatform');
+    if (kDebugMode) debugPrint('[FCM] init() called, platform: $defaultTargetPlatform');
     if (!_isMobile) {
-      // ignore: avoid_print
-      print('[FCM] 모바일 아님 — 종료');
+      if (kDebugMode) debugPrint('[FCM] 모바일 아님 — 종료');
       return;
     }
 
@@ -73,29 +72,33 @@ class FcmService {
     await _requestPermission();
     await _registerToken();
 
-    // 포그라운드: 로컬 알림 표시 + 배지 카운트 갱신
     FirebaseMessaging.onMessage.listen((message) async {
-      // ignore: avoid_print
-      print('[FCM] onMessage fired: ${message.notification?.title}');
+      if (kDebugMode) debugPrint('[FCM] onMessage fired: ${message.notification?.title}');
       await showLocalNotification(message);
       _refreshUnreadCount();
     });
 
-    // 백그라운드 상태에서 알림 탭: 해당 게시글로 이동 + 배지 갱신
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
+    FirebaseMessaging.onMessageOpenedApp.listen((m) => _handleMessageTap(m));
 
     FirebaseMessaging.instance.onTokenRefresh.listen((_) => _registerToken());
   }
 
-  /// 앱이 완전히 종료된 상태에서 알림 탭으로 실행된 경우 처리
   Future<void> handleInitialMessage() async {
     if (!_isMobile) return;
     final message = await FirebaseMessaging.instance.getInitialMessage();
     if (message != null) _handleMessageTap(message);
   }
 
-  void _handleMessageTap(RemoteMessage message) {
+  Future<void> _handleMessageTap(RemoteMessage message) async {
     _refreshUnreadCount();
+
+    // 로그인 여부 확인 후 라우팅
+    final role = await TokenStorage().getUserRole();
+    if (role == null) {
+      router.push(AppRoutes.login);
+      return;
+    }
+
     final data = message.data;
     final targetType = data['targetType'];
     final targetIdStr = data['targetId'];
@@ -140,8 +143,7 @@ class FcmService {
         playSound: true,
       ),
     );
-    // ignore: avoid_print
-    print('[FCM] notification channel created: $_channelId');
+    if (kDebugMode) debugPrint('[FCM] notification channel created: $_channelId');
   }
 
   Future<void> _requestPermission() async {
@@ -150,8 +152,7 @@ class FcmService {
       badge: true,
       sound: true,
     );
-    // ignore: avoid_print
-    print('[FCM] 권한 상태: ${settings.authorizationStatus}');
+    if (kDebugMode) debugPrint('[FCM] 권한 상태: ${settings.authorizationStatus}');
     if (settings.authorizationStatus == AuthorizationStatus.denied) return;
 
     await FirebaseMessaging.instance
@@ -164,24 +165,18 @@ class FcmService {
 
   Future<void> _registerToken() async {
     try {
-      // ignore: avoid_print
-      print('[FCM] 토큰 요청 중...');
+      if (kDebugMode) debugPrint('[FCM] 토큰 요청 중...');
       final token = await FirebaseMessaging.instance.getToken();
-      // ignore: avoid_print
-      print('[FCM TOKEN] $token');
       if (token == null) return;
 
       final platform = Platform.isIOS ? 'IOS' : 'ANDROID';
       await _api.registerPushToken(token, platform);
-      // ignore: avoid_print
-      print('[FCM] 서버 토큰 등록 완료');
+      if (kDebugMode) debugPrint('[FCM] 서버 토큰 등록 완료');
     } catch (e) {
-      // ignore: avoid_print
-      print('[FCM ERROR] $e');
+      if (kDebugMode) debugPrint('[FCM ERROR] $e');
     }
   }
 
-  /// 앱 재개(resume) 등 필요한 시점에 토큰만 재등록. 리스너 중복 방지를 위해 init() 대신 사용.
   Future<void> reRegisterToken() async {
     if (!_isMobile) return;
     await _registerToken();

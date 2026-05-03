@@ -282,3 +282,47 @@ final myLikedPostsNotifierProvider =
     StateNotifierProvider<MyLikedPostsNotifier, MyLikedPostsState>((ref) {
   return MyLikedPostsNotifier(ref.watch(profileApiProvider));
 });
+
+// ─────────────────────────────────────────────
+// 내 북마크
+// ─────────────────────────────────────────────
+
+typedef MyBookmarksState = _PagedState<MyPostModel>;
+
+class MyBookmarksNotifier extends StateNotifier<MyBookmarksState> {
+  final ProfileApi _api;
+  MyBookmarksNotifier(this._api) : super(const _PagedState());
+
+  Future<void> load() async {
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    try {
+      final items = await _api.getMyBookmarks(page: 0);
+      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final nextPage = state.currentPage + 1;
+      final items = await _api.getMyBookmarks(page: nextPage);
+      state = state.copyWith(
+        isLoading: false,
+        items: [...state.items, ...items],
+        currentPage: nextPage,
+        hasMore: items.length >= 20,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+}
+
+final myBookmarksNotifierProvider =
+    StateNotifierProvider<MyBookmarksNotifier, MyBookmarksState>((ref) {
+  return MyBookmarksNotifier(ref.watch(profileApiProvider));
+});

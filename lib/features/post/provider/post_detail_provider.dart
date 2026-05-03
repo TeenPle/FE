@@ -34,6 +34,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         comments: post.comments,
         isLoading: false,
         isRefreshing: false,
+        bookmarkedByMe: post.isBookmarked,
       );
     } catch (_) {
       state = state.copyWith(
@@ -65,6 +66,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       final updatedPost = PostDetail(
         postId: currentPost.postId,
+        authorUserId: currentPost.authorUserId,
         isMine: currentPost.isMine,
         title: currentPost.title,
         content: currentPost.content,
@@ -76,6 +78,8 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         username: currentPost.username,
         createdAt: currentPost.createdAt,
         comments: state.comments,
+        mediaList: currentPost.mediaList,
+        isBookmarked: currentPost.isBookmarked,
       );
 
       state = state.copyWith(
@@ -109,6 +113,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
         return CommentModel(
           commentId: comment.commentId,
+          authorUserId: comment.authorUserId,
           isMine: comment.isMine,
           commentStatus: comment.commentStatus,
           content: comment.content,
@@ -123,14 +128,23 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         );
       }).toList();
 
+      final updatedLikedCommentIds = Set<int>.from(state.likedCommentIds);
+      if (result.liked) {
+        updatedLikedCommentIds.add(commentId);
+      } else {
+        updatedLikedCommentIds.remove(commentId);
+      }
+
       final currentPost = state.post;
 
       state = state.copyWith(
         comments: updatedComments,
+        likedCommentIds: updatedLikedCommentIds,
         post: currentPost == null
             ? null
             : PostDetail(
           postId: currentPost.postId,
+          authorUserId: currentPost.authorUserId,
           isMine: currentPost.isMine,
           title: currentPost.title,
           content: currentPost.content,
@@ -142,6 +156,8 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           username: currentPost.username,
           createdAt: currentPost.createdAt,
           comments: updatedComments,
+          mediaList: currentPost.mediaList,
+          isBookmarked: currentPost.isBookmarked,
         ),
         isSubmittingReaction: false,
       );
@@ -403,5 +419,26 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
   /// 페이지 종료 플래그를 해제
   void clearClosePageFlag() {
     state = state.copyWith(shouldClosePage: false);
+  }
+
+  /// 북마크 토글
+  Future<void> toggleBookmark() async {
+    if (state.post == null || state.isBookmarking) return;
+
+    state = state.copyWith(isBookmarking: true, clearError: true, clearSuccess: true);
+
+    try {
+      final bookmarked = await repository.toggleBookmark(state.postId);
+      state = state.copyWith(
+        bookmarkedByMe: bookmarked,
+        isBookmarking: false,
+        successMessage: bookmarked ? '북마크에 추가되었습니다.' : '북마크가 해제되었습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isBookmarking: false,
+        errorMessage: '북마크 처리에 실패했습니다.',
+      );
+    }
   }
 }

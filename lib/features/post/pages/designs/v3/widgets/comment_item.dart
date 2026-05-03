@@ -11,6 +11,7 @@ class CommentItemV3 extends StatelessWidget {
   final void Function(int commentId)? onDeleteTap;
   final void Function(int commentId)? onReportTap;
   final VoidCallback? onChatTap;
+  final void Function(int authorUserId)? onBlockTap;
 
   const CommentItemV3({
     super.key,
@@ -22,6 +23,7 @@ class CommentItemV3 extends StatelessWidget {
     this.onDeleteTap,
     this.onReportTap,
     this.onChatTap,
+    this.onBlockTap,
   });
 
   @override
@@ -55,6 +57,9 @@ class CommentItemV3 extends StatelessWidget {
                 onDeleteTap: () => onDeleteTap?.call(comment.commentId),
                 onReportTap: () => onReportTap?.call(comment.commentId),
                 onChatTap: onChatTap,
+                onBlockTap: comment.authorUserId != null
+                    ? () => onBlockTap?.call(comment.authorUserId!)
+                    : null,
               ),
             ),
             if (replies.isNotEmpty) ...[
@@ -87,6 +92,9 @@ class CommentItemV3 extends StatelessWidget {
                           onReportTap: () =>
                               onReportTap?.call(reply.commentId),
                           onChatTap: onChatTap,
+                          onBlockTap: reply.authorUserId != null
+                              ? () => onBlockTap?.call(reply.authorUserId!)
+                              : null,
                         ),
                       ),
                     ],
@@ -111,6 +119,7 @@ class _CommentBody extends StatelessWidget {
   final VoidCallback? onDeleteTap;
   final VoidCallback? onReportTap;
   final VoidCallback? onChatTap;
+  final VoidCallback? onBlockTap;
 
   const _CommentBody({
     required this.comment,
@@ -122,6 +131,7 @@ class _CommentBody extends StatelessWidget {
     this.onDeleteTap,
     this.onReportTap,
     this.onChatTap,
+    this.onBlockTap,
   });
 
   @override
@@ -169,6 +179,7 @@ class _CommentBody extends StatelessWidget {
                         case 'delete': onDeleteTap?.call();
                         case 'chat': onChatTap?.call();
                         case 'report': onReportTap?.call();
+                        case 'block': onBlockTap?.call();
                       }
                     },
                     itemBuilder: (context) => [
@@ -177,9 +188,17 @@ class _CommentBody extends StatelessWidget {
                         const PopupMenuItem(value: 'delete',
                             child: Text('삭제하기')),
                       ],
-                      const PopupMenuItem(value: 'chat', child: Text('채팅')),
-                      const PopupMenuItem(value: 'report',
-                          child: Text('신고하기')),
+                      if (!isMyComment) ...[
+                        const PopupMenuItem(value: 'chat', child: Text('채팅')),
+                        const PopupMenuItem(value: 'report',
+                            child: Text('신고하기')),
+                        if (onBlockTap != null)
+                          const PopupMenuItem(
+                            value: 'block',
+                            child: Text('차단하기',
+                                style: TextStyle(color: Color(0xFFE05C5C))),
+                          ),
+                      ],
                     ],
                     child: const Padding(
                       padding: EdgeInsets.all(2),

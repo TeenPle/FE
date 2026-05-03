@@ -1,8 +1,7 @@
 class CommentModel {
   final int commentId;
-  final int? authorUserId;
-  final bool isMine;
   final int? authorUserId;  // 작성자 userId (채팅 유입용, 삭제 시 null)
+  final bool isMine;
   final String commentStatus;
   final String content;
   final String author;
@@ -18,7 +17,6 @@ class CommentModel {
     required this.commentId,
     this.authorUserId,
     required this.isMine,
-    this.authorUserId,
     required this.commentStatus,
     required this.content,
     required this.author,
@@ -36,9 +34,6 @@ class CommentModel {
       commentId: (json['commentId'] as num).toInt(),
       authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
       isMine: json['isMine'] as bool? ?? false,
-      authorUserId: json['authorUserId'] != null
-          ? (json['authorUserId'] as num).toInt()
-          : null,
       commentStatus: json['commentStatus'] as String? ?? 'ACTIVE',
       content: json['content'] as String? ?? '',
       author: json['author'] as String? ?? '',

@@ -4,7 +4,6 @@ import '../../../core/network/dio_provider.dart';
 import '../api/live_school_repository.dart';
 import '../api/school_api.dart';
 import '../api/school_repository.dart';
-import '../api/temporary_school_repository.dart';
 import 'school_provider.dart';
 import 'school_state.dart';
 
@@ -17,15 +16,7 @@ final schoolApiProvider = Provider<SchoolApi>((ref) {
   return SchoolApi(client: client);
 });
 
-final useMockSchoolRepositoryProvider = Provider<bool>((ref) => false);
-
 final schoolRepositoryProvider = Provider<SchoolRepository>((ref) {
-  final useMock = ref.watch(useMockSchoolRepositoryProvider);
-
-  if (useMock) {
-    return const TemporarySchoolRepository();
-  }
-
   final api = ref.watch(schoolApiProvider);
   return LiveSchoolRepository(api: api);
 });

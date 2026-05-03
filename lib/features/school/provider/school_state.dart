@@ -12,7 +12,8 @@ class SchoolState {
   final int? selectedBoardId;
   final List<PostSummary> posts;
   final List<PostSummary> hotPosts;
-  final bool isHotLoading;
+  final HotFilter hotFilter;
+  final bool isLoadingHot;
   final PostSortType sortType;
   final int currentPage;
   final int pageSize;
@@ -21,9 +22,6 @@ class SchoolState {
   final bool isRefreshing;
   final bool isLoadingMore;
   final bool hasLoadedOnce;
-  final List<PostSummary> hotPosts;
-  final HotFilter hotFilter;
-  final bool isLoadingHot;
   final String? errorMessage;
 
   const SchoolState({
@@ -34,7 +32,8 @@ class SchoolState {
     required this.selectedBoardId,
     required this.posts,
     required this.hotPosts,
-    required this.isHotLoading,
+    required this.hotFilter,
+    required this.isLoadingHot,
     required this.sortType,
     required this.currentPage,
     required this.pageSize,
@@ -43,9 +42,6 @@ class SchoolState {
     required this.isRefreshing,
     required this.isLoadingMore,
     required this.hasLoadedOnce,
-    required this.hotPosts,
-    required this.hotFilter,
-    required this.isLoadingHot,
     required this.errorMessage,
   });
 
@@ -58,7 +54,8 @@ class SchoolState {
       selectedBoardId: null,
       posts: [],
       hotPosts: [],
-      isHotLoading: false,
+      hotFilter: HotFilter.week,
+      isLoadingHot: false,
       sortType: PostSortType.latest,
       currentPage: 0,
       pageSize: 5,
@@ -67,14 +64,10 @@ class SchoolState {
       isRefreshing: false,
       isLoadingMore: false,
       hasLoadedOnce: false,
-      hotPosts: const [],
-      hotFilter: HotFilter.week,
-      isLoadingHot: false,
       errorMessage: null,
     );
   }
 
-  /// 상태 일부를 복사해서 새 상태 생성
   SchoolState copyWith({
     int? schoolId,
     String? schoolName,
@@ -83,7 +76,8 @@ class SchoolState {
     int? selectedBoardId,
     List<PostSummary>? posts,
     List<PostSummary>? hotPosts,
-    bool? isHotLoading,
+    HotFilter? hotFilter,
+    bool? isLoadingHot,
     PostSortType? sortType,
     int? currentPage,
     int? pageSize,
@@ -92,9 +86,6 @@ class SchoolState {
     bool? isRefreshing,
     bool? isLoadingMore,
     bool? hasLoadedOnce,
-    List<PostSummary>? hotPosts,
-    HotFilter? hotFilter,
-    bool? isLoadingHot,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -106,7 +97,8 @@ class SchoolState {
       selectedBoardId: selectedBoardId ?? this.selectedBoardId,
       posts: posts ?? this.posts,
       hotPosts: hotPosts ?? this.hotPosts,
-      isHotLoading: isHotLoading ?? this.isHotLoading,
+      hotFilter: hotFilter ?? this.hotFilter,
+      isLoadingHot: isLoadingHot ?? this.isLoadingHot,
       sortType: sortType ?? this.sortType,
       currentPage: currentPage ?? this.currentPage,
       pageSize: pageSize ?? this.pageSize,
@@ -115,9 +107,6 @@ class SchoolState {
       isRefreshing: isRefreshing ?? this.isRefreshing,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasLoadedOnce: hasLoadedOnce ?? this.hasLoadedOnce,
-      hotPosts: hotPosts ?? this.hotPosts,
-      hotFilter: hotFilter ?? this.hotFilter,
-      isLoadingHot: isLoadingHot ?? this.isLoadingHot,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }

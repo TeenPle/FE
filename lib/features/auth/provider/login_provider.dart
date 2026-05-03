@@ -81,16 +81,18 @@ class LoginNotifier extends StateNotifier<LoginState> {
         userId: result.userId,
       );
 
+      // userId, role은 세션 중 라우트 가드에서 필요하므로 keepLoggedIn 무관하게 항상 저장
+      await _tokenStorage.saveUserId(result.userId);
+      await _tokenStorage.saveUserRole(result.role);
+
       if (keepLoggedIn) {
-        // 자동로그인 체크: 디스크에도 저장
+        // 자동로그인 체크: 토큰도 디스크에 저장
         await _tokenStorage.saveAccessToken(result.accessToken);
         await _tokenStorage.saveRefreshToken(result.refreshToken);
         await _tokenStorage.saveAutoLogin(true);
-        await _tokenStorage.saveUserId(result.userId);
-        await _tokenStorage.saveUserRole(result.role);
       } else {
-        // 자동로그인 미체크: 이전 토큰/역할 클리어
-        await _tokenStorage.clearAll();
+        // 자동로그인 미체크: 토큰만 클리어 (userId/role은 로그아웃 시 clearAll로 정리됨)
+        await _tokenStorage.saveAutoLogin(false);
       }
 
       // 학교 ID는 자동로그인 여부와 무관하게 항상 저장 (급식/시간표 기능에 필요)

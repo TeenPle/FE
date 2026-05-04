@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../models/penalty_summary_model.dart';
 import '../provider/admin_penalty_provider.dart';
 
@@ -73,8 +75,8 @@ class _AdminPenaltyListPageState
                               ),
                             );
                           }
-                          return _PenaltyCard(
-                              penalty: state.penalties[index]);
+                          final p = state.penalties[index];
+                          return _PenaltyCard(penalty: p);
                         },
                       ),
                     ),
@@ -82,14 +84,21 @@ class _AdminPenaltyListPageState
   }
 }
 
-class _PenaltyCard extends StatelessWidget {
+class _PenaltyCard extends ConsumerWidget {
   final PenaltySummaryModel penalty;
 
   const _PenaltyCard({required this.penalty});
 
   @override
-  Widget build(BuildContext context) {
-    final expired = penalty.isExpired;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isCancelled = penalty.status == 'CANCELLED';
+    final isActive = penalty.isActive;
+
+    final (statusLabel, statusColor, statusBg) = isCancelled
+        ? ('취소됨', const Color(0xFF9AA7B2), const Color(0xFFF0F0F0))
+        : isActive
+            ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
+            : ('만료', const Color(0xFF9AA7B2), const Color(0xFFF0F0F0));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -104,29 +113,25 @@ class _PenaltyCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: expired
-                      ? const Color(0xFFF0F0F0)
-                      : const Color(0xFFFFF3F3),
+                  color: statusBg,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  expired ? '만료' : '제재 중',
+                  statusLabel,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: expired
-                        ? const Color(0xFF9AA7B2)
-                        : const Color(0xFFE05C7B),
+                    color: statusColor,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3F7FB),
                   borderRadius: BorderRadius.circular(6),
@@ -154,10 +159,19 @@ class _PenaltyCard extends StatelessWidget {
               const Icon(Icons.person_outline,
                   size: 14, color: Color(0xFF9AA7B2)),
               const SizedBox(width: 4),
-              Text(
-                penalty.userNickname,
-                style: const TextStyle(
-                    fontSize: 13, color: Color(0xFF6B7C8A)),
+              GestureDetector(
+                onTap: () => context.push(
+                  AppRoutes.adminUserHistory(penalty.userId),
+                  extra: {'nickname': penalty.userNickname},
+                ),
+                child: Text(
+                  penalty.userNickname,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF5A8EA8),
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
               const SizedBox(width: 16),
               const Icon(Icons.access_time_rounded,
@@ -171,12 +185,66 @@ class _PenaltyCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            '신고 #${penalty.reportId}',
-            style: const TextStyle(
-                fontSize: 12, color: Color(0xFF9AA7B2)),
+          Row(
+            children: [
+              Text(
+                '신고 #${penalty.reportId}',
+                style: const TextStyle(
+                    fontSize: 12, color: Color(0xFF9AA7B2)),
+              ),
+              const Spacer(),
+              if (isActive)
+                TextButton(
+                  onPressed: () => _onCancel(context, ref),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFFE05C7B),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    '제재 취소',
+                    style: TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w700),
+                  ),
+                ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _onCancel(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('제재 취소'),
+        content: Text('${penalty.userNickname}의 제재를 즉시 해제하시겠어요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소',
+                style: TextStyle(color: Color(0xFF888888))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('해제',
+                style: TextStyle(color: Color(0xFFE05C7B))),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final success = await ref
+        .read(adminPenaltyListProvider.notifier)
+        .cancel(penalty.penaltyId);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? '제재가 취소되었어요.' : '취소에 실패했어요.'),
+        backgroundColor: success ? null : const Color(0xFFE05C7B),
       ),
     );
   }

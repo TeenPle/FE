@@ -50,3 +50,82 @@ final unreadWarningProvider =
     StateNotifierProvider<UnreadWarningNotifier, UnreadWarningState>((ref) {
   return UnreadWarningNotifier(ref.watch(warningApiProvider));
 });
+
+// ── 내 경고 이력 ────────────────────────────────────────────
+
+class WarningHistoryState {
+  final List<WarningHistoryModel> items;
+  final bool isLoading;
+  final bool hasMore;
+  final int currentPage;
+  final String? error;
+
+  const WarningHistoryState({
+    this.items = const [],
+    this.isLoading = false,
+    this.hasMore = true,
+    this.currentPage = 0,
+    this.error,
+  });
+
+  WarningHistoryState copyWith({
+    List<WarningHistoryModel>? items,
+    bool? isLoading,
+    bool? hasMore,
+    int? currentPage,
+    String? error,
+  }) {
+    return WarningHistoryState(
+      items: items ?? this.items,
+      isLoading: isLoading ?? this.isLoading,
+      hasMore: hasMore ?? this.hasMore,
+      currentPage: currentPage ?? this.currentPage,
+      error: error,
+    );
+  }
+}
+
+class WarningHistoryNotifier extends StateNotifier<WarningHistoryState> {
+  final WarningApi _api;
+
+  WarningHistoryNotifier(this._api) : super(const WarningHistoryState());
+
+  Future<void> load() async {
+    state = const WarningHistoryState(isLoading: true);
+    try {
+      final items = await _api.getMyWarnings(page: 0);
+      state = WarningHistoryState(
+        items: items,
+        isLoading: false,
+        hasMore: items.length >= 20,
+      );
+    } catch (_) {
+      state = const WarningHistoryState(
+        isLoading: false,
+        error: '경고 이력을 불러올 수 없어요.',
+      );
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final nextPage = state.currentPage + 1;
+      final items = await _api.getMyWarnings(page: nextPage);
+      state = state.copyWith(
+        items: [...state.items, ...items],
+        isLoading: false,
+        currentPage: nextPage,
+        hasMore: items.length >= 20,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+}
+
+final warningHistoryProvider =
+    StateNotifierProvider<WarningHistoryNotifier, WarningHistoryState>((ref) {
+  return WarningHistoryNotifier(ref.watch(warningApiProvider));
+});

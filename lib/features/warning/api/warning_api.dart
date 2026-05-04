@@ -25,4 +25,19 @@ class WarningApi {
   Future<void> markWarningRead(int warningId) async {
     await _client.post('/api/warnings/me/$warningId/read');
   }
+
+  /// 내 경고 이력 조회 (페이징)
+  Future<List<WarningHistoryModel>> getMyWarnings({
+    int page = 0,
+    int size = 20,
+  }) async {
+    final res = await _client.get(
+      '/api/warnings/me',
+      queryParameters: {'page': '$page', 'size': '$size'},
+    );
+    final content = (res['result']?['content'] as List<dynamic>? ?? []);
+    return content
+        .map((e) => WarningHistoryModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

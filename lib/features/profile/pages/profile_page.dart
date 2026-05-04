@@ -387,6 +387,13 @@ class _ActivitySection extends ConsumerWidget {
             icon: Icons.bookmark_border_rounded,
             label: '내 북마크',
             onTap: () => context.push(AppRoutes.myBookmarks),
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
+              indent: 16, endIndent: 16),
+          _ActivityTile(
+            icon: Icons.warning_amber_rounded,
+            label: '내 경고 이력',
+            onTap: () => context.push(AppRoutes.myWarnings),
             isLast: true,
           ),
         ],

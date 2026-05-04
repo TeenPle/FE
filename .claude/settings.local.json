@@ -26,14 +26,16 @@
       "Bash(flutter build *)",
       "Bash(./gradlew --stop)",
       "Bash(grep -E \"\\\\.java$\")",
-      "Bash(git -C /mnt/c/develop/BE diff --stat)",
-      "Bash(git -C \"C:/develop/BE\" diff --stat)",
-      "Bash(git *)",
-      "Bash(mkdir -p \"C:/develop/BE/backend/src/main/java/com/shu/backend/domain/bookmark/entity\")",
-      "Bash(mkdir -p \"C:/develop/BE/backend/src/main/java/com/shu/backend/domain/bookmark/repository\")",
-      "Bash(mkdir -p \"C:/develop/BE/backend/src/main/java/com/shu/backend/domain/bookmark/service\")",
-      "Bash(mkdir -p \"C:/develop/BE/backend/src/main/java/com/shu/backend/domain/bookmark/controller\")",
-      "Bash(mkdir -p \"C:/develop/BE/backend/src/main/java/com/shu/backend/domain/bookmark/dto\")"
+      "Bash(git merge *)",
+      "Bash(git stash *)",
+      "Bash(git push *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git fetch *)",
+      "Bash(git commit *)",
+      "Bash(flutter devices *)",
+      "Bash(flutter emulators *)",
+      "Bash(flutter run *)"
     ]
   }
 }

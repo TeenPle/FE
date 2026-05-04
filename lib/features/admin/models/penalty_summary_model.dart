@@ -4,6 +4,7 @@ class PenaltySummaryModel {
   final String userNickname;
   final int reportId;
   final String reason;
+  final String status; // ACTIVE | CANCELLED | EXPIRED
   final DateTime expiresAt;
   final DateTime createdAt;
 
@@ -13,6 +14,7 @@ class PenaltySummaryModel {
     required this.userNickname,
     required this.reportId,
     required this.reason,
+    this.status = 'ACTIVE',
     required this.expiresAt,
     required this.createdAt,
   });
@@ -24,10 +26,13 @@ class PenaltySummaryModel {
       userNickname: json['userNickname'] as String? ?? '',
       reportId: (json['reportId'] as num).toInt(),
       reason: json['reason'] as String? ?? '',
+      status: json['status'] as String? ?? 'ACTIVE',
       expiresAt: DateTime.parse(json['expiresAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
+
+  bool get isActive => status == 'ACTIVE' && !isExpired;
 
   String get reasonLabel => switch (reason) {
         'SPAM' => '스팸',

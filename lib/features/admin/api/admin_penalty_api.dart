@@ -26,4 +26,19 @@ class AdminPenaltyApi {
         .map((e) => PenaltySummaryModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  Future<List<PenaltySummaryModel>> getPenaltiesByUser(int userId) async {
+    final res = await _client.get(
+      '/api/admin/penalties/user',
+      queryParameters: {'userId': '$userId'},
+    );
+    final content = (res['result']?['content'] as List<dynamic>? ?? []);
+    return content
+        .map((e) => PenaltySummaryModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> cancelPenalty(int penaltyId) async {
+    await _client.post('/api/admin/penalties/$penaltyId/cancel');
+  }
 }

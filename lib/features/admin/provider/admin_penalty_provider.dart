@@ -75,9 +75,67 @@ class AdminPenaltyListNotifier
       state = state.copyWith(isLoading: false);
     }
   }
+
+  Future<bool> cancel(int penaltyId) async {
+    try {
+      await _api.cancelPenalty(penaltyId);
+      // 목록에서 해당 항목의 status를 CANCELLED로 변경
+      final updated = state.penalties.map((p) {
+        if (p.penaltyId == penaltyId) {
+          return PenaltySummaryModel(
+            penaltyId: p.penaltyId,
+            userId: p.userId,
+            userNickname: p.userNickname,
+            reportId: p.reportId,
+            reason: p.reason,
+            status: 'CANCELLED',
+            expiresAt: p.expiresAt,
+            createdAt: p.createdAt,
+          );
+        }
+        return p;
+      }).toList();
+      state = state.copyWith(penalties: updated);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 
 final adminPenaltyListProvider = StateNotifierProvider<AdminPenaltyListNotifier,
     AdminPenaltyListState>((ref) {
   return AdminPenaltyListNotifier(ref.watch(adminPenaltyApiProvider));
+});
+
+// ── 유저별 제재 이력 ─────────────────────────────────────────
+
+class AdminUserPenaltyNotifier extends StateNotifier<AdminPenaltyListState> {
+  final AdminPenaltyApi _api;
+  final int userId;
+
+  AdminUserPenaltyNotifier(this._api, this.userId)
+      : super(const AdminPenaltyListState());
+
+  Future<void> load() async {
+    state = const AdminPenaltyListState(isLoading: true);
+    try {
+      final items = await _api.getPenaltiesByUser(userId);
+      state = AdminPenaltyListState(
+        penalties: items,
+        isLoading: false,
+        hasMore: false,
+      );
+    } catch (_) {
+      state = const AdminPenaltyListState(
+        isLoading: false,
+        error: '제재 이력을 불러올 수 없어요.',
+      );
+    }
+  }
+}
+
+final adminUserPenaltyProvider = StateNotifierProvider.family<
+    AdminUserPenaltyNotifier, AdminPenaltyListState, int>((ref, userId) {
+  return AdminUserPenaltyNotifier(ref.watch(adminPenaltyApiProvider), userId);
 });

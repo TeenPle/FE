@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../provider/admin_report_provider.dart';
 
 class AdminReportDetailPage extends ConsumerStatefulWidget {
@@ -98,7 +100,14 @@ class _AdminReportDetailPageState
                 _InfoRow('대상', detail.targetTypeLabel),
                 _InfoRow('신고 사유', detail.reportReasonLabel),
                 _InfoRow('신고자', detail.reporterNickname),
-                _InfoRow('피신고자', detail.reportedUserNickname),
+                _TappableInfoRow(
+                  label: '피신고자',
+                  value: detail.reportedUserNickname,
+                  onTap: () => context.push(
+                    AppRoutes.adminUserHistory(detail.reportedUserId),
+                    extra: {'nickname': detail.reportedUserNickname},
+                  ),
+                ),
                 if (detail.schoolName != null)
                   _InfoRow('학교', detail.schoolName!),
                 if (detail.boardTitle != null)
@@ -202,6 +211,26 @@ class _AdminReportDetailPageState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // 경고 섹션
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 13, color: Color(0xFFF59E0B)),
+                      const SizedBox(width: 4),
+                      const Text('경고',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFF59E0B))),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                          child: Divider(
+                              color: Color(0xFFFCD34D), thickness: 1)),
+                    ],
+                  ),
+                ),
                 // 경고 버튼 (전체 너비)
                 SizedBox(
                   width: double.infinity,
@@ -225,7 +254,27 @@ class _AdminReportDetailPageState
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
+                // 제재 섹션
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.gavel_rounded,
+                          size: 13, color: Color(0xFF5A8EA8)),
+                      const SizedBox(width: 4),
+                      const Text('제재',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF5A8EA8))),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                          child: Divider(
+                              color: Color(0xFFDDE6ED), thickness: 1)),
+                    ],
+                  ),
+                ),
                 // 거절 / 승인(제재) 버튼
                 Row(
                   children: [
@@ -414,6 +463,48 @@ class _SectionTitle extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: Color(0xFF6B7C8A)));
+  }
+}
+
+class _TappableInfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  const _TappableInfoRow({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(label,
+                style: const TextStyle(
+                    fontSize: 14, color: Color(0xFF9AA7B2))),
+          ),
+          GestureDetector(
+            onTap: onTap,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF5A8EA8),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

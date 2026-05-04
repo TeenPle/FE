@@ -63,15 +63,15 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
       if (!mounted || !dialogContext.mounted) return;
 
-      // 제재 중이면 제재 다이얼로그 표시
+      // 제재 중이면 제재 다이얼로그 표시 (경고보다 우선)
       final penaltyState = ref.read(activePenaltyProvider);
       if (penaltyState.isPenalized && !_penaltyDialogShown) {
         _penaltyDialogShown = true;
         _showPenaltyDialog(dialogContext, penaltyState.penalty!);
-        return; // 제재 다이얼로그가 있으면 경고는 다음 진입 시 표시
+        return; // 제재 다이얼로그가 있으면 경고는 다음 접속 시 표시
       }
 
-      // 미확인 경고가 있으면 경고 다이얼로그 표시
+      // 미확인 경고가 있으면 경고 다이얼로그 표시 (1회)
       final warningState = ref.read(unreadWarningProvider);
       if (warningState.hasUnread && !_warningDialogShown) {
         _warningDialogShown = true;
@@ -403,9 +403,8 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
     );
 }
 
-/// 경고 안내 다이얼로그 — 확인 시 BE에 읽음 처리
+/// 경고 안내 다이얼로그 — 확인 시 BE에 읽음 처리 (1회만 표시)
 void _showWarningDialog(BuildContext context, UnreadWarningModel warning) {
-  // ProviderContainer 없이 ref를 접근하기 위해 Consumer 패턴 사용
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -447,6 +446,42 @@ class _WarningDialog extends ConsumerWidget {
             '커뮤니티 규칙 위반으로 관리자 경고를 받았습니다.',
             style: TextStyle(fontSize: 14, color: Color(0xFF444444), height: 1.5),
           ),
+          if (warning.targetType != null && warning.targetSummary != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FA),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFE9ECEF)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '신고된 ${warning.targetTypeLabel}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF9AA7B2),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    warning.targetSummary!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF444444),
+                      height: 1.4,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Container(
             width: double.infinity,

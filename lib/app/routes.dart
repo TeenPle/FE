@@ -6,8 +6,10 @@ import '../features/admin/pages/admin_home_page.dart';
 import '../features/admin/pages/admin_report_detail_page.dart';
 import '../features/admin/pages/admin_penalty_list_page.dart';
 import '../features/admin/pages/admin_report_list_page.dart';
+import '../features/admin/pages/admin_user_history_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
+import '../features/warning/pages/my_warning_history_page.dart';
 import '../features/auth/pages/find_email_page.dart';
 import '../features/auth/pages/find_email_result_page.dart';
 import '../features/auth/pages/find_password_page.dart';
@@ -184,6 +186,12 @@ class AppRoutes {
 
   /// 내 북마크 페이지
   static const myBookmarks = '/profile/bookmarks';
+
+  /// 내 경고 이력 페이지
+  static const myWarnings = '/profile/warnings';
+
+  /// 관리자 유저별 제재·경고 이력 페이지
+  static String adminUserHistory(int userId) => '/admin/users/$userId/history';
 }
 
 /// 앱 전체 라우터
@@ -474,6 +482,22 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.myBookmarks,
       builder: (context, state) => const MyBookmarksPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.myWarnings,
+      builder: (context, state) => const MyWarningHistoryPage(),
+    ),
+
+    GoRoute(
+      path: '/admin/users/:userId/history',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final userId = int.parse(state.pathParameters['userId']!);
+        final extra = state.extra as Map<String, dynamic>?;
+        final nickname = extra?['nickname'] as String? ?? '';
+        return AdminUserHistoryPage(userId: userId, userNickname: nickname);
+      },
     ),
   ],
 );

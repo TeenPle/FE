@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
 import '../models/post_detail.dart';
+import '../models/poll_model.dart';
 import '../models/reaction_request.dart';
 import '../models/reaction_response.dart';
 import '../models/report_request.dart';
@@ -141,5 +142,13 @@ class LivePostRepository implements PostRepository {
   @override
   Future<bool> toggleBookmark(int postId) {
     return api.toggleBookmark(postId);
+  }
+
+  @override
+  Future<PollModel> votePoll({
+    required int postId,
+    required int optionId,
+  }) {
+    return api.votePoll(postId: postId, optionId: optionId);
   }
 }

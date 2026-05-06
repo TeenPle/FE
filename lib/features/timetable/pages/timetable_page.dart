@@ -1,9 +1,13 @@
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/services/onboarding_service.dart';
 import '../provider/timetable_provider.dart';
+import 'timetable_onboarding_page.dart';
 
 class TimetablePage extends ConsumerStatefulWidget {
   const TimetablePage({super.key});
@@ -15,17 +19,54 @@ class TimetablePage extends ConsumerStatefulWidget {
 class _TimetablePageState extends ConsumerState<TimetablePage> {
   List<String> _todayMemos = const [];
   int _memoWeekday = DateTime.now().weekday;
+  bool _onboardingTriggered = false;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(timetableProvider.notifier).init());
+    Future.microtask(() async {
+      if (kDebugMode) await OnboardingService().resetTimetableForDebug(); // TODO: remove after testing
+      ref.read(timetableProvider.notifier).init();
+    });
     _loadTodayMemos();
+  }
+
+  /// 시간표 데이터가 처음 로드 완료된 시점에 호출된다.
+  Future<void> _maybeShowOnboarding() async {
+    final isFirst = await OnboardingService().isFirstTimetableVisit();
+    if (!mounted) return;
+    if (!isFirst) return;
+    await OnboardingService().markTimetableVisited();
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+    // ignore: use_build_context_synchronously
+    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+      opaque: true,
+      transitionDuration: const Duration(milliseconds: 200),
+      reverseTransitionDuration: Duration.zero,
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const TimetableOnboardingPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          FadeTransition(opacity: animation, child: child),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(timetableProvider);
+
+    // 반 설정 + 시간표 로드 완료 시점에 온보딩을 트리거한다.
+    ref.listen<TimetableState>(timetableProvider, (prev, next) {
+      if (_onboardingTriggered) return;
+      final justLoaded = next.classRoom != null &&
+          !next.isLoading &&
+          next.week != null &&
+          (prev == null || prev.isLoading);
+      if (justLoaded) {
+        _onboardingTriggered = true;
+        _maybeShowOnboarding();
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F9FF),
@@ -81,7 +122,46 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                     onDelete: _deleteMemo,
                   ),
                   const SizedBox(height: 16),
-                  _TimetableGrid(state: state),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () => _showResetConfirmDialog(context),
+                        behavior: HitTestBehavior.opaque,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 2,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '시간표 되돌리기',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF7D8790),
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Icon(
+                                Icons.history_rounded,
+                                size: 16,
+                                color: Color(0xFF7D8790),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  _TimetableGrid(
+                    state: state,
+                    onCellLongPress: (day, period) =>
+                        _showEditCellSheet(context, day, period),
+                  ),
                 ],
               ),
             ),
@@ -160,49 +240,471 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
     );
   }
 
-  void _showClassRoomDialog(BuildContext context) {
-    final controller = TextEditingController(
-      text: ref.read(timetableProvider).classRoom ?? '',
-    );
+  void _showResetConfirmDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text(
-          '반 입력',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          maxLength: 2,
-          decoration: const InputDecoration(
-            hintText: '예) 3',
-            counterText: '',
-            border: OutlineInputBorder(),
+          '시간표를 초기화할까요?',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF111111),
           ),
-          autofocus: true,
         ),
+        content: const Text(
+          '직접 입력한 과목이 모두 사라지고,\n학교에서 제공한 시간표로 되돌아가요.',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF444444),
+            height: 1.55,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
+            child: const Text(
+              '취소',
+              style: TextStyle(
+                color: Color(0xFF9AA7B2),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
-              final val = controller.text.trim();
-              if (val.isNotEmpty) {
-                ref.read(timetableProvider.notifier).setClassRoom(val);
-              }
+              ref.read(timetableProvider.notifier).clearAllOverrides();
               Navigator.pop(ctx);
             },
-            child: const Text('확인', style: TextStyle(color: Color(0xFF14A3F7))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF14A3F7),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: const Text(
+              '초기화',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditCellSheet(BuildContext context, int day, int period) {
+    final state = ref.read(timetableProvider);
+    final key = '${day}_$period';
+    final neisSubject = state.week?.subjectMap[key] ?? '';
+    final overriddenSubject = state.overrides[key];
+    final currentDisplay = overriddenSubject ?? neisSubject;
+    final hasOverride = overriddenSubject != null;
+
+    final controller = TextEditingController(text: currentDisplay);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          left: 22,
+          right: 22,
+          top: 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 제목 행
+            Row(
+              children: [
+                Text(
+                  '${_weekdayLabel(day)}요일 $period교시',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111111),
+                  ),
+                ),
+                if (hasOverride) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F4FD),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Text(
+                      '수정됨',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E8CE8),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            if (neisSubject.isNotEmpty && hasOverride) ...[
+              const SizedBox(height: 4),
+              Text(
+                'NEIS 원본: $neisSubject',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF9AA7B2),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              maxLength: 10,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: neisSubject.isNotEmpty ? neisSubject : '과목명 입력',
+                counterText: '',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFD0E4F0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF14A3F7),
+                    width: 1.8,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 13,
+                ),
+              ),
+              onSubmitted: (_) => _saveAndPop(ctx, day, period, controller.text),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                if (hasOverride)
+                  TextButton(
+                    onPressed: () {
+                      ref.read(timetableProvider.notifier).clearOverride(day, period);
+                      Navigator.pop(ctx);
+                    },
+                    child: const Text(
+                      '원래대로',
+                      style: TextStyle(
+                        color: Color(0xFFE05C5C),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text(
+                    '취소',
+                    style: TextStyle(color: Color(0xFF9AA7B2)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () => _saveAndPop(ctx, day, period, controller.text),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF14A3F7),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 11,
+                    ),
+                  ),
+                  child: const Text(
+                    '저장',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveAndPop(BuildContext ctx, int day, int period, String text) {
+    final trimmed = text.trim();
+    if (trimmed.isNotEmpty) {
+      ref.read(timetableProvider.notifier).setOverride(day, period, trimmed);
+    }
+    Navigator.pop(ctx);
+  }
+
+  void _showClassRoomDialog(BuildContext context) {
+    final initialClassRoom = ref.read(timetableProvider).classRoom ?? '';
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final media = MediaQuery.of(ctx);
+        final bottomInset = media.viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: media.size.height * 0.85,
+              ),
+              child: SingleChildScrollView(
+                child: _ClassRoomDialogContent(
+                  initialValue: initialClassRoom,
+                  onCancel: () => Navigator.pop(ctx),
+                  onSubmit: (val) {
+                    Navigator.pop(ctx);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      ref.read(timetableProvider.notifier).setClassRoom(val);
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ClassRoomDialogContent extends StatefulWidget {
+  final String initialValue;
+  final VoidCallback onCancel;
+  final ValueChanged<String> onSubmit;
+
+  const _ClassRoomDialogContent({
+    required this.initialValue,
+    required this.onCancel,
+    required this.onSubmit,
+  });
+
+  @override
+  State<_ClassRoomDialogContent> createState() => _ClassRoomDialogContentState();
+}
+
+class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final val = _controller.text.trim();
+    if (val.isEmpty) return;
+    widget.onSubmit(val);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEAF7FF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.class_rounded,
+                  size: 23,
+                  color: Color(0xFF14A3F7),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '내 반을 입력해주세요',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF111111),
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      '학교 시간표를 불러올 때 사용돼요.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF7D8790),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          TextField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            maxLength: 2,
+            autofocus: true,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF111111),
+            ),
+            decoration: InputDecoration(
+              hintText: 'ex) 3',
+              hintStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFFB0BEC5),
+              ),
+              suffixText: '반',
+              suffixStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF52606D),
+              ),
+              counterText: '',
+              filled: true,
+              fillColor: const Color(0xFFF7FBFF),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: Color(0xFFDCECF7)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFF14A3F7),
+                  width: 1.8,
+                ),
+              ),
+            ),
+            onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: 10),
+          const Row(
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 15,
+                color: Color(0xFF9AA7B2),
+              ),
+              SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  '나중에 우측 상단 수정 버튼으로 변경할 수 있어요.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF9AA7B2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: widget.onCancel,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF7D8790),
+                    side: const BorderSide(color: Color(0xFFDCECF7)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  child: const Text(
+                    '취소',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF14A3F7),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  child: const Text(
+                    '시간표 보기',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
-
 class _WeekNavigator extends ConsumerWidget {
   final TimetableState state;
 
@@ -400,19 +902,24 @@ class _MemoRow extends StatelessWidget {
 
 class _TimetableGrid extends StatelessWidget {
   final TimetableState state;
+  final void Function(int day, int period) onCellLongPress;
+
   static const _days = ['월', '화', '수', '목', '금'];
   static const _totalPeriods = 7;
 
-  const _TimetableGrid({required this.state});
+  const _TimetableGrid({
+    required this.state,
+    required this.onCellLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
     final subjectMap = state.week?.subjectMap ?? {};
-    final today = DateTime.now();
-    final todayDow = today.weekday; // 1=월~5=금
+    final overrides = state.overrides;
+    final todayDow = DateTime.now().weekday; // 1=월~5=금
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -438,11 +945,25 @@ class _TimetableGrid extends StatelessWidget {
                     _periodCell(p),
                     for (int d = 1; d <= 5; d++)
                       _subjectCell(
-                        subjectMap['${d}_$p'] ?? '',
+                        neisSubject: subjectMap['${d}_$p'] ?? '',
+                        override: overrides['${d}_$p'],
                         isToday: d == todayDow,
+                        onLongPress: () => onCellLongPress(d, p),
                       ),
                   ],
                 ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.touch_app_rounded, size: 13, color: Color(0xFFB0BEC5)),
+              SizedBox(width: 4),
+              Text(
+                '과목 칸을 꾹 누르면 직접 수정할 수 있어요',
+                style: TextStyle(fontSize: 11, color: Color(0xFFB0BEC5)),
+              ),
             ],
           ),
         ],
@@ -496,32 +1017,63 @@ class _TimetableGrid extends StatelessWidget {
     );
   }
 
-  Widget _subjectCell(String subject, {bool isToday = false}) {
-    final hasSubject = subject.isNotEmpty;
+  Widget _subjectCell({
+    required String neisSubject,
+    String? override,
+    required bool isToday,
+    required VoidCallback onLongPress,
+  }) {
+    final displaySubject = override ?? neisSubject;
+    final hasOverride = override != null;
+    final hasSubject = displaySubject.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.all(3),
-      child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 3),
-        decoration: BoxDecoration(
-          color: isToday ? const Color(0xFFEAF7FF) : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isToday ? const Color(0xFFBDE8FF) : const Color(0xFFE8EEF4),
-          ),
-        ),
-        child: Center(
-          child: Text(
-            subject,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
-              color: hasSubject ? const Color(0xFF333333) : Colors.transparent,
+      child: GestureDetector(
+        onLongPress: () {
+          HapticFeedback.mediumImpact();
+          onLongPress();
+        },
+        child: Container(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          decoration: BoxDecoration(
+            color: isToday ? const Color(0xFFEAF7FF) : const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isToday
+                  ? const Color(0xFFBDE8FF)
+                  : const Color(0xFFE8EEF4),
             ),
+          ),
+          child: Stack(
+            children: [
+              Center(
+                child: Text(
+                  displaySubject,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
+                    color: hasSubject
+                        ? const Color(0xFF333333)
+                        : Colors.transparent,
+                  ),
+                ),
+              ),
+              // 수정됨 표시 도트
+              if (hasOverride)
+                const Positioned(
+                  top: 4,
+                  right: 4,
+                  child: CircleAvatar(
+                    radius: 3,
+                    backgroundColor: Color(0xFF14A3F7),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -537,41 +1089,77 @@ class _ClassRoomPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.class_outlined, size: 52, color: Color(0xFFB0BEC5)),
-          const SizedBox(height: 16),
-          const Text(
-            '반을 설정해주세요',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111111),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE1ECF5)),
           ),
-          const SizedBox(height: 6),
-          const Text(
-            '시간표를 보려면 내 반 번호가 필요해요.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: onSet,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF14A3F7),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 68,
+                height: 68,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEAF7FF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.calendar_month_rounded,
+                  size: 34,
+                  color: Color(0xFF14A3F7),
+                ),
               ),
-            ),
-            child: const Text(
-              '반 입력하기',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
+              const SizedBox(height: 18),
+              const Text(
+                '시간표를 불러올게요',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF111111),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '내 반 번호를 입력하면 이번 주 시간표를 바로 확인할 수 있어요.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF7D8790),
+                ),
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: onSet,
+                  icon: const Icon(Icons.edit_rounded, size: 18),
+                  label: const Text('반 입력하기'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF14A3F7),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

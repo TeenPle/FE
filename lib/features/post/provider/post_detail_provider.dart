@@ -446,4 +446,30 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       );
     }
   }
+
+  Future<void> votePoll(int optionId) async {
+    if (state.post == null || state.isSubmittingReaction) return;
+
+    state = state.copyWith(
+      isSubmittingReaction: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      final poll = await repository.votePoll(
+        postId: state.postId,
+        optionId: optionId,
+      );
+      state = state.copyWith(
+        post: state.post!.copyWith(poll: poll),
+        isSubmittingReaction: false,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isSubmittingReaction: false,
+        errorMessage: '투표 처리에 실패했습니다.',
+      );
+    }
+  }
 }

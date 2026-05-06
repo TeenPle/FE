@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
+import '../../../core/services/onboarding_service.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
@@ -20,6 +21,7 @@ import '../models/board_model.dart';
 import '../models/hot_filter.dart';
 import '../models/post_summary.dart';
 import '../provider/school_providers.dart';
+import 'school_onboarding_page.dart';
 import 'widgets/post_summary_card.dart';
 import 'widgets/school_header.dart';
 
@@ -79,7 +81,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       }
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final fcm = ref.read(fcmServiceProvider);
       fcm.init().catchError((e) {
         if (kDebugMode) debugPrint('[FCM ERROR] $e');
@@ -91,6 +93,32 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       ref.read(chatRoomListProvider.notifier).load();
       // 앱이 켜져 있는 동안 채팅 목록/배지는 유저별 STOMP 이벤트로 즉시 갱신한다.
       ref.read(chatRoomListProvider.notifier).startRealtime();
+
+      // 최초 접속 온보딩: 데이터 로딩 + 제재/경고 다이얼로그 처리 후 실행
+      // TODO: 테스트 후 아래 리셋 줄 제거
+      if (kDebugMode) await OnboardingService().resetForDebug();
+      await Future.delayed(const Duration(milliseconds: 900));
+      if (!mounted) return;
+      // 제재/경고 다이얼로그가 표시된 경우 온보딩 건너뜀
+      if (_penaltyDialogShown || _warningDialogShown) return;
+      final onboardingSvc = OnboardingService();
+      final isFirst = await onboardingSvc.isFirstSchoolVisit();
+      if (!mounted) return;
+      if (isFirst) {
+        await onboardingSvc.markSchoolVisited();
+        if (!mounted) return;
+        // ignore: use_build_context_synchronously
+        Navigator.of(context, rootNavigator: true).push(
+          PageRouteBuilder(
+            opaque: true,
+            transitionDuration: const Duration(milliseconds: 200),
+            reverseTransitionDuration: Duration.zero,
+            pageBuilder: (context, animation, secondaryAnimation) => const SchoolOnboardingPage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
+        );
+      }
     });
   }
 
@@ -169,6 +197,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
                   if (!mounted) return;
 
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('새 게시글이 등록되었어요.')),
                   );
@@ -820,3 +849,4 @@ class _SectionCard extends StatelessWidget {
     );
   }
 }
+

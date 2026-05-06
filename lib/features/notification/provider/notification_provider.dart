@@ -94,6 +94,16 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     }
   }
 
+  // 서버에만 읽음 처리 (로컬 UI 상태는 유지)
+  Future<void> markAllAsReadServerOnly() async {
+    try {
+      await _api.markAllAsRead();
+      state = state.copyWith(unreadCount: 0);
+    } catch (e) {
+      if (kDebugMode) debugPrint('[Notification] markAllAsReadServerOnly error: $e');
+    }
+  }
+
   Future<void> markAsRead(int id) async {
     try {
       await _api.markAsRead(id);

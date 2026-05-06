@@ -116,16 +116,15 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     final state = ref.watch(schoolProvider);
     final notifier = ref.read(schoolProvider.notifier);
     // 채팅 버튼 배지는 모든 채팅방의 미읽음 메시지 수를 합산해서 표시한다.
-    final chatUnreadCount = ref.watch(chatRoomListProvider).rooms
+    final chatUnreadCount = ref
+        .watch(chatRoomListProvider)
+        .rooms
         .fold(0, (sum, room) => sum + room.unreadCount);
 
-    final BoardModel? selectedBoard = state.boards.where(
-          (board) => board.id == state.selectedBoardId,
-    ).isEmpty
+    final BoardModel? selectedBoard =
+        state.boards.where((board) => board.id == state.selectedBoardId).isEmpty
         ? null
-        : state.boards.firstWhere(
-          (board) => board.id == state.selectedBoardId,
-    );
+        : state.boards.firstWhere((board) => board.id == state.selectedBoardId);
 
     final selectedBoardTitle = selectedBoard?.title ?? '게시판';
 
@@ -137,9 +136,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
     });
 
@@ -212,7 +211,18 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
         child: Column(
           children: [
             SchoolHeader(
-              schoolName: state.schoolName.isEmpty ? '학교 로딩 중...' : state.schoolName,
+              schoolName: state.schoolName.isEmpty
+                  ? '학교 로딩 중...'
+                  : state.schoolName,
+              onSearchTap: () => context.push(
+                AppRoutes.search,
+                extra: {
+                  'keyword': '',
+                  'scopeTitle': state.schoolName.isEmpty
+                      ? '전체 게시판'
+                      : '${state.schoolName} 전체 게시판',
+                },
+              ),
             ),
             const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
             const DDayStrip(),
@@ -233,91 +243,94 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                       children: const [PostListSkeleton(count: 4)],
                     )
                   : RefreshIndicator(
-                /// 메인 미리보기 목록 새로고침
-                onRefresh: notifier.refreshPosts,
-                child: ListView(
-                  padding: const EdgeInsets.only(bottom: 130),
-                  children: [
-                    if (previewPosts.isEmpty && !state.isLoading)
-                      const _EmptyPreviewState(),
+                      /// 메인 미리보기 목록 새로고침
+                      onRefresh: notifier.refreshPosts,
+                      child: ListView(
+                        padding: const EdgeInsets.only(bottom: 130),
+                        children: [
+                          if (previewPosts.isEmpty && !state.isLoading)
+                            const _EmptyPreviewState(),
 
-                    if (previewPosts.isNotEmpty)
-                      _SectionCard(
-                        child: Column(
-                          children: [
-                            for (int i = 0; i < previewPosts.length; i++)
-                              PostSummaryCard(
-                                post: previewPosts[i],
-                                showDivider: i != previewPosts.length - 1,
+                          if (previewPosts.isNotEmpty)
+                            _SectionCard(
+                              child: Column(
+                                children: [
+                                  for (int i = 0; i < previewPosts.length; i++)
+                                    PostSummaryCard(
+                                      post: previewPosts[i],
+                                      showDivider: i != previewPosts.length - 1,
 
-                                /// 게시글 카드 클릭 시 게시글 상세 페이지로 이동
-                                onTap: () async {
-                                  final refreshed = await context.push<bool>('/post/${previewPosts[i].id}');
-                                  if (refreshed == true && mounted) {
-                                    notifier.reloadCurrentBoard();
-                                  }
-                                },
+                                      /// 게시글 카드 클릭 시 게시글 상세 페이지로 이동
+                                      onTap: () async {
+                                        final refreshed = await context
+                                            .push<bool>(
+                                              '/post/${previewPosts[i].id}',
+                                            );
+                                        if (refreshed == true && mounted) {
+                                          notifier.reloadCurrentBoard();
+                                        }
+                                      },
+                                    ),
+                                ],
                               ),
-                          ],
-                        ),
-                      ),
+                            ),
 
-                    if (state.selectedBoardId != null)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
-                        child: SizedBox(
-                          height: 46,
-                          child: OutlinedButton(
-                            /// 더보기 클릭 시 게시판 상세 페이지로 이동
-                            onPressed: () {
-                              context.push(
-                                '/board/${state.selectedBoardId!}',
-                                extra: {
-                                  'boardId': state.selectedBoardId!,
-                                  'boardTitle': selectedBoardTitle,
-                                },
+                          if (state.selectedBoardId != null)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+                              child: SizedBox(
+                                height: 46,
+                                child: OutlinedButton(
+                                  /// 더보기 클릭 시 게시판 상세 페이지로 이동
+                                  onPressed: () {
+                                    context.push(
+                                      '/board/${state.selectedBoardId!}',
+                                      extra: {
+                                        'boardId': state.selectedBoardId!,
+                                        'boardTitle': selectedBoardTitle,
+                                      },
+                                    );
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    side: const BorderSide(
+                                      color: Color(0xFFE2EAF0),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '$selectedBoardTitle 더보기',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF5C6975),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          // HOT 섹션
+                          _HotSection(
+                            hotPosts: state.hotPosts,
+                            hotFilter: state.hotFilter,
+                            isLoading: state.isLoadingHot,
+                            onFilterChanged: (f) => notifier.changeHotFilter(f),
+                            onPostTap: (postId) async {
+                              final refreshed = await context.push<bool>(
+                                '/post/$postId',
                               );
+                              if (refreshed == true && mounted) {
+                                notifier.loadHotPosts();
+                              }
                             },
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              side: const BorderSide(
-                                color: Color(0xFFE2EAF0),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: Text(
-                              '$selectedBoardTitle 더보기',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF5C6975),
-                              ),
-                            ),
+                            onMoreTap: () => context.push(AppRoutes.hotBoard),
                           ),
-                        ),
+                        ],
                       ),
-
-                    // HOT 섹션
-                    _HotSection(
-                      hotPosts: state.hotPosts,
-                      hotFilter: state.hotFilter,
-                      isLoading: state.isLoadingHot,
-                      onFilterChanged: (f) =>
-                          notifier.changeHotFilter(f),
-                      onPostTap: (postId) async {
-                        final refreshed = await context.push<bool>('/post/$postId');
-                        if (refreshed == true && mounted) {
-                          notifier.loadHotPosts();
-                        }
-                      },
-                      onMoreTap: () =>
-                          context.push(AppRoutes.hotBoard),
                     ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -327,80 +340,83 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 }
 
 void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
-    final expiresAt = penalty.expiresAt;
-    final reasonLabel = penalty.reasonLabel;
+  final expiresAt = penalty.expiresAt;
+  final reasonLabel = penalty.reasonLabel;
 
-    String expiresStr = '';
-    if (expiresAt != null) {
-      expiresStr =
-          '${expiresAt.year}.${expiresAt.month.toString().padLeft(2, '0')}.${expiresAt.day.toString().padLeft(2, '0')} '
-          '${expiresAt.hour.toString().padLeft(2, '0')}:${expiresAt.minute.toString().padLeft(2, '0')}';
-    }
+  String expiresStr = '';
+  if (expiresAt != null) {
+    expiresStr =
+        '${expiresAt.year}.${expiresAt.month.toString().padLeft(2, '0')}.${expiresAt.day.toString().padLeft(2, '0')} '
+        '${expiresAt.hour.toString().padLeft(2, '0')}:${expiresAt.minute.toString().padLeft(2, '0')}';
+  }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.gavel_rounded, color: Color(0xFFE05C7B), size: 22),
-            SizedBox(width: 8),
-            Text(
-              '이용 제한 안내',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
-              ),
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Row(
+        children: [
+          Icon(Icons.gavel_rounded, color: Color(0xFFE05C7B), size: 22),
+          SizedBox(width: 8),
+          Text(
+            '이용 제한 안내',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF111111),
             ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '커뮤니티 규칙 위반으로 인해 일부 기능이 제한되었습니다.',
-              style: TextStyle(fontSize: 14, color: Color(0xFF444444), height: 1.5),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '커뮤니티 규칙 위반으로 인해 일부 기능이 제한되었습니다.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF444444),
+              height: 1.5,
             ),
-            const SizedBox(height: 16),
-            _DialogInfoRow(label: '사유', value: reasonLabel),
-            if (expiresStr.isNotEmpty)
-              _DialogInfoRow(label: '해제 예정', value: expiresStr),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3F3),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                '제재 기간 중에는 게시글·댓글 작성 및 채팅이 제한됩니다. 게시글 열람은 가능합니다.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFFE05C7B),
-                  height: 1.5,
-                ),
-              ),
+          ),
+          const SizedBox(height: 16),
+          _DialogInfoRow(label: '사유', value: reasonLabel),
+          if (expiresStr.isNotEmpty)
+            _DialogInfoRow(label: '해제 예정', value: expiresStr),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3F3),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
             child: const Text(
-              '확인',
+              '제재 기간 중에는 게시글·댓글 작성 및 채팅이 제한됩니다. 게시글 열람은 가능합니다.',
               style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF5A8EA8),
+                fontSize: 12,
+                color: Color(0xFFE05C7B),
+                height: 1.5,
               ),
             ),
           ),
         ],
       ),
-    );
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text(
+            '확인',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF14A3F7),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 /// 경고 안내 다이얼로그 — 확인 시 BE에 읽음 처리 (1회만 표시)
@@ -444,7 +460,11 @@ class _WarningDialog extends ConsumerWidget {
         children: [
           const Text(
             '커뮤니티 규칙 위반으로 관리자 경고를 받았습니다.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF444444), height: 1.5),
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF444444),
+              height: 1.5,
+            ),
           ),
           if (warning.targetType != null && warning.targetSummary != null) ...[
             const SizedBox(height: 10),
@@ -514,7 +534,11 @@ class _WarningDialog extends ConsumerWidget {
             ),
             child: const Text(
               '경고 누적 시 이용이 제한될 수 있습니다.',
-              style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), height: 1.4),
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFF6B7280),
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -523,11 +547,16 @@ class _WarningDialog extends ConsumerWidget {
         TextButton(
           onPressed: () {
             Navigator.pop(context);
-            ref.read(unreadWarningProvider.notifier).markRead(warning.warningId);
+            ref
+                .read(unreadWarningProvider.notifier)
+                .markRead(warning.warningId);
           },
           child: const Text(
             '확인했습니다',
-            style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFF59E0B)),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFF59E0B),
+            ),
           ),
         ),
       ],
@@ -590,11 +619,7 @@ class _EmptyPreviewState extends StatelessWidget {
       ),
       child: const Column(
         children: [
-          Icon(
-            Icons.forum_outlined,
-            size: 38,
-            color: Color(0xFF9AA7B2),
-          ),
+          Icon(Icons.forum_outlined, size: 38, color: Color(0xFF9AA7B2)),
           SizedBox(height: 12),
           Text(
             '아직 미리볼 게시글이 없어요.',
@@ -652,10 +677,7 @@ class _HotSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 8),
           child: Row(
             children: [
-              const Text(
-                '🔥',
-                style: TextStyle(fontSize: 18),
-              ),
+              const Text('🔥', style: TextStyle(fontSize: 18)),
               const SizedBox(width: 6),
               const Text(
                 'HOT 게시판',
@@ -727,10 +749,7 @@ class _HotSection extends StatelessWidget {
             child: Center(
               child: Text(
                 '${hotFilter.label} HOT 게시글이 없어요.',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF9AA7B2),
-                ),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
               ),
             ),
           )

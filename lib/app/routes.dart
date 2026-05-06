@@ -84,8 +84,7 @@ class AppRoutes {
   static const signupStudentCard = '/signup/student-card';
 
   /// 학교 인증 대기/필수/상태이상 안내 페이지
-  static const schoolVerificationWaiting =
-      '/auth/school-verification-waiting';
+  static const schoolVerificationWaiting = '/auth/school-verification-waiting';
 
   /// 학교 인증 반려 페이지
   static const schoolVerificationRejected =
@@ -198,10 +197,7 @@ class AppRoutes {
 final GoRouter router = GoRouter(
   initialLocation: AppRoutes.landing,
   routes: [
-    GoRoute(
-      path: '/',
-      redirect: (context, state) => AppRoutes.landing,
-    ),
+    GoRoute(path: '/', redirect: (context, state) => AppRoutes.landing),
 
     GoRoute(
       path: AppRoutes.landing,
@@ -348,6 +344,8 @@ final GoRouter router = GoRouter(
         final extra = state.extra as Map<String, dynamic>?;
         return SearchPage(
           initialKeyword: extra?['keyword'] as String?,
+          boardId: extra?['boardId'] as int?,
+          scopeTitle: extra?['scopeTitle'] as String?,
         );
       },
     ),

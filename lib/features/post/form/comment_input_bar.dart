@@ -47,7 +47,6 @@ class _CommentInputBarState extends State<CommentInputBar> {
   void _submit() {
     final text = _controller.text.trim();
     if (text.isEmpty || widget.isSubmitting || _isOverLimit) return;
-
     widget.onSubmit(text);
     _controller.clear();
   }
@@ -61,16 +60,16 @@ class _CommentInputBarState extends State<CommentInputBar> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (_showCrisisBanner) ...[
-            const CrisisBanner(),
-            const SizedBox(height: 8),
-          ],
-          if (widget.replyingToCommentId != null)
+              const CrisisBanner(),
+              const SizedBox(height: 8),
+            ],
+            if (widget.replyingToCommentId != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAF5FF),
                   borderRadius: BorderRadius.circular(14),
@@ -99,6 +98,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   ],
                 ),
               ),
+            // 흰색 입력 컨테이너: Row만 포함, 높이 항상 고정
             Container(
               padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
               decoration: BoxDecoration(
@@ -107,11 +107,10 @@ class _CommentInputBarState extends State<CommentInputBar> {
                 border: Border.all(color: const Color(0xFFE6EDF3)),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () {
-                      widget.onAnonymousChanged(!widget.anonymous);
-                    },
+                    onTap: () => widget.onAnonymousChanged(!widget.anonymous),
                     borderRadius: BorderRadius.circular(999),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -138,46 +137,31 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        TextField(
-                          controller: _controller,
-                          minLines: 1,
-                          maxLines: 4,
-                          style: TextStyle(
-                            color: _isOverLimit
-                                ? const Color(0xFFE05C5C)
-                                : const Color(0xFF222222),
-                            fontSize: 15,
-                          ),
-                          decoration: const InputDecoration(
-                            hintText: '댓글을 입력하세요',
-                            hintStyle: TextStyle(
-                              color: Color(0xFF9AA7B2),
-                              fontSize: 15,
-                            ),
-                            border: InputBorder.none,
-                            isCollapsed: true,
-                          ),
+                    child: TextField(
+                      controller: _controller,
+                      minLines: 1,
+                      maxLines: 4,
+                      style: TextStyle(
+                        color: _isOverLimit
+                            ? const Color(0xFFE05C5C)
+                            : const Color(0xFF222222),
+                        fontSize: 15,
+                        height: 1.4,
+                      ),
+                      decoration: const InputDecoration(
+                        hintText: '댓글을 입력하세요',
+                        hintStyle: TextStyle(
+                          color: Color(0xFF9AA7B2),
+                          fontSize: 15,
+                          height: 1.4,
                         ),
-                        if (_length > 0)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              '$_length/$_maxLength',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: _isOverLimit
-                                    ? const Color(0xFFE05C5C)
-                                    : const Color(0xFFB0BEC5),
-                              ),
-                            ),
-                          ),
-                      ],
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   InkWell(
                     onTap: (widget.isSubmitting || _isOverLimit) ? null : _submit,
                     borderRadius: BorderRadius.circular(999),

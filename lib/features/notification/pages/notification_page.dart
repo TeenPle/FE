@@ -14,28 +14,28 @@ class NotificationPage extends ConsumerStatefulWidget {
 
 class _NotificationPageState extends ConsumerState<NotificationPage> {
   final _scrollController = ScrollController();
+  late final NotificationNotifier _notifier;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      final notifier = ref.read(notificationProvider.notifier);
-      await notifier.loadNotifications();
-      await notifier.markAllAsRead();
-    });
+    _notifier = ref.read(notificationProvider.notifier);
+    Future.microtask(() => _notifier.loadNotifications());
     _scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      ref.read(notificationProvider.notifier).loadMore();
+      _notifier.loadMore();
     }
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    // 페이지 떠날 때 서버에만 전체 읽음 처리 (배지 초기화)
+    _notifier.markAllAsReadServerOnly();
     super.dispose();
   }
 
@@ -90,7 +90,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
 
   void _handleTap(NotificationModel notification) {
     if (!notification.isRead) {
-      ref.read(notificationProvider.notifier).markAsRead(notification.id);
+      _notifier.markAsRead(notification.id);
     }
     if (notification.targetType == 'POST') {
       context.push('/post/${notification.targetId}');
@@ -104,6 +104,9 @@ class _NotificationItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _NotificationItem({required this.notification, required this.onTap});
+
+  // boardName이 있는 알림은 모두 게시판 이름 표시 레이아웃 사용
+  bool get _hasBoardName => notification.boardName != null;
 
   @override
   Widget build(BuildContext context) {
@@ -120,28 +123,15 @@ class _NotificationItem extends StatelessWidget {
             _NotificationIcon(type: notification.type),
             const SizedBox(width: 14),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    notification.message,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
-                      color: const Color(0xFF111111),
-                      height: 1.4,
+              child: _hasBoardName
+                  ? _CommentNotificationContent(
+                      notification: notification,
+                      isUnread: isUnread,
+                    )
+                  : _DefaultNotificationContent(
+                      notification: notification,
+                      isUnread: isUnread,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    timeAgo(notification.createdAt),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF9AA7B2),
-                    ),
-                  ),
-                ],
-              ),
             ),
             if (isUnread)
               Container(
@@ -149,13 +139,98 @@ class _NotificationItem extends StatelessWidget {
                 height: 8,
                 margin: const EdgeInsets.only(top: 4, left: 8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF5A8EA8),
+                  color: Color(0xFF14A3F7),
                   shape: BoxShape.circle,
                 ),
               ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CommentNotificationContent extends StatelessWidget {
+  final NotificationModel notification;
+  final bool isUnread;
+
+  const _CommentNotificationContent({
+    required this.notification,
+    required this.isUnread,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (notification.boardName != null) ...[
+          Text(
+            notification.boardName!,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF14A3F7),
+            ),
+          ),
+          const SizedBox(height: 3),
+        ],
+        Text(
+          notification.message,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
+            color: const Color(0xFF111111),
+            height: 1.4,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          timeAgo(notification.createdAt),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF9AA7B2),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DefaultNotificationContent extends StatelessWidget {
+  final NotificationModel notification;
+  final bool isUnread;
+
+  const _DefaultNotificationContent({
+    required this.notification,
+    required this.isUnread,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          notification.message,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
+            color: const Color(0xFF111111),
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          timeAgo(notification.createdAt),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF9AA7B2),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -172,12 +247,9 @@ class _NotificationIcon extends StatelessWidget {
 
     switch (type) {
       case 'COMMENT':
-        icon = Icons.chat_bubble_outline_rounded;
-        color = const Color(0xFF5A8EA8);
-        break;
       case 'REPLY':
-        icon = Icons.reply_rounded;
-        color = const Color(0xFF5A8EA8);
+        icon = Icons.chat_bubble_outline_rounded;
+        color = const Color(0xFF14A3F7);
         break;
       case 'POST_LIKE':
       case 'COMMENT_LIKE':

@@ -5,8 +5,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/storage/token_storage.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../features/auth/provider/login_provider.dart';
+import '../../../features/notification/provider/notification_setting_provider.dart';
 import '../models/profile_model.dart';
 import '../provider/profile_provider.dart';
 
@@ -21,8 +27,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-        () => ref.read(profileProvider.notifier).loadProfile());
+    Future.microtask(() => ref.read(profileProvider.notifier).loadProfile());
   }
 
   @override
@@ -32,17 +37,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     ref.listen(profileProvider, (prev, next) {
       if (next.errorMessage != null &&
           next.errorMessage != prev?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
         ref.read(profileProvider.notifier).clearMessages();
       }
       if (next.successMessage != null &&
           next.successMessage != prev?.successMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.successMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.successMessage!)));
         ref.read(profileProvider.notifier).clearMessages();
+      }
+      if (next.shouldGoToLogin) {
+        ref.read(authSessionProvider.notifier).clearTokens();
+        ref.read(tokenStorageProvider).clearAll();
+        context.go(AppRoutes.login);
       }
     });
 
@@ -60,47 +70,42 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             color: Color(0xFF111111),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Color(0xFF111111)),
-            onPressed: () => context.push(AppRoutes.settings),
-          ),
-        ],
       ),
       body: state.isLoading && state.profile == null
           ? const Center(child: CircularProgressIndicator())
           : state.profile == null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        state.errorMessage ?? '프로필을 불러오지 못했습니다.',
-                        style: const TextStyle(color: Color(0xFF7D8790)),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () =>
-                            ref.read(profileProvider.notifier).loadProfile(),
-                        child: const Text('다시 시도'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.errorMessage ?? '프로필을 불러오지 못했습니다.',
+                    style: const TextStyle(color: Color(0xFF7D8790)),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () =>
-                      ref.read(profileProvider.notifier).loadProfile(),
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-                    children: [
-                      _ProfileHeaderCard(profile: state.profile!),
-                      const SizedBox(height: 12),
-                      _InfoSection(profile: state.profile!),
-                      const SizedBox(height: 12),
-                      _ActivitySection(),
-                    ],
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () =>
+                        ref.read(profileProvider.notifier).loadProfile(),
+                    child: const Text('다시 시도'),
                   ),
-                ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: () => ref.read(profileProvider.notifier).loadProfile(),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+                children: [
+                  _ProfileHeaderCard(profile: state.profile!),
+                  const SizedBox(height: 12),
+                  _InfoSection(profile: state.profile!),
+                  const SizedBox(height: 12),
+                  _ActivitySection(),
+                  const SizedBox(height: 12),
+                  const _SettingsSection(),
+                ],
+              ),
+            ),
     );
   }
 }
@@ -161,8 +166,11 @@ class _ProfileHeaderCard extends ConsumerWidget {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(Icons.camera_alt_rounded,
-                            size: 14, color: Colors.white),
+                        : const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                   ),
                 ),
               ],
@@ -181,21 +189,23 @@ class _ProfileHeaderCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.school_outlined,
-                  size: 14, color: Color(0xFF9AA7B2)),
+              const Icon(
+                Icons.school_outlined,
+                size: 14,
+                color: Color(0xFF9AA7B2),
+              ),
               const SizedBox(width: 4),
               Text(
                 '${profile.schoolName} · ${profile.gradeLabel}',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF7D8790),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF7D8790)),
               ),
               if (profile.verified) ...[
                 const SizedBox(width: 6),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFEAF7FF),
                     borderRadius: BorderRadius.circular(999),
@@ -230,8 +240,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             ),
             child: Text(
               profile.canChangeNickname
@@ -320,10 +329,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF7D8790),
-                ),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF7D8790)),
               ),
               const Spacer(),
               Text(
@@ -366,30 +372,50 @@ class _ActivitySection extends ConsumerWidget {
             count: profile?.myPostCount,
             onTap: () => context.push(AppRoutes.myPosts),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
-              indent: 16, endIndent: 16),
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFF0F4F8),
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.chat_bubble_outline_rounded,
             label: '내가 쓴 댓글',
             count: profile?.myCommentCount,
             onTap: () => context.push(AppRoutes.myComments),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
-              indent: 16, endIndent: 16),
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFF0F4F8),
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.thumb_up_outlined,
             label: '내가 공감한 글',
             onTap: () => context.push(AppRoutes.myLikedPosts),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
-              indent: 16, endIndent: 16),
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFF0F4F8),
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.bookmark_border_rounded,
             label: '내 북마크',
             onTap: () => context.push(AppRoutes.myBookmarks),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8),
-              indent: 16, endIndent: 16),
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFF0F4F8),
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.warning_amber_rounded,
             label: '내 경고 이력',
@@ -408,7 +434,8 @@ class _AvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = profile.profileImageUrl.isNotEmpty &&
+    final hasImage =
+        profile.profileImageUrl.isNotEmpty &&
         profile.profileImageUrl != 'default_profile.png' &&
         profile.profileImageUrl.startsWith('http');
 
@@ -436,7 +463,11 @@ class _AvatarWidget extends StatelessWidget {
         color: const Color(0xFFEAF3FB),
         borderRadius: BorderRadius.circular(26),
       ),
-      child: const Icon(Icons.person_rounded, color: Color(0xFF8EA2B5), size: 44),
+      child: const Icon(
+        Icons.person_rounded,
+        color: Color(0xFF8EA2B5),
+        size: 44,
+      ),
     );
   }
 }
@@ -467,7 +498,7 @@ class _ActivityTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: const Color(0xFF5A8EA8)),
+            Icon(icon, size: 20, color: const Color(0xFF14A3F7)),
             const SizedBox(width: 12),
             Text(
               label,
@@ -488,8 +519,550 @@ class _ActivityTile extends StatelessWidget {
                 ),
               ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded,
-                color: Color(0xFFB0BEC5), size: 22),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFFB0BEC5),
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsSection extends ConsumerWidget {
+  const _SettingsSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _ProfileSectionHeader(label: '계정 관리'),
+        _ProfileSettingsCard(
+          children: [
+            _ProfileSettingsTile(
+              icon: Icons.lock_outline_rounded,
+              label: '비밀번호 변경',
+              onTap: () => context.push(AppRoutes.editPassword),
+            ),
+            const _ProfileSettingsDivider(),
+            _ProfileSettingsTile(
+              icon: Icons.block_rounded,
+              label: '차단 목록',
+              onTap: () => context.push(AppRoutes.blockedUsers),
+            ),
+            const _ProfileSettingsDivider(),
+            _ProfileSettingsTile(
+              icon: Icons.gavel_rounded,
+              label: '제재 이력',
+              onTap: () => context.push(AppRoutes.myPenalties),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        const _ProfileSectionHeader(label: '화면'),
+        const _ProfileThemeCard(),
+        const SizedBox(height: 18),
+        const _ProfileSectionHeader(label: 'D-Day'),
+        _ProfileSettingsCard(
+          children: [
+            _ProfileSettingsTile(
+              icon: Icons.event_available_outlined,
+              label: 'D-Day 관리',
+              onTap: () => context.push(AppRoutes.ddaySettings),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        const _ProfileSectionHeader(label: '알림 설정'),
+        const _ProfileNotificationSettingsCard(),
+        const SizedBox(height: 18),
+        const _ProfileSectionHeader(label: '앱 정보'),
+        const _ProfileAppInfoCard(),
+        const SizedBox(height: 18),
+        const _ProfileSectionHeader(label: '기타'),
+        _ProfileSettingsCard(
+          children: [
+            _ProfileSettingsTile(
+              icon: Icons.logout_rounded,
+              label: '로그아웃',
+              onTap: () => _confirmLogout(context, ref),
+            ),
+            const _ProfileSettingsDivider(),
+            _ProfileSettingsTile(
+              icon: Icons.person_remove_outlined,
+              label: '회원 탈퇴',
+              labelColor: const Color(0xFFE05C5C),
+              iconColor: const Color(0xFFE05C5C),
+              onTap: () => _confirmDeleteAccount(context, ref),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('로그아웃'),
+        content: const Text('로그아웃 하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('로그아웃'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(loginProvider.notifier).logout();
+      if (context.mounted) context.go(AppRoutes.login);
+    }
+  }
+
+  Future<void> _confirmDeleteAccount(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('회원 탈퇴'),
+        content: const Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFE05C5C),
+            ),
+            child: const Text('탈퇴하기'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(profileProvider.notifier).deleteAccount();
+    }
+  }
+}
+
+class _ProfileThemeCard extends ConsumerWidget {
+  const _ProfileThemeCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    final notifier = ref.read(themeModeProvider.notifier);
+
+    return _ProfileSettingsCard(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.dark_mode_outlined,
+                size: 20,
+                color: Color(0xFF14A3F7),
+              ),
+              const SizedBox(width: 14),
+              const Text(
+                '테마',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF111111),
+                ),
+              ),
+              const Spacer(),
+              _ProfileThemeSegment(
+                label: '라이트',
+                selected: mode == ThemeMode.light,
+                onTap: () => notifier.setMode(ThemeMode.light),
+              ),
+              const SizedBox(width: 6),
+              _ProfileThemeSegment(
+                label: '다크',
+                selected: mode == ThemeMode.dark,
+                onTap: () => notifier.setMode(ThemeMode.dark),
+              ),
+              const SizedBox(width: 6),
+              _ProfileThemeSegment(
+                label: '자동',
+                selected: mode == ThemeMode.system,
+                onTap: () => notifier.setMode(ThemeMode.system),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileThemeSegment extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ProfileThemeSegment({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF14A3F7) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? const Color(0xFF14A3F7) : const Color(0xFFD0D8E4),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: selected ? Colors.white : const Color(0xFF9AA7B2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileNotificationSettingsCard extends ConsumerWidget {
+  const _ProfileNotificationSettingsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingAsync = ref.watch(notificationSettingProvider);
+
+    return settingAsync.when(
+      loading: () => const _ProfileSettingsCard(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          ),
+        ],
+      ),
+      error: (_, __) => const _ProfileSettingsCard(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            child: Text('알림 설정을 불러올 수 없습니다.'),
+          ),
+        ],
+      ),
+      data: (setting) => _ProfileSettingsCard(
+        children: [
+          _ProfileNotificationToggleTile(
+            icon: Icons.notifications_outlined,
+            label: '전체 알림',
+            value: setting.allowPush,
+            onChanged: (v) => _update(context, ref, {'allowPush': v}),
+          ),
+          const _ProfileSettingsDivider(),
+          _ProfileNotificationToggleTile(
+            icon: Icons.chat_bubble_outline_rounded,
+            label: '댓글 알림',
+            value: setting.allowCommentNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowCommentNotification': v}),
+          ),
+          const _ProfileSettingsDivider(),
+          _ProfileNotificationToggleTile(
+            icon: Icons.reply_rounded,
+            label: '답글 알림',
+            value: setting.allowReplyNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowReplyNotification': v}),
+          ),
+          const _ProfileSettingsDivider(),
+          _ProfileNotificationToggleTile(
+            icon: Icons.thumb_up_outlined,
+            label: '좋아요 알림',
+            value: setting.allowLikeNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowLikeNotification': v}),
+          ),
+          const _ProfileSettingsDivider(),
+          _ProfileNotificationToggleTile(
+            icon: Icons.forum_outlined,
+            label: '채팅 알림',
+            value: setting.allowChatNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowChatNotification': v}),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _update(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> patch,
+  ) {
+    ref
+        .read(notificationSettingProvider.notifier)
+        .updateSetting(patch)
+        .catchError((_) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('설정 저장에 실패했습니다.')));
+          }
+        });
+  }
+}
+
+class _ProfileNotificationToggleTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool value;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  const _ProfileNotificationToggleTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final active = enabled && value;
+    final color = enabled ? const Color(0xFF111111) : const Color(0xFFB0BEC5);
+    final iconColor = enabled
+        ? const Color(0xFF14A3F7)
+        : const Color(0xFFB0BEC5);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(width: 14),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+          const Spacer(),
+          Switch.adaptive(
+            value: active,
+            onChanged: enabled ? onChanged : null,
+            activeColor: const Color(0xFF14A3F7),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileAppInfoCard extends StatefulWidget {
+  const _ProfileAppInfoCard();
+
+  @override
+  State<_ProfileAppInfoCard> createState() => _ProfileAppInfoCardState();
+}
+
+class _ProfileAppInfoCardState extends State<_ProfileAppInfoCard> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    PackageInfo.fromPlatform().then((info) {
+      if (mounted) setState(() => _version = info.version);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _ProfileSettingsCard(
+      children: [
+        _ProfileInfoTile(label: '앱 버전', trailing: _version),
+        const _ProfileSettingsDivider(),
+        _ProfileSettingsTile(
+          icon: Icons.description_outlined,
+          label: '이용약관',
+          onTap: () => context.push(AppRoutes.terms),
+        ),
+        const _ProfileSettingsDivider(),
+        _ProfileSettingsTile(
+          icon: Icons.privacy_tip_outlined,
+          label: '개인정보처리방침',
+          onTap: () => context.push(AppRoutes.privacyPolicy),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileInfoTile extends StatelessWidget {
+  final String label;
+  final String trailing;
+
+  const _ProfileInfoTile({required this.label, required this.trailing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 20,
+            color: Color(0xFF14A3F7),
+          ),
+          const SizedBox(width: 14),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF111111),
+            ),
+          ),
+          const Spacer(),
+          Text(
+            trailing,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileSectionHeader extends StatelessWidget {
+  final String label;
+  const _ProfileSectionHeader({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF7D8790),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileSettingsCard extends StatelessWidget {
+  final List<Widget> children;
+  const _ProfileSettingsCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE6EDF3)),
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _ProfileSettingsDivider extends StatelessWidget {
+  const _ProfileSettingsDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(
+      height: 1,
+      thickness: 1,
+      color: Color(0xFFF0F4F8),
+      indent: 52,
+    );
+  }
+}
+
+class _ProfileSettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? labelColor;
+  final Color? iconColor;
+
+  const _ProfileSettingsTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.labelColor,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = labelColor ?? const Color(0xFF111111);
+    final iColor = iconColor ?? const Color(0xFF14A3F7);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: iColor),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFFB0BEC5),
+              size: 22,
+            ),
           ],
         ),
       ),

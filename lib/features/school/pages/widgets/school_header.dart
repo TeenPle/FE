@@ -6,15 +6,19 @@ import '../../../notification/provider/notification_provider.dart';
 
 class SchoolHeader extends ConsumerWidget {
   final String schoolName;
+  final VoidCallback onSearchTap;
 
   const SchoolHeader({
     super.key,
     required this.schoolName,
+    required this.onSearchTap,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unreadCount = ref.watch(notificationProvider.select((s) => s.unreadCount));
+    final unreadCount = ref.watch(
+      notificationProvider.select((s) => s.unreadCount),
+    );
 
     return Container(
       color: const Color(0xFFF3F9FF),
@@ -23,11 +27,7 @@ class SchoolHeader extends ConsumerWidget {
         bottom: false,
         child: Row(
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              color: const Color(0xFF9A9A9A),
-            ),
+            Container(width: 28, height: 28, color: const Color(0xFF9A9A9A)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -40,8 +40,8 @@ class SchoolHeader extends ConsumerWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => context.push(AppRoutes.profile),
-              child: const _CircleIcon(icon: Icons.account_circle_outlined),
+              onTap: onSearchTap,
+              child: const _CircleIcon(icon: Icons.search),
             ),
             const SizedBox(width: 12),
             GestureDetector(
@@ -55,11 +55,6 @@ class SchoolHeader extends ConsumerWidget {
                 icon: Icons.notifications_none,
                 count: unreadCount,
               ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () => context.push(AppRoutes.settings),
-              child: const _CircleIcon(icon: Icons.settings_outlined),
             ),
           ],
         ),
@@ -115,10 +110,6 @@ class _CircleIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      icon,
-      size: 28,
-      color: Colors.black87,
-    );
+    return Icon(icon, size: 28, color: Colors.black87);
   }
 }

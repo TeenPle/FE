@@ -7,13 +7,12 @@ import '../../school/models/post_summary.dart';
 class SearchApi {
   final AppApiClient client;
 
-  const SearchApi({
-    required this.client,
-  });
+  const SearchApi({required this.client});
 
   /// 키워드로 게시글 검색
   Future<BoardPostPage> searchPosts({
     required String keyword,
+    int? boardId,
     required int page,
     required int size,
   }) async {
@@ -21,25 +20,23 @@ class SearchApi {
       '/api/search',
       queryParameters: {
         'keyword': keyword,
+        if (boardId != null) 'boardId': '$boardId',
         'page': '$page',
         'size': '$size',
       },
     );
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) {
-        final map = data as Map<String, dynamic>;
-        final content = (map['content'] as List<dynamic>? ?? [])
-            .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
-            .toList();
+    final response = ApiResponse.fromJson(json, (data) {
+      final map = data as Map<String, dynamic>;
+      final content = (map['content'] as List<dynamic>? ?? [])
+          .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-        return BoardPostPage(
-          posts: content,
-          hasNext: map['hasNext'] as bool? ?? false,
-        );
-      },
-    );
+      return BoardPostPage(
+        posts: content,
+        hasNext: map['hasNext'] as bool? ?? false,
+      );
+    });
 
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);

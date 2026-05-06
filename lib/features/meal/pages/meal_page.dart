@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../models/meal_model.dart';
 import '../provider/meal_provider.dart';
 
@@ -21,6 +22,12 @@ class _MealPageState extends ConsumerState<MealPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mealProvider);
+    final selectedDate = _parseDateKey(state.selectedDate) ?? DateTime.now();
+    final weekStart = _weekStart(selectedDate);
+    final weekDays = List.generate(
+      5,
+      (index) => weekStart.add(Duration(days: index)),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F9FF),
@@ -43,289 +50,531 @@ class _MealPageState extends ConsumerState<MealPage> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          _MonthNavigator(
-            focusedMonth: state.focusedMonth,
-            onPrev: () => ref.read(mealProvider.notifier)
-                .changeMonth(DateTime(state.focusedMonth.year, state.focusedMonth.month - 1)),
-            onNext: () => ref.read(mealProvider.notifier)
-                .changeMonth(DateTime(state.focusedMonth.year, state.focusedMonth.month + 1)),
-          ),
-          _CalendarGrid(
-            focusedMonth: state.focusedMonth,
-            meals: state.meals,
-            selectedDate: state.selectedDate,
-            onDateSelected: (key) => ref.read(mealProvider.notifier).selectDate(key),
-          ),
-          const Divider(height: 1, color: Color(0xFFE0E9F0)),
-          Expanded(
-            child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : state.error != null
-                    ? _ErrorState(message: state.error!)
-                    : !state.neisAvailable
-                        ? const _NeisNotConfigured()
-                        : _MealDetail(meal: state.selectedMeal),
-          ),
-        ],
-      ),
+      body: state.error != null
+          ? _ErrorState(message: state.error!)
+          : !state.neisAvailable
+          ? const _NeisNotConfigured()
+          : RefreshIndicator(
+              onRefresh: () =>
+                  ref.read(mealProvider.notifier).changeWeek(weekStart),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 32),
+                children: [
+                  _WeekNavigator(
+                    weekStart: weekStart,
+                    onPrev: () => ref
+                        .read(mealProvider.notifier)
+                        .changeWeek(
+                          weekStart.subtract(const Duration(days: 7)),
+                        ),
+                    onNext: () => ref
+                        .read(mealProvider.notifier)
+                        .changeWeek(weekStart.add(const Duration(days: 7))),
+                  ),
+                  const SizedBox(height: 12),
+                  _WeekDayStrip(
+                    days: weekDays,
+                    meals: state.meals,
+                    selectedDate: state.selectedDate,
+                    onDateSelected: (dateKey) =>
+                        ref.read(mealProvider.notifier).selectDate(dateKey),
+                  ),
+                  const SizedBox(height: 16),
+                  if (state.isLoading)
+                    const _LoadingCard()
+                  else
+                    _SelectedMealCard(
+                      date: selectedDate,
+                      meal: state.selectedMeal,
+                    ),
+                  const SizedBox(height: 16),
+                  _WeeklySummaryCard(
+                    days: weekDays,
+                    meals: state.meals,
+                    selectedDate: state.selectedDate,
+                    onDateSelected: (dateKey) =>
+                        ref.read(mealProvider.notifier).selectDate(dateKey),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }
 
-class _MonthNavigator extends StatelessWidget {
-  final DateTime focusedMonth;
+class _WeekNavigator extends StatelessWidget {
+  final DateTime weekStart;
   final VoidCallback onPrev;
   final VoidCallback onNext;
 
-  const _MonthNavigator({
-    required this.focusedMonth,
+  const _WeekNavigator({
+    required this.weekStart,
     required this.onPrev,
     required this.onNext,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    final weekEnd = weekStart.add(const Duration(days: 4));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            onPressed: onPrev,
-            icon: const Icon(Icons.chevron_left_rounded),
-            color: const Color(0xFF5A8EA8),
-          ),
-          Text(
-            '${focusedMonth.year}년 ${focusedMonth.month}월',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111111),
+          _CircleArrowButton(icon: Icons.chevron_left_rounded, onTap: onPrev),
+          Expanded(
+            child: Column(
+              children: [
+                const Text(
+                  '이번 주 급식',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF14A3F7),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '${_monthDay(weekStart)} - ${_monthDay(weekEnd)}',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF111111),
+                  ),
+                ),
+              ],
             ),
           ),
-          IconButton(
-            onPressed: onNext,
-            icon: const Icon(Icons.chevron_right_rounded),
-            color: const Color(0xFF5A8EA8),
-          ),
+          _CircleArrowButton(icon: Icons.chevron_right_rounded, onTap: onNext),
         ],
       ),
     );
   }
 }
 
-class _CalendarGrid extends StatelessWidget {
-  final DateTime focusedMonth;
+class _WeekDayStrip extends StatelessWidget {
+  final List<DateTime> days;
   final Map<String, MealModel> meals;
   final String? selectedDate;
   final ValueChanged<String> onDateSelected;
 
-  const _CalendarGrid({
-    required this.focusedMonth,
+  const _WeekDayStrip({
+    required this.days,
     required this.meals,
     required this.selectedDate,
     required this.onDateSelected,
   });
 
-  String _dateKey(DateTime d) =>
-      '${d.year}${d.month.toString().padLeft(2, '0')}${d.day.toString().padLeft(2, '0')}';
-
   @override
   Widget build(BuildContext context) {
-    final firstDay = DateTime(focusedMonth.year, focusedMonth.month, 1);
-    final lastDay = DateTime(focusedMonth.year, focusedMonth.month + 1, 0);
-    final startOffset = firstDay.weekday % 7; // 0=일 ~ 6=토
-
-    final today = DateTime.now();
-    final todayKey = _dateKey(today);
-
-    final cells = <Widget>[];
-    // 요일 헤더
-    const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-    for (final day in weekdays) {
-      cells.add(Center(
-        child: Text(
-          day,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: day == '일' ? const Color(0xFFE05C7B) : const Color(0xFF6B7C8A),
-          ),
-        ),
-      ));
-    }
-
-    // 빈 칸
-    for (int i = 0; i < startOffset; i++) {
-      cells.add(const SizedBox());
-    }
-
-    // 날짜 칸
-    for (int d = 1; d <= lastDay.day; d++) {
-      final date = DateTime(focusedMonth.year, focusedMonth.month, d);
-      final key = _dateKey(date);
-      final hasMeal = meals.containsKey(key);
-      final isSelected = selectedDate == key;
-      final isToday = key == todayKey;
-      final isSunday = date.weekday == DateTime.sunday;
-
-      cells.add(GestureDetector(
-        onTap: () => onDateSelected(key),
-        child: Container(
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF5A8EA8) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '$d',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
-                  color: isSelected
-                      ? Colors.white
-                      : isSunday
-                          ? const Color(0xFFE05C7B)
-                          : const Color(0xFF111111),
-                ),
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+      ),
+      child: Row(
+        children: [
+          for (final day in days)
+            Expanded(
+              child: _WeekDayTile(
+                date: day,
+                hasMeal: meals.containsKey(_dateKey(day)),
+                selected: selectedDate == _dateKey(day),
+                today: _isSameDay(day, DateTime.now()),
+                onTap: () => onDateSelected(_dateKey(day)),
               ),
-              if (hasMeal)
-                Container(
-                  width: 4,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 2),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.white70 : const Color(0xFF5A8EA8),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ));
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: GridView.count(
-        crossAxisCount: 7,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 1.0,
-        children: cells,
+            ),
+        ],
       ),
     );
   }
 }
 
-class _MealDetail extends StatelessWidget {
-  final MealModel? meal;
+class _WeekDayTile extends StatelessWidget {
+  final DateTime date;
+  final bool hasMeal;
+  final bool selected;
+  final bool today;
+  final VoidCallback onTap;
 
-  const _MealDetail({this.meal});
+  const _WeekDayTile({
+    required this.date,
+    required this.hasMeal,
+    required this.selected,
+    required this.today,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (meal == null) {
-      return const _EmptyMeal();
-    }
+    final foreground = selected ? Colors.white : const Color(0xFF111111);
+    final subColor = selected ? Colors.white70 : const Color(0xFF7D8790);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        height: 76,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF14A3F7) : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: today && !selected
+                ? const Color(0xFF14A3F7)
+                : Colors.transparent,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _weekdayLabel(date),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: subColor,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${date.day}',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: foreground,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Container(
+              width: 5,
+              height: 5,
+              decoration: BoxDecoration(
+                color: hasMeal
+                    ? selected
+                          ? Colors.white
+                          : const Color(0xFF14A3F7)
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectedMealCard extends StatelessWidget {
+  final DateTime date;
+  final MealModel? meal;
+
+  const _SelectedMealCard({required this.date, required this.meal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.restaurant_rounded, size: 18, color: Color(0xFF5A8EA8)),
-              const SizedBox(width: 6),
-              const Text(
-                '오늘의 중식',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF111111),
+              Container(
+                width: 4,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF14A3F7),
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_monthDay(date)} ${_weekdayLabel(date)}요일',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF111111),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '중식',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF7D8790),
+                    ),
+                  ),
+                ],
+              ),
               const Spacer(),
-              if (meal!.calories.isNotEmpty)
+              if (meal != null && meal!.calories.isNotEmpty)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEAF3FB),
-                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(0xFFEAF7FF),
+                    borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     meal!.calories,
                     style: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF5A8EA8),
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF14A3F7),
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 16),
-          ...meal!.dishes.map((dish) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+          const SizedBox(height: 18),
+          if (meal == null || meal!.dishes.isEmpty)
+            const _EmptyMealInline()
+          else
+            ...meal!.dishes.map(
+              (dish) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: 6,
                       height: 6,
+                      margin: const EdgeInsets.only(top: 8),
                       decoration: const BoxDecoration(
-                        color: Color(0xFF5A8EA8),
+                        color: Color(0xFF14A3F7),
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      dish,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFF333333),
-                        height: 1.4,
+                    Expanded(
+                      child: Text(
+                        dish,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF26343D),
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              )),
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-class _EmptyMeal extends StatelessWidget {
-  const _EmptyMeal();
+class _WeeklySummaryCard extends StatelessWidget {
+  final List<DateTime> days;
+  final Map<String, MealModel> meals;
+  final String? selectedDate;
+  final ValueChanged<String> onDateSelected;
+
+  const _WeeklySummaryCard({
+    required this.days,
+    required this.meals,
+    required this.selectedDate,
+    required this.onDateSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.no_meals_rounded, size: 48, color: Color(0xFFB0BEC5)),
-          SizedBox(height: 12),
-          Text(
-            '급식 정보가 없어요',
+          const Text(
+            '이번 주 한눈에 보기',
             style: TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF6B7C8A),
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF111111),
             ),
           ),
-          SizedBox(height: 4),
-          Text(
-            '해당 날짜의 급식이 등록되지 않았어요.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
-          ),
+          const SizedBox(height: 10),
+          for (final day in days)
+            _WeeklySummaryRow(
+              date: day,
+              meal: meals[_dateKey(day)],
+              selected: selectedDate == _dateKey(day),
+              onTap: () => onDateSelected(_dateKey(day)),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _WeeklySummaryRow extends StatelessWidget {
+  final DateTime date;
+  final MealModel? meal;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _WeeklySummaryRow({
+    required this.date,
+    required this.meal,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = meal == null || meal!.dishes.isEmpty
+        ? '급식 없음'
+        : meal!.dishes.take(3).join(' · ');
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFEAF7FF) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 26,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected
+                    ? const Color(0xFF14A3F7)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                _weekdayLabel(date),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: selected ? Colors.white : const Color(0xFF6E7A86),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                summary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: meal == null
+                      ? const Color(0xFF9AA7B2)
+                      : const Color(0xFF26343D),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleArrowButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _CircleArrowButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Color(0xFFEAF7FF),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: const Color(0xFF14A3F7), size: 24),
+      ),
+    );
+  }
+}
+
+class _LoadingCard extends StatelessWidget {
+  const _LoadingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 180,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+      ),
+      child: const Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _EmptyMealInline extends StatelessWidget {
+  const _EmptyMealInline();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 22),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(Icons.no_meals_rounded, size: 42, color: Color(0xFFB0BEC5)),
+            SizedBox(height: 10),
+            Text(
+              '이 날짜에는 급식 정보가 없어요.',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF6B7C8A),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -369,10 +618,48 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        message,
-        style: const TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+        ),
       ),
     );
   }
+}
+
+DateTime _weekStart(DateTime date) {
+  return DateTime(
+    date.year,
+    date.month,
+    date.day,
+  ).subtract(Duration(days: date.weekday - DateTime.monday));
+}
+
+DateTime? _parseDateKey(String? key) {
+  if (key == null || key.length != 8) return null;
+  final year = int.tryParse(key.substring(0, 4));
+  final month = int.tryParse(key.substring(4, 6));
+  final day = int.tryParse(key.substring(6, 8));
+  if (year == null || month == null || day == null) return null;
+  return DateTime(year, month, day);
+}
+
+String _dateKey(DateTime date) {
+  return '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
+}
+
+String _monthDay(DateTime date) {
+  return '${date.month}.${date.day}';
+}
+
+String _weekdayLabel(DateTime date) {
+  const labels = ['월', '화', '수', '목', '금', '토', '일'];
+  return labels[date.weekday - 1];
+}
+
+bool _isSameDay(DateTime a, DateTime b) {
+  return a.year == b.year && a.month == b.month && a.day == b.day;
 }

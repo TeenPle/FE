@@ -29,17 +29,12 @@ class SearchNotifier extends StateNotifier<SearchState> {
   final SearchApi api;
   final RecentSearchService recentSearchService;
 
-  SearchNotifier(
-      this.api,
-      this.recentSearchService,
-      ) : super(SearchState.initial());
+  SearchNotifier(this.api, this.recentSearchService)
+    : super(SearchState.initial());
 
   /// 저장된 최근 검색어 목록을 불러옴
   Future<void> loadRecentKeywords() async {
-    state = state.copyWith(
-      isLoadingRecent: true,
-      clearError: true,
-    );
+    state = state.copyWith(isLoadingRecent: true, clearError: true);
 
     try {
       final recentKeywords = await recentSearchService.getRecentKeywords();
@@ -59,6 +54,18 @@ class SearchNotifier extends StateNotifier<SearchState> {
   /// 검색어를 상태에 반영
   void setKeyword(String keyword) {
     state = state.copyWith(keyword: keyword);
+  }
+
+  void setScope({int? boardId, String? scopeTitle}) {
+    state = state.copyWith(
+      boardId: boardId,
+      scopeTitle: scopeTitle,
+      results: const [],
+      currentPage: 0,
+      hasNext: false,
+      hasSearched: false,
+      clearError: true,
+    );
   }
 
   /// 검색 상태를 초기 화면처럼 되돌림
@@ -96,6 +103,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
     try {
       final BoardPostPage pageResult = await api.searchPosts(
         keyword: keyword,
+        boardId: state.boardId,
         page: 0,
         size: state.pageSize,
       );
@@ -113,10 +121,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
       debugPrint('검색 실패: $e');
       debugPrintStack(stackTrace: stackTrace);
 
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '검색에 실패했습니다.',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: '검색에 실패했습니다.');
     }
   }
 
@@ -126,25 +131,20 @@ class SearchNotifier extends StateNotifier<SearchState> {
     if (state.isLoading || state.isLoadingMore) return;
     if (state.keyword.trim().isEmpty) return;
 
-    state = state.copyWith(
-      isLoadingMore: true,
-      clearError: true,
-    );
+    state = state.copyWith(isLoadingMore: true, clearError: true);
 
     try {
       final nextPage = state.currentPage + 1;
 
       final BoardPostPage pageResult = await api.searchPosts(
         keyword: state.keyword.trim(),
+        boardId: state.boardId,
         page: nextPage,
         size: state.pageSize,
       );
 
       state = state.copyWith(
-        results: [
-          ...state.results,
-          ..._filterVisiblePosts(pageResult.posts),
-        ],
+        results: [...state.results, ..._filterVisiblePosts(pageResult.posts)],
         currentPage: nextPage,
         hasNext: pageResult.hasNext,
         isLoadingMore: false,
@@ -165,13 +165,9 @@ class SearchNotifier extends StateNotifier<SearchState> {
     try {
       final recentKeywords = await recentSearchService.removeKeyword(keyword);
 
-      state = state.copyWith(
-        recentKeywords: recentKeywords,
-      );
+      state = state.copyWith(recentKeywords: recentKeywords);
     } catch (_) {
-      state = state.copyWith(
-        errorMessage: '최근 검색어를 삭제하지 못했습니다.',
-      );
+      state = state.copyWith(errorMessage: '최근 검색어를 삭제하지 못했습니다.');
     }
   }
 
@@ -180,13 +176,9 @@ class SearchNotifier extends StateNotifier<SearchState> {
     try {
       final recentKeywords = await recentSearchService.clearAll();
 
-      state = state.copyWith(
-        recentKeywords: recentKeywords,
-      );
+      state = state.copyWith(recentKeywords: recentKeywords);
     } catch (_) {
-      state = state.copyWith(
-        errorMessage: '최근 검색어를 초기화하지 못했습니다.',
-      );
+      state = state.copyWith(errorMessage: '최근 검색어를 초기화하지 못했습니다.');
     }
   }
 
@@ -199,8 +191,9 @@ class SearchNotifier extends StateNotifier<SearchState> {
 }
 
 /// 검색 상태 provider
-final searchProvider =
-StateNotifierProvider<SearchNotifier, SearchState>((ref) {
+final searchProvider = StateNotifierProvider<SearchNotifier, SearchState>((
+  ref,
+) {
   final api = ref.watch(searchApiProvider);
   final recentSearchService = ref.watch(recentSearchServiceProvider);
 

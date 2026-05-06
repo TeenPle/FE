@@ -25,9 +25,9 @@ class SettingsPage extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: const Color(0xFFF3F9FF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: const Color(0xFFF3F9FF),
         elevation: 0,
         foregroundColor: const Color(0xFF111111),
         centerTitle: true,
@@ -203,7 +203,7 @@ class _ThemeCard extends ConsumerWidget {
               const Icon(
                 Icons.dark_mode_outlined,
                 size: 20,
-                color: Color(0xFF5A8EA8),
+                color: Color(0xFF14A3F7),
               ),
               const SizedBox(width: 14),
               const Text(
@@ -259,11 +259,11 @@ class _ThemeSegment extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF4A67F2) : Colors.transparent,
+          color: selected ? const Color(0xFF14A3F7) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: selected
-                ? const Color(0xFF4A67F2)
+                ? const Color(0xFF14A3F7)
                 : const Color(0xFFD0D8E4),
           ),
         ),
@@ -383,7 +383,7 @@ class _NotificationToggleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final active = enabled && value;
     final color = enabled ? const Color(0xFF111111) : const Color(0xFFB0BEC5);
-    final iconColor = enabled ? const Color(0xFF5A8EA8) : const Color(0xFFB0BEC5);
+    final iconColor = enabled ? const Color(0xFF14A3F7) : const Color(0xFFB0BEC5);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -403,7 +403,7 @@ class _NotificationToggleTile extends StatelessWidget {
           Switch.adaptive(
             value: active,
             onChanged: enabled ? onChanged : null,
-            activeColor: const Color(0xFF5A8EA8),
+            activeColor: const Color(0xFF14A3F7),
           ),
         ],
       ),
@@ -467,7 +467,7 @@ class _InfoTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, size: 20, color: Color(0xFF5A8EA8)),
+          const Icon(Icons.info_outline_rounded, size: 20, color: Color(0xFF14A3F7)),
           const SizedBox(width: 14),
           Text(
             label,
@@ -560,7 +560,7 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = labelColor ?? const Color(0xFF111111);
-    final iColor = iconColor ?? const Color(0xFF5A8EA8);
+    final iColor = iconColor ?? const Color(0xFF14A3F7);
 
     return InkWell(
       onTap: onTap,

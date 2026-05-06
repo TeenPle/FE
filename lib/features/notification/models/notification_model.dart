@@ -6,6 +6,7 @@ class NotificationModel {
   final String message;
   final bool isRead;
   final DateTime createdAt;
+  final String? boardName;
 
   const NotificationModel({
     required this.id,
@@ -15,6 +16,7 @@ class NotificationModel {
     required this.message,
     required this.isRead,
     required this.createdAt,
+    this.boardName,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class NotificationModel {
       message: json['message'] as String,
       isRead: json['isRead'] as bool? ?? false,
       createdAt: createdAt,
+      boardName: json['boardName'] as String?,
     );
   }
 
@@ -43,6 +46,7 @@ class NotificationModel {
       message: message,
       isRead: isRead ?? this.isRead,
       createdAt: createdAt,
+      boardName: boardName,
     );
   }
 }

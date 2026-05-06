@@ -60,7 +60,7 @@ class AppBottomNavBar extends StatelessWidget {
             ),
             _NavItem(
               icon: Icons.person_outline_rounded,
-              label: '프로필',
+              label: '내정보',
               selected: currentIndex == 4,
               onTap: () => onTap(4),
             ),

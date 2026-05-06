@@ -7,10 +7,14 @@ import '../provider/search_provider.dart';
 /// 검색 페이지
 class SearchPage extends ConsumerStatefulWidget {
   final String? initialKeyword;
+  final int? boardId;
+  final String? scopeTitle;
 
   const SearchPage({
     super.key,
     this.initialKeyword,
+    this.boardId,
+    this.scopeTitle,
   });
 
   @override
@@ -30,6 +34,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
     Future.microtask(() async {
       final notifier = ref.read(searchProvider.notifier);
+      notifier.setScope(boardId: widget.boardId, scopeTitle: widget.scopeTitle);
 
       /// 검색 페이지에 새로 들어왔고 초기 검색어가 없으면 검색 결과 화면을 초기화
       if (_controller.text.trim().isEmpty) {
@@ -82,9 +87,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
     });
 
@@ -146,12 +151,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           ),
                           suffixIcon: _controller.text.isNotEmpty
                               ? IconButton(
-                            onPressed: _clearSearchInput,
-                            icon: const Icon(
-                              Icons.close_rounded,
-                              color: Color(0xFF7D8790),
-                            ),
-                          )
+                                  onPressed: _clearSearchInput,
+                                  icon: const Icon(
+                                    Icons.close_rounded,
+                                    color: Color(0xFF7D8790),
+                                  ),
+                                )
                               : null,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -190,8 +195,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
             child: Text(
               state.hasSearched
-                  ? '"${state.keyword}" 검색 결과'
-                  : '제목이나 본문에서 키워드를 검색해보세요.',
+                  ? '"${state.keyword}" 검색 결과${state.scopeTitle == null ? '' : ' · ${state.scopeTitle}'}'
+                  : '${state.scopeTitle ?? '전체 게시판'}에서 제목이나 본문 키워드를 검색해보세요.',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -204,73 +209,75 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 ? const Center(child: CircularProgressIndicator())
                 : !state.hasSearched
                 ? _RecentSearchSection(
-              isLoadingRecent: state.isLoadingRecent,
-              recentKeywords: state.recentKeywords,
-              onKeywordTap: (keyword) async {
-                _controller.text = keyword;
-                _controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: _controller.text.length),
-                );
-                setState(() {});
-                await notifier.searchWithKeyword(keyword);
-              },
-              onDeleteKeyword: (keyword) async {
-                await notifier.removeRecentKeyword(keyword);
-              },
-              onClearAll: () async {
-                await notifier.clearRecentKeywords();
-              },
-            )
+                    isLoadingRecent: state.isLoadingRecent,
+                    recentKeywords: state.recentKeywords,
+                    onKeywordTap: (keyword) async {
+                      _controller.text = keyword;
+                      _controller.selection = TextSelection.fromPosition(
+                        TextPosition(offset: _controller.text.length),
+                      );
+                      setState(() {});
+                      await notifier.searchWithKeyword(keyword);
+                    },
+                    onDeleteKeyword: (keyword) async {
+                      await notifier.removeRecentKeyword(keyword);
+                    },
+                    onClearAll: () async {
+                      await notifier.clearRecentKeywords();
+                    },
+                  )
                 : state.results.isEmpty
                 ? const _SearchEmptyState()
                 : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
-              itemCount: state.results.length + 1,
-              separatorBuilder: (context, index) {
-                if (index < state.results.length - 1) {
-                  return const Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: Color(0xFFD5DDE6),
-                    indent: 12,
-                    endIndent: 12,
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              itemBuilder: (context, index) {
-                if (index < state.results.length) {
-                  final post = state.results[index];
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
+                    itemCount: state.results.length + 1,
+                    separatorBuilder: (context, index) {
+                      if (index < state.results.length - 1) {
+                        return const Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Color(0xFFD5DDE6),
+                          indent: 12,
+                          endIndent: 12,
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    itemBuilder: (context, index) {
+                      if (index < state.results.length) {
+                        final post = state.results[index];
 
-                  return Container(
-                    color: const Color(0xFFEFF4F9),
-                    child: _SearchResultCard(
-                      post: post,
-                      keyword: state.keyword,
+                        return Container(
+                          color: const Color(0xFFEFF4F9),
+                          child: _SearchResultCard(
+                            post: post,
+                            keyword: state.keyword,
 
-                      /// 검색 결과 게시글 클릭 시 상세 페이지로 이동
-                      onTap: () async {
-                        final refreshed = await context.push<bool>('/post/${post.id}');
-                        if (refreshed == true && mounted) {
-                          ref.read(searchProvider.notifier).search();
-                        }
-                      },
-                    ),
-                  );
-                }
+                            /// 검색 결과 게시글 클릭 시 상세 페이지로 이동
+                            onTap: () async {
+                              final refreshed = await context.push<bool>(
+                                '/post/${post.id}',
+                              );
+                              if (refreshed == true && mounted) {
+                                ref.read(searchProvider.notifier).search();
+                              }
+                            },
+                          ),
+                        );
+                      }
 
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
-                  child: _LoadMoreSection(
-                    hasNext: state.hasNext,
-                    isLoadingMore: state.isLoadingMore,
-                    onLoadMore: () {
-                      notifier.loadMore();
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                        child: _LoadMoreSection(
+                          hasNext: state.hasNext,
+                          isLoadingMore: state.isLoadingMore,
+                          onLoadMore: () {
+                            notifier.loadMore();
+                          },
+                        ),
+                      );
                     },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -477,21 +484,13 @@ class _HighlightedText extends StatelessWidget {
     while (true) {
       final index = lowerText.indexOf(lowerKeyword, start);
       if (index < 0) {
-        spans.add(
-          TextSpan(
-            text: text.substring(start),
-            style: defaultStyle,
-          ),
-        );
+        spans.add(TextSpan(text: text.substring(start), style: defaultStyle));
         break;
       }
 
       if (index > start) {
         spans.add(
-          TextSpan(
-            text: text.substring(start, index),
-            style: defaultStyle,
-          ),
+          TextSpan(text: text.substring(start, index), style: defaultStyle),
         );
       }
 
@@ -529,11 +528,7 @@ class _MetaText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 18,
-          color: color,
-        ),
+        Icon(icon, size: 18, color: color),
         const SizedBox(width: 2),
         Text(
           text,
@@ -604,7 +599,7 @@ class _RecentSearchSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ...recentKeywords.map(
-              (keyword) => Container(
+          (keyword) => Container(
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
@@ -670,11 +665,7 @@ class _SearchInitialState extends StatelessWidget {
         child: Text(
           '최근 검색어가 없어요.\n찾고 싶은 게시글의 제목이나 본문 키워드를 입력해보세요.',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 15,
-            height: 1.5,
-            color: Color(0xFF7D8790),
-          ),
+          style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF7D8790)),
         ),
       ),
     );
@@ -721,9 +712,7 @@ class _LoadMoreSection extends StatelessWidget {
     if (isLoadingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
-        child: Center(
-          child: CircularProgressIndicator(strokeWidth: 2.4),
-        ),
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
       );
     }
 

@@ -6,6 +6,7 @@ import '../../../core/network/app_api_client.dart';
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
 import '../models/post_detail.dart';
+import '../models/poll_model.dart';
 import '../models/reaction_request.dart';
 import '../models/reaction_response.dart';
 import '../models/report_request.dart';
@@ -207,6 +208,27 @@ class PostApi {
     final response = ApiResponse.fromJson(
       json,
       (data) => (data as Map<String, dynamic>)['bookmarked'] as bool,
+    );
+
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+
+    return response.result!;
+  }
+
+  Future<PollModel> votePoll({
+    required int postId,
+    required int optionId,
+  }) async {
+    final json = await client.post(
+      '/api/posts/$postId/poll/vote',
+      body: {'optionId': optionId},
+    );
+
+    final response = ApiResponse.fromJson(
+      json,
+      (data) => PollModel.fromJson(data as Map<String, dynamic>),
     );
 
     if (!response.isSuccess || response.result == null) {

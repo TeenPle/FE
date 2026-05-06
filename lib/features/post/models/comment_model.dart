@@ -12,6 +12,7 @@ class CommentModel {
   final int depth;
   final int? parentId;
   final String? createdAt;
+  final int? createdAtMs;
 
   const CommentModel({
     required this.commentId,
@@ -27,6 +28,7 @@ class CommentModel {
     required this.depth,
     required this.parentId,
     required this.createdAt,
+    this.createdAtMs,
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class CommentModel {
       depth: json['depth'] != null ? (json['depth'] as num).toInt() : 0,
       parentId: json['parentId'] != null ? (json['parentId'] as num).toInt() : null,
       createdAt: json['createdAt'] as String?,
+      createdAtMs: json['createdAtMs'] != null ? (json['createdAtMs'] as num).toInt() : null,
     );
   }
 

@@ -15,6 +15,9 @@ class PostSummary {
   final String? authorProfileImageUrl;
   final int commentCount;
   final List<PostMediaItem> mediaList;
+  final String createdAt;
+  final int? createdAtMs;
+  final bool hasPoll;
 
   const PostSummary({
     required this.id,
@@ -31,6 +34,9 @@ class PostSummary {
     this.authorProfileImageUrl,
     required this.commentCount,
     this.mediaList = const [],
+    this.createdAt = '',
+    this.createdAtMs,
+    this.hasPoll = false,
   });
 
   factory PostSummary.fromJson(Map<String, dynamic> json) {
@@ -54,6 +60,9 @@ class PostSummary {
       mediaList: (json['mediaList'] as List<dynamic>? ?? [])
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      createdAt: json['createdAt'] as String? ?? '',
+      createdAtMs: json['createdAtMs'] != null ? (json['createdAtMs'] as num).toInt() : null,
+      hasPoll: json['hasPoll'] as bool? ?? false,
     );
   }
 

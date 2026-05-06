@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -23,6 +23,7 @@ class WritePostPage extends ConsumerStatefulWidget {
   final String? initialContent;
   final bool? initialAnonymous;
   final List<PostMediaItem> initialMediaList;
+  final List<String>? initialPollOptions;
 
   const WritePostPage({
     super.key,
@@ -34,6 +35,7 @@ class WritePostPage extends ConsumerStatefulWidget {
     this.initialContent,
     this.initialAnonymous,
     this.initialMediaList = const [],
+    this.initialPollOptions,
   });
 
   @override
@@ -44,6 +46,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   static const int _titleLimit = 100;
   static const int _contentLimit = 2000;
   static const int _maxFiles = 5;
+  static const int _maxPollOptions = 5;
   static const int _maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
 
   late final TextEditingController _titleController;
@@ -51,6 +54,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
   late bool _anonymous;
   bool _isSubmitting = false;
+  late bool _pollEnabled;
+  late List<TextEditingController> _pollOptionControllers;
   List<PlatformFile> _selectedFiles = [];
   late List<PostMediaItem> _existingMedia;
   final List<int> _deletedMediaIds = [];
@@ -61,11 +66,22 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
       CrisisBanner.containsCrisisKeyword(_titleController.text) ||
       CrisisBanner.containsCrisisKeyword(_contentController.text);
 
+  List<String> get _pollOptions => _pollOptionControllers
+      .map((controller) => controller.text.trim())
+      .where((text) => text.isNotEmpty)
+      .toList();
+
+  bool get _isPollValid {
+    if (!_pollEnabled) return true;
+    return _pollOptions.length >= 2 && _pollOptions.length <= _maxPollOptions;
+  }
+
   bool get _canSubmit {
     return _titleController.text.trim().isNotEmpty &&
         _contentController.text.trim().isNotEmpty &&
         _titleLength <= _titleLimit &&
         _contentLength <= _contentLimit &&
+        _isPollValid &&
         !_isSubmitting;
   }
 
@@ -77,9 +93,22 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         TextEditingController(text: widget.initialContent ?? '');
     _anonymous = widget.initialAnonymous ?? true;
     _existingMedia = List.from(widget.initialMediaList);
+    final initialPollOptions = widget.initialPollOptions ?? const [];
+    _pollEnabled = initialPollOptions.isNotEmpty;
+    final pollTexts = _pollEnabled ? initialPollOptions : ['', ''];
+    _pollOptionControllers = pollTexts
+        .take(_maxPollOptions)
+        .map((text) => TextEditingController(text: text))
+        .toList();
+    while (_pollOptionControllers.length < 2) {
+      _pollOptionControllers.add(TextEditingController());
+    }
 
     _titleController.addListener(_refresh);
     _contentController.addListener(_refresh);
+    for (final controller in _pollOptionControllers) {
+      controller.addListener(_refresh);
+    }
   }
 
   @override
@@ -88,10 +117,40 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     _contentController.removeListener(_refresh);
     _titleController.dispose();
     _contentController.dispose();
+    for (final controller in _pollOptionControllers) {
+      controller.removeListener(_refresh);
+      controller.dispose();
+    }
     super.dispose();
   }
 
   void _refresh() => setState(() {});
+
+  void _togglePoll() {
+    setState(() {
+      _pollEnabled = !_pollEnabled;
+      if (_pollEnabled && _pollOptionControllers.length < 2) {
+        _pollOptionControllers = [TextEditingController(), TextEditingController()];
+        for (final controller in _pollOptionControllers) {
+          controller.addListener(_refresh);
+        }
+      }
+    });
+  }
+
+  void _addPollOption() {
+    if (_pollOptionControllers.length >= _maxPollOptions) return;
+    final controller = TextEditingController()..addListener(_refresh);
+    setState(() => _pollOptionControllers.add(controller));
+  }
+
+  void _removePollOption(int index) {
+    if (_pollOptionControllers.length <= 2) return;
+    final controller = _pollOptionControllers.removeAt(index);
+    controller.removeListener(_refresh);
+    controller.dispose();
+    setState(() {});
+  }
 
   /// PlatformFile → dio.MultipartFile 변환
   Future<MultipartFile> _toMultipartFile(PlatformFile pf) async {
@@ -210,6 +269,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
             content: _contentController.text.trim(),
             anonymous: _anonymous,
             deleteMediaIds: _deletedMediaIds,
+            pollOptions: _pollEnabled ? _pollOptions : <String>[],
           ),
           files: multipartFiles,
         );
@@ -223,6 +283,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
             title: _titleController.text.trim(),
             content: _contentController.text.trim(),
             anonymous: _anonymous,
+            pollOptions: _pollEnabled ? _pollOptions : null,
           ),
           files: multipartFiles,
         );
@@ -250,6 +311,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     final hasInput = _titleController.text.trim().isNotEmpty ||
         _contentController.text.trim().isNotEmpty ||
         _selectedFiles.isNotEmpty ||
+        (_pollEnabled && _pollOptions.isNotEmpty) ||
         existingMediaChanged;
 
     if (!hasInput) return true;
@@ -540,6 +602,17 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
               ],
               const SizedBox(height: 14),
 
+              _PollEditorSection(
+                enabled: _pollEnabled,
+                controllers: _pollOptionControllers,
+                maxOptions: _maxPollOptions,
+                isValid: _isPollValid,
+                onToggle: _togglePoll,
+                onAdd: _addPollOption,
+                onRemove: _removePollOption,
+              ),
+              const SizedBox(height: 14),
+
               // 첨부파일 섹션
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -676,6 +749,137 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PollEditorSection extends StatelessWidget {
+  final bool enabled;
+  final List<TextEditingController> controllers;
+  final int maxOptions;
+  final bool isValid;
+  final VoidCallback onToggle;
+  final VoidCallback onAdd;
+  final ValueChanged<int> onRemove;
+
+  const _PollEditorSection({
+    required this.enabled,
+    required this.controllers,
+    required this.maxOptions,
+    required this.isValid,
+    required this.onToggle,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE6EDF3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.poll_rounded, size: 19, color: Color(0xFF14A3F7)),
+              const SizedBox(width: 8),
+              const Text(
+                '투표',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111111),
+                ),
+              ),
+              const Spacer(),
+              Switch(
+                value: enabled,
+                activeColor: const Color(0xFF14A3F7),
+                onChanged: (_) => onToggle(),
+              ),
+            ],
+          ),
+          if (enabled) ...[
+            const SizedBox(height: 8),
+            ...controllers.asMap().entries.map((entry) {
+              final index = entry.key;
+              final controller = entry.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        maxLength: 100,
+                        buildCounter: (_, {
+                          required currentLength,
+                          required isFocused,
+                          maxLength,
+                        }) =>
+                            const SizedBox.shrink(),
+                        decoration: InputDecoration(
+                          hintText: '항목 ${index + 1}',
+                          filled: true,
+                          fillColor: const Color(0xFFF8FBFE),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: '항목 삭제',
+                      onPressed: controllers.length > 2 ? () => onRemove(index) : null,
+                      icon: const Icon(Icons.remove_circle_outline_rounded),
+                      color: const Color(0xFFE05C5C),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            if (!isValid)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '투표 항목은 최소 2개 입력해야 합니다.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFE05C5C),
+                  ),
+                ),
+              ),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: controllers.length < maxOptions ? onAdd : null,
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text('항목 추가 (${controllers.length}/$maxOptions)'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF14A3F7),
+                  side: const BorderSide(color: Color(0xFFD3EAFF)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/time_format.dart';
 import '../../models/post_detail.dart';
 import 'linkable_text.dart';
 
@@ -268,6 +269,12 @@ void _openImageViewer(BuildContext context, String url) {
   );
 }
 
+String _formatDetailTime(int? ms) {
+  final dt = parseCreatedAtMs(ms);
+  if (dt == null) return '';
+  return formatDateTime(dt);
+}
+
 class _PostMetaRow extends StatelessWidget {
   final PostDetail post;
 
@@ -308,14 +315,16 @@ class _PostMetaRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (post.createdAt.isNotEmpty)
-                    const _MetaText('방금 전'),
                   _MetaText('조회 ${post.viewCount}'),
-                  _MetaText(post.postStatus.isEmpty ? '일반글' : post.postStatus),
+                  if (post.createdAtMs != null) ...[
+                    const SizedBox(width: 6),
+                    const _MetaText('·'),
+                    const SizedBox(width: 6),
+                    _MetaText(_formatDetailTime(post.createdAtMs)),
+                  ],
                 ],
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/time_format.dart';
 import '../../models/comment_model.dart';
 
 /// 댓글 및 대댓글 아이템 위젯
@@ -135,10 +136,10 @@ class _CommentBody extends StatelessWidget {
       return _DeletedCommentPlaceholder();
     }
 
-    final createdAtText =
-        (comment.createdAt != null && comment.createdAt!.isNotEmpty)
-            ? comment.createdAt!
-            : '방금 전';
+    final createdAtText = () {
+      final dt = parseCreatedAtMs(comment.createdAtMs);
+      return dt != null ? timeAgo(dt) : '';
+    }();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -12,6 +12,7 @@ import '../../profile/provider/block_provider.dart';
 import 'widgets/comment_item.dart';
 import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
+import 'widgets/poll_card.dart';
 import 'write_post_page.dart';
 
 /// 게시글 상세 페이지
@@ -104,6 +105,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                       initialContent: post.content,
                       initialAnonymous: post.anonymous,
                       initialMediaList: post.mediaList,
+                      initialPollOptions: post.poll?.options.map((e) => e.text).toList(),
                     ),
                   ),
                 );
@@ -232,6 +234,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
           children: [
             PostContentCard(post: post),
+            if (post.poll != null) ...[
+              const SizedBox(height: 12),
+              PollCard(
+                poll: post.poll!,
+                isSubmitting: state.isSubmittingReaction,
+                onVote: notifier.votePoll,
+              ),
+            ],
             const SizedBox(height: 12),
             PostActionBar(
               likeCount: post.likeCount,

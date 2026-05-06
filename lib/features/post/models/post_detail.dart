@@ -1,5 +1,6 @@
 import 'comment_model.dart';
 import 'post_media_item.dart';
+import 'poll_model.dart';
 
 class PostDetail {
   final int postId;
@@ -16,9 +17,11 @@ class PostDetail {
   final String username;
   final String? authorProfileImageUrl;
   final String createdAt;
+  final int? createdAtMs;
   final List<CommentModel> comments;
   final List<PostMediaItem> mediaList;
   final bool isBookmarked;
+  final PollModel? poll;
 
   const PostDetail({
     required this.postId,
@@ -35,9 +38,11 @@ class PostDetail {
     required this.username,
     this.authorProfileImageUrl,
     required this.createdAt,
+    this.createdAtMs,
     required this.comments,
     this.mediaList = const [],
     this.isBookmarked = false,
+    this.poll,
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
@@ -59,6 +64,7 @@ class PostDetail {
           ? rawProfileUrl
           : null,
       createdAt: json['createdAt'] as String? ?? '',
+      createdAtMs: json['createdAtMs'] != null ? (json['createdAtMs'] as num).toInt() : null,
       comments: (json['comments'] as List<dynamic>? ?? [])
           .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -66,6 +72,53 @@ class PostDetail {
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       isBookmarked: json['isBookmarked'] as bool? ?? false,
+      poll: json['poll'] != null
+          ? PollModel.fromJson(json['poll'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  PostDetail copyWith({
+    int? postId,
+    int? authorUserId,
+    bool? isMine,
+    int? authorId,
+    String? title,
+    String? content,
+    int? viewCount,
+    bool? anonymous,
+    int? likeCount,
+    int? dislikeCount,
+    String? postStatus,
+    String? username,
+    String? authorProfileImageUrl,
+    String? createdAt,
+    int? createdAtMs,
+    List<CommentModel>? comments,
+    List<PostMediaItem>? mediaList,
+    bool? isBookmarked,
+    PollModel? poll,
+  }) {
+    return PostDetail(
+      postId: postId ?? this.postId,
+      authorUserId: authorUserId ?? this.authorUserId,
+      isMine: isMine ?? this.isMine,
+      authorId: authorId ?? this.authorId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      viewCount: viewCount ?? this.viewCount,
+      anonymous: anonymous ?? this.anonymous,
+      likeCount: likeCount ?? this.likeCount,
+      dislikeCount: dislikeCount ?? this.dislikeCount,
+      postStatus: postStatus ?? this.postStatus,
+      username: username ?? this.username,
+      authorProfileImageUrl: authorProfileImageUrl ?? this.authorProfileImageUrl,
+      createdAt: createdAt ?? this.createdAt,
+      createdAtMs: createdAtMs ?? this.createdAtMs,
+      comments: comments ?? this.comments,
+      mediaList: mediaList ?? this.mediaList,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      poll: poll ?? this.poll,
     );
   }
 

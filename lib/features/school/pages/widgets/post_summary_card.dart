@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/time_format.dart';
 import '../../models/post_summary.dart';
 
 /// 학교 메인 / 게시판 상세에서 공통으로 사용하는 게시글 카드
@@ -39,6 +40,12 @@ class PostSummaryCard extends StatelessWidget {
   String get _commentText {
     if (post.commentCount >= 50) return '50+';
     return '${post.commentCount}';
+  }
+
+  String get _timeLabel {
+    final dt = parseCreatedAtMs(post.createdAtMs);
+    if (dt == null) return '';
+    return timeAgo(dt);
   }
 
 
@@ -109,11 +116,34 @@ class PostSummaryCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        post.title,
-                        maxLines: compact ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: titleStyle,
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final iconWidth = post.hasPoll ? 24.0 : 0.0;
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: constraints.maxWidth - iconWidth,
+                                ),
+                                child: Text(
+                                  post.title,
+                                  maxLines: compact ? 2 : 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: titleStyle,
+                                ),
+                              ),
+                              if (post.hasPoll) ...[
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.poll_rounded,
+                                  size: 18,
+                                  color: Color(0xFF14A3F7),
+                                ),
+                              ],
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 6),
                       Text(
@@ -125,9 +155,9 @@ class PostSummaryCard extends StatelessWidget {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          const Text(
-                            '방금 전',
-                            style: TextStyle(
+                          Text(
+                            _timeLabel,
+                            style: const TextStyle(
                               fontSize: 13,
                               color: Color(0xFF8E8E8E),
                               fontWeight: FontWeight.w500,

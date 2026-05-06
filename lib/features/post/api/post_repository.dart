@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
 import '../models/post_detail.dart';
+import '../models/poll_model.dart';
 import '../models/reaction_response.dart';
 import '../models/update_comment_request.dart';
 import '../models/update_post_request.dart';
@@ -58,4 +59,9 @@ abstract class PostRepository {
 
   /// 북마크 토글 — true: 추가됨, false: 해제됨
   Future<bool> toggleBookmark(int postId);
+
+  Future<PollModel> votePoll({
+    required int postId,
+    required int optionId,
+  });
 }

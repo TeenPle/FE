@@ -4,6 +4,7 @@ import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
 import '../models/post_detail.dart';
+import '../models/poll_model.dart';
 import '../models/reaction_response.dart';
 import '../models/update_comment_request.dart';
 import '../models/update_post_request.dart';
@@ -165,5 +166,28 @@ class TemporaryPostRepository implements PostRepository {
   Future<bool> toggleBookmark(int postId) async {
     await Future.delayed(const Duration(milliseconds: 150));
     return true;
+  }
+
+  @override
+  Future<PollModel> votePoll({
+    required int postId,
+    required int optionId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    return PollModel(
+      pollId: 1,
+      totalParticipants: 1,
+      hasVoted: true,
+      selectedOptionId: optionId,
+      options: [
+        PollOptionModel(
+          optionId: optionId,
+          text: '선택 항목',
+          voteCount: 1,
+          percentage: 100,
+          selectedByMe: true,
+        ),
+      ],
+    );
   }
 }

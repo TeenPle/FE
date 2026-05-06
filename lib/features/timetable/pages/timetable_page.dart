@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/timetable_model.dart';
 import '../provider/timetable_provider.dart';
 
 class TimetablePage extends ConsumerStatefulWidget {
@@ -13,10 +13,14 @@ class TimetablePage extends ConsumerStatefulWidget {
 }
 
 class _TimetablePageState extends ConsumerState<TimetablePage> {
+  List<String> _todayMemos = const [];
+  int _memoWeekday = DateTime.now().weekday;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(timetableProvider.notifier).init());
+    _loadTodayMemos();
   }
 
   @override
@@ -70,12 +74,89 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 children: [
                   _WeekNavigator(state: state),
                   const SizedBox(height: 12),
-                  _TodayLastPeriodCard(state: state),
+                  _TodayMemoCard(
+                    memos: _todayMemos,
+                    title: '${_weekdayLabel(_memoWeekday)}요일 메모',
+                    onAdd: () => _showMemoDialog(context),
+                    onDelete: _deleteMemo,
+                  ),
                   const SizedBox(height: 16),
                   _TimetableGrid(state: state),
                 ],
               ),
             ),
+    );
+  }
+
+  Future<void> _loadTodayMemos() async {
+    final weekday = DateTime.now().weekday;
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _memoWeekday = weekday;
+      _todayMemos = prefs.getStringList(_memoStorageKey(weekday)) ?? const [];
+    });
+  }
+
+  Future<void> _saveTodayMemos(List<String> memos) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_memoStorageKey(_memoWeekday), memos);
+  }
+
+  Future<void> _addMemo(String memo) async {
+    final trimmed = memo.trim();
+    if (trimmed.isEmpty) return;
+
+    final updated = [..._todayMemos, trimmed];
+    setState(() => _todayMemos = updated);
+    await _saveTodayMemos(updated);
+  }
+
+  Future<void> _deleteMemo(int index) async {
+    if (index < 0 || index >= _todayMemos.length) return;
+
+    final updated = [..._todayMemos]..removeAt(index);
+    setState(() => _todayMemos = updated);
+    await _saveTodayMemos(updated);
+  }
+
+  void _showMemoDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          '오늘 메모',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: TextField(
+          controller: controller,
+          maxLength: 40,
+          decoration: const InputDecoration(
+            hintText: '예) 체육복 챙기기',
+            counterText: '',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: (value) {
+            _addMemo(value);
+            Navigator.pop(ctx);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () {
+              _addMemo(controller.text);
+              Navigator.pop(ctx);
+            },
+            child: const Text('추가', style: TextStyle(color: Color(0xFF14A3F7))),
+          ),
+        ],
+      ),
     );
   }
 
@@ -183,21 +264,21 @@ class _WeekNavigator extends ConsumerWidget {
   }
 }
 
-class _TodayLastPeriodCard extends StatelessWidget {
-  final TimetableState state;
+class _TodayMemoCard extends StatelessWidget {
+  final List<String> memos;
+  final String title;
+  final VoidCallback onAdd;
+  final ValueChanged<int> onDelete;
 
-  const _TodayLastPeriodCard({required this.state});
+  const _TodayMemoCard({
+    required this.memos,
+    required this.title,
+    required this.onAdd,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final isSchoolDay =
-        today.weekday >= DateTime.monday && today.weekday <= DateTime.friday;
-    final periods = isSchoolDay
-        ? _periodsForDay(state.week?.periods ?? const [], today.weekday)
-        : const <TimetablePeriod>[];
-    final lastPeriod = periods.isEmpty ? null : periods.last.period;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -222,36 +303,95 @@ class _TodayLastPeriodCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF111111),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (memos.isEmpty)
+                  const Text(
+                    '오늘 메모 없음',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF9AA7B2),
+                    ),
+                  )
+                else
+                  Column(
+                    children: [
+                      for (int i = 0; i < memos.length; i++)
+                        _MemoRow(memo: memos[i], onDelete: () => onDelete(i)),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add_rounded),
+            color: const Color(0xFF14A3F7),
+            tooltip: '메모 추가',
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MemoRow extends StatelessWidget {
+  final String memo;
+  final VoidCallback onDelete;
+
+  const _MemoRow({required this.memo, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(left: 10, right: 4, top: 8, bottom: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F8FE),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFD6ECFA)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
             child: Text(
-              _todayLastPeriodText(
-                isSchoolDay: isSchoolDay,
-                weekday: today.weekday,
-                lastPeriod: lastPeriod,
-              ),
+              memo,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
-                height: 1.25,
+                color: Color(0xFF26343D),
               ),
             ),
           ),
-          if (lastPeriod != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF7FF),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                '$lastPeriod교시',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF14A3F7),
-                ),
+          const SizedBox(width: 2),
+          InkWell(
+            onTap: onDelete,
+            borderRadius: BorderRadius.circular(999),
+            child: const Padding(
+              padding: EdgeInsets.all(3),
+              child: Icon(
+                Icons.close_rounded,
+                size: 14,
+                color: Color(0xFF8A9AA7),
               ),
             ),
+          ),
         ],
       ),
     );
@@ -461,39 +601,12 @@ class _CircleArrowButton extends StatelessWidget {
   }
 }
 
-List<TimetablePeriod> _periodsForDay(
-  List<TimetablePeriod> periods,
-  int dayOfWeek,
-) {
-  final result =
-      periods
-          .where(
-            (period) =>
-                period.dayOfWeek == dayOfWeek && period.subject.isNotEmpty,
-          )
-          .toList()
-        ..sort((a, b) => a.period.compareTo(b.period));
-  return result;
-}
-
-String _weekdayLabel(int dayOfWeek) {
+String _weekdayLabel(int weekday) {
   const labels = ['월', '화', '수', '목', '금', '토', '일'];
-  return labels[dayOfWeek - 1];
+  return labels[weekday - 1];
 }
 
-String _todayLastPeriodText({
-  required bool isSchoolDay,
-  required int weekday,
-  required int? lastPeriod,
-}) {
-  if (!isSchoolDay) {
-    return '오늘은 수업이 없는 날이에요.';
-  }
-  if (lastPeriod == null) {
-    return '오늘 등록된 시간표가 없어요.';
-  }
-  return '오늘 ${_weekdayLabel(weekday)}요일은 $lastPeriod교시까지 있어요.';
-}
+String _memoStorageKey(int weekday) => 'timetable_memos_weekday_$weekday';
 
 class _ErrorState extends StatelessWidget {
   final String message;

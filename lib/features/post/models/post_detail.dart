@@ -13,6 +13,8 @@ class PostDetail {
   final bool anonymous;
   final int likeCount;
   final int dislikeCount;
+  final bool likedByMe;
+  final bool dislikedByMe;
   final String postStatus;
   final String username;
   final String? authorProfileImageUrl;
@@ -34,6 +36,8 @@ class PostDetail {
     required this.anonymous,
     required this.likeCount,
     required this.dislikeCount,
+    this.likedByMe = false,
+    this.dislikedByMe = false,
     required this.postStatus,
     required this.username,
     this.authorProfileImageUrl,
@@ -58,6 +62,8 @@ class PostDetail {
       anonymous: json['anonymous'] as bool? ?? false,
       likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
       dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
+      likedByMe: json['likedByMe'] as bool? ?? false,
+      dislikedByMe: json['dislikedByMe'] as bool? ?? false,
       postStatus: json['postStatus'] as String? ?? '',
       username: json['username'] as String? ?? '',
       authorProfileImageUrl: (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
@@ -89,6 +95,8 @@ class PostDetail {
     bool? anonymous,
     int? likeCount,
     int? dislikeCount,
+    bool? likedByMe,
+    bool? dislikedByMe,
     String? postStatus,
     String? username,
     String? authorProfileImageUrl,
@@ -110,6 +118,8 @@ class PostDetail {
       anonymous: anonymous ?? this.anonymous,
       likeCount: likeCount ?? this.likeCount,
       dislikeCount: dislikeCount ?? this.dislikeCount,
+      likedByMe: likedByMe ?? this.likedByMe,
+      dislikedByMe: dislikedByMe ?? this.dislikedByMe,
       postStatus: postStatus ?? this.postStatus,
       username: username ?? this.username,
       authorProfileImageUrl: authorProfileImageUrl ?? this.authorProfileImageUrl,

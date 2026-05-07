@@ -614,12 +614,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             ),
 
           // 입력창
-          isBlocked
-              ? _BlockedInputBar(
-                  blockedByMe: state.blockedByMe,
-                  blockedByOther: state.blockedByOther,
-                  onUnblock: state.blockedByMe ? _showUnblockConfirm : null,
-                )
+          state.isPenalized
+              ? _PenaltyInputBar(expiresAt: state.penaltyExpiresAt)
+              : isBlocked
+                  ? _BlockedInputBar(
+                      blockedByMe: state.blockedByMe,
+                      blockedByOther: state.blockedByOther,
+                      onUnblock: state.blockedByMe ? _showUnblockConfirm : null,
+                    )
               : _MessageInputBar(
                   controller: _inputController,
                   isSending: state.isSending,
@@ -971,9 +973,11 @@ class _MessageInputBar extends StatelessWidget {
                     enabled: pendingImage == null && !isSending,
                     maxLines: 4,
                     minLines: 1,
+                    maxLength: 500,
                     textInputAction: TextInputAction.newline,
                     decoration: InputDecoration(
                       hintText: pendingImage == null ? '메시지 입력...' : '사진 전송 대기 중',
+                      counterText: '',
                       hintStyle: const TextStyle(
                         fontSize: 15,
                         color: Color(0xFF9AA7B2),
@@ -1024,6 +1028,54 @@ class _MessageInputBar extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _PenaltyInputBar extends StatelessWidget {
+  final DateTime? expiresAt;
+
+  const _PenaltyInputBar({required this.expiresAt});
+
+  @override
+  Widget build(BuildContext context) {
+    final message = expiresAt == null
+        ? '현재 정지 중이라 채팅을 사용할 수 없습니다.'
+        : '현재 정지 중이라 채팅을 사용할 수 없습니다.\n해제: ${_formatExpiresAt(expiresAt!)}';
+
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
+      ),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF3F0),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Text(
+          message,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFFD1432F),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _formatExpiresAt(DateTime value) {
+    final local = value.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '$month.$day $hour:$minute';
   }
 }
 

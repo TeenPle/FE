@@ -36,6 +36,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         isLoading: false,
         isRefreshing: false,
         bookmarkedByMe: post.isBookmarked,
+        likedByMe: post.likedByMe,
       );
     } catch (_) {
       state = state.copyWith(
@@ -65,22 +66,12 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       final result = await repository.applyPostLike(state.postId);
       final currentPost = state.post!;
 
-      final updatedPost = PostDetail(
-        postId: currentPost.postId,
-        authorUserId: currentPost.authorUserId,
-        isMine: currentPost.isMine,
-        title: currentPost.title,
-        content: currentPost.content,
-        viewCount: currentPost.viewCount,
-        anonymous: currentPost.anonymous,
+      final updatedPost = currentPost.copyWith(
         likeCount: result.likeCount,
         dislikeCount: result.dislikeCount,
-        postStatus: currentPost.postStatus,
-        username: currentPost.username,
-        createdAt: currentPost.createdAt,
+        likedByMe: result.liked,
+        dislikedByMe: result.disliked,
         comments: state.comments,
-        mediaList: currentPost.mediaList,
-        isBookmarked: currentPost.isBookmarked,
       );
 
       state = state.copyWith(
@@ -126,6 +117,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           depth: comment.depth,
           parentId: comment.parentId,
           createdAt: comment.createdAt,
+          createdAtMs: comment.createdAtMs,
         );
       }).toList();
 
@@ -141,25 +133,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       state = state.copyWith(
         comments: updatedComments,
         likedCommentIds: updatedLikedCommentIds,
-        post: currentPost == null
-            ? null
-            : PostDetail(
-          postId: currentPost.postId,
-          authorUserId: currentPost.authorUserId,
-          isMine: currentPost.isMine,
-          title: currentPost.title,
-          content: currentPost.content,
-          viewCount: currentPost.viewCount,
-          anonymous: currentPost.anonymous,
-          likeCount: currentPost.likeCount,
-          dislikeCount: currentPost.dislikeCount,
-          postStatus: currentPost.postStatus,
-          username: currentPost.username,
-          createdAt: currentPost.createdAt,
-          comments: updatedComments,
-          mediaList: currentPost.mediaList,
-          isBookmarked: currentPost.isBookmarked,
-        ),
+        post: currentPost?.copyWith(comments: updatedComments),
         isSubmittingReaction: false,
       );
     } catch (_) {

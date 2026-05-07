@@ -9,8 +9,10 @@ import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/network/base_url.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../penalty/provider/penalty_provider.dart';
 import '../api/chat_api.dart';
 import '../models/chat_message_model.dart';
 import 'chat_room_list_provider.dart';
@@ -28,6 +30,8 @@ class ChatRoomState {
   final bool isBlocked;
   final bool blockedByMe;
   final bool blockedByOther;
+  final bool isPenalized;
+  final DateTime? penaltyExpiresAt;
 
   const ChatRoomState({
     this.messages = const [],
@@ -41,6 +45,8 @@ class ChatRoomState {
     this.isBlocked = false,
     this.blockedByMe = false,
     this.blockedByOther = false,
+    this.isPenalized = false,
+    this.penaltyExpiresAt,
   });
 
   ChatRoomState copyWith({
@@ -55,6 +61,9 @@ class ChatRoomState {
     bool? isBlocked,
     bool? blockedByMe,
     bool? blockedByOther,
+    bool? isPenalized,
+    DateTime? penaltyExpiresAt,
+    bool clearPenaltyExpiresAt = false,
     bool clearOtherLastRead = false,
   }) {
     return ChatRoomState(
@@ -71,6 +80,10 @@ class ChatRoomState {
       isBlocked: isBlocked ?? this.isBlocked,
       blockedByMe: blockedByMe ?? this.blockedByMe,
       blockedByOther: blockedByOther ?? this.blockedByOther,
+      isPenalized: isPenalized ?? this.isPenalized,
+      penaltyExpiresAt: clearPenaltyExpiresAt
+          ? null
+          : (penaltyExpiresAt ?? this.penaltyExpiresAt),
     );
   }
 }
@@ -105,12 +118,30 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
   // 최초 입장: 히스토리 로드 + WebSocket 연결
   Future<void> init() async {
+    await _loadPenaltyState();
+    if (!mounted) return;
     await loadMessages();
     if (!mounted) return;
     // 자동 로그인 복원 타이밍에 세션 userId가 비어 있어도 유저별 방 이벤트를 구독한다.
     _currentUserId ??= await _tokenStorage.getUserId();
     if (!mounted) return;
     await _connectStomp();
+  }
+
+  Future<void> _loadPenaltyState() async {
+    try {
+      await _ref.read(activePenaltyProvider.notifier).load();
+      final penalty = _ref.read(activePenaltyProvider).penalty;
+      if (!mounted) return;
+      state = state.copyWith(
+        isPenalized: penalty?.penalized == true,
+        penaltyExpiresAt: penalty?.expiresAt,
+        clearPenaltyExpiresAt: penalty?.expiresAt == null,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(isPenalized: false, clearPenaltyExpiresAt: true);
+    }
   }
 
   void setBlockState({
@@ -386,6 +417,10 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
   Future<void> sendMessage(String content) async {
     if (content.trim().isEmpty) return;
+    if (state.isPenalized) {
+      state = state.copyWith(errorMessage: _penaltyMessage());
+      return;
+    }
     if (state.isBlocked) {
       state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.');
       return;
@@ -402,12 +437,18 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     } catch (e) {
       state = state.copyWith(
         isSending: false,
-        errorMessage: '메시지를 보낼 수 없습니다. 상대방이 차단했거나 채팅방을 사용할 수 없습니다.',
+        errorMessage: e is ApiException
+            ? e.message
+            : '메시지를 보낼 수 없습니다. 상대방이 차단했거나 채팅방을 사용할 수 없습니다.',
       );
     }
   }
 
   Future<void> sendImage(MultipartFile file) async {
+    if (state.isPenalized) {
+      state = state.copyWith(errorMessage: _penaltyMessage());
+      return;
+    }
     if (state.isBlocked) {
       state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.');
       return;
@@ -421,9 +462,24 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     } catch (e) {
       state = state.copyWith(
         isSending: false,
-        errorMessage: '이미지를 보낼 수 없습니다. 파일 형식 또는 이미지 내용을 확인해주세요.',
+        errorMessage: e is ApiException
+            ? e.message
+            : '이미지를 보낼 수 없습니다. 파일 형식 또는 이미지 내용을 확인해주세요.',
       );
     }
+  }
+
+  String _penaltyMessage() {
+    final expiresAt = state.penaltyExpiresAt;
+    if (expiresAt == null) {
+      return '현재 정지 중이라 채팅을 사용할 수 없습니다.';
+    }
+    final local = expiresAt.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '현재 정지 중이라 채팅을 사용할 수 없습니다. 해제: $month.$day $hour:$minute';
   }
 
   Future<void> blockRoom() async {

@@ -113,8 +113,7 @@ class AppApiClient {
   }) async {
     final formData = FormData();
     formData.files.add(MapEntry(fieldName, file));
-    final response = await _dio.post<dynamic>(path, data: formData);
-    return _decodeResponse(response);
+    return _execute(() => _dio.post<dynamic>(path, data: formData));
   }
 
   Map<String, dynamic> _decodeResponse(Response<dynamic> response) {

@@ -1,0 +1,218 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/routes.dart';
+import '../models/admin_content_model.dart';
+import '../provider/admin_content_provider.dart';
+
+class AdminBoardPostsPage extends ConsumerStatefulWidget {
+  final int boardId;
+  final String boardTitle;
+  final String? schoolName;
+
+  const AdminBoardPostsPage({
+    super.key,
+    required this.boardId,
+    required this.boardTitle,
+    this.schoolName,
+  });
+
+  @override
+  ConsumerState<AdminBoardPostsPage> createState() => _AdminBoardPostsPageState();
+}
+
+class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(adminPostListProvider(widget.boardId).notifier).load());
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >
+        _scrollController.position.maxScrollExtent - 240) {
+      ref.read(adminPostListProvider(widget.boardId).notifier).loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(adminPostListProvider(widget.boardId));
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F9FB),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1F2933),
+        elevation: 0,
+        title: Text(widget.boardTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+      ),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : state.error != null && state.posts.isEmpty
+              ? Center(child: Text(state.error!))
+              : RefreshIndicator(
+                  onRefresh: () => ref.read(adminPostListProvider(widget.boardId).notifier).load(),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.posts.length + (state.isLoadingMore ? 1 : 0),
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      if (index >= state.posts.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      final post = state.posts[index];
+                      return _PostTile(
+                        post: post,
+                        onTap: () => context.push(AppRoutes.adminPostDetail(post.postId)),
+                      );
+                    },
+                  ),
+                ),
+    );
+  }
+}
+
+class _PostTile extends StatelessWidget {
+  final AdminPostSummaryModel post;
+  final VoidCallback onTap;
+
+  const _PostTile({required this.post, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _StatusBadge(post.postStatus),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      post.authorLabel,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    ),
+                  ),
+                  Text(
+                    _formatDate(post.createdAt),
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                post.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2933),
+                ),
+              ),
+              if (post.contentPreview.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  post.contentPreview,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF64748B)),
+                ),
+              ],
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 6,
+                children: [
+                  _Metric(icon: Icons.visibility_outlined, value: '${post.viewCount}'),
+                  _Metric(icon: Icons.thumb_up_alt_outlined, value: '${post.likeCount}'),
+                  _Metric(icon: Icons.thumb_down_alt_outlined, value: '${post.dislikeCount}'),
+                  _Metric(icon: Icons.mode_comment_outlined, value: '${post.commentCount}'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime dt) {
+    return '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+
+  const _StatusBadge(this.status);
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (status) {
+      'ACTIVE' => const Color(0xFF2F7D46),
+      'HIDDEN' => const Color(0xFFF59E0B),
+      _ => const Color(0xFF64748B),
+    };
+    final bg = switch (status) {
+      'ACTIVE' => const Color(0xFFE8F5E9),
+      'HIDDEN' => const Color(0xFFFFFBEB),
+      _ => const Color(0xFFF1F5F9),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
+      child: Text(
+        status,
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
+      ),
+    );
+  }
+}
+
+class _Metric extends StatelessWidget {
+  final IconData icon;
+  final String value;
+
+  const _Metric({required this.icon, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
+        const SizedBox(width: 4),
+        Text(value, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+      ],
+    );
+  }
+}

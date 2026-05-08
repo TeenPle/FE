@@ -12,6 +12,16 @@ class AdminReportApi {
 
   AdminReportApi(this._client);
 
+  Future<int> getPendingReportCount() async {
+    final res = await _client.get(
+      '/api/admin/reports',
+      queryParameters: {'status': 'PENDING', 'page': '0', 'size': '1'},
+    );
+    final result = res['result'] as Map<String, dynamic>?;
+    return (result?['totalElements'] as num?)?.toInt() ??
+        ((result?['content'] as List<dynamic>?)?.length ?? 0);
+  }
+
   Future<List<ReportSummaryModel>> getReports({
     required String status,
     int page = 0,
@@ -32,15 +42,18 @@ class AdminReportApi {
     return ReportDetailModel.fromJson(res['result'] as Map<String, dynamic>);
   }
 
-  Future<void> approveReport(int reportId, int penaltyDays) async {
+  Future<void> approveReport(int reportId, int penaltyDays, String adminComment) async {
     await _client.post(
       '/api/admin/reports/$reportId/approve',
-      body: {'penaltyDays': penaltyDays},
+      body: {'penaltyDays': penaltyDays, 'adminComment': adminComment},
     );
   }
 
-  Future<void> rejectReport(int reportId) async {
-    await _client.post('/api/admin/reports/$reportId/reject');
+  Future<void> rejectReport(int reportId, String adminComment) async {
+    await _client.post(
+      '/api/admin/reports/$reportId/reject',
+      body: {'adminComment': adminComment},
+    );
   }
 
   Future<void> warnReport(int reportId, String adminComment) async {

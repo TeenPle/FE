@@ -1,11 +1,16 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/storage/token_storage.dart';
 import '../features/admin/pages/admin_home_page.dart';
+import '../features/admin/pages/admin_audit_log_page.dart';
+import '../features/admin/pages/admin_board_posts_page.dart';
+import '../features/admin/pages/admin_post_detail_page.dart';
 import '../features/admin/pages/admin_report_detail_page.dart';
 import '../features/admin/pages/admin_penalty_list_page.dart';
 import '../features/admin/pages/admin_report_list_page.dart';
+import '../features/admin/pages/admin_school_boards_page.dart';
+import '../features/admin/pages/admin_school_list_page.dart';
 import '../features/admin/pages/admin_user_history_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
@@ -42,7 +47,6 @@ import '../features/dday/pages/dday_settings_page.dart';
 import '../features/school/pages/hot_board_page.dart';
 import '../features/profile/pages/privacy_policy_page.dart';
 import '../features/profile/pages/profile_page.dart';
-import '../features/profile/pages/blocked_users_page.dart';
 import '../features/profile/pages/settings_page.dart';
 import '../features/profile/pages/terms_page.dart';
 import '../features/chat/pages/chat_room_list_page.dart';
@@ -51,149 +55,161 @@ import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
 import '../features/search/pages/search_page.dart';
 
-/// 앱 전체에서 사용하는 라우트 경로 상수
+/// ???꾩껜?먯꽌 ?ъ슜?섎뒗 ?쇱슦??寃쎈줈 ?곸닔
 class AppRoutes {
-  /// 시작 랜딩 페이지
+  /// ?쒖옉 ?쒕뵫 ?섏씠吏
   static const landing = '/landing';
 
-  /// 로그인 페이지
+  /// 濡쒓렇???섏씠吏
   static const login = '/login';
 
-  /// 회원가입 1단계 - 학교 선택 페이지
+  /// ?뚯썝媛??1?④퀎 - ?숆탳 ?좏깮 ?섏씠吏
   static const signupSchool = '/signup/school';
 
-  /// 회원가입 2단계 - 학년 입력 페이지
+  /// ?뚯썝媛??2?④퀎 - ?숇뀈 ?낅젰 ?섏씠吏
   static const signupStudentInfo = '/signup/student-info';
 
-  /// 회원가입 3단계 - 이름/닉네임/성별 입력 페이지
+  /// ?뚯썝媛??3?④퀎 - ?대쫫/?됰꽕???깅퀎 ?낅젰 ?섏씠吏
   static const signupProfileInfo = '/signup/profile-info';
 
-  /// 회원가입 4단계 - 이메일 입력 페이지
+  /// ?뚯썝媛??4?④퀎 - ?대찓???낅젰 ?섏씠吏
   static const signupId = '/signup/id';
 
-  /// 회원가입 5단계 - 이메일 인증 페이지
+  /// ?뚯썝媛??5?④퀎 - ?대찓???몄쬆 ?섏씠吏
   static const signupEmailVerify = '/signup/email-verify';
 
-  /// 회원가입 6단계 - 비밀번호 설정 페이지
+  /// ?뚯썝媛??6?④퀎 - 鍮꾨?踰덊샇 ?ㅼ젙 ?섏씠吏
   static const signupPassword = '/signup/password';
 
-  /// 회원가입 7단계 - 전화번호 입력 페이지
+  /// ?뚯썝媛??7?④퀎 - ?꾪솕踰덊샇 ?낅젰 ?섏씠吏
   static const signupPhone = '/signup/phone';
 
-  /// 회원가입 8단계 - 학생증 업로드 페이지
+  /// ?뚯썝媛??8?④퀎 - ?숈깮利??낅줈???섏씠吏
   static const signupStudentCard = '/signup/student-card';
 
-  /// 학교 인증 대기/필수/상태이상 안내 페이지
+  /// ?숆탳 ?몄쬆 ?湲??꾩닔/?곹깭?댁긽 ?덈궡 ?섏씠吏
   static const schoolVerificationWaiting = '/auth/school-verification-waiting';
 
-  /// 학교 인증 반려 페이지
+  /// ?숆탳 ?몄쬆 諛섎젮 ?섏씠吏
   static const schoolVerificationRejected =
       '/auth/school-verification-rejected';
 
-  /// 관리자 메인 페이지
+  /// 愿由ъ옄 硫붿씤 ?섏씠吏
   static const adminHome = '/admin/home';
 
-  /// 관리자 인증 요청 목록 페이지
+  /// 愿由ъ옄 ?숆탳 紐⑤땲?곕쭅
+  static const adminSchools = '/admin/schools';
+
+  /// 관리자 학교별 게시판
+  static String adminSchoolBoards(int schoolId) => '/admin/schools/$schoolId/boards';
+
+  /// 愿由ъ옄 寃뚯떆?먮퀎 寃뚯떆湲
+  static String adminBoardPosts(int boardId) => '/admin/boards/$boardId/posts';
+
+  /// 愿由ъ옄 寃뚯떆湲 ?곸꽭
+  static String adminPostDetail(int postId) => '/admin/posts/$postId';
+
+  /// 愿由ъ옄 ?몄쬆 ?붿껌 紐⑸줉 ?섏씠吏
   static const adminVerificationList = '/admin/verification-requests';
 
-  /// 관리자 신고 목록 페이지
+  /// 愿由ъ옄 ?좉퀬 紐⑸줉 ?섏씠吏
   static const adminReportList = '/admin/reports';
 
-  /// 관리자 제재 목록 페이지
+  /// 愿由ъ옄 ?쒖옱 紐⑸줉 ?섏씠吏
   static const adminPenaltyList = '/admin/penalties';
 
-  /// 관리자 신고 상세 페이지
+  /// 愿由ъ옄 媛먯궗 濡쒓렇 ?섏씠吏
+  static const adminAuditLogs = '/admin/audit-logs';
+
+  /// 愿由ъ옄 ?좉퀬 ?곸꽭 ?섏씠吏
   static String adminReportDetail(int id) => '/admin/reports/$id';
 
-  /// 로그인 완료 후 진입할 일반 유저 메인 페이지
+  /// 濡쒓렇???꾨즺 ??吏꾩엯???쇰컲 ?좎? 硫붿씤 ?섏씠吏
   static const school = '/school';
 
-  /// 게시판 상세 페이지
+  /// 寃뚯떆???곸꽭 ?섏씠吏
   static const boardDetail = '/board/:boardId';
 
-  /// 게시글 작성/수정 페이지
+  /// 寃뚯떆湲 ?묒꽦/?섏젙 ?섏씠吏
   static const writePost = '/write-post';
 
-  /// 검색 페이지
+  /// 寃???섏씠吏
   static const search = '/search';
 
-  /// 내 프로필 페이지
+  /// ???꾨줈???섏씠吏
   static const profile = '/profile';
 
-  /// 닉네임 변경 페이지
+  /// ?됰꽕??蹂寃??섏씠吏
   static const editNickname = '/profile/edit-nickname';
 
-  /// 비밀번호 변경 페이지
+  /// 鍮꾨?踰덊샇 蹂寃??섏씠吏
   static const editPassword = '/settings/edit-password';
 
-  /// 내가 쓴 글 페이지
+  /// ?닿? ??湲 ?섏씠吏
   static const myPosts = '/profile/my-posts';
 
-  /// 내가 쓴 댓글 페이지
+  /// ?닿? ???볤? ?섏씠吏
   static const myComments = '/profile/my-comments';
 
-  /// 설정 페이지
+  /// ?ㅼ젙 ?섏씠吏
   static const settings = '/settings';
 
-  /// 내가 공감한 글 페이지
+  /// ?닿? 怨듦컧??湲 ?섏씠吏
   static const myLikedPosts = '/profile/liked-posts';
 
-  /// 제재 이력 페이지
+  /// ?쒖옱 ?대젰 ?섏씠吏
   static const myPenalties = '/settings/penalties';
 
-  /// 알림 목록 페이지
+  /// ?뚮┝ 紐⑸줉 ?섏씠吏
   static const notifications = '/notifications';
 
-  /// 급식 페이지
+  /// 湲됱떇 ?섏씠吏
   static const meal = '/meal';
 
-  /// 시간표 페이지
+  /// ?쒓컙???섏씠吏
   static const timetable = '/timetable';
 
-  /// 채팅방 목록 페이지
+  /// 梨꾪똿諛?紐⑸줉 ?섏씠吏
   static const chat = '/chat';
 
-  /// 채팅방 상세 페이지
+  /// 梨꾪똿諛??곸꽭 ?섏씠吏
   static const chatRoom = '/chat/rooms/:roomId';
 
-  /// 아이디 찾기 페이지
+  /// ?꾩씠??李얘린 ?섏씠吏
   static const findEmail = '/find-email';
 
-  /// 아이디 찾기 결과 페이지
+  /// ?꾩씠??李얘린 寃곌낵 ?섏씠吏
   static const findEmailResult = '/find-email/result';
 
-  /// 비밀번호 찾기 페이지
+  /// 鍮꾨?踰덊샇 李얘린 ?섏씠吏
   static const findPassword = '/find-password';
 
-  /// 비밀번호 재설정 페이지
+  /// 鍮꾨?踰덊샇 ?ъ꽕???섏씠吏
   static const resetPassword = '/find-password/reset';
 
-  /// 이용약관 페이지
+  /// ?댁슜?쎄? ?섏씠吏
   static const terms = '/settings/terms';
 
-  /// 개인정보처리방침 페이지
+  /// 媛쒖씤?뺣낫泥섎━諛⑹묠 ?섏씠吏
   static const privacyPolicy = '/settings/privacy-policy';
 
-  /// D-Day 설정 페이지
+  /// D-Day ?ㅼ젙 ?섏씠吏
   static const ddaySettings = '/settings/dday';
 
-  /// HOT 게시판 전체 보기
+  /// HOT 寃뚯떆???꾩껜 蹂닿린
   static const hotBoard = '/hot';
 
-  /// 차단 목록 페이지
-  static const blockedUsers = '/settings/blocked-users';
-
-  /// 내 북마크 페이지
+  /// ??遺곷쭏???섏씠吏
   static const myBookmarks = '/profile/bookmarks';
 
-  /// 내 경고 이력 페이지
+  /// ??寃쎄퀬 ?대젰 ?섏씠吏
   static const myWarnings = '/profile/warnings';
 
-  /// 관리자 유저별 제재·경고 이력 페이지
+  /// 愿由ъ옄 ?좎?蹂??쒖옱쨌寃쎄퀬 ?대젰 ?섏씠吏
   static String adminUserHistory(int userId) => '/admin/users/$userId/history';
 }
 
-/// 앱 전체 라우터
+/// ???꾩껜 ?쇱슦??
 final GoRouter router = GoRouter(
   initialLocation: AppRoutes.landing,
   routes: [
@@ -266,6 +282,52 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
+      path: AppRoutes.adminSchools,
+      redirect: _adminOnly,
+      builder: (context, state) => const AdminSchoolListPage(),
+    ),
+
+    GoRoute(
+      path: '/admin/schools/:schoolId/boards',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final schoolId = int.parse(state.pathParameters['schoolId']!);
+        final extra = state.extra as Map<String, dynamic>?;
+        return AdminSchoolBoardsPage(
+          schoolId: schoolId,
+          schoolName: extra?['schoolName'] as String? ?? '학교 게시판',
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/admin/boards/:boardId/posts',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final boardId = int.parse(state.pathParameters['boardId']!);
+        final extra = state.extra as Map<String, dynamic>?;
+        return AdminBoardPostsPage(
+          boardId: boardId,
+          boardTitle: extra?['boardTitle'] as String? ?? '寃뚯떆湲 紐⑸줉',
+          schoolName: extra?['schoolName'] as String?,
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/admin/posts/:postId',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final postId = int.parse(state.pathParameters['postId']!);
+        final extra = state.extra as Map<String, dynamic>?;
+        return AdminPostDetailPage(
+          postId: postId,
+          focusCommentId: extra?['focusCommentId'] as int?,
+        );
+      },
+    ),
+
+    GoRoute(
       path: AppRoutes.adminVerificationList,
       redirect: _adminOnly,
       builder: (context, state) => const AdminVerificationListPage(),
@@ -282,16 +344,25 @@ final GoRouter router = GoRouter(
 
     GoRoute(
       path: AppRoutes.adminReportList,
+      redirect: _adminOnly,
       builder: (context, state) => const AdminReportListPage(),
     ),
 
     GoRoute(
       path: AppRoutes.adminPenaltyList,
+      redirect: _adminOnly,
       builder: (context, state) => const AdminPenaltyListPage(),
     ),
 
     GoRoute(
+      path: AppRoutes.adminAuditLogs,
+      redirect: _adminOnly,
+      builder: (context, state) => const AdminAuditLogPage(),
+    ),
+
+    GoRoute(
       path: '/admin/reports/:reportId',
+      redirect: _adminOnly,
       builder: (context, state) {
         final reportId = int.parse(state.pathParameters['reportId']!);
         return AdminReportDetailPage(reportId: reportId);
@@ -470,11 +541,6 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.hotBoard,
       builder: (context, state) => const HotBoardPage(),
-    ),
-
-    GoRoute(
-      path: AppRoutes.blockedUsers,
-      builder: (context, state) => const BlockedUsersPage(),
     ),
 
     GoRoute(

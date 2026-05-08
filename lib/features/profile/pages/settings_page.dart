@@ -10,6 +10,7 @@ import '../../../core/theme/theme_provider.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
 import '../provider/profile_provider.dart';
+import '../widgets/block_summary_tile.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -54,11 +55,7 @@ class SettingsPage extends ConsumerWidget {
                 onTap: () => context.push(AppRoutes.editPassword),
               ),
               const _Divider(),
-              _SettingsTile(
-                icon: Icons.block_rounded,
-                label: '차단 목록',
-                onTap: () => context.push(AppRoutes.blockedUsers),
-              ),
+              const BlockSummaryTile(),
               const _Divider(),
               _SettingsTile(
                 icon: Icons.gavel_rounded,

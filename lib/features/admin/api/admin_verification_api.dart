@@ -18,6 +18,11 @@ class AdminVerificationApi {
 
   AdminVerificationApi(this._dio);
 
+  Future<int> getPendingRequestCount() async {
+    final requests = await getRequestList(VerificationStatusModel.pending);
+    return requests.length;
+  }
+
   /// 학교 인증 요청 목록 조회
   Future<List<VerificationRequestListItemModel>> getRequestList(
       VerificationStatusModel status,

@@ -17,16 +17,16 @@ class AppBottomNavBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(18, 0, 18, 16),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x22000000),
-              blurRadius: 18,
-              offset: Offset(0, 4),
+              color: Color(0x1A000000),
+              blurRadius: 24,
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -34,13 +34,13 @@ class AppBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _NavItem(
-              icon: Icons.home_outlined,
+              icon: Icons.home_rounded,
               label: '홈',
               selected: currentIndex == 0,
               onTap: () => onTap(0),
             ),
             _NavItem(
-              icon: Icons.chat_bubble_outline,
+              icon: Icons.chat_bubble_outline_rounded,
               label: '채팅',
               selected: currentIndex == 1,
               onTap: () => onTap(1),
@@ -88,20 +88,20 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? const Color(0xFF14A3F7) : const Color(0xFF555555);
+    final color = selected ? const Color(0xFF229BF3) : const Color(0xFF282D33);
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 62,
+        width: 58,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(icon, color: color, size: 26),
+                Icon(icon, color: color, size: 27),
                 if (badgeCount > 0)
                   Positioned(
                     top: -4,
@@ -126,13 +126,14 @@ class _NavItem extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                 color: color,
+                letterSpacing: 0,
               ),
             ),
           ],

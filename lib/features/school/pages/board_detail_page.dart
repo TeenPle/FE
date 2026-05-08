@@ -161,8 +161,13 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
           BoardTabBar(
             boards: state.boards,
             selectedBoardId: state.selectedBoardId,
-            onBoardSelected: (boardId) {
-              notifier.selectBoard(boardId);
+            onTabSelected: (boardId) {
+              if (boardId == null) {
+                notifier.selectAllBoards();
+                if (context.canPop()) context.pop();
+              } else {
+                notifier.selectBoard(boardId);
+              }
             },
           ),
           const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
@@ -294,7 +299,14 @@ class _ModernBoardDetailScaffold extends ConsumerWidget {
             BoardTabBar(
               boards: state.boards,
               selectedBoardId: state.selectedBoardId,
-              onBoardSelected: notifier.selectBoard,
+              onTabSelected: (boardId) {
+                if (boardId == null) {
+                  notifier.selectAllBoards();
+                  if (context.canPop()) context.pop();
+                } else {
+                  notifier.selectBoard(boardId);
+                }
+              },
             ),
             _ModernBoardToolbar(
               selectedSortType: state.sortType,
@@ -1048,7 +1060,11 @@ class _WriteFab extends ConsumerWidget {
       onPressed: () async {
         final createdPostId = await context.push<int>(
           '/write-post',
-          extra: {'boardId': state.selectedBoardId!, 'boardTitle': boardTitle},
+          extra: {
+            'boardId': state.selectedBoardId!,
+            'boardTitle': boardTitle,
+            'availableBoards': state.boards.where((b) => b.active).toList(),
+          },
         );
 
         if (!context.mounted) return;

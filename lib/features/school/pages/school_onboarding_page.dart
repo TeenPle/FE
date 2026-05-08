@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
-import '../../../core/widgets/app_bottom_nav_bar.dart';
-import '../form/board_tab_bar.dart';
-import '../models/board_model.dart';
 
-/// 최초 접속 시 표시되는 온보딩 튜토리얼 페이지.
-/// 목 데이터로 학교 메인 화면을 재현하고, 고정 레이아웃에서 코치마크를 실행해
-/// 스포트라이트 위치를 픽셀 단위로 정확하게 유지한다.
 class SchoolOnboardingPage extends StatefulWidget {
   const SchoolOnboardingPage({super.key});
 
@@ -15,17 +9,11 @@ class SchoolOnboardingPage extends StatefulWidget {
 }
 
 class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
-  final _boardTabKey = GlobalKey();
-  final _hotHeaderKey = GlobalKey();
-  final _fabKey = GlobalKey();
-  final _bottomNavKey = GlobalKey();
-
-  static final _mockBoards = [
-    const BoardModel(id: 1, title: '자유', description: '', active: true),
-    const BoardModel(id: 2, title: '공지', description: '', active: true),
-    const BoardModel(id: 3, title: '질문', description: '', active: true),
-    const BoardModel(id: 4, title: '정보', description: '', active: true),
-  ];
+  final _feedTabKey = GlobalKey();
+  final _popularTabKey = GlobalKey();
+  final _writeButtonKey = GlobalKey();
+  final _mealNavKey = GlobalKey();
+  final _timetableNavKey = GlobalKey();
 
   @override
   void initState() {
@@ -38,60 +26,75 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
 
     final targets = <TargetFocus>[
       TargetFocus(
-        identify: 'board_tab',
-        keyTarget: _boardTabKey,
+        identify: 'feed_tab',
+        keyTarget: _feedTabKey,
         shape: ShapeLightFocus.RRect,
-        radius: 10,
+        radius: 16,
         contents: [
           TargetContent(
             align: ContentAlign.bottom,
-            child: _CoachContent(
-              title: '📋 게시판 탭',
-              body: '탭을 눌러 게시판을 선택해요.\n선택한 게시판의 최신 게시글을 미리볼 수 있어요.',
+            child: const _CoachContent(
+              title: '📋 피드',
+              body: '학교 모든 게시판의 최신글을\n피드 탭에서 한눈에 확인해요.',
             ),
           ),
         ],
       ),
       TargetFocus(
-        identify: 'hot_section',
-        keyTarget: _hotHeaderKey,
+        identify: 'popular_tab',
+        keyTarget: _popularTabKey,
         shape: ShapeLightFocus.RRect,
-        radius: 10,
+        radius: 16,
         contents: [
           TargetContent(
-            align: ContentAlign.top,
-            child: _CoachContent(
-              title: '🔥 HOT 게시판',
-              body: '좋아요를 많이 받은 인기글 모음이에요.\n오늘 · 이번 주 · 이번 달로 필터할 수 있어요.',
+            align: ContentAlign.bottom,
+            child: const _CoachContent(
+              title: '🔥 인기',
+              body: '인기 탭에서 오늘 · 이번 주 · 이번 달\n가장 반응 좋은 글만 모아볼 수 있어요.',
             ),
           ),
         ],
       ),
       TargetFocus(
-        identify: 'fab',
-        keyTarget: _fabKey,
+        identify: 'write',
+        keyTarget: _writeButtonKey,
         shape: ShapeLightFocus.Circle,
         contents: [
           TargetContent(
             align: ContentAlign.top,
-            child: _CoachContent(
+            child: const _CoachContent(
               title: '✏️ 글쓰기',
-              body: '이 버튼으로 현재 게시판에\n글을 작성할 수 있어요.',
+              body: '이 버튼으로 언제든\n우리 학교에 글을 올릴 수 있어요.',
             ),
           ),
         ],
       ),
       TargetFocus(
-        identify: 'bottom_nav',
-        keyTarget: _bottomNavKey,
+        identify: 'meal',
+        keyTarget: _mealNavKey,
         shape: ShapeLightFocus.RRect,
-        radius: 30,
+        radius: 12,
         contents: [
           TargetContent(
             align: ContentAlign.top,
-            child: _CoachContent(
-              title: '하단 메뉴',
-              body: '채팅 · 급식 · 시간표 · 내정보를\n여기서 바로 이동할 수 있어요.',
+            child: const _CoachContent(
+              title: '🍱 급식',
+              body: '오늘 급식 메뉴를\n바로 확인할 수 있어요.',
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'timetable',
+        keyTarget: _timetableNavKey,
+        shape: ShapeLightFocus.RRect,
+        radius: 12,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: const _CoachContent(
+              title: '📅 시간표',
+              body: '내 시간표를 한눈에 보고\n수업을 미리 확인해요.',
             ),
           ),
         ],
@@ -107,7 +110,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
-      paddingFocus: 8,
+      paddingFocus: 10,
       opacityShadow: 0.85,
       onFinish: () {
         if (mounted) Navigator.pop(context);
@@ -122,37 +125,15 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
-      floatingActionButton: FloatingActionButton(
-        key: _fabKey,
-        onPressed: null,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF444444),
-        shape: const CircleBorder(),
-        elevation: 2,
-        child: const Icon(Icons.edit_rounded, size: 28),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavBar(
-        key: _bottomNavKey,
-        currentIndex: 0,
-        onTap: (_) {},
-      ),
+      backgroundColor: const Color(0xFFF6FBFF),
+      bottomNavigationBar: _buildMockBottomBar(),
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMockHeader(),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
-            BoardTabBar(
-              key: _boardTabKey,
-              boards: _mockBoards,
-              selectedBoardId: 1,
-              onBoardSelected: (_) {},
-            ),
-            Expanded(
-              child: _MockContent(hotHeaderKey: _hotHeaderKey),
-            ),
+            _buildMockDDayStrip(),
+            _buildMockTabBar(),
+            const Expanded(child: _MockFeed()),
           ],
         ),
       ),
@@ -161,259 +142,439 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
 
   Widget _buildMockHeader() {
     return Container(
-      color: const Color(0xFFF3F9FF),
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+      color: const Color(0xFFF6FBFF),
+      padding: const EdgeInsets.fromLTRB(26, 12, 26, 12),
       child: Row(
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF9A9A9A),
-              borderRadius: BorderRadius.circular(4),
+              color: const Color(0xFFD8E8F5),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: const Icon(Icons.school_rounded, color: Color(0xFF229BF3), size: 26),
           ),
           const SizedBox(width: 12),
           const Expanded(
-            child: Text(
-              '우리 학교',
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          const Icon(Icons.search, size: 28, color: Colors.black87),
-          const SizedBox(width: 12),
-          const Icon(Icons.notifications_none, size: 28, color: Colors.black87),
-        ],
-      ),
-    );
-  }
-}
-
-/// 스크롤 없는 고정 콘텐츠 영역.
-/// SingleChildScrollView + NeverScrollableScrollPhysics 조합으로
-/// 오버플로 없이 내용을 클리핑한다.
-class _MockContent extends StatelessWidget {
-  final GlobalKey hotHeaderKey;
-
-  const _MockContent({required this.hotHeaderKey});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 최신글 섹션
-          Container(
-            margin: const EdgeInsets.fromLTRB(18, 10, 18, 0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Column(
-              children: [
-                _MockPostTile(
-                  title: '수능 D-100인데 다들 어떻게 공부하고 있어요?',
-                  meta: '5분 전  ·  익명',
-                  likes: 12,
-                  comments: 8,
-                  showDivider: true,
-                ),
-                _MockPostTile(
-                  title: '오늘 급식 진짜 맛있지 않았나요? 치킨까스 퀄리티 ㄷㄷ',
-                  meta: '23분 전  ·  익명',
-                  likes: 21,
-                  comments: 6,
-                  showDivider: true,
-                ),
-                _MockPostTile(
-                  title: '학교 축제 날짜 아는 사람 있어요?',
-                  meta: '1시간 전  ·  익명',
-                  likes: 5,
-                  comments: 3,
-                  showDivider: false,
-                ),
-              ],
-            ),
-          ),
-
-          // HOT 섹션 헤더 — 코치마크 타겟
-          Padding(
-            key: hotHeaderKey,
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
             child: Row(
               children: [
-                const Text('🔥', style: TextStyle(fontSize: 18)),
-                const SizedBox(width: 6),
-                const Text(
-                  'HOT 게시판',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                Flexible(
+                  child: Text(
+                    '우리 학교',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF050505),
+                    ),
                   ),
                 ),
-                const Spacer(),
-                _HotFilterChip(label: '오늘', selected: true),
-                const SizedBox(width: 6),
-                _HotFilterChip(label: '이번 주', selected: false),
-                const SizedBox(width: 6),
-                _HotFilterChip(label: '이번 달', selected: false),
+                SizedBox(width: 6),
+                Icon(Icons.verified_rounded, size: 18, color: Color(0xFF229BF3)),
               ],
             ),
           ),
-
-          // HOT 게시글
-          Container(
-            margin: const EdgeInsets.fromLTRB(18, 0, 18, 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Column(
-              children: [
-                _MockPostTile(
-                  title: '수학 공부 꿀팁 모음 (진짜 효과있음)',
-                  meta: '어제  ·  익명',
-                  likes: 47,
-                  comments: 23,
-                  showDivider: true,
-                ),
-                _MockPostTile(
-                  title: '급식 메뉴 추천 건의해봅시다',
-                  meta: '2일 전  ·  익명',
-                  likes: 38,
-                  comments: 15,
-                  showDivider: true,
-                ),
-                _MockPostTile(
-                  title: '학교 안 숨겨진 공부 스팟 알려줌',
-                  meta: '3일 전  ·  공부왕',
-                  likes: 25,
-                  comments: 11,
-                  showDivider: false,
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(width: 12),
+          const Icon(Icons.search_rounded, size: 29, color: Color(0xFF0B0B0B)),
+          const SizedBox(width: 13),
+          const Icon(Icons.notifications_none_rounded, size: 29, color: Color(0xFF0B0B0B)),
         ],
       ),
     );
   }
-}
 
-class _MockPostTile extends StatelessWidget {
-  final String title;
-  final String meta;
-  final int likes;
-  final int comments;
-  final bool showDivider;
+  Widget _buildMockDDayStrip() {
+    return Container(
+      height: 48,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          const Text(
+            'D-DAY',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
+          ),
+          const SizedBox(width: 10),
+          _MockDDayChip(label: '수능', days: 'D-47'),
+          const SizedBox(width: 6),
+          _MockDDayChip(label: '중간고사', days: 'D-12'),
+          const SizedBox(width: 6),
+          _MockDDayChip(label: '방학', days: 'D-53'),
+        ],
+      ),
+    );
+  }
 
-  const _MockPostTile({
-    required this.title,
-    required this.meta,
-    required this.likes,
-    required this.comments,
-    required this.showDivider,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildMockTabBar() {
+    return Container(
+      color: const Color(0xFFF6FBFF),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Center(
+        child: Container(
+          height: 40,
+          width: 236,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEBF2F9),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
             children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF111111),
+              Expanded(
+                child: Container(
+                  key: _feedTabKey,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF229BF3),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '피드',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Text(
-                    meta,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF8E8E8E),
+              Expanded(
+                child: Container(
+                  key: _popularTabKey,
+                  decoration: const BoxDecoration(),
+                  child: const Center(
+                    child: Text(
+                      '인기',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF8C8F95),
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  const Icon(
-                    Icons.favorite_border_rounded,
-                    size: 15,
-                    color: Color(0xFFFF8E98),
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '$likes',
-                    style: const TextStyle(
-                      fontSize: 12,
+                ),
+              ),
+              const Expanded(
+                child: Center(
+                  child: Text(
+                    '게시판',
+                    style: TextStyle(
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFFF8E98),
+                      color: Color(0xFF8C8F95),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 15,
-                    color: Color(0xFF66BFF5),
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '$comments',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF66BFF5),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
         ),
-        if (showDivider)
-          const Divider(height: 1, thickness: 1, color: Color(0xFFDCDCDC)),
+      ),
+    );
+  }
+
+  Widget _buildMockBottomBar() {
+    return SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 28),
+            child: Container(
+              key: _writeButtonKey,
+              width: 52,
+              height: 52,
+              decoration: const BoxDecoration(
+                color: Color(0xFF229BF3),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x3314A3F7),
+                    blurRadius: 14,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 24),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1A000000),
+                  blurRadius: 24,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _MockNavItem(icon: Icons.home_rounded, label: '홈', selected: true),
+                _MockNavItem(icon: Icons.chat_bubble_outline_rounded, label: '채팅'),
+                _MockNavItem(
+                  icon: Icons.restaurant_outlined,
+                  label: '급식',
+                  navKey: _mealNavKey,
+                ),
+                _MockNavItem(
+                  icon: Icons.calendar_today_outlined,
+                  label: '시간표',
+                  navKey: _timetableNavKey,
+                ),
+                _MockNavItem(icon: Icons.person_outline_rounded, label: '내정보'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MockFeed extends StatelessWidget {
+  const _MockFeed();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+      children: const [
+        _MockPostCard(
+          title: '오늘 급식 레전드였음 ㅋㅋ 치킨까스 퀄리티 ㄷㄷ',
+          author: '익명',
+          time: '5분 전',
+          category: '자유',
+          categoryColor: Color(0xFFFF9E2C),
+          likes: 24,
+          comments: 8,
+          hot: true,
+        ),
+        _MockPostCard(
+          title: '수학 개념 설명 잘 하는 방법 아는 사람?',
+          author: '공부왕',
+          time: '12분 전',
+          category: '질문',
+          categoryColor: Color(0xFF8C63D8),
+          likes: 6,
+          comments: 3,
+        ),
+        _MockPostCard(
+          title: '학교 카페 새로 생긴 아메리카노 진짜 맛있음',
+          author: '카페인중독',
+          time: '34분 전',
+          category: '정보',
+          categoryColor: Color(0xFF18A999),
+          likes: 11,
+          comments: 5,
+        ),
+        _MockPostCard(
+          title: '고백했는데 차였어요 어떡하죠',
+          author: '익명',
+          time: '1시간 전',
+          category: '연애',
+          categoryColor: Color(0xFFFF5F7E),
+          likes: 41,
+          comments: 17,
+        ),
       ],
     );
   }
 }
 
-class _HotFilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
+class _MockPostCard extends StatelessWidget {
+  final String title;
+  final String author;
+  final String time;
+  final String category;
+  final Color categoryColor;
+  final int likes;
+  final int comments;
+  final bool hot;
 
-  const _HotFilterChip({required this.label, required this.selected});
+  const _MockPostCard({
+    required this.title,
+    required this.author,
+    required this.time,
+    required this.category,
+    required this.categoryColor,
+    required this.likes,
+    required this.comments,
+    this.hot = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 7),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 5)),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(18, 15, 18, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE7EAEE),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person_rounded, size: 17, color: Color(0xFF9AA1AA)),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                author,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF151515)),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                time,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF8F9298)),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: categoryColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  category,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: categoryColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          RichText(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            text: TextSpan(
+              children: [
+                if (hot)
+                  const TextSpan(
+                    text: 'HOT ',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFFF6B35),
+                    ),
+                  ),
+                TextSpan(
+                  text: title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF050505),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: Color(0xFF229BF3)),
+              const SizedBox(width: 4),
+              Text('$comments', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF229BF3))),
+              const SizedBox(width: 18),
+              const Icon(Icons.favorite_border_rounded, size: 18, color: Color(0xFFFF5B6D)),
+              const SizedBox(width: 4),
+              Text('$likes', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFF5B6D))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MockDDayChip extends StatelessWidget {
+  final String label;
+  final String days;
+
+  const _MockDDayChip({required this.label, required this.days});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFFFF6B35) : const Color(0xFFF3F6FA),
+        color: const Color(0xFFEAF4FF),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: selected ? Colors.white : const Color(0xFF9AA7B2),
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF444444)),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            days,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MockNavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final GlobalKey? navKey;
+
+  const _MockNavItem({
+    required this.icon,
+    required this.label,
+    this.selected = false,
+    this.navKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? const Color(0xFF229BF3) : const Color(0xFF282D33);
+    return SizedBox(
+      key: navKey,
+      width: 54,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 27),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

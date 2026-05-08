@@ -51,6 +51,7 @@ import '../features/profile/pages/settings_page.dart';
 import '../features/profile/pages/terms_page.dart';
 import '../features/chat/pages/chat_room_list_page.dart';
 import '../features/chat/pages/chat_room_page.dart';
+import '../features/school/models/board_model.dart';
 import '../features/school/pages/board_detail_page.dart';
 import '../features/school/pages/school_page.dart';
 import '../features/search/pages/search_page.dart';
@@ -396,10 +397,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/write-post',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>;
+        final extra = state.extra as Map<String, dynamic>? ?? const {};
+        final availableBoards = extra['availableBoards'];
         return WritePostPage(
-          boardId: extra['boardId'] as int,
-          boardTitle: extra['boardTitle'] as String,
+          boardId: extra['boardId'] as int?,
+          boardTitle: extra['boardTitle'] as String? ?? '',
+          availableBoards: availableBoards is List<BoardModel>
+              ? availableBoards
+              : const [],
           isEditMode: extra['isEditMode'] as bool? ?? false,
           postId: extra['postId'] as int?,
           initialTitle: extra['initialTitle'] as String?,

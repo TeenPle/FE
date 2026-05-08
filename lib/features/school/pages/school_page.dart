@@ -2,30 +2,31 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../app/routes.dart';
 import '../../../core/services/onboarding_service.dart';
 import '../../../core/storage/token_storage.dart';
-import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../../core/widgets/post_summary_skeleton.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/chat/provider/chat_room_list_provider.dart';
+import '../../../features/dday/widgets/dday_strip.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/notification/service/fcm_service.dart';
-import '../../../core/widgets/post_summary_skeleton.dart';
-import '../../../features/dday/widgets/dday_strip.dart';
 import '../../../features/penalty/models/penalty_model.dart';
 import '../../../features/penalty/provider/penalty_provider.dart';
 import '../../../features/warning/models/warning_model.dart';
 import '../../../features/warning/provider/warning_provider.dart';
-import '../form/board_tab_bar.dart';
 import '../models/board_model.dart';
 import '../models/hot_filter.dart';
 import '../models/post_summary.dart';
 import '../provider/school_providers.dart';
+import '../provider/school_state.dart';
 import 'school_onboarding_page.dart';
 import 'widgets/post_summary_card.dart';
 import 'widgets/school_header.dart';
 
-/// 학교 커뮤니티 메인 화면
+enum _HomeTab { feed, popular, boards }
+
 class SchoolPage extends ConsumerStatefulWidget {
   const SchoolPage({super.key});
 
@@ -35,9 +36,10 @@ class SchoolPage extends ConsumerStatefulWidget {
 
 class _SchoolPageState extends ConsumerState<SchoolPage>
     with WidgetsBindingObserver {
-  static const int _previewCount = 4;
+  final ScrollController _scrollController = ScrollController();
 
   int _bottomIndex = 0;
+  _HomeTab _selectedTab = _HomeTab.feed;
   bool _penaltyDialogShown = false;
   bool _warningDialogShown = false;
 
@@ -45,9 +47,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _scrollController.addListener(_onScroll);
 
     Future.microtask(() async {
-      // async 갭 이전에 context 캡처
       final dialogContext = context;
 
       int? schoolId = ref.read(loginProvider).loginResponse?.schoolId;
@@ -57,7 +59,6 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
         ref.read(schoolProvider.notifier).loadInitialSchool(schoolId);
       }
 
-      // 제재 상태 + 미확인 경고 동시 로드
       await Future.wait([
         ref.read(activePenaltyProvider.notifier).load(),
         ref.read(unreadWarningProvider.notifier).load(),
@@ -65,15 +66,13 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
       if (!mounted || !dialogContext.mounted) return;
 
-      // 제재 중이면 제재 다이얼로그 표시 (경고보다 우선)
       final penaltyState = ref.read(activePenaltyProvider);
       if (penaltyState.isPenalized && !_penaltyDialogShown) {
         _penaltyDialogShown = true;
         _showPenaltyDialog(dialogContext, penaltyState.penalty!);
-        return; // 제재 다이얼로그가 있으면 경고는 다음 접속 시 표시
+        return;
       }
 
-      // 미확인 경고가 있으면 경고 다이얼로그 표시 (1회)
       final warningState = ref.read(unreadWarningProvider);
       if (warningState.hasUnread && !_warningDialogShown) {
         _warningDialogShown = true;
@@ -86,34 +85,28 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       fcm.init().catchError((e) {
         if (kDebugMode) debugPrint('[FCM ERROR] $e');
       });
-      // 앱이 종료 상태에서 알림 탭으로 실행된 경우 처리
       fcm.handleInitialMessage();
       ref.read(notificationProvider.notifier).loadUnreadCount();
-      // 하단 채팅 버튼 위 미읽음 배지를 표시하기 위해 채팅방 목록의 unreadCount를 미리 가져온다.
       ref.read(chatRoomListProvider.notifier).load();
-      // 앱이 켜져 있는 동안 채팅 목록/배지는 유저별 STOMP 이벤트로 즉시 갱신한다.
       ref.read(chatRoomListProvider.notifier).startRealtime();
 
-      // 최초 접속 온보딩: 데이터 로딩 + 제재/경고 다이얼로그 처리 후 실행
-      // TODO: 테스트 후 아래 리셋 줄 제거
       if (kDebugMode) await OnboardingService().resetForDebug();
       await Future.delayed(const Duration(milliseconds: 900));
-      if (!mounted) return;
-      // 제재/경고 다이얼로그가 표시된 경우 온보딩 건너뜀
-      if (_penaltyDialogShown || _warningDialogShown) return;
+      if (!mounted || _penaltyDialogShown || _warningDialogShown) return;
+
       final onboardingSvc = OnboardingService();
       final isFirst = await onboardingSvc.isFirstSchoolVisit();
       if (!mounted) return;
       if (isFirst) {
         await onboardingSvc.markSchoolVisited();
         if (!mounted) return;
-        // ignore: use_build_context_synchronously
         Navigator.of(context, rootNavigator: true).push(
           PageRouteBuilder(
             opaque: true,
             transitionDuration: const Duration(milliseconds: 200),
             reverseTransitionDuration: Duration.zero,
-            pageBuilder: (context, animation, secondaryAnimation) => const SchoolOnboardingPage(),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const SchoolOnboardingPage(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) =>
                 FadeTransition(opacity: animation, child: child),
           ),
@@ -124,18 +117,28 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  // 백그라운드에서 앱으로 복귀 시 배지 갱신 (토큰 재등록은 onTokenRefresh 리스너가 담당)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       ref.read(notificationProvider.notifier).loadUnreadCount();
-      // 백그라운드에서 받은 채팅도 홈 복귀 시 배지에 반영한다.
       ref.read(chatRoomListProvider.notifier).load();
       ref.read(fcmServiceProvider).reRegisterToken();
+    }
+  }
+
+  void _onScroll() {
+    if (_selectedTab != _HomeTab.feed) return;
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 360) {
+      ref.read(schoolProvider.notifier).loadMorePosts();
     }
   }
 
@@ -143,25 +146,16 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   Widget build(BuildContext context) {
     final state = ref.watch(schoolProvider);
     final notifier = ref.read(schoolProvider.notifier);
-    // 채팅 버튼 배지는 모든 채팅방의 미읽음 메시지 수를 합산해서 표시한다.
+    final isPenalized = ref.watch(
+      activePenaltyProvider.select((s) => s.isPenalized),
+    );
     final chatUnreadCount = ref
         .watch(chatRoomListProvider)
         .rooms
         .fold(0, (sum, room) => sum + room.unreadCount);
 
-    final BoardModel? selectedBoard =
-        state.boards.where((board) => board.id == state.selectedBoardId).isEmpty
-        ? null
-        : state.boards.firstWhere((board) => board.id == state.selectedBoardId);
-
-    final selectedBoardTitle = selectedBoard?.title ?? '게시판';
-
-    /// 메인에서는 선택된 게시판의 일부 글만 미리보기로 노출
-    final previewPosts = state.posts.take(_previewCount).toList();
-
     ref.listen(schoolProvider, (previous, next) {
       if (!mounted) return;
-
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(
@@ -170,51 +164,15 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       }
     });
 
-    final isPenalized = ref.watch(
-      activePenaltyProvider.select((s) => s.isPenalized),
-    );
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
-      floatingActionButton: isPenalized || state.selectedBoardId == null
-          ? null
-          : FloatingActionButton(
-              /// 현재 선택된 게시판 기준으로 글쓰기 화면으로 이동
-              onPressed: () async {
-                final createdPostId = await context.push<int>(
-                  '/write-post',
-                  extra: {
-                    'boardId': state.selectedBoardId!,
-                    'boardTitle': selectedBoardTitle,
-                  },
-                );
-
-                if (!mounted) return;
-
-                /// 글 작성 후 메인 미리보기 목록을 다시 불러옴
-                if (createdPostId != null) {
-                  await notifier.reloadCurrentBoard();
-
-                  if (!mounted) return;
-
-                  // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('새 게시글이 등록되었어요.')),
-                  );
-                }
-              },
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF444444),
-              shape: const CircleBorder(),
-              child: const Icon(Icons.edit_rounded, size: 28),
-            ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavBar(
+      backgroundColor: const Color(0xFFF6FBFF),
+      bottomNavigationBar: _SchoolBottomBar(
         currentIndex: _bottomIndex,
         chatUnreadCount: chatUnreadCount,
-        onTap: (index) {
+        isPenalized: isPenalized,
+        onWriteTap: () => _openWriteFlow(state.boards),
+        onNavTap: (index) {
           if (index == 1) {
-            // 채팅 탭을 누르는 순간 최신 미읽음 수를 다시 동기화한다.
             ref.read(chatRoomListProvider.notifier).load();
             context.push(AppRoutes.chat);
             return;
@@ -231,138 +189,662 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
             context.push(AppRoutes.profile);
             return;
           }
-          setState(() {
-            _bottomIndex = index;
-          });
+          setState(() => _bottomIndex = index);
         },
       ),
       body: SafeArea(
         child: Column(
           children: [
             SchoolHeader(
-              schoolName: state.schoolName.isEmpty
-                  ? '학교 로딩 중...'
-                  : state.schoolName,
+              schoolName: state.schoolName.isEmpty ? '학교 로딩 중...' : state.schoolName,
               onSearchTap: () => context.push(
                 AppRoutes.search,
                 extra: {
                   'keyword': '',
                   'scopeTitle': state.schoolName.isEmpty
-                      ? '전체 게시판'
-                      : '${state.schoolName} 전체 게시판',
+                      ? '전체 피드'
+                      : '${state.schoolName} 전체 피드',
                 },
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
             const DDayStrip(),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
-            BoardTabBar(
-              boards: state.boards,
-              selectedBoardId: state.selectedBoardId,
-
-              /// 게시판 탭 선택 시 해당 게시판 미리보기 목록을 갱신
-              onBoardSelected: (boardId) {
-                notifier.selectBoard(boardId);
+            _HomeTabBar(
+              selectedTab: _selectedTab,
+              onChanged: (tab) {
+                setState(() => _selectedTab = tab);
+                if (tab == _HomeTab.feed && state.selectedBoardId != null) {
+                  notifier.selectAllBoards();
+                }
+                if (tab == _HomeTab.popular) {
+                  notifier.loadHotPosts();
+                }
               },
             ),
             Expanded(
-              child: state.isLoading && !state.hasLoadedOnce
-                  ? ListView(
-                      padding: EdgeInsets.zero,
-                      children: const [PostListSkeleton(count: 4)],
-                    )
-                  : RefreshIndicator(
-                      /// 메인 미리보기 목록 새로고침
-                      onRefresh: notifier.refreshPosts,
-                      child: ListView(
-                        padding: const EdgeInsets.only(bottom: 130),
-                        children: [
-                          if (previewPosts.isEmpty && !state.isLoading)
-                            const _EmptyPreviewState(),
-
-                          if (previewPosts.isNotEmpty)
-                            _SectionCard(
-                              child: Column(
-                                children: [
-                                  for (int i = 0; i < previewPosts.length; i++)
-                                    PostSummaryCard(
-                                      post: previewPosts[i],
-                                      showDivider: i != previewPosts.length - 1,
-
-                                      /// 게시글 카드 클릭 시 게시글 상세 페이지로 이동
-                                      onTap: () async {
-                                        final refreshed = await context
-                                            .push<bool>(
-                                              '/post/${previewPosts[i].id}',
-                                            );
-                                        if (refreshed == true && mounted) {
-                                          notifier.reloadCurrentBoard();
-                                        }
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ),
-
-                          if (state.selectedBoardId != null)
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
-                              child: SizedBox(
-                                height: 46,
-                                child: OutlinedButton(
-                                  /// 더보기 클릭 시 게시판 상세 페이지로 이동
-                                  onPressed: () {
-                                    context.push(
-                                      '/board/${state.selectedBoardId!}',
-                                      extra: {
-                                        'boardId': state.selectedBoardId!,
-                                        'boardTitle': selectedBoardTitle,
-                                      },
-                                    );
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    side: const BorderSide(
-                                      color: Color(0xFFE2EAF0),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '$selectedBoardTitle 더보기',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF5C6975),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                          // HOT 섹션
-                          _HotSection(
-                            hotPosts: state.hotPosts,
-                            hotFilter: state.hotFilter,
-                            isLoading: state.isLoadingHot,
-                            onFilterChanged: (f) => notifier.changeHotFilter(f),
-                            onPostTap: (postId) async {
-                              final refreshed = await context.push<bool>(
-                                '/post/$postId',
-                              );
-                              if (refreshed == true && mounted) {
-                                notifier.loadHotPosts();
-                              }
-                            },
-                            onMoreTap: () => context.push(AppRoutes.hotBoard),
-                          ),
-                        ],
-                      ),
-                    ),
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  if (_selectedTab == _HomeTab.popular) {
+                    await notifier.loadHotPosts();
+                  } else {
+                    await notifier.refreshPosts();
+                  }
+                },
+                child: _buildTabBody(state),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTabBody(SchoolState state) {
+    final notifier = ref.read(schoolProvider.notifier);
+    final boardNames = {
+      for (final board in state.boards) board.id: board.title,
+    };
+
+    if (state.isLoading && !state.hasLoadedOnce) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        children: const [PostListSkeleton(count: 5)],
+      );
+    }
+
+    switch (_selectedTab) {
+      case _HomeTab.feed:
+        return _FeedList(
+          controller: _scrollController,
+          posts: state.posts,
+          topRecommendedPosts: state.topRecommendedPosts,
+          boardNames: boardNames,
+          hasNext: state.hasNext,
+          isLoadingMore: state.isLoadingMore,
+          onPostTap: (postId) async {
+            final refreshed = await context.push<bool>('/post/$postId');
+            if (refreshed == true && mounted) {
+              notifier.reloadCurrentBoard();
+            }
+          },
+        );
+      case _HomeTab.popular:
+        return _PopularList(
+          posts: state.hotPosts,
+          boardNames: boardNames,
+          filter: state.hotFilter,
+          isLoading: state.isLoadingHot,
+          onFilterChanged: notifier.changeHotFilter,
+          onPostTap: (postId) async {
+            final refreshed = await context.push<bool>('/post/$postId');
+            if (refreshed == true && mounted) {
+              notifier.loadHotPosts();
+            }
+          },
+        );
+      case _HomeTab.boards:
+        return _BoardDirectory(
+          boards: state.boards,
+          onBoardTap: (board) async {
+            await context.push(
+              '/board/${board.id}',
+              extra: {'boardId': board.id, 'boardTitle': board.title},
+            );
+            if (mounted) {
+              notifier.selectAllBoards();
+            }
+          },
+        );
+    }
+  }
+
+  Future<void> _openWriteFlow(List<BoardModel> boards) async {
+    final activeBoards = boards.where((b) => b.active).toList();
+    if (activeBoards.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('글을 작성할 게시판이 없어요.')));
+      return;
+    }
+
+    final createdPostId = await context.push<int>(
+      '/write-post',
+      extra: {'availableBoards': activeBoards},
+    );
+
+    if (!mounted || createdPostId == null) return;
+
+    await ref.read(schoolProvider.notifier).refreshPosts();
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('게시글이 등록되었어요.')));
+  }
+}
+
+class _HomeTabBar extends StatelessWidget {
+  final _HomeTab selectedTab;
+  final ValueChanged<_HomeTab> onChanged;
+
+  const _HomeTabBar({
+    required this.selectedTab,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFFF6FBFF),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Center(
+        child: Container(
+          height: 40,
+          width: 236,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEBF2F9),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Stack(
+            children: [
+              AnimatedAlign(
+                duration: const Duration(milliseconds: 190),
+                curve: Curves.easeOutCubic,
+                alignment: switch (selectedTab) {
+                  _HomeTab.feed => Alignment.centerLeft,
+                  _HomeTab.popular => Alignment.center,
+                  _HomeTab.boards => Alignment.centerRight,
+                },
+                child: FractionallySizedBox(
+                  widthFactor: 1 / 3,
+                  heightFactor: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF229BF3),
+                      borderRadius: BorderRadius.circular(999),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x2814A3F7),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  _HomeTabButton(
+                    label: '피드',
+                    selected: selectedTab == _HomeTab.feed,
+                    onTap: () => onChanged(_HomeTab.feed),
+                  ),
+                  _HomeTabButton(
+                    label: '인기',
+                    selected: selectedTab == _HomeTab.popular,
+                    onTap: () => onChanged(_HomeTab.popular),
+                  ),
+                  _HomeTabButton(
+                    label: '게시판',
+                    selected: selectedTab == _HomeTab.boards,
+                    onTap: () => onChanged(_HomeTab.boards),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeTabButton extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _HomeTabButton({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.05,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              color: selected ? Colors.white : const Color(0xFF8C8F95),
+              letterSpacing: 0,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FeedList extends StatelessWidget {
+  final ScrollController controller;
+  final List<PostSummary> posts;
+  final List<PostSummary> topRecommendedPosts;
+  final Map<int, String> boardNames;
+  final bool hasNext;
+  final bool isLoadingMore;
+  final ValueChanged<int> onPostTap;
+
+  const _FeedList({
+    required this.controller,
+    required this.posts,
+    required this.topRecommendedPosts,
+    required this.boardNames,
+    required this.hasNext,
+    required this.isLoadingMore,
+    required this.onPostTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hotIds = topRecommendedPosts.map((post) => post.id).toSet();
+    final feedPosts = posts.where((post) => !hotIds.contains(post.id)).toList();
+
+    if (posts.isEmpty && topRecommendedPosts.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(18, 68, 18, 120),
+        children: const [_EmptyFeedState()],
+      );
+    }
+
+    return ListView.builder(
+      controller: controller,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 112),
+      itemCount: topRecommendedPosts.length + feedPosts.length + 1,
+      itemBuilder: (context, index) {
+        if (index < topRecommendedPosts.length) {
+          final post = topRecommendedPosts[index];
+          return _PostSurface(
+            child: PostSummaryCard(
+              post: post,
+              compact: true,
+              showDivider: false,
+              categoryLabel: boardNames[post.boardId],
+              hot: true,
+              onTap: () => onPostTap(post.id),
+            ),
+          );
+        }
+
+        final feedIndex = index - topRecommendedPosts.length;
+        if (feedIndex == feedPosts.length) {
+          return _PagingFooter(hasNext: hasNext, isLoading: isLoadingMore);
+        }
+
+        final post = feedPosts[feedIndex];
+        return _PostSurface(
+          child: PostSummaryCard(
+            post: post,
+            compact: true,
+            showDivider: false,
+            categoryLabel: boardNames[post.boardId],
+            onTap: () => onPostTap(post.id),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PopularList extends StatelessWidget {
+  final List<PostSummary> posts;
+  final Map<int, String> boardNames;
+  final HotFilter filter;
+  final bool isLoading;
+  final ValueChanged<HotFilter> onFilterChanged;
+  final ValueChanged<int> onPostTap;
+
+  const _PopularList({
+    required this.posts,
+    required this.boardNames,
+    required this.filter,
+    required this.isLoading,
+    required this.onFilterChanged,
+    required this.onPostTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 112),
+      children: [
+        _HotFilterRow(selected: filter, onChanged: onFilterChanged),
+        const SizedBox(height: 10),
+        if (isLoading)
+          const Padding(
+            padding: EdgeInsets.only(top: 64),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
+          )
+        else if (posts.isEmpty)
+          _EmptyPopularState(filter: filter)
+        else
+          for (final post in posts)
+            _PostSurface(
+              child: PostSummaryCard(
+                post: post,
+                compact: true,
+                showDivider: false,
+                categoryLabel: boardNames[post.boardId],
+                onTap: () => onPostTap(post.id),
+              ),
+            ),
+      ],
+    );
+  }
+}
+
+class _HotFilterRow extends StatelessWidget {
+  final HotFilter selected;
+  final ValueChanged<HotFilter> onChanged;
+
+  const _HotFilterRow({
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: HotFilter.values.map((filter) {
+        final isSelected = selected == filter;
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: InkWell(
+            onTap: () => onChanged(filter),
+            borderRadius: BorderRadius.circular(999),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFFFF6B35) : Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFFFF6B35)
+                      : const Color(0xFFE1ECF5),
+                ),
+              ),
+              child: Text(
+                filter.label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? Colors.white : const Color(0xFF6E7A86),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _BoardDirectory extends StatelessWidget {
+  final List<BoardModel> boards;
+  final ValueChanged<BoardModel> onBoardTap;
+
+  const _BoardDirectory({
+    required this.boards,
+    required this.onBoardTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (boards.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(18, 68, 18, 120),
+        children: const [_EmptyBoardDirectoryState()],
+      );
+    }
+
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 112),
+      itemCount: boards.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final board = boards[index];
+        return InkWell(
+          onTap: () => onBoardTap(board),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE1ECF5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF7FF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.tag_rounded,
+                    color: Color(0xFF14A3F7),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        board.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF111111),
+                        ),
+                      ),
+                      if (board.description.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          board.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF7D8790),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFF9AA7B2),
+                  size: 24,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PostSurface extends StatelessWidget {
+  final Widget child;
+
+  const _PostSurface({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 7),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 12,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+}
+
+class _PagingFooter extends StatelessWidget {
+  final bool hasNext;
+  final bool isLoading;
+
+  const _PagingFooter({
+    required this.hasNext,
+    required this.isLoading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 18),
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Center(
+        child: Text(
+          hasNext ? '스크롤하면 더 불러와요' : '마지막 게시글까지 확인했어요',
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF8D9AA6),
+          ),
+        ),
+      ),
+    );
+  }
+}
+class _EmptyFeedState extends StatelessWidget {
+  const _EmptyFeedState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const _EmptyState(
+      icon: Icons.forum_outlined,
+      title: '아직 올라온 글이 없어요',
+      message: '학교 친구들이 볼 수 있는 첫 글을 작성해보세요.',
+    );
+  }
+}
+
+class _EmptyPopularState extends StatelessWidget {
+  final HotFilter filter;
+
+  const _EmptyPopularState({required this.filter});
+
+  @override
+  Widget build(BuildContext context) {
+    return _EmptyState(
+      icon: Icons.local_fire_department_outlined,
+      title: '${filter.label} 인기글이 없어요',
+      message: '좋아요와 댓글이 쌓이면 이곳에 모여요.',
+      accentColor: const Color(0xFFFF6B35),
+    );
+  }
+}
+
+class _EmptyBoardDirectoryState extends StatelessWidget {
+  const _EmptyBoardDirectoryState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const _EmptyState(
+      icon: Icons.grid_view_rounded,
+      title: '게시판이 아직 없어요',
+      message: '관리자가 게시판을 만들면 이곳에 표시돼요.',
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+  final Color accentColor;
+
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.accentColor = const Color(0xFF14A3F7),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 42),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE1ECF5)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 40, color: accentColor),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF111111),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF7D8790),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -403,7 +885,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '커뮤니티 규칙 위반으로 인해 일부 기능이 제한되었습니다.',
+            '커뮤니티 규칙 위반으로 일부 기능이 제한되었어요.',
             style: TextStyle(
               fontSize: 14,
               color: Color(0xFF444444),
@@ -422,7 +904,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Text(
-              '제재 기간 중에는 게시글·댓글 작성 및 채팅이 제한됩니다. 게시글 열람은 가능합니다.',
+              '제한 기간에는 게시글, 댓글 작성과 채팅이 제한돼요. 게시글 열람은 가능해요.',
               style: TextStyle(
                 fontSize: 12,
                 color: Color(0xFFE05C7B),
@@ -448,7 +930,6 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
   );
 }
 
-/// 경고 안내 다이얼로그 — 확인 시 BE에 읽음 처리 (1회만 표시)
 void _showWarningDialog(BuildContext context, UnreadWarningModel warning) {
   showDialog(
     context: context,
@@ -488,7 +969,7 @@ class _WarningDialog extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '커뮤니티 규칙 위반으로 관리자 경고를 받았습니다.',
+            '커뮤니티 규칙 위반으로 관리자 경고를 받았어요.',
             style: TextStyle(
               fontSize: 14,
               color: Color(0xFF444444),
@@ -562,7 +1043,7 @@ class _WarningDialog extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
-              '경고 누적 시 이용이 제한될 수 있습니다.',
+              '경고 누적 시 이용이 제한될 수 있어요.',
               style: TextStyle(
                 fontSize: 12,
                 color: Color(0xFF6B7280),
@@ -581,7 +1062,7 @@ class _WarningDialog extends ConsumerWidget {
                 .markRead(warning.warningId);
           },
           child: const Text(
-            '확인했습니다',
+            '확인했어요',
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: Color(0xFFF59E0B),
@@ -589,6 +1070,192 @@ class _WarningDialog extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SchoolBottomBar extends StatelessWidget {
+  final int currentIndex;
+  final int chatUnreadCount;
+  final bool isPenalized;
+  final VoidCallback onWriteTap;
+  final ValueChanged<int> onNavTap;
+
+  const _SchoolBottomBar({
+    required this.currentIndex,
+    required this.chatUnreadCount,
+    required this.isPenalized,
+    required this.onWriteTap,
+    required this.onNavTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isPenalized)
+            Padding(
+              padding: const EdgeInsets.only(right: 28),
+              child: GestureDetector(
+                onTap: onWriteTap,
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF229BF3),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x3314A3F7),
+                        blurRadius: 14,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.edit_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
+          Container(
+            margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1A000000),
+                  blurRadius: 24,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _BottomNavItem(
+                  icon: Icons.home_rounded,
+                  label: '홈',
+                  selected: currentIndex == 0,
+                  onTap: () => onNavTap(0),
+                ),
+                _BottomNavItem(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  label: '채팅',
+                  selected: currentIndex == 1,
+                  onTap: () => onNavTap(1),
+                  badgeCount: chatUnreadCount,
+                ),
+                _BottomNavItem(
+                  icon: Icons.restaurant_outlined,
+                  label: '급식',
+                  selected: currentIndex == 2,
+                  onTap: () => onNavTap(2),
+                ),
+                _BottomNavItem(
+                  icon: Icons.calendar_today_outlined,
+                  label: '시간표',
+                  selected: currentIndex == 3,
+                  onTap: () => onNavTap(3),
+                ),
+                _BottomNavItem(
+                  icon: Icons.person_outline_rounded,
+                  label: '내정보',
+                  selected: currentIndex == 4,
+                  onTap: () => onNavTap(4),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BottomNavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final int badgeCount;
+
+  const _BottomNavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.badgeCount = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? const Color(0xFF229BF3) : const Color(0xFF282D33);
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 54,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(icon, color: color, size: 27),
+                if (badgeCount > 0)
+                  Positioned(
+                    top: -4,
+                    right: -8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF44336),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        badgeCount > 99 ? '99+' : '$badgeCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                color: color,
+                letterSpacing: 0,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -607,7 +1274,7 @@ class _DialogInfoRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 56,
+            width: 64,
             child: Text(
               label,
               style: const TextStyle(
@@ -632,221 +1299,3 @@ class _DialogInfoRow extends StatelessWidget {
     );
   }
 }
-
-/// 메인에서 게시글 미리보기가 없을 때 보여주는 빈 상태
-class _EmptyPreviewState extends StatelessWidget {
-  const _EmptyPreviewState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(18, 10, 18, 14),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: const Column(
-        children: [
-          Icon(Icons.forum_outlined, size: 38, color: Color(0xFF9AA7B2)),
-          SizedBox(height: 12),
-          Text(
-            '아직 미리볼 게시글이 없어요.',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            '게시판에 첫 글을 작성해보세요.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.5,
-              color: Color(0xFF7D8790),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// HOT 게시판 섹션 (메인 화면 하단)
-class _HotSection extends StatelessWidget {
-  final List<PostSummary> hotPosts;
-  final HotFilter hotFilter;
-  final bool isLoading;
-  final ValueChanged<HotFilter> onFilterChanged;
-  final ValueChanged<int> onPostTap;
-  final VoidCallback onMoreTap;
-
-  static const int _previewCount = 4;
-
-  const _HotSection({
-    required this.hotPosts,
-    required this.hotFilter,
-    required this.isLoading,
-    required this.onFilterChanged,
-    required this.onPostTap,
-    required this.onMoreTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final preview = hotPosts.take(_previewCount).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 섹션 헤더
-        Padding(
-          padding: const EdgeInsets.fromLTRB(18, 12, 18, 8),
-          child: Row(
-            children: [
-              const Text('🔥', style: TextStyle(fontSize: 18)),
-              const SizedBox(width: 6),
-              const Text(
-                'HOT 게시판',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
-                ),
-              ),
-              const Spacer(),
-              // 필터 칩
-              ...HotFilter.values.map((f) {
-                final selected = hotFilter == f;
-                return Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: GestureDetector(
-                    onTap: () => onFilterChanged(f),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? const Color(0xFFFF6B35)
-                            : const Color(0xFFF3F6FA),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        f.label,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: selected
-                              ? Colors.white
-                              : const Color(0xFF9AA7B2),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-
-        // 게시글 카드
-        if (isLoading)
-          Container(
-            margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          )
-        else if (hotPosts.isEmpty)
-          Container(
-            margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
-            padding: const EdgeInsets.symmetric(vertical: 28),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Center(
-              child: Text(
-                '${hotFilter.label} HOT 게시글이 없어요.',
-                style: const TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
-              ),
-            ),
-          )
-        else ...[
-          Container(
-            margin: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              children: [
-                for (int i = 0; i < preview.length; i++)
-                  PostSummaryCard(
-                    post: preview[i],
-                    showDivider: i != preview.length - 1,
-                    onTap: () => onPostTap(preview[i].id),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 14),
-            child: SizedBox(
-              height: 46,
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: onMoreTap,
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: const BorderSide(color: Color(0xFFFFCDB5)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  '🔥 HOT 게시판 더보기',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFFFF6B35),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/// 게시글 미리보기 섹션을 감싸는 카드
-class _SectionCard extends StatelessWidget {
-  final Widget child;
-
-  const _SectionCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(18, 10, 18, 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: child,
-    );
-  }
-}
-

@@ -56,7 +56,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '익명성은 유지하되, 신고 처리와 안전 대응을 위해 필요한 콘텐츠만 운영 관점에서 확인합니다.',
+                    '익명성은 유지하되, 신고 처리와 안전 운영에 필요한 콘텐츠만 운영 권한으로 확인합니다.',
                     style: TextStyle(fontSize: 13, height: 1.45, color: Color(0xFF29485A)),
                   ),
                 ),
@@ -84,7 +84,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
               _ConsoleTile(
                 icon: Icons.flag_outlined,
                 title: '신고 큐',
-                subtitle: '신고 콘텐츠 처리',
+                subtitle: '신고 콘텐츠 확인 및 처리',
                 badgeCount: dashboard.pendingReportCount,
                 color: const Color(0xFFE05C7B),
                 background: const Color(0xFFFFF3F3),
@@ -92,7 +92,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
               ),
               _ConsoleTile(
                 icon: Icons.gavel_rounded,
-                title: '제재 내역',
+                title: '제재 이력',
                 subtitle: '활성/과거 제재 확인',
                 color: const Color(0xFF6B5A8E),
                 background: const Color(0xFFF1EEFA),
@@ -106,6 +106,14 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
                 background: const Color(0xFFFFF7E8),
                 onTap: () => context.push(AppRoutes.adminSchools),
               ),
+              _ConsoleTile(
+                icon: Icons.receipt_long_outlined,
+                title: '감사 로그',
+                subtitle: '열람 및 운영 조치 기록',
+                color: const Color(0xFF2F7D46),
+                background: const Color(0xFFE8F5E9),
+                onTap: () => context.push(AppRoutes.adminAuditLogs),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -114,19 +122,19 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
           const _GuidelineTile(
             icon: Icons.visibility_outlined,
             title: '열람 목적 제한',
-            body: '전체 게시판은 신고 대응, 안전 점검, 운영 확인 목적으로만 확인합니다.',
+            body: '전체 게시판은 신고 대응, 안전 점검, 운영 확인 목적일 때만 확인합니다.',
           ),
           const SizedBox(height: 8),
           const _GuidelineTile(
             icon: Icons.person_off_outlined,
             title: '작성자 정보 최소화',
-            body: '익명 게시글은 운영용 식별자로 표시하고, 실명/연락처는 기본 화면에 노출하지 않습니다.',
+            body: '익명 게시글은 운영용 식별자로만 표시하고, 실명/연락처는 기본 화면에 노출하지 않습니다.',
           ),
           const SizedBox(height: 8),
           const _GuidelineTile(
             icon: Icons.rule_rounded,
-            title: '조치 흐름',
-            body: '신고 상세에서 콘텐츠 확인, 작성자 이력 확인, 경고 또는 제재 순서로 처리합니다.',
+            title: '조치 기록',
+            body: '게시글 열람, 숨김/복구, 신고 처리, 제재 취소는 감사 로그에 남깁니다.',
           ),
         ],
       ),

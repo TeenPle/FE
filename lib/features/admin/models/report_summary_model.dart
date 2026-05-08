@@ -61,6 +61,7 @@ class ReportSummaryModel {
 }
 
 class ReportDetailModel extends ReportSummaryModel {
+  final int? postId;
   final String targetContent;
   final String? schoolName;
   final String? boardTitle;
@@ -73,6 +74,7 @@ class ReportDetailModel extends ReportSummaryModel {
     required super.reportedUserNickname,
     required super.targetType,
     required super.targetId,
+    this.postId,
     required this.targetContent,
     this.schoolName,
     this.boardTitle,
@@ -91,6 +93,7 @@ class ReportDetailModel extends ReportSummaryModel {
       reportedUserNickname: json['reportedUserNickname'] as String? ?? '',
       targetType: json['targetType'] as String? ?? '',
       targetId: (json['targetId'] as num).toInt(),
+      postId: json['postId'] != null ? (json['postId'] as num).toInt() : null,
       targetContent: json['targetContent'] as String? ?? '',
       schoolName: json['schoolName'] as String?,
       boardTitle: json['boardTitle'] as String?,

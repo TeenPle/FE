@@ -59,4 +59,36 @@ class AdminContentApi {
     final res = await _client.get('/api/admin/content/posts/$postId');
     return AdminPostDetailModel.fromJson(res['result'] as Map<String, dynamic>);
   }
+
+  Future<AdminPostDetailModel> hidePost(int postId, String reason) async {
+    final res = await _client.patch(
+      '/api/admin/content/posts/$postId/hide',
+      body: {'reason': reason},
+    );
+    return AdminPostDetailModel.fromJson(res['result'] as Map<String, dynamic>);
+  }
+
+  Future<AdminPostDetailModel> restorePost(int postId, String reason) async {
+    final res = await _client.patch(
+      '/api/admin/content/posts/$postId/restore',
+      body: {'reason': reason},
+    );
+    return AdminPostDetailModel.fromJson(res['result'] as Map<String, dynamic>);
+  }
+
+  Future<AdminPostDetailModel> hideComment(int commentId, String reason) async {
+    final res = await _client.patch(
+      '/api/admin/content/comments/$commentId/hide',
+      body: {'reason': reason},
+    );
+    return AdminPostDetailModel.fromJson(res['result'] as Map<String, dynamic>);
+  }
+
+  Future<AdminPostDetailModel> restoreComment(int commentId, String reason) async {
+    final res = await _client.patch(
+      '/api/admin/content/comments/$commentId/restore',
+      body: {'reason': reason},
+    );
+    return AdminPostDetailModel.fromJson(res['result'] as Map<String, dynamic>);
+  }
 }

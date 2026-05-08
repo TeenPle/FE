@@ -221,23 +221,31 @@ final adminPostListProvider = StateNotifierProvider.family<
 class AdminPostDetailState {
   final AdminPostDetailModel? post;
   final bool isLoading;
+  final bool isActing;
   final String? error;
+  final String? successMessage;
 
   const AdminPostDetailState({
     this.post,
     this.isLoading = false,
+    this.isActing = false,
     this.error,
+    this.successMessage,
   });
 
   AdminPostDetailState copyWith({
     AdminPostDetailModel? post,
     bool? isLoading,
+    bool? isActing,
     String? error,
+    String? successMessage,
   }) {
     return AdminPostDetailState(
       post: post ?? this.post,
       isLoading: isLoading ?? this.isLoading,
+      isActing: isActing ?? this.isActing,
       error: error,
+      successMessage: successMessage,
     );
   }
 }
@@ -250,12 +258,68 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
       : super(const AdminPostDetailState());
 
   Future<void> load() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null, successMessage: null);
     try {
       final post = await _api.getPostDetail(postId);
       state = state.copyWith(post: post, isLoading: false);
     } catch (_) {
       state = state.copyWith(isLoading: false, error: '게시글 상세를 불러오지 못했습니다.');
+    }
+  }
+
+  Future<void> hidePost(String reason) async {
+    state = state.copyWith(isActing: true, error: null, successMessage: null);
+    try {
+      final post = await _api.hidePost(postId, reason);
+      state = state.copyWith(
+        post: post,
+        isActing: false,
+        successMessage: '게시글을 숨김 처리했습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(isActing: false, error: '게시글 숨김 처리에 실패했습니다.');
+    }
+  }
+
+  Future<void> restorePost(String reason) async {
+    state = state.copyWith(isActing: true, error: null, successMessage: null);
+    try {
+      final post = await _api.restorePost(postId, reason);
+      state = state.copyWith(
+        post: post,
+        isActing: false,
+        successMessage: '게시글을 복구했습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(isActing: false, error: '게시글 복구에 실패했습니다.');
+    }
+  }
+
+  Future<void> hideComment(int commentId, String reason) async {
+    state = state.copyWith(isActing: true, error: null, successMessage: null);
+    try {
+      final post = await _api.hideComment(commentId, reason);
+      state = state.copyWith(
+        post: post,
+        isActing: false,
+        successMessage: '댓글을 숨김 처리했습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(isActing: false, error: '댓글 숨김 처리에 실패했습니다.');
+    }
+  }
+
+  Future<void> restoreComment(int commentId, String reason) async {
+    state = state.copyWith(isActing: true, error: null, successMessage: null);
+    try {
+      final post = await _api.restoreComment(commentId, reason);
+      state = state.copyWith(
+        post: post,
+        isActing: false,
+        successMessage: '댓글을 복구했습니다.',
+      );
+    } catch (_) {
+      state = state.copyWith(isActing: false, error: '댓글 복구에 실패했습니다.');
     }
   }
 }

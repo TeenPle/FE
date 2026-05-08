@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../api/admin_report_api.dart';
 import '../models/report_summary_model.dart';
 
-// ── 신고 목록 ──────────────────────────────────────────────
 class AdminReportListState {
   final List<ReportSummaryModel> reports;
-  final String activeStatus; // PENDING | RESOLVED | REJECTED
+  final String activeStatus;
   final bool isLoading;
   final String? error;
 
@@ -42,7 +42,7 @@ class AdminReportListNotifier extends StateNotifier<AdminReportListState> {
       final reports = await _api.getReports(status: status);
       state = state.copyWith(reports: reports, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '신고 목록을 불러올 수 없어요.');
+      state = state.copyWith(isLoading: false, error: '신고 목록을 불러오지 못했습니다.');
     }
   }
 
@@ -54,7 +54,6 @@ final adminReportListProvider =
   return AdminReportListNotifier(ref.watch(adminReportApiProvider));
 });
 
-// ── 신고 상세 + 처리 ───────────────────────────────────────
 class AdminReportDetailState {
   final ReportDetailModel? detail;
   final bool isLoading;
@@ -87,8 +86,7 @@ class AdminReportDetailState {
   }
 }
 
-class AdminReportDetailNotifier
-    extends StateNotifier<AdminReportDetailState> {
+class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
   final AdminReportApi _api;
   final int reportId;
 
@@ -101,30 +99,30 @@ class AdminReportDetailNotifier
       final detail = await _api.getReportDetail(reportId);
       state = state.copyWith(detail: detail, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '신고 정보를 불러올 수 없어요.');
+      state = state.copyWith(isLoading: false, error: '신고 정보를 불러오지 못했습니다.');
     }
   }
 
-  Future<bool> approve(int penaltyDays) async {
+  Future<bool> approve(int penaltyDays, String adminComment) async {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
-      await _api.approveReport(reportId, penaltyDays);
-      state = state.copyWith(isActing: false, successMessage: '제재가 적용되었어요.');
+      await _api.approveReport(reportId, penaltyDays, adminComment);
+      state = state.copyWith(isActing: false, successMessage: '제재가 적용되었습니다.');
       return true;
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '승인 처리에 실패했어요.');
+      state = state.copyWith(isActing: false, error: '승인 처리에 실패했습니다.');
       return false;
     }
   }
 
-  Future<bool> reject() async {
+  Future<bool> reject(String adminComment) async {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
-      await _api.rejectReport(reportId);
-      state = state.copyWith(isActing: false, successMessage: '신고를 거절했어요.');
+      await _api.rejectReport(reportId, adminComment);
+      state = state.copyWith(isActing: false, successMessage: '신고를 거절했습니다.');
       return true;
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '거절 처리에 실패했어요.');
+      state = state.copyWith(isActing: false, error: '거절 처리에 실패했습니다.');
       return false;
     }
   }
@@ -133,10 +131,10 @@ class AdminReportDetailNotifier
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
       await _api.warnReport(reportId, adminComment);
-      state = state.copyWith(isActing: false, successMessage: '경고를 발령했어요.');
+      state = state.copyWith(isActing: false, successMessage: '경고를 발령했습니다.');
       return true;
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '경고 발령에 실패했어요.');
+      state = state.copyWith(isActing: false, error: '경고 발령에 실패했습니다.');
       return false;
     }
   }

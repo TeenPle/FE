@@ -8,8 +8,13 @@ import '../provider/admin_content_provider.dart';
 
 class AdminPostDetailPage extends ConsumerStatefulWidget {
   final int postId;
+  final int? focusCommentId;
 
-  const AdminPostDetailPage({super.key, required this.postId});
+  const AdminPostDetailPage({
+    super.key,
+    required this.postId,
+    this.focusCommentId,
+  });
 
   @override
   ConsumerState<AdminPostDetailPage> createState() => _AdminPostDetailPageState();
@@ -25,6 +30,23 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminPostDetailProvider(widget.postId));
+    final notifier = ref.read(adminPostDetailProvider(widget.postId).notifier);
+
+    ref.listen(adminPostDetailProvider(widget.postId), (_, next) {
+      if (next.successMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.successMessage!)),
+        );
+      }
+      if (next.error != null && next.post != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: const Color(0xFFE05C7B),
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FB),
@@ -40,15 +62,37 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
               ? Center(child: Text(state.error!))
               : state.post == null
                   ? const SizedBox()
-                  : _PostDetailBody(post: state.post!),
+                  : _PostDetailBody(
+                      post: state.post!,
+                      focusCommentId: widget.focusCommentId,
+                      isActing: state.isActing,
+                      onHidePost: notifier.hidePost,
+                      onRestorePost: notifier.restorePost,
+                      onHideComment: notifier.hideComment,
+                      onRestoreComment: notifier.restoreComment,
+                    ),
     );
   }
 }
 
 class _PostDetailBody extends StatelessWidget {
   final AdminPostDetailModel post;
+  final int? focusCommentId;
+  final bool isActing;
+  final Future<void> Function(String reason) onHidePost;
+  final Future<void> Function(String reason) onRestorePost;
+  final Future<void> Function(int commentId, String reason) onHideComment;
+  final Future<void> Function(int commentId, String reason) onRestoreComment;
 
-  const _PostDetailBody({required this.post});
+  const _PostDetailBody({
+    required this.post,
+    this.focusCommentId,
+    required this.isActing,
+    required this.onHidePost,
+    required this.onRestorePost,
+    required this.onHideComment,
+    required this.onRestoreComment,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +176,50 @@ class _PostDetailBody extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: post.postStatus == 'HIDDEN'
+                        ? ElevatedButton.icon(
+                            onPressed: isActing
+                                ? null
+                                : () => _confirmAction(
+                                      context,
+                                      title: '게시글 복구',
+                                      message: '숨김 처리된 게시글을 다시 노출할까요?',
+                                      confirmText: '복구',
+                                      onConfirm: onRestorePost,
+                                    ),
+                            icon: const Icon(Icons.undo_rounded, size: 18),
+                            label: const Text('게시글 복구'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2F7D46),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          )
+                        : OutlinedButton.icon(
+                            onPressed: isActing
+                                ? null
+                                : () => _confirmAction(
+                                      context,
+                                      title: '게시글 숨김',
+                                      message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
+                                      confirmText: '숨김 처리',
+                                      onConfirm: onHidePost,
+                                    ),
+                            icon: const Icon(Icons.visibility_off_outlined, size: 18),
+                            label: const Text('게시글 숨김'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFFE05C7B),
+                              side: const BorderSide(color: Color(0xFFE05C7B)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -151,7 +239,27 @@ class _PostDetailBody extends StatelessWidget {
                   child: Text('댓글이 없습니다.', style: TextStyle(color: Color(0xFF94A3B8))),
                 )
               else
-                ...post.comments.map((comment) => _CommentTile(comment: comment)),
+                ...post.comments.map(
+                  (comment) => _CommentTile(
+                    comment: comment,
+                    highlighted: comment.commentId == focusCommentId,
+                    isActing: isActing,
+                    onHide: () => _confirmAction(
+                      context,
+                      title: '댓글 숨김',
+                      message: '이 댓글을 사용자 화면에서 숨김 처리할까요?',
+                      confirmText: '숨김 처리',
+                      onConfirm: (reason) => onHideComment(comment.commentId, reason),
+                    ),
+                    onRestore: () => _confirmAction(
+                      context,
+                      title: '댓글 복구',
+                      message: '숨김 처리된 댓글을 다시 노출할까요?',
+                      confirmText: '복구',
+                      onConfirm: (reason) => onRestoreComment(comment.commentId, reason),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -162,6 +270,68 @@ class _PostDetailBody extends StatelessWidget {
   String _formatDate(DateTime dt) {
     return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
         '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _confirmAction(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required String confirmText,
+    required Future<void> Function(String reason) onConfirm,
+  }) {
+    final reasonController = TextEditingController();
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              const SizedBox(height: 12),
+              TextField(
+                controller: reasonController,
+                maxLines: 3,
+                maxLength: 500,
+                decoration: InputDecoration(
+                  hintText: '처리 사유를 입력하세요.',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('취소', style: TextStyle(color: Color(0xFF64748B))),
+            ),
+            TextButton(
+              onPressed: () {
+                final reason = reasonController.text.trim();
+                if (reason.isEmpty) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    const SnackBar(content: Text('처리 사유를 입력해주세요.')),
+                  );
+                  return;
+                }
+                Navigator.of(ctx).pop(true);
+              },
+              child: Text(confirmText, style: const TextStyle(color: Color(0xFFE05C7B))),
+            ),
+          ],
+        );
+      },
+    ).then((confirmed) {
+      if (confirmed == true) {
+        onConfirm(reasonController.text.trim());
+      }
+      reasonController.dispose();
+    });
   }
 }
 
@@ -222,8 +392,18 @@ class _MediaGrid extends StatelessWidget {
 
 class _CommentTile extends StatelessWidget {
   final AdminCommentModel comment;
+  final bool highlighted;
+  final bool isActing;
+  final VoidCallback onHide;
+  final VoidCallback onRestore;
 
-  const _CommentTile({required this.comment});
+  const _CommentTile({
+    required this.comment,
+    this.highlighted = false,
+    required this.isActing,
+    required this.onHide,
+    required this.onRestore,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -231,9 +411,16 @@ class _CommentTile extends StatelessWidget {
       margin: EdgeInsets.only(left: comment.depth > 0 ? 18 : 0, bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: comment.depth > 0 ? const Color(0xFFF8FAFC) : const Color(0xFFFFFFFF),
+        color: highlighted
+            ? const Color(0xFFFFFBEB)
+            : comment.depth > 0
+                ? const Color(0xFFF8FAFC)
+                : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: highlighted ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
+          width: highlighted ? 1.5 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,6 +447,29 @@ class _CommentTile extends StatelessWidget {
               _Metric(icon: Icons.thumb_down_alt_outlined, value: '${comment.dislikeCount}'),
             ],
           ),
+          if (comment.commentStatus != 'DELETED') ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: comment.commentStatus == 'HIDDEN'
+                  ? TextButton.icon(
+                      onPressed: isActing ? null : onRestore,
+                      icon: const Icon(Icons.undo_rounded, size: 16),
+                      label: const Text('복구'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF2F7D46),
+                      ),
+                    )
+                  : TextButton.icon(
+                      onPressed: isActing ? null : onHide,
+                      icon: const Icon(Icons.visibility_off_outlined, size: 16),
+                      label: const Text('숨김'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFE05C7B),
+                      ),
+                    ),
+            ),
+          ],
         ],
       ),
     );

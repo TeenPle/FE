@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -11,12 +11,14 @@ import '../models/create_post_request.dart';
 import '../models/post_media_item.dart';
 import '../models/update_post_request.dart';
 import '../provider/post_detail_providers.dart';
+import '../../school/models/board_model.dart';
 import 'widgets/crisis_banner.dart';
 
 /// 게시글 작성/수정 페이지
 class WritePostPage extends ConsumerStatefulWidget {
-  final int boardId;
+  final int? boardId;
   final String boardTitle;
+  final List<BoardModel> availableBoards;
   final bool isEditMode;
   final int? postId;
   final String? initialTitle;
@@ -27,8 +29,9 @@ class WritePostPage extends ConsumerStatefulWidget {
 
   const WritePostPage({
     super.key,
-    required this.boardId,
-    required this.boardTitle,
+    this.boardId,
+    this.boardTitle = '',
+    this.availableBoards = const [],
     this.isEditMode = false,
     this.postId,
     this.initialTitle,
@@ -56,6 +59,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   bool _isSubmitting = false;
   late bool _pollEnabled;
   late List<TextEditingController> _pollOptionControllers;
+  int? _selectedBoardId;
+  late String _selectedBoardTitle;
   List<PlatformFile> _selectedFiles = [];
   late List<PostMediaItem> _existingMedia;
   final List<int> _deletedMediaIds = [];
@@ -77,7 +82,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   }
 
   bool get _canSubmit {
-    return _titleController.text.trim().isNotEmpty &&
+    return (widget.isEditMode || _selectedBoardId != null) &&
+        _titleController.text.trim().isNotEmpty &&
         _contentController.text.trim().isNotEmpty &&
         _titleLength <= _titleLimit &&
         _contentLength <= _contentLimit &&
@@ -91,7 +97,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     _titleController = TextEditingController(text: widget.initialTitle ?? '');
     _contentController =
         TextEditingController(text: widget.initialContent ?? '');
-    _anonymous = widget.initialAnonymous ?? true;
+    _anonymous = widget.isEditMode ? (widget.initialAnonymous ?? true) : true;
+    _selectedBoardId = widget.boardId;
+    _selectedBoardTitle = widget.boardTitle;
     _existingMedia = List.from(widget.initialMediaList);
     final initialPollOptions = widget.initialPollOptions ?? const [];
     _pollEnabled = initialPollOptions.isNotEmpty;
@@ -193,7 +201,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   }
 
   Future<void> _pickFiles() async {
-    final remaining = _maxFiles - _selectedFiles.length;
+    final remaining = _maxFiles - _selectedFiles.length - _existingMedia.length;
     if (remaining <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('첨부파일은 최대 $_maxFiles개까지 가능합니다.')),
@@ -278,7 +286,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         Navigator.pop(context, true);
       } else {
         final postId = await repository.createPost(
-          boardId: widget.boardId,
+          boardId: _selectedBoardId!,
           request: CreatePostRequest(
             title: _titleController.text.trim(),
             content: _contentController.text.trim(),
@@ -339,10 +347,104 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     return shouldLeave;
   }
 
+  Future<void> _showBoardPicker() async {
+    if (widget.isEditMode || widget.availableBoards.isEmpty) return;
+
+    final board = await showModalBottomSheet<BoardModel>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD7E2EC),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                '게시판 선택',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 360),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: widget.availableBoards.length,
+                  separatorBuilder: (_, __) => const Divider(
+                    height: 1,
+                    color: Color(0xFFEAF1F7),
+                  ),
+                  itemBuilder: (context, index) {
+                    final board = widget.availableBoards[index];
+                    final selected = board.id == _selectedBoardId;
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        board.title,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight:
+                              selected ? FontWeight.w900 : FontWeight.w700,
+                          color: selected
+                              ? const Color(0xFF2F80ED)
+                              : const Color(0xFF111827),
+                        ),
+                      ),
+                      subtitle: board.description.isEmpty
+                          ? null
+                          : Text(
+                              board.description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                      trailing: selected
+                          ? const Icon(
+                              Icons.check_rounded,
+                              color: Color(0xFF2F80ED),
+                            )
+                          : null,
+                      onTap: () => Navigator.pop(context, board),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (board == null || !mounted) return;
+    setState(() {
+      _selectedBoardId = board.id;
+      _selectedBoardTitle = board.title;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final titleText = widget.isEditMode ? '게시글 수정' : '글쓰기';
-    final submitText = widget.isEditMode ? '수정' : '등록';
+    final titleText = widget.isEditMode ? '게시글 수정' : '새 글 작성';
+    final submitText = widget.isEditMode ? '수정하기' : '등록하기';
+    final attachedCount = _existingMedia.length + _selectedFiles.length;
 
     return PopScope(
       canPop: false,
@@ -354,401 +456,532 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         if (canLeave) Navigator.pop(context);
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7FAFC),
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: const Color(0xFFF7FAFC),
-          foregroundColor: const Color(0xFF111111),
-          title: Text(
-            titleText,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: TextButton(
-                onPressed: _canSubmit ? _submit : null,
-                child: Text(
-                  _isSubmitting
-                      ? (widget.isEditMode ? '수정 중...' : '등록 중...')
-                      : submitText,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: _canSubmit
-                        ? const Color(0xFF14A3F7)
-                        : const Color(0xFF9AA7B2),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        backgroundColor: const Color(0xFFF7FBFF),
         body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
             children: [
-              // 게시판 배지
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAF5FF),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFD3EAFF)),
-                ),
-                child: Row(
+                height: 82,
+                padding: const EdgeInsets.fromLTRB(18, 8, 18, 10),
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    const Icon(
-                      Icons.dashboard_customize_rounded,
-                      size: 18,
-                      color: Color(0xFF14A3F7),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        onPressed: () async {
+                          if (await _onWillPop() && mounted) {
+                            Navigator.pop(context);
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 34,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '게시판: ${widget.boardTitle}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF167FC1),
+                    Text(
+                      titleText,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF111827),
+                        letterSpacing: 0,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: SizedBox(
+                        height: 46,
+                        child: ElevatedButton(
+                          onPressed: _canSubmit ? _submit : null,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: const Color(0xFF2F80ED),
+                            disabledBackgroundColor: const Color(0xFFD8E8FA),
+                            foregroundColor: Colors.white,
+                            disabledForegroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 22),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            _isSubmitting ? '등록 중...' : submitText,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
-
-              // 작성 설정 (익명 토글)
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE6EDF3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const Divider(height: 1, color: Color(0xFFE9F0F7)),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
                   children: [
-                    const Text(
-                      '작성 설정',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                    _WriteCard(
+                      height: 82,
+                      padding: EdgeInsets.zero,
+                      child: InkWell(
+                        onTap: _showBoardPicker,
+                        borderRadius: BorderRadius.circular(18),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                          child: Row(
+                            children: [
+                              _CircleIconBadge(
+                                icon: Icons.article_outlined,
+                                size: 40,
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  _selectedBoardTitle.isEmpty
+                                      ? '게시판 선택'
+                                      : _selectedBoardTitle,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: _selectedBoardId == null
+                                        ? const Color(0xFF8B95A1)
+                                        : const Color(0xFF111827),
+                                    letterSpacing: 0,
+                                  ),
+                                ),
+                              ),
+                              if (!widget.isEditMode)
+                                const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: Color(0xFF2F80ED),
+                                  size: 28,
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
-                    InkWell(
-                      onTap: () => setState(() => _anonymous = !_anonymous),
-                      borderRadius: BorderRadius.circular(999),
-                      child: Row(
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            width: 46,
-                            height: 28,
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: _anonymous
-                                  ? const Color(0xFF14A3F7)
-                                  : const Color(0xFFD7E0E8),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Align(
-                              alignment: _anonymous
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                              child: Container(
-                                width: 22,
-                                height: 22,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
+                    _WriteCard(
+                      height: 90,
+                      child: InkWell(
+                        onTap: () => setState(() => _anonymous = !_anonymous),
+                        borderRadius: BorderRadius.circular(18),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '익명',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF111827),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    '닉네임이 노출되지 않아요',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF8B95A1),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            _SquareCheckBox(
+                              checked: _anonymous,
+                              onTap: () =>
+                                  setState(() => _anonymous = !_anonymous),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _WriteCard(
+                      height: 82,
+                      padding: const EdgeInsets.fromLTRB(20, 0, 24, 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _titleController,
+                              maxLength: _titleLimit,
+                              buildCounter: (_, {
+                                required currentLength,
+                                required isFocused,
+                                maxLength,
+                              }) =>
+                                  const SizedBox.shrink(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF111827),
+                                letterSpacing: 0,
+                              ),
+                              decoration: _plainInputDecoration('제목'),
+                            ),
                           ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '익명으로 작성',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF111111),
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  '익명 커뮤니티 규칙에 따라 이름 대신 익명으로 표시됩니다.',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF7D8790),
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            '$_titleLength/$_titleLimit',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: _titleLength > _titleLimit
+                                  ? const Color(0xFFE14B4B)
+                                  : const Color(0xFF8B95A1),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // 제목 + 본문 입력
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE6EDF3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _FieldHeader(
-                      title: '제목',
-                      trailing: '$_titleLength/$_titleLimit',
-                      isError: _titleLength > _titleLimit,
+                    const SizedBox(height: 14),
+                    _WriteCard(
+                      height: 330,
+                      padding: const EdgeInsets.fromLTRB(20, 18, 24, 20),
+                      child: Stack(
+                        children: [
+                          TextField(
+                            controller: _contentController,
+                            maxLines: null,
+                            expands: true,
+                            textAlignVertical: TextAlignVertical.top,
+                            maxLength: _contentLimit,
+                            buildCounter: (_, {
+                              required currentLength,
+                              required isFocused,
+                              maxLength,
+                            }) =>
+                                const SizedBox.shrink(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              height: 1.55,
+                              color: Color(0xFF2F3740),
+                              letterSpacing: 0,
+                            ),
+                            decoration: _plainInputDecoration('내용을 입력해주세요'),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Text(
+                              '$_contentLength/$_contentLimit',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: _contentLength > _contentLimit
+                                    ? const Color(0xFFE14B4B)
+                                    : const Color(0xFF8B95A1),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _titleController,
-                      maxLength: _titleLimit,
-                      buildCounter: (_, {
-                        required currentLength,
-                        required isFocused,
-                        maxLength,
-                      }) =>
-                          const SizedBox.shrink(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF111111),
+                    if (_showCrisisBanner) ...[
+                      const SizedBox(height: 14),
+                      const CrisisBanner(),
+                    ],
+                    const SizedBox(height: 14),
+                    _WriteCard(
+                      padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                '첨부파일',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              const Text(
+                                '(최대 5개)',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF8B95A1),
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '$attachedCount/$_maxFiles',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF2F80ED),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+                          _AttachmentSlots(
+                            existingMedia: _existingMedia,
+                            selectedFiles: _selectedFiles,
+                            isImageExtension: _isImageExtension,
+                            onAdd: attachedCount < _maxFiles ? _pickFiles : null,
+                            onRemoveExisting: _removeExistingMedia,
+                            onRemoveSelected: _removeFile,
+                          ),
+                          const SizedBox(height: 18),
+                          const Text(
+                            '파일당 10MB 이하 | jpg, jpeg, png, gif, webp, pdf',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF8B95A1),
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
                       ),
-                      decoration: InputDecoration(
-                        hintText: '제목을 입력하세요',
-                        hintStyle: const TextStyle(
-                          color: Color(0xFF9AA7B2),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF8FBFE),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 14,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _PollEditorSection(
+                      enabled: _pollEnabled,
+                      controllers: _pollOptionControllers,
+                      maxOptions: _maxPollOptions,
+                      isValid: _isPollValid,
+                      onToggle: _togglePoll,
+                      onAdd: _addPollOption,
+                      onRemove: _removePollOption,
                     ),
                     const SizedBox(height: 16),
-                    _FieldHeader(
-                      title: '본문',
-                      trailing: '$_contentLength/$_contentLimit',
-                      isError: _contentLength > _contentLimit,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _contentController,
-                      maxLines: 14,
-                      minLines: 10,
-                      maxLength: _contentLimit,
-                      buildCounter: (_, {
-                        required currentLength,
-                        required isFocused,
-                        maxLength,
-                      }) =>
-                          const SizedBox.shrink(),
-                      style: const TextStyle(
-                        fontSize: 15,
-                        height: 1.55,
-                        color: Color(0xFF2F3740),
-                      ),
-                      decoration: InputDecoration(
-                        hintText: '학교 생활, 질문, 정보 공유 등 자유롭게 작성해보세요.',
-                        hintStyle: const TextStyle(
-                          color: Color(0xFF9AA7B2),
-                          fontSize: 15,
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF8FBFE),
-                        contentPadding:
-                            const EdgeInsets.fromLTRB(14, 14, 14, 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
                   ],
-                ),
-              ),
-              if (_showCrisisBanner) ...[
-                const SizedBox(height: 14),
-                const CrisisBanner(),
-              ],
-              const SizedBox(height: 14),
-
-              _PollEditorSection(
-                enabled: _pollEnabled,
-                controllers: _pollOptionControllers,
-                maxOptions: _maxPollOptions,
-                isValid: _isPollValid,
-                onToggle: _togglePoll,
-                onAdd: _addPollOption,
-                onRemove: _removePollOption,
-              ),
-              const SizedBox(height: 14),
-
-              // 첨부파일 섹션
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE6EDF3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          '첨부파일',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF111111),
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${_selectedFiles.length}/$_maxFiles',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF7D8790),
-                          ),
-                        ),
-                      ],
-                    ),
-                    // 수정 모드에서 기존 첨부파일 표시
-                    if (widget.isEditMode &&
-                        _existingMedia.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      const Text(
-                        '기존 첨부파일',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF7D8790),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        height: 90,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _existingMedia.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 8),
-                          itemBuilder: (context, i) {
-                            final media = _existingMedia[i];
-                            return _ExistingMediaThumb(
-                              url: media.url,
-                              isImage: media.isImage,
-                              onRemove: () => _removeExistingMedia(i),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    // 새로 선택된 파일 미리보기
-                    if (_selectedFiles.isNotEmpty) ...[
-                      SizedBox(
-                        height: 90,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _selectedFiles.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 8),
-                          itemBuilder: (context, i) {
-                            final pf = _selectedFiles[i];
-                            return _NewFileThumb(
-                              platformFile: pf,
-                              isImage: _isImageExtension(pf.extension),
-                              onRemove: () => _removeFile(i),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _selectedFiles.length < _maxFiles
-                            ? _pickFiles
-                            : null,
-                        icon: const Icon(Icons.attach_file_rounded, size: 18),
-                        label: const Text('파일 첨부'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF14A3F7),
-                          side: const BorderSide(color: Color(0xFFD3EAFF)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // 등록/수정 버튼
-              SizedBox(
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: const Color(0xFF14A3F7),
-                    disabledBackgroundColor: const Color(0xFFD9EAF7),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                  ),
-                  child: Text(
-                    _isSubmitting
-                        ? (widget.isEditMode ? '게시글 수정 중...' : '게시글 등록 중...')
-                        : (widget.isEditMode ? '수정 완료' : '게시글 등록'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _plainInputDecoration(String hintText) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(
+        color: Color(0xFF8B95A1),
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      errorBorder: InputBorder.none,
+      focusedErrorBorder: InputBorder.none,
+      contentPadding: EdgeInsets.zero,
+      isDense: true,
+    );
+  }
+}
+
+class _WriteCard extends StatelessWidget {
+  final Widget child;
+  final double? height;
+  final EdgeInsetsGeometry padding;
+
+  const _WriteCard({
+    required this.child,
+    this.height,
+    this.padding = const EdgeInsets.fromLTRB(20, 0, 20, 0),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE3ECF5)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x05000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+}
+
+class _CircleIconBadge extends StatelessWidget {
+  final IconData icon;
+  final double size;
+
+  const _CircleIconBadge({required this.icon, this.size = 52});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF1F6FC),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: Color(0xFF2F80ED), size: size * 0.52),
+    );
+  }
+}
+
+class _SquareCheckBox extends StatelessWidget {
+  final bool checked;
+  final VoidCallback onTap;
+
+  const _SquareCheckBox({
+    required this.checked,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: checked ? const Color(0xFF2F80ED) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: checked ? const Color(0xFF2F80ED) : const Color(0xFFD6E0EA),
+            width: 2,
+          ),
+        ),
+        child: checked
+            ? const Icon(Icons.check_rounded, color: Colors.white, size: 22)
+            : null,
+      ),
+    );
+  }
+}
+
+class _AttachmentSlots extends StatelessWidget {
+  final List<PostMediaItem> existingMedia;
+  final List<PlatformFile> selectedFiles;
+  final bool Function(String? extension) isImageExtension;
+  final VoidCallback? onAdd;
+  final ValueChanged<int> onRemoveExisting;
+  final ValueChanged<int> onRemoveSelected;
+
+  const _AttachmentSlots({
+    required this.existingMedia,
+    required this.selectedFiles,
+    required this.isImageExtension,
+    required this.onAdd,
+    required this.onRemoveExisting,
+    required this.onRemoveSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(5, (index) {
+        final totalExisting = existingMedia.length;
+        final totalSelected = selectedFiles.length;
+
+        Widget child;
+        VoidCallback? onTap;
+        if (index < totalExisting) {
+          final media = existingMedia[index];
+          child = _ExistingMediaThumb(
+            url: media.url,
+            isImage: media.isImage,
+            onRemove: () => onRemoveExisting(index),
+          );
+        } else if (index < totalExisting + totalSelected) {
+          final selectedIndex = index - totalExisting;
+          final file = selectedFiles[selectedIndex];
+          child = _NewFileThumb(
+            platformFile: file,
+            isImage: isImageExtension(file.extension),
+            onRemove: () => onRemoveSelected(selectedIndex),
+          );
+        } else if (index == totalExisting + totalSelected) {
+          child = const _AddFileSlot();
+          onTap = onAdd;
+        } else {
+          child = const _EmptyFileSlot();
+        }
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: index == 4 ? 0 : 6),
+            child: GestureDetector(
+              onTap: onTap,
+              child: AspectRatio(aspectRatio: 1, child: child),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _AddFileSlot extends StatelessWidget {
+  const _AddFileSlot();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFB9D9FF), width: 1.4),
+      ),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.add_rounded, color: Color(0xFF2F80ED), size: 34),
+          SizedBox(height: 4),
+          Text(
+            '파일 추가',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF2F80ED),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyFileSlot extends StatelessWidget {
+  const _EmptyFileSlot();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFB9D9FF), width: 1.2),
       ),
     );
   }
@@ -775,38 +1008,57 @@ class _PollEditorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
-      ),
+    return _WriteCard(
+      padding: const EdgeInsets.fromLTRB(16, 18, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.poll_rounded, size: 19, color: Color(0xFF14A3F7)),
-              const SizedBox(width: 8),
-              const Text(
-                '투표',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+              const _CircleIconBadge(
+                icon: Icons.bar_chart_rounded,
+                size: 50,
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '투표 추가',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF111827),
+                        letterSpacing: 0,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      '투표로 의견을 모아보세요',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF8B95A1),
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const Spacer(),
               Switch(
                 value: enabled,
-                activeColor: const Color(0xFF14A3F7),
+                activeThumbColor: Colors.white,
+                activeTrackColor: const Color(0xFF2F80ED),
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFD7DDE5),
                 onChanged: (_) => onToggle(),
               ),
             ],
           ),
           if (enabled) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             ...controllers.asMap().entries.map((entry) {
               final index = entry.key;
               final controller = entry.value;
@@ -822,8 +1074,7 @@ class _PollEditorSection extends StatelessWidget {
                           required currentLength,
                           required isFocused,
                           maxLength,
-                        }) =>
-                            const SizedBox.shrink(),
+                        }) => const SizedBox.shrink(),
                         decoration: InputDecoration(
                           hintText: '항목 ${index + 1}',
                           filled: true,
@@ -842,7 +1093,9 @@ class _PollEditorSection extends StatelessWidget {
                     const SizedBox(width: 8),
                     IconButton(
                       tooltip: '항목 삭제',
-                      onPressed: controllers.length > 2 ? () => onRemove(index) : null,
+                      onPressed: controllers.length > 2
+                          ? () => onRemove(index)
+                          : null,
                       icon: const Icon(Icons.remove_circle_outline_rounded),
                       color: const Color(0xFFE05C5C),
                     ),
@@ -869,7 +1122,7 @@ class _PollEditorSection extends StatelessWidget {
                 icon: const Icon(Icons.add_rounded, size: 18),
                 label: Text('항목 추가 (${controllers.length}/$maxOptions)'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF14A3F7),
+                  foregroundColor: const Color(0xFF2F80ED),
                   side: const BorderSide(color: Color(0xFFD3EAFF)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -878,13 +1131,13 @@ class _PollEditorSection extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
           ],
         ],
       ),
     );
   }
 }
-
 /// 수정 모드에서 기존 서버 이미지 썸네일 (삭제 버튼 포함)
 class _ExistingMediaThumb extends StatelessWidget {
   final String url;
@@ -907,8 +1160,8 @@ class _ExistingMediaThumb extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          width: 90,
-          height: 90,
+          width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
             color: const Color(0xFFF0F4F8),
             borderRadius: BorderRadius.circular(10),
@@ -994,8 +1247,8 @@ class _NewFileThumb extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          width: 90,
-          height: 90,
+          width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
             color: const Color(0xFFF0F4F8),
             borderRadius: BorderRadius.circular(10),
@@ -1098,47 +1351,6 @@ class _FilePlaceholder extends StatelessWidget {
             ),
           ),
         ],
-      ],
-    );
-  }
-}
-
-/// 입력 영역 제목과 글자 수를 표시하는 위젯
-class _FieldHeader extends StatelessWidget {
-  final String title;
-  final String trailing;
-  final bool isError;
-
-  const _FieldHeader({
-    required this.title,
-    required this.trailing,
-    required this.isError,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final trailingColor =
-        isError ? const Color(0xFFE14B4B) : const Color(0xFF7D8790);
-
-    return Row(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
-          ),
-        ),
-        const Spacer(),
-        Text(
-          trailing,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: trailingColor,
-          ),
-        ),
       ],
     );
   }

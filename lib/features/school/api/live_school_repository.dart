@@ -49,11 +49,33 @@ class LiveSchoolRepository implements SchoolRepository {
   }
 
   @override
+  Future<BoardPostPage> getAllPostsBySchool({
+    required int schoolId,
+    int page = 0,
+    int size = 10,
+  }) {
+    return api.getAllPostsBySchool(schoolId: schoolId, page: page, size: size);
+  }
+
+  @override
   Future<List<PostSummary>> getHotPosts({
     required int schoolId,
     required HotFilter filter,
     int size = 20,
   }) {
     return api.getHotPosts(schoolId: schoolId, filter: filter, size: size);
+  }
+
+  @override
+  Future<List<PostSummary>> getTopRecommendedPosts({
+    required int schoolId,
+    int hours = 3,
+    int size = 3,
+  }) {
+    return api.getTopRecommendedPosts(
+      schoolId: schoolId,
+      hours: hours,
+      size: size,
+    );
   }
 }

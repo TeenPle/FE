@@ -11,6 +11,7 @@ class SchoolState {
   final List<BoardModel> boards;
   final int? selectedBoardId;
   final List<PostSummary> posts;
+  final List<PostSummary> topRecommendedPosts;
   final List<PostSummary> hotPosts;
   final HotFilter hotFilter;
   final bool isLoadingHot;
@@ -31,6 +32,7 @@ class SchoolState {
     required this.boards,
     required this.selectedBoardId,
     required this.posts,
+    required this.topRecommendedPosts,
     required this.hotPosts,
     required this.hotFilter,
     required this.isLoadingHot,
@@ -53,12 +55,13 @@ class SchoolState {
       boards: [],
       selectedBoardId: null,
       posts: [],
+      topRecommendedPosts: [],
       hotPosts: [],
       hotFilter: HotFilter.week,
       isLoadingHot: false,
       sortType: PostSortType.latest,
       currentPage: 0,
-      pageSize: 5,
+      pageSize: 10,
       hasNext: false,
       isLoading: false,
       isRefreshing: false,
@@ -74,7 +77,9 @@ class SchoolState {
     String? schoolDescription,
     List<BoardModel>? boards,
     int? selectedBoardId,
+    bool clearSelectedBoard = false,
     List<PostSummary>? posts,
+    List<PostSummary>? topRecommendedPosts,
     List<PostSummary>? hotPosts,
     HotFilter? hotFilter,
     bool? isLoadingHot,
@@ -94,8 +99,9 @@ class SchoolState {
       schoolName: schoolName ?? this.schoolName,
       schoolDescription: schoolDescription ?? this.schoolDescription,
       boards: boards ?? this.boards,
-      selectedBoardId: selectedBoardId ?? this.selectedBoardId,
+      selectedBoardId: clearSelectedBoard ? null : (selectedBoardId ?? this.selectedBoardId),
       posts: posts ?? this.posts,
+      topRecommendedPosts: topRecommendedPosts ?? this.topRecommendedPosts,
       hotPosts: hotPosts ?? this.hotPosts,
       hotFilter: hotFilter ?? this.hotFilter,
       isLoadingHot: isLoadingHot ?? this.isLoadingHot,

@@ -79,6 +79,41 @@ class SchoolApi {
     return response.result!;
   }
 
+  /// 학교 전체 게시판의 최신 게시글을 페이지 단위로 조회
+  Future<BoardPostPage> getAllPostsBySchool({
+    required int schoolId,
+    int page = 0,
+    int size = 10,
+  }) async {
+    final json = await client.get(
+      '/api/schools/$schoolId/posts',
+      queryParameters: {
+        'page': '$page',
+        'size': '$size',
+      },
+    );
+
+    final response = ApiResponse.fromJson(
+      json,
+      (data) {
+        final map = data as Map<String, dynamic>;
+        final content = (map['content'] as List<dynamic>? ?? [])
+            .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return BoardPostPage(
+          posts: content,
+          hasNext: map['hasNext'] as bool? ?? false,
+        );
+      },
+    );
+
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+
+    return response.result!;
+  }
+
   /// HOT 게시글 목록 조회 (filter: TODAY / WEEK / ALL)
   Future<List<PostSummary>> getHotPosts({
     required int schoolId,
@@ -89,6 +124,33 @@ class SchoolApi {
       '/api/schools/$schoolId/posts/hot',
       queryParameters: {
         'filter': filter.queryValue,
+        'size': '$size',
+      },
+    );
+
+    final response = ApiResponse.fromJson(
+      json,
+      (data) => (data as List<dynamic>)
+          .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+
+    return response.result!;
+  }
+
+  Future<List<PostSummary>> getTopRecommendedPosts({
+    required int schoolId,
+    int hours = 3,
+    int size = 3,
+  }) async {
+    final json = await client.get(
+      '/api/schools/$schoolId/posts/top-recommended',
+      queryParameters: {
+        'hours': '$hours',
         'size': '$size',
       },
     );

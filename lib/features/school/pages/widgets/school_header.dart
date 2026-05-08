@@ -21,43 +21,61 @@ class SchoolHeader extends ConsumerWidget {
     );
 
     return Container(
-      color: const Color(0xFFF3F9FF),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          children: [
-            Container(width: 28, height: 28, color: const Color(0xFF9A9A9A)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                schoolName,
-                style: const TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
+      color: const Color(0xFFF6FBFF),
+      padding: const EdgeInsets.fromLTRB(26, 12, 26, 12),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/Logo.png',
+            width: 44,
+            height: 44,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    schoolName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF050505),
+                      letterSpacing: 0,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.verified_rounded,
+                  size: 18,
+                  color: Color(0xFF229BF3),
+                ),
+              ],
             ),
-            GestureDetector(
-              onTap: onSearchTap,
-              child: const _CircleIcon(icon: Icons.search),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: onSearchTap,
+            child: const _HeaderIcon(icon: Icons.search_rounded),
+          ),
+          const SizedBox(width: 13),
+          GestureDetector(
+            onTap: () async {
+              await context.push(AppRoutes.notifications);
+              if (context.mounted) {
+                ref.read(notificationProvider.notifier).loadUnreadCount();
+              }
+            },
+            child: _BadgeIcon(
+              icon: Icons.notifications_none_rounded,
+              count: unreadCount,
             ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () async {
-                await context.push(AppRoutes.notifications);
-                if (context.mounted) {
-                  ref.read(notificationProvider.notifier).loadUnreadCount();
-                }
-              },
-              child: _BadgeIcon(
-                icon: Icons.notifications_none,
-                count: unreadCount,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -74,16 +92,16 @@ class _BadgeIcon extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Icon(icon, size: 28, color: Colors.black87),
+        Icon(icon, size: 29, color: Color(0xFF0B0B0B)),
         if (count > 0)
           Positioned(
-            top: -4,
-            right: -4,
+            top: 1,
+            right: 1,
             child: Container(
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               padding: const EdgeInsets.symmetric(horizontal: 4),
               decoration: const BoxDecoration(
-                color: Color(0xFFE05C7B),
+                color: Color(0xFFFF4E5D),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -103,13 +121,13 @@ class _BadgeIcon extends StatelessWidget {
   }
 }
 
-class _CircleIcon extends StatelessWidget {
+class _HeaderIcon extends StatelessWidget {
   final IconData icon;
 
-  const _CircleIcon({required this.icon});
+  const _HeaderIcon({required this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(icon, size: 28, color: Colors.black87);
+    return Icon(icon, size: 29, color: const Color(0xFF0B0B0B));
   }
 }

@@ -21,10 +21,23 @@ abstract class SchoolRepository {
     int size = 10,
   });
 
+  /// 학교 전체 게시판의 최신 게시글을 페이지 단위로 조회
+  Future<BoardPostPage> getAllPostsBySchool({
+    required int schoolId,
+    int page = 0,
+    int size = 10,
+  });
+
   /// HOT 게시글 목록 조회
   Future<List<PostSummary>> getHotPosts({
     required int schoolId,
     required HotFilter filter,
     int size = 20,
+  });
+
+  Future<List<PostSummary>> getTopRecommendedPosts({
+    required int schoolId,
+    int hours = 3,
+    int size = 3,
   });
 }

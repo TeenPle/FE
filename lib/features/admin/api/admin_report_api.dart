@@ -12,6 +12,16 @@ class AdminReportApi {
 
   AdminReportApi(this._client);
 
+  Future<int> getPendingReportCount() async {
+    final res = await _client.get(
+      '/api/admin/reports',
+      queryParameters: {'status': 'PENDING', 'page': '0', 'size': '1'},
+    );
+    final result = res['result'] as Map<String, dynamic>?;
+    return (result?['totalElements'] as num?)?.toInt() ??
+        ((result?['content'] as List<dynamic>?)?.length ?? 0);
+  }
+
   Future<List<ReportSummaryModel>> getReports({
     required String status,
     int page = 0,

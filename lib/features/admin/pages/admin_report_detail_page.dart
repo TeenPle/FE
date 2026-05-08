@@ -138,6 +138,27 @@ class _AdminReportDetailPageState
                         height: 1.6),
                   ),
                 ),
+                if (detail.targetType == 'POST') ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push(
+                        AppRoutes.adminPostDetail(detail.targetId),
+                      ),
+                      icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                      label: const Text('관리자 게시글 상세 보기'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF5A8EA8),
+                        side: const BorderSide(color: Color(0xFFBBD3DF)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
 
                 // 처리 옵션 (PENDING일 때만)

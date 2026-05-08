@@ -15,6 +15,7 @@ import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
 import '../models/profile_model.dart';
 import '../provider/profile_provider.dart';
+import '../widgets/block_summary_tile.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -548,11 +549,7 @@ class _SettingsSection extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.editPassword),
             ),
             const _ProfileSettingsDivider(),
-            _ProfileSettingsTile(
-              icon: Icons.block_rounded,
-              label: '차단 목록',
-              onTap: () => context.push(AppRoutes.blockedUsers),
-            ),
+            const BlockSummaryTile(),
             const _ProfileSettingsDivider(),
             _ProfileSettingsTile(
               icon: Icons.gavel_rounded,

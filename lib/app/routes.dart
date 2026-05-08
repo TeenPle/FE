@@ -3,9 +3,13 @@ import 'package:go_router/go_router.dart';
 
 import '../core/storage/token_storage.dart';
 import '../features/admin/pages/admin_home_page.dart';
+import '../features/admin/pages/admin_board_posts_page.dart';
+import '../features/admin/pages/admin_post_detail_page.dart';
 import '../features/admin/pages/admin_report_detail_page.dart';
 import '../features/admin/pages/admin_penalty_list_page.dart';
 import '../features/admin/pages/admin_report_list_page.dart';
+import '../features/admin/pages/admin_school_boards_page.dart';
+import '../features/admin/pages/admin_school_list_page.dart';
 import '../features/admin/pages/admin_user_history_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
@@ -42,7 +46,6 @@ import '../features/dday/pages/dday_settings_page.dart';
 import '../features/school/pages/hot_board_page.dart';
 import '../features/profile/pages/privacy_policy_page.dart';
 import '../features/profile/pages/profile_page.dart';
-import '../features/profile/pages/blocked_users_page.dart';
 import '../features/profile/pages/settings_page.dart';
 import '../features/profile/pages/terms_page.dart';
 import '../features/chat/pages/chat_room_list_page.dart';
@@ -92,6 +95,18 @@ class AppRoutes {
 
   /// 관리자 메인 페이지
   static const adminHome = '/admin/home';
+
+  /// 관리자 학교 모니터링
+  static const adminSchools = '/admin/schools';
+
+  /// 관리자 학교별 게시판
+  static String adminSchoolBoards(int schoolId) => '/admin/schools/$schoolId/boards';
+
+  /// 관리자 게시판별 게시글
+  static String adminBoardPosts(int boardId) => '/admin/boards/$boardId/posts';
+
+  /// 관리자 게시글 상세
+  static String adminPostDetail(int postId) => '/admin/posts/$postId';
 
   /// 관리자 인증 요청 목록 페이지
   static const adminVerificationList = '/admin/verification-requests';
@@ -180,9 +195,6 @@ class AppRoutes {
   /// HOT 게시판 전체 보기
   static const hotBoard = '/hot';
 
-  /// 차단 목록 페이지
-  static const blockedUsers = '/settings/blocked-users';
-
   /// 내 북마크 페이지
   static const myBookmarks = '/profile/bookmarks';
 
@@ -263,6 +275,48 @@ final GoRouter router = GoRouter(
       path: AppRoutes.adminHome,
       redirect: _adminOnly,
       builder: (context, state) => const AdminHomePage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.adminSchools,
+      redirect: _adminOnly,
+      builder: (context, state) => const AdminSchoolListPage(),
+    ),
+
+    GoRoute(
+      path: '/admin/schools/:schoolId/boards',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final schoolId = int.parse(state.pathParameters['schoolId']!);
+        final extra = state.extra as Map<String, dynamic>?;
+        return AdminSchoolBoardsPage(
+          schoolId: schoolId,
+          schoolName: extra?['schoolName'] as String? ?? '학교 게시판',
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/admin/boards/:boardId/posts',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final boardId = int.parse(state.pathParameters['boardId']!);
+        final extra = state.extra as Map<String, dynamic>?;
+        return AdminBoardPostsPage(
+          boardId: boardId,
+          boardTitle: extra?['boardTitle'] as String? ?? '게시글 목록',
+          schoolName: extra?['schoolName'] as String?,
+        );
+      },
+    ),
+
+    GoRoute(
+      path: '/admin/posts/:postId',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final postId = int.parse(state.pathParameters['postId']!);
+        return AdminPostDetailPage(postId: postId);
+      },
     ),
 
     GoRoute(
@@ -470,11 +524,6 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.hotBoard,
       builder: (context, state) => const HotBoardPage(),
-    ),
-
-    GoRoute(
-      path: AppRoutes.blockedUsers,
-      builder: (context, state) => const BlockedUsersPage(),
     ),
 
     GoRoute(

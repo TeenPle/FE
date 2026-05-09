@@ -27,6 +27,8 @@ import 'widgets/school_header.dart';
 
 enum _HomeTab { feed, popular, boards }
 
+const bool _showSchoolMainAdTestSlot = true;
+
 class SchoolPage extends ConsumerStatefulWidget {
   const SchoolPage({super.key});
 
@@ -474,21 +476,37 @@ class _FeedList extends StatelessWidget {
     }
 
     final totalPostCount = topRecommendedPosts.length + feedPosts.length;
+    final showAdSlot = _showSchoolMainAdTestSlot && totalPostCount > 0;
+    final adInsertIndex = topRecommendedPosts.isNotEmpty ? 1 : 0;
+    final totalItemCount = totalPostCount + (showAdSlot ? 1 : 0) + 1;
+
     return ListView.separated(
       controller: controller,
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-      itemCount: totalPostCount + 1,
+      itemCount: totalItemCount,
       separatorBuilder: (context, index) {
-        if (index >= totalPostCount - 1) return const SizedBox.shrink();
+        if (index >= totalItemCount - 2) return const SizedBox.shrink();
         return const Divider(
           height: 1, thickness: 1, color: Color(0xFFD5DDE6),
           indent: 12, endIndent: 12,
         );
       },
       itemBuilder: (context, index) {
-        if (index < topRecommendedPosts.length) {
-          final post = topRecommendedPosts[index];
+        if (index == totalItemCount - 1) {
+          return _PagingFooter(hasNext: hasNext, isLoading: isLoadingMore);
+        }
+
+        if (showAdSlot && index == adInsertIndex) {
+          return const _SchoolMainAdCard();
+        }
+
+        final postIndex = showAdSlot && index > adInsertIndex
+            ? index - 1
+            : index;
+
+        if (postIndex < topRecommendedPosts.length) {
+          final post = topRecommendedPosts[postIndex];
           return Container(
             color: const Color(0xFFF6FBFF),
             child: PostSummaryCard(
@@ -502,11 +520,7 @@ class _FeedList extends StatelessWidget {
           );
         }
 
-        final feedIndex = index - topRecommendedPosts.length;
-        if (feedIndex == feedPosts.length) {
-          return _PagingFooter(hasNext: hasNext, isLoading: isLoadingMore);
-        }
-
+        final feedIndex = postIndex - topRecommendedPosts.length;
         final post = feedPosts[feedIndex];
         return Container(
           color: const Color(0xFFF6FBFF),
@@ -519,6 +533,136 @@ class _FeedList extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SchoolMainAdCard extends StatelessWidget {
+  const _SchoolMainAdCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFFF6FBFF),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: () {},
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(15, 13, 15, 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFDCE8F2)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0D000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF8F1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.local_offer_outlined,
+                    color: Color(0xFF12A66A),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF4DF),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              'AD',
+                              style: TextStyle(
+                                fontSize: 9,
+                                height: 1,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFB26A00),
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 7),
+                          const Expanded(
+                            child: Text(
+                              '학교생활 제휴 안내',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF6E7A86),
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 9),
+                      const Text(
+                        '우리 학교 근처 스터디 혜택 모아보기',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.2,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF111111),
+                          letterSpacing: 0,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      const Text(
+                        '청소년 이용 가능 제휴만 검수해서 보여주는 테스트 광고 영역입니다.',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          height: 1.35,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF59616C),
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: Color(0xFF9AA7B2),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

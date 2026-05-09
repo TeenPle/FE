@@ -57,7 +57,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
                 Expanded(
                   child: Text(
                     '익명성은 유지하되, 신고 처리와 안전 운영에 필요한 콘텐츠만 운영 권한으로 확인합니다.',
-                    style: TextStyle(fontSize: 13, height: 1.45, color: Color(0xFF29485A)),
+                    style: TextStyle(fontSize: 11, height: 1.45, color: Color(0xFF29485A)),
                   ),
                 ),
               ],
@@ -227,14 +227,14 @@ class _ConsoleTile extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.3),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.3),
               ),
             ],
           ),
@@ -253,7 +253,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF334155)),
+      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF334155)),
     );
   }
 }
@@ -284,7 +284,7 @@ class _PendingBadge extends StatelessWidget {
         label,
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w800,
           color: count > 0 ? Colors.white : color,
         ),
@@ -324,12 +324,12 @@ class _GuidelineTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   body,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.4),
                 ),
               ],
             ),

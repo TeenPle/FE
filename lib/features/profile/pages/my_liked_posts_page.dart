@@ -50,7 +50,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
         title: const Text(
           '내가 공감한 글',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -74,7 +74,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
             SizedBox(height: 12),
             Text(
               '아직 공감한 글이 없어요.',
-              style: TextStyle(fontSize: 15, color: Color(0xFF9AA7B2)),
+              style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
             ),
           ],
         ),
@@ -109,7 +109,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
                 Text(
                   post.title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF111111),
                   ),
@@ -120,7 +120,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
                 Text(
                   post.preview,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     height: 1.5,
                     color: Color(0xFF6E7B87),
                   ),
@@ -136,7 +136,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
                     Text(
                       '${post.likeCount}',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF14A3F7),
                         fontWeight: FontWeight.w600,
                       ),
@@ -148,7 +148,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
                     Text(
                       '${post.commentCount}',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF9AA7B2),
                         fontWeight: FontWeight.w600,
                       ),

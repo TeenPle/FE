@@ -35,7 +35,7 @@ class SettingsPage extends ConsumerWidget {
         title: const Text(
           '설정',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -206,7 +206,7 @@ class _ThemeCard extends ConsumerWidget {
               const Text(
                 '테마',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF111111),
                 ),
@@ -267,7 +267,7 @@ class _ThemeSegment extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : const Color(0xFF9AA7B2),
           ),
@@ -391,7 +391,7 @@ class _NotificationToggleTile extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: color,
             ),
@@ -469,7 +469,7 @@ class _InfoTile extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Color(0xFF111111),
             ),
@@ -478,7 +478,7 @@ class _InfoTile extends StatelessWidget {
           Text(
             trailing,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: Color(0xFF9AA7B2),
             ),
           ),
@@ -503,7 +503,7 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 13,
+          fontSize: 11,
           fontWeight: FontWeight.w700,
           color: Color(0xFF9AA7B2),
           letterSpacing: 0.3,
@@ -571,7 +571,7 @@ class _SettingsTile extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

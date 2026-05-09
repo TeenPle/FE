@@ -50,7 +50,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 14),
+      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12),
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -94,7 +94,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
             ),
             child: Text(
               state.isLoading ? '조회 중...' : '아이디 찾기',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -118,7 +118,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
               const Text(
                 '아이디 찾기',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -129,7 +129,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
               const Text(
                 '가입할 때 입력한\n이름과 전화번호를 입력해주세요.',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                   letterSpacing: -0.5,
@@ -141,7 +141,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
 
               const Text(
                 '입력한 정보와 일치하는 아이디를 알려드릴게요.',
-                style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF555555)),
+                style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF555555)),
               ),
 
               const SizedBox(height: 32),
@@ -149,7 +149,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
               const Text(
                 '이름',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -170,7 +170,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
               const Text(
                 '휴대폰 번호',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -198,7 +198,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
                 const SizedBox(height: 10),
                 Text(
                   state.errorMessage!,
-                  style: const TextStyle(fontSize: 12, color: Colors.red),
+                  style: const TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
             ],

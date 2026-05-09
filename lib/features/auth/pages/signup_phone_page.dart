@@ -87,7 +87,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
       hintText: hintText,
       hintStyle: const TextStyle(
         color: Color(0xFFB0B0B0),
-        fontSize: 14,
+        fontSize: 12,
       ),
       filled: true,
       fillColor: Colors.white,
@@ -172,7 +172,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
             child: const Text(
               '다음',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -205,7 +205,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               const Text(
                 '7/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -217,7 +217,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               const Text(
                 '연락처 정보',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -229,7 +229,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               const Text(
                 '전화번호를 등록해주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -243,7 +243,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               const Text(
                 '계정 확인과 안내에 사용할 휴대폰 번호예요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -255,7 +255,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               const Text(
                 '휴대폰 번호',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -290,7 +290,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     return const Text(
                       '예시) 01012345678',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF6B7280),
                       ),
                     );
@@ -300,7 +300,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     return const Text(
                       '예시) 01012345678',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     );
@@ -310,7 +310,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     return const Text(
                       '전화번호 사용 가능 여부를 확인하고 있어요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF4A67F2),
                       ),
                     );
@@ -320,7 +320,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     return Text(
                       phoneCheckState.errorMessage!,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     );
@@ -330,7 +330,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     return const Text(
                       '이미 사용 중인 전화번호예요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     );
@@ -340,7 +340,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     return const Text(
                       '등록 가능한 전화번호예요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF4A67F2),
                       ),
                     );
@@ -349,7 +349,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                   return const Text(
                     '예시) 01012345678',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF6B7280),
                     ),
                   );

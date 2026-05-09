@@ -143,7 +143,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           hintText: '제목, 본문으로 검색',
                           hintStyle: const TextStyle(
                             color: Color(0xFF9AA7B2),
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                           prefixIcon: const Icon(
                             Icons.search,
@@ -176,7 +176,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     child: const Text(
                       '검색',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF111111),
                       ),
@@ -198,7 +198,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ? '"${state.keyword}" 검색 결과${state.scopeTitle == null ? '' : ' · ${state.scopeTitle}'}'
                   : '${state.scopeTitle ?? '전체 게시판'}에서 제목이나 본문 키워드를 검색해보세요.',
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF6E7A86),
               ),
@@ -355,13 +355,13 @@ class _SearchResultCard extends StatelessWidget {
                     keyword: keyword,
                     maxLines: 2,
                     defaultStyle: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111111),
                       height: 1.2,
                     ),
                     highlightStyle: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF0E9BFF),
                       height: 1.2,
@@ -373,13 +373,13 @@ class _SearchResultCard extends StatelessWidget {
                     keyword: keyword,
                     maxLines: 3,
                     defaultStyle: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Color(0xFF222222),
                       height: 1.35,
                       fontWeight: FontWeight.w500,
                     ),
                     highlightStyle: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF0E9BFF),
                       height: 1.35,
@@ -391,7 +391,7 @@ class _SearchResultCard extends StatelessWidget {
                       Text(
                         _timeText,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Color(0xFF8E8E8E),
                           fontWeight: FontWeight.w500,
                         ),
@@ -400,7 +400,7 @@ class _SearchResultCard extends StatelessWidget {
                       const Text(
                         '|',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Color(0xFFC3C3C3),
                         ),
                       ),
@@ -408,7 +408,7 @@ class _SearchResultCard extends StatelessWidget {
                       Text(
                         post.displayAuthorName,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Color(0xFF8E8E8E),
                           fontWeight: FontWeight.w500,
                         ),
@@ -533,7 +533,7 @@ class _MetaText extends StatelessWidget {
         Text(
           text,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 11,
             fontWeight: FontWeight.w600,
             color: color,
           ),
@@ -577,7 +577,7 @@ class _RecentSearchSection extends StatelessWidget {
             const Text(
               '최근 검색어',
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF111111),
               ),
@@ -589,7 +589,7 @@ class _RecentSearchSection extends StatelessWidget {
               child: const Text(
                 '전체 삭제',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF7D8790),
                 ),
@@ -625,7 +625,7 @@ class _RecentSearchSection extends StatelessWidget {
                           child: Text(
                             keyword,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF111111),
                             ),
@@ -665,7 +665,7 @@ class _SearchInitialState extends StatelessWidget {
         child: Text(
           '최근 검색어가 없어요.\n찾고 싶은 게시글의 제목이나 본문 키워드를 입력해보세요.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF7D8790)),
+          style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF7D8790)),
         ),
       ),
     );
@@ -685,7 +685,7 @@ class _SearchEmptyState extends StatelessWidget {
           '검색 결과가 없어요.',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: Color(0xFF7D8790),
           ),
@@ -735,7 +735,7 @@ class _LoadMoreSection extends StatelessWidget {
         child: const Text(
           '검색 결과 더보기',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
             color: Color(0xFF5C6975),
           ),

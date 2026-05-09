@@ -106,7 +106,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                     child: Text(
                       currentBoardTitle,
                       style: const TextStyle(
-                        fontSize: 19,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF111111),
                       ),
@@ -396,7 +396,7 @@ class _ModernBoardHeader extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 19,
+                      fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111111),
                     ),
@@ -427,7 +427,7 @@ class _ModernBoardHeader extends ConsumerWidget {
                 Text(
                   postCount == 0 ? '게시글을 기다리는 중' : '최근 게시글 $postCount개 표시 중',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF6E7A86),
                   ),
@@ -460,7 +460,7 @@ class _ModernBoardToolbar extends StatelessWidget {
           const Text(
             '게시글',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -548,7 +548,7 @@ class _ModernEmptyBoardPostState extends StatelessWidget {
           Text(
             '아직 게시글이 없어요',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -558,7 +558,7 @@ class _ModernEmptyBoardPostState extends StatelessWidget {
             '첫 게시글을 작성해서 이야기를 시작해보세요.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 11,
               height: 1.5,
               color: Color(0xFF7D8790),
             ),
@@ -598,7 +598,7 @@ class _SortSegment extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w800,
             color: selected ? Colors.white : const Color(0xFF6E7A86),
           ),
@@ -768,7 +768,7 @@ class _TodayLatestTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF26343D),
                     ),
@@ -785,7 +785,7 @@ class _TodayLatestTile extends StatelessWidget {
               Text(
                 post.likeCount > 99 ? '99+' : '${post.likeCount}',
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFFE05C5C),
                 ),
@@ -883,7 +883,7 @@ class _SortDropdown extends StatelessWidget {
           Text(
             selectedSortType == PostSortType.latest ? '최신순' : '인기순',
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
               color: Color(0xFF5A5A5A),
             ),
@@ -926,7 +926,7 @@ class _SearchPill extends StatelessWidget {
             Text(
               '검색',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF6A6A6A),
               ),
@@ -953,7 +953,7 @@ class _EmptyBoardPostState extends StatelessWidget {
           Text(
             '아직 게시글이 없어요.',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -963,7 +963,7 @@ class _EmptyBoardPostState extends StatelessWidget {
             '첫 게시글을 작성해서 이야기를 시작해보세요.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 11,
               height: 1.5,
               color: Color(0xFF7D8790),
             ),
@@ -1002,7 +1002,7 @@ class _LoadMoreSection extends StatelessWidget {
           child: Text(
             '마지막 게시글까지 확인했어요.',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: Color(0xFF7D8790),
               fontWeight: FontWeight.w600,
             ),
@@ -1025,7 +1025,7 @@ class _LoadMoreSection extends StatelessWidget {
         child: const Text(
           '게시글 더보기',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
             color: Color(0xFF5C6975),
           ),

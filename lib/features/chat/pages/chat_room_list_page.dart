@@ -62,7 +62,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
         title: const Text(
           '채팅',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -93,7 +93,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                 controller: _searchController,
                 decoration: const InputDecoration(
                   hintText: '대화방 검색',
-                  hintStyle: TextStyle(fontSize: 15, color: Color(0xFFB0BEC5)),
+                  hintStyle: TextStyle(fontSize: 13, color: Color(0xFFB0BEC5)),
                   prefixIcon: Icon(
                     Icons.search_rounded,
                     color: Color(0xFFB0BEC5),
@@ -102,7 +102,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 13),
                 ),
-                style: const TextStyle(fontSize: 15, color: Color(0xFF111111)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF111111)),
               ),
             ),
           ),
@@ -177,7 +177,7 @@ class _EmptyView extends StatelessWidget {
                         ? '채팅 목록을 불러오지 못했습니다.'
                         : '아직 채팅이 없어요.',
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF111111),
                 ),
@@ -188,7 +188,7 @@ class _EmptyView extends StatelessWidget {
                     ? '다른 검색어를 입력해보세요.'
                     : '게시글이나 댓글에서 채팅을 시작해보세요!',
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Color(0xFF7D8790),
                 ),
               ),
@@ -266,7 +266,7 @@ class _ChatRoomItem extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF111111),
                           ),
@@ -288,7 +288,7 @@ class _ChatRoomItem extends ConsumerWidget {
                       const Text(
                         '익명',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF1DA1F2),
                         ),
@@ -297,7 +297,7 @@ class _ChatRoomItem extends ConsumerWidget {
                         const Text(
                           '  ·  ',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: Color(0xFFB0BEC5),
                           ),
                         ),
@@ -307,7 +307,7 @@ class _ChatRoomItem extends ConsumerWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 11,
                               color: Color(0xFF9AA7B2),
                             ),
                           ),
@@ -328,7 +328,7 @@ class _ChatRoomItem extends ConsumerWidget {
                 Text(
                   _formatTime(room.lastMessageAt),
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF9AA7B2),
                   ),
                 ),
@@ -344,7 +344,7 @@ class _ChatRoomItem extends ConsumerWidget {
                     child: Text(
                       room.unreadCount > 99 ? '99+' : '${room.unreadCount}',
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -361,7 +361,7 @@ class _ChatRoomItem extends ConsumerWidget {
                     child: const Text(
                       '차단',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF6B7280),
                       ),

@@ -173,7 +173,7 @@ class _CommentBody extends StatelessWidget {
                         Text(
                           comment.displayAuthorName,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF111111),
                           ),
@@ -190,7 +190,7 @@ class _CommentBody extends StatelessWidget {
                           child: Text(
                             createdAtText,
                             style: const TextStyle(
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF7D8790),
                             ),
@@ -263,7 +263,7 @@ class _CommentBody extends StatelessWidget {
                 Text(
                   comment.content,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     height: 1.5,
                     color: Color(0xFF2F3740),
                   ),
@@ -320,7 +320,7 @@ class _DeletedCommentPlaceholder extends StatelessWidget {
         const Text(
           '삭제된 댓글입니다.',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             color: Color(0xFF95A3AF),
             fontStyle: FontStyle.italic,
           ),
@@ -360,7 +360,7 @@ class _InlineActionButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

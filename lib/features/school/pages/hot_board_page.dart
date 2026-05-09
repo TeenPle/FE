@@ -64,13 +64,13 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                       children: [
                         Text(
                           '🔥',
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 15),
                         ),
                         SizedBox(width: 6),
                         Text(
                           'HOT 게시판',
                           style: TextStyle(
-                            fontSize: 19,
+                            fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF111111),
                           ),
@@ -152,7 +152,7 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                       child: Text(
                         f.label,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: selected
                               ? Colors.white
@@ -229,12 +229,12 @@ class _EmptyHotState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 44)),
+          const Text('🔥', style: TextStyle(fontSize: 36)),
           const SizedBox(height: 14),
           Text(
             '${filter.label} HOT 게시글이 없어요',
             style: const TextStyle(
-              fontSize: 17,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -242,7 +242,7 @@ class _EmptyHotState extends StatelessWidget {
           const SizedBox(height: 6),
           const Text(
             '좋아요를 많이 받은 글이 여기에 모여요.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
           ),
         ],
       ),

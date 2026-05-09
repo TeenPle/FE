@@ -165,7 +165,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               child: Text(
                                 'T',
                                 style: TextStyle(
-                                  fontSize: 40,
+                                  fontSize: 32,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFF4A67F2),
                                 ),
@@ -183,7 +183,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     child: Text(
                       'TeenPle',
                       style: TextStyle(
-                        fontSize: 32,
+                        fontSize: 26,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.8,
                         color: Color(0xFF111111),
@@ -198,7 +198,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       '우리 학교와 동네를 잇는 학생 커뮤니티',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         height: 1.5,
                         color: Color(0xFF666666),
                       ),
@@ -219,7 +219,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     decoration: InputDecoration(
                       hintText: '이메일을 입력해주세요.',
                       hintStyle: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Color(0xFFB3B3B3),
                       ),
                       filled: true,
@@ -270,7 +270,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     decoration: InputDecoration(
                       hintText: '비밀번호를 입력해주세요.',
                       hintStyle: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Color(0xFFB3B3B3),
                       ),
                       filled: true,
@@ -351,7 +351,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             const Text(
                               '로그인 상태 유지',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w500,
                                 color: Color(0xFF555555),
                               ),
@@ -372,7 +372,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         child: const Text(
                           '아이디 찾기',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: Color(0xFF666666),
                           ),
@@ -383,7 +383,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         child: Text(
                           '|',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: Color(0xFFCCCCCC),
                           ),
                         ),
@@ -400,7 +400,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         child: const Text(
                           '비밀번호 찾기',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: Color(0xFF666666),
                           ),
@@ -418,7 +418,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       child: Text(
                         loginState.errorMessage!,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Colors.red,
                         ),
                       ),
@@ -443,7 +443,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       child: Text(
                         loginState.isLoading ? '로그인 중...' : '로그인',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -459,7 +459,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         const Text(
                           '계정이 없으신가요?',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Color(0xFF888888),
                           ),
                         ),
@@ -476,7 +476,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: const Text(
                             '회원가입',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF4A67F2),
                             ),

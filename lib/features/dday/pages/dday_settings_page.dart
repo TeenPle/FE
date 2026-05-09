@@ -21,13 +21,13 @@ class DDaySettingsPage extends ConsumerWidget {
         centerTitle: true,
         title: const Text(
           'D-Day 관리',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
       ),
       floatingActionButton: ddays.length < 10
           ? FloatingActionButton(
-              onPressed: () => _showEditDialog(context, ref, null),
-              backgroundColor: const Color(0xFF4A67F2),
+              onPressed: () => _showEditSheet(context, notifier, null),
+              backgroundColor: const Color(0xFF229BF3),
               foregroundColor: Colors.white,
               elevation: 0,
               child: const Icon(Icons.add_rounded),
@@ -35,7 +35,7 @@ class DDaySettingsPage extends ConsumerWidget {
           : null,
       body: ddays.isEmpty
           ? _EmptyState(
-              onAdd: () => _showEditDialog(context, ref, null),
+              onAdd: () => _showEditSheet(context, notifier, null),
             )
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
@@ -43,142 +43,295 @@ class DDaySettingsPage extends ConsumerWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (ctx, i) => _DDayTile(
                 dday: ddays[i],
-                onEdit: () => _showEditDialog(context, ref, ddays[i]),
+                onEdit: () => _showEditSheet(context, notifier, ddays[i]),
                 onDelete: () => notifier.remove(ddays[i].id),
               ),
             ),
     );
   }
+}
 
-  Future<void> _showEditDialog(
-    BuildContext context,
-    WidgetRef ref,
-    DDayModel? existing,
-  ) async {
-    final notifier = ref.read(ddayProvider.notifier);
-    final labelCtrl = TextEditingController(text: existing?.label ?? '');
-    DateTime selectedDate = existing?.targetDate ?? DateTime.now();
+Future<void> _showEditSheet(
+  BuildContext context,
+  DDayNotifier notifier,
+  DDayModel? existing,
+) async {
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => _DDayEditSheet(
+      existing: existing,
+      onSave: (dday) {
+        if (existing == null) {
+          notifier.add(dday);
+        } else {
+          notifier.update(dday);
+        }
+      },
+    ),
+  );
+}
 
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Text(
-              existing == null ? 'D-Day 추가' : 'D-Day 수정',
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: labelCtrl,
-                  maxLength: 20,
-                  decoration: InputDecoration(
-                    labelText: '이름 (예: 수능, 기말고사)',
-                    counterText: '',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
-                  ),
+class _DDayEditSheet extends StatefulWidget {
+  final DDayModel? existing;
+  final ValueChanged<DDayModel> onSave;
+
+  const _DDayEditSheet({required this.existing, required this.onSave});
+
+  @override
+  State<_DDayEditSheet> createState() => _DDayEditSheetState();
+}
+
+class _DDayEditSheetState extends State<_DDayEditSheet> {
+  late final TextEditingController _labelCtrl;
+  late DateTime _selectedDate;
+  late String _selectedIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _labelCtrl = TextEditingController(text: widget.existing?.label ?? '');
+    _selectedDate = widget.existing?.targetDate ?? DateTime.now();
+    _selectedIcon = widget.existing?.iconName ?? 'event';
+  }
+
+  @override
+  void dispose() {
+    _labelCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEdit = widget.existing != null;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 18),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDDE3EA),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  '날짜',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF666666),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: ctx,
-                      initialDate: selectedDate,
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2035),
-                    );
-                    if (picked != null) {
-                      setDialogState(() => selectedDate = picked);
-                    }
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFCCCCCC)),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 16,
-                          color: Color(0xFF4A67F2),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('취소'),
               ),
-              ElevatedButton(
+            ),
+
+            // Title
+            Text(
+              isEdit ? 'D-Day 수정' : 'D-Day 추가',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111111),
+              ),
+            ),
+            const SizedBox(height: 22),
+
+            // Label field
+            const Text(
+              '이름',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _labelCtrl,
+              maxLength: 20,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              decoration: InputDecoration(
+                hintText: '예: 수능, 기말고사, 졸업식',
+                hintStyle: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFFB0B8C1),
+                ),
+                counterText: '',
+                filled: true,
+                fillColor: const Color(0xFFF5F7FA),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF229BF3),
+                    width: 1.5,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Date picker
+            const Text(
+              '날짜',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 6),
+            GestureDetector(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2035),
+                  builder: (context, child) => Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Color(0xFF229BF3),
+                      ),
+                    ),
+                    child: child!,
+                  ),
+                );
+                if (picked != null) setState(() => _selectedDate = picked);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F7FA),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      size: 16,
+                      color: Color(0xFF229BF3),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      '${_selectedDate.year}.${_selectedDate.month.toString().padLeft(2, '0')}.${_selectedDate.day.toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF111111),
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: Color(0xFFB0B8C1),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Icon picker
+            const Text(
+              '아이콘',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 10),
+            GridView.count(
+              crossAxisCount: 4,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              children: ddayIconMap.entries.map((entry) {
+                final selected = _selectedIcon == entry.key;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedIcon = entry.key),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? const Color(0xFF229BF3)
+                          : const Color(0xFFF0F4F8),
+                      borderRadius: BorderRadius.circular(14),
+                      border: selected
+                          ? null
+                          : Border.all(color: const Color(0xFFE5EAF0)),
+                    ),
+                    child: Icon(
+                      entry.value,
+                      size: 22,
+                      color: selected
+                          ? Colors.white
+                          : const Color(0xFF6E7A86),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 24),
+
+            // Save button
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
                 onPressed: () {
-                  final label = labelCtrl.text.trim();
+                  final label = _labelCtrl.text.trim();
                   if (label.isEmpty) return;
-                  if (existing == null) {
-                    notifier.add(DDayModel(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  widget.onSave(
+                    DDayModel(
+                      id: widget.existing?.id ??
+                          DateTime.now().millisecondsSinceEpoch.toString(),
                       label: label,
-                      targetDate: selectedDate,
-                    ));
-                  } else {
-                    notifier.update(existing.copyWith(
-                      label: label,
-                      targetDate: selectedDate,
-                    ));
-                  }
-                  Navigator.pop(ctx);
+                      targetDate: _selectedDate,
+                      iconName: _selectedIcon,
+                    ),
+                  );
+                  Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4A67F2),
+                  backgroundColor: const Color(0xFF229BF3),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: Text(existing == null ? '추가' : '저장'),
+                child: Text(
+                  isEdit ? '저장하기' : '추가하기',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -205,6 +358,7 @@ class _DDayTile extends StatelessWidget {
             : d > 0
                 ? const Color(0xFF4A67F2)
                 : const Color(0xFF9AA7B2);
+    final icon = ddayIconMap[dday.iconName] ?? Icons.event_rounded;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -223,14 +377,7 @@ class _DDayTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text(
-                dday.dDayLabel,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: accentColor,
-                ),
-              ),
+              child: Icon(icon, size: 22, color: accentColor),
             ),
           ),
           const SizedBox(width: 14),
@@ -241,18 +388,31 @@ class _DDayTile extends StatelessWidget {
                 Text(
                   dday.label,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  '${dday.targetDate.year}.${dday.targetDate.month.toString().padLeft(2, '0')}.${dday.targetDate.day.toString().padLeft(2, '0')}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9AA7B2),
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      dday.dDayLabel,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: accentColor,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${dday.targetDate.year}.${dday.targetDate.month.toString().padLeft(2, '0')}.${dday.targetDate.day.toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF9AA7B2),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -293,7 +453,7 @@ class _EmptyState extends StatelessWidget {
           const Text(
             'D-Day가 없어요',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -301,7 +461,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 6),
           const Text(
             '수능, 시험일 등 중요한 날짜를 추가해보세요.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -309,7 +469,7 @@ class _EmptyState extends StatelessWidget {
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('D-Day 추가'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
+              backgroundColor: const Color(0xFF229BF3),
               foregroundColor: Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

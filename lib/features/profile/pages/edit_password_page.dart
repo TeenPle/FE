@@ -91,7 +91,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
         title: const Text(
           '비밀번호 변경',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -151,7 +151,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
                     : const Text(
                         '변경하기',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -187,7 +187,7 @@ class _PwField extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: Color(0xFF111111),
           ),

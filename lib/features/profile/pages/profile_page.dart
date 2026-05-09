@@ -66,7 +66,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         title: const Text(
           '내 프로필',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -181,7 +181,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
           Text(
             profile.nickname,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 17,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -198,7 +198,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
               const SizedBox(width: 4),
               Text(
                 '${profile.schoolName} · ${profile.gradeLabel}',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF7D8790)),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF7D8790)),
               ),
               if (profile.verified) ...[
                 const SizedBox(width: 6),
@@ -214,7 +214,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
                   child: const Text(
                     '인증됨',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF14A3F7),
                     ),
@@ -247,7 +247,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
               profile.canChangeNickname
                   ? '닉네임 변경'
                   : '${profile.daysUntilNicknameChange}일 후 변경 가능',
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
             ),
           ),
         ],
@@ -277,7 +277,7 @@ class _InfoSection extends StatelessWidget {
           const Text(
             '내 정보',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -330,13 +330,13 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF7D8790)),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF7D8790)),
               ),
               const Spacer(),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: valueColor ?? const Color(0xFF111111),
                 ),
@@ -504,7 +504,7 @@ class _ActivityTile extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF111111),
               ),
@@ -514,7 +514,7 @@ class _ActivityTile extends StatelessWidget {
               Text(
                 '$count',
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF14A3F7),
                 ),
@@ -680,7 +680,7 @@ class _ProfileThemeCard extends ConsumerWidget {
               const Text(
                 '테마',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF111111),
                 ),
@@ -739,7 +739,7 @@ class _ProfileThemeSegment extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : const Color(0xFF9AA7B2),
           ),
@@ -872,7 +872,7 @@ class _ProfileNotificationToggleTile extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: color,
             ),
@@ -950,7 +950,7 @@ class _ProfileInfoTile extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Color(0xFF111111),
             ),
@@ -958,7 +958,7 @@ class _ProfileInfoTile extends StatelessWidget {
           const Spacer(),
           Text(
             trailing,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
           ),
         ],
       ),
@@ -977,7 +977,7 @@ class _ProfileSectionHeader extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 13,
+          fontSize: 11,
           fontWeight: FontWeight.w700,
           color: Color(0xFF7D8790),
         ),
@@ -1049,7 +1049,7 @@ class _ProfileSettingsTile extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

@@ -112,7 +112,7 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
       textSkip: '건너뛰기',
       textStyleSkip: const TextStyle(
         color: Colors.white70,
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: FontWeight.w600,
       ),
       paddingFocus: 8,
@@ -143,7 +143,7 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
         title: const Text(
           '시간표',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -185,7 +185,7 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
                         Text(
                           '시간표 되돌리기',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF7D8790),
                           ),
@@ -239,14 +239,14 @@ class _MockWeekNavigator extends StatelessWidget {
               Text(
                 '5월 5일 ~ 9일',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF111111),
                 ),
               ),
               Text(
                 '2학년 3반',
-                style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+                style: TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
               ),
             ],
           ),
@@ -314,7 +314,7 @@ class _MockMemoCard extends StatelessWidget {
                 const Text(
                   '수요일 메모',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF111111),
                   ),
@@ -336,7 +336,7 @@ class _MockMemoCard extends StatelessWidget {
                   child: const Text(
                     '체육복 챙기기',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF26343D),
                     ),
@@ -419,7 +419,7 @@ class _MockTimetableGrid extends StatelessWidget {
               SizedBox(width: 4),
               Text(
                 '과목 칸을 꾹 누르면 직접 수정할 수 있어요',
-                style: TextStyle(fontSize: 11, color: Color(0xFFB0BEC5)),
+                style: TextStyle(fontSize: 10, color: Color(0xFFB0BEC5)),
               ),
             ],
           ),
@@ -441,7 +441,7 @@ class _MockTimetableGrid extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 11,
             fontWeight: FontWeight.w900,
             color: highlight
                 ? const Color(0xFF14A3F7)
@@ -465,7 +465,7 @@ class _MockTimetableGrid extends StatelessWidget {
         child: Text(
           '$period',
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w900,
             color: Color(0xFF9AA7B2),
           ),
@@ -504,7 +504,7 @@ class _MockTimetableGrid extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: subject.isNotEmpty
                       ? FontWeight.w800
                       : FontWeight.w400,
@@ -546,7 +546,7 @@ class _CoachContent extends StatelessWidget {
           title,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -555,7 +555,7 @@ class _CoachContent extends StatelessWidget {
           body,
           style: const TextStyle(
             color: Colors.white70,
-            fontSize: 14,
+            fontSize: 12,
             height: 1.5,
           ),
         ),

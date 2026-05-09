@@ -29,7 +29,7 @@ class PostContentCard extends StatelessWidget {
           Text(
             post.title,
             style: const TextStyle(
-              fontSize: 22,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
               height: 1.3,
@@ -39,7 +39,7 @@ class PostContentCard extends StatelessWidget {
           LinkableText(
             text: post.content,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               height: 1.7,
               color: Color(0xFF2F3740),
             ),
@@ -201,7 +201,7 @@ class _FileAttachmentChip extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   color: Color(0xFF3D6A85),
                   fontWeight: FontWeight.w600,
                 ),
@@ -309,7 +309,7 @@ class _PostMetaRow extends StatelessWidget {
               Text(
                 post.displayAuthorName,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF111111),
                 ),
@@ -345,7 +345,7 @@ class _MetaText extends StatelessWidget {
     return Text(
       value,
       style: const TextStyle(
-        fontSize: 13,
+        fontSize: 11,
         color: Color(0xFF7D8790),
         fontWeight: FontWeight.w500,
       ),

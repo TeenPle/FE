@@ -104,7 +104,7 @@ class _SignupStudentCardPageState
             child: Text(
               submitState.isLoading ? '가입 중...' : '완료',
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -137,7 +137,7 @@ class _SignupStudentCardPageState
               const Text(
                 '8/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -149,7 +149,7 @@ class _SignupStudentCardPageState
               const Text(
                 '재학 인증',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -161,7 +161,7 @@ class _SignupStudentCardPageState
               const Text(
                 '학생증을 업로드해주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -175,7 +175,7 @@ class _SignupStudentCardPageState
               const Text(
                 '마지막 단계예요. 재학 확인에 사용할 사진이에요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -187,7 +187,7 @@ class _SignupStudentCardPageState
               const Text(
                 '학생증 이미지',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -232,7 +232,7 @@ class _SignupStudentCardPageState
                               ? '학생증 사진 선택'
                               : selectedFileName,
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: selectedFileName.isEmpty
                                 ? FontWeight.w400
                                 : FontWeight.w600,
@@ -253,7 +253,7 @@ class _SignupStudentCardPageState
               const Text(
                 '학생증 정보가 잘 보이는 사진을 올려주세요.',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: Color(0xFF6B7280),
                 ),
               ),
@@ -266,7 +266,7 @@ class _SignupStudentCardPageState
                 const Text(
                   '미리보기',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF666666),
                   ),
@@ -295,7 +295,7 @@ class _SignupStudentCardPageState
                           child: Text(
                             '이미지를 불러올 수 없어요.',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 11,
                               color: Color(0xFF888888),
                             ),
                           ),
@@ -311,7 +311,7 @@ class _SignupStudentCardPageState
                 const Text(
                   '선택한 이미지가 맞는지 확인해주세요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF4A67F2),
                   ),
                 ),
@@ -323,7 +323,7 @@ class _SignupStudentCardPageState
                 Text(
                   submitState.errorMessage!,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.red,
                   ),
                 ),

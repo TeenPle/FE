@@ -107,18 +107,18 @@ class _PostDetailBody extends StatelessWidget {
                 children: [
                   _StatusBadge(post.postStatus),
                   const Spacer(),
-                  Text(_formatDate(post.createdAt), style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                  Text(_formatDate(post.createdAt), style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
                 ],
               ),
               const SizedBox(height: 14),
               Text(
                 post.title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF111827), height: 1.25),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF111827), height: 1.25),
               ),
               const SizedBox(height: 12),
               Text(
                 post.content,
-                style: const TextStyle(fontSize: 15, color: Color(0xFF334155), height: 1.6),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF334155), height: 1.6),
               ),
               if (post.mediaList.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -154,7 +154,7 @@ class _PostDetailBody extends StatelessWidget {
             children: [
               const Text(
                 '운영 액션',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
               ),
               const SizedBox(height: 12),
               Row(
@@ -230,7 +230,7 @@ class _PostDetailBody extends StatelessWidget {
             children: [
               Text(
                 '댓글 ${post.comments.length}',
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
               ),
               const SizedBox(height: 12),
               if (post.comments.isEmpty)
@@ -431,14 +431,14 @@ class _CommentTile extends StatelessWidget {
                 child: Text(
                   comment.authorLabel,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                 ),
               ),
               _StatusBadge(comment.commentStatus),
             ],
           ),
           const SizedBox(height: 8),
-          Text(comment.content, style: const TextStyle(fontSize: 14, color: Color(0xFF475569), height: 1.45)),
+          Text(comment.content, style: const TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.45)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 12,
@@ -498,7 +498,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
-      child: Text(status, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color)),
+      child: Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
     );
   }
 }
@@ -522,7 +522,7 @@ class _InfoChip extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: const Color(0xFF64748B)),
           const SizedBox(width: 5),
-          Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
+          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
         ],
       ),
     );
@@ -542,7 +542,7 @@ class _Metric extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
         const SizedBox(width: 4),
-        Text(value, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+        Text(value, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
       ],
     );
   }

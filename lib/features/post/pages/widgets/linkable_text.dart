@@ -85,7 +85,7 @@ class _LinkableTextState extends State<LinkableText> {
       text: TextSpan(
         style: widget.style ??
             const TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               height: 1.7,
               color: Color(0xFF2F3740),
             ),
@@ -122,7 +122,7 @@ void _showExternalLinkWarning(BuildContext context, String url) {
             child: Text(
               url,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 color: Color(0xFF5A8EA8),
               ),
               maxLines: 3,

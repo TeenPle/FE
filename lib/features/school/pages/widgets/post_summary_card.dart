@@ -85,9 +85,9 @@ class PostSummaryCard extends StatelessWidget {
                           maxLines: thumbnailUrl == null ? 3 : 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             height: 1.35,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                             color: Color(0xFF59616C),
                             letterSpacing: 0,
                           ),
@@ -189,8 +189,8 @@ class _MetaRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: Color(0xFF151515),
               letterSpacing: 0,
             ),
@@ -201,8 +201,8 @@ class _MetaRow extends StatelessWidget {
           Text(
             timeLabel,
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
               color: Color(0xFF8F9298),
               letterSpacing: 0,
             ),
@@ -222,8 +222,8 @@ class _MetaRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
                   color: categoryColor,
                   letterSpacing: 0,
                 ),
@@ -258,9 +258,9 @@ class _TitleLine extends StatelessWidget {
                   const TextSpan(
                     text: 'HOT ',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 11,
                       height: 1.2,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                       color: Color(0xFFFF6B35),
                       letterSpacing: 0,
                     ),
@@ -268,10 +268,10 @@ class _TitleLine extends StatelessWidget {
                 TextSpan(
                   text: title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 12,
                     height: 1.2,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF050505),
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF111111),
                     letterSpacing: 0,
                   ),
                 ),
@@ -291,7 +291,7 @@ class _TitleLine extends StatelessWidget {
             child: const Text(
               '투표',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF229BF3),
                 letterSpacing: 0,
@@ -324,8 +324,8 @@ class _ReactionMetric extends StatelessWidget {
         Text(
           text,
           style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
             color: color,
             letterSpacing: 0,
           ),

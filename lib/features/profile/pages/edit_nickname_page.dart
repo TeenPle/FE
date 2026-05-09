@@ -62,7 +62,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
         title: const Text(
           '닉네임 변경',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -100,7 +100,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                           child: Text(
                             '닉네임은 30일에 한 번 변경할 수 있습니다.\n$daysLeft일 후에 다시 변경 가능합니다.',
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 11,
                               height: 1.5,
                               color: Color(0xFF8A6200),
                               fontWeight: FontWeight.w600,
@@ -114,7 +114,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                 const Text(
                   '새 닉네임',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF111111),
                   ),
@@ -201,7 +201,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                         : Text(
                             canChange ? '변경하기' : '$daysLeft일 후 변경 가능',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

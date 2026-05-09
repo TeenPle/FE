@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
@@ -24,6 +25,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 앱이 시스템 상태바·네비게이션 바 뒤까지 그려지도록 설정.
+  // Flutter의 MediaQuery 인셋(padding.bottom 등)이 시스템 바 높이를 정확히 반영해
+  // Scaffold가 콘텐츠를 자동으로 피해준다.
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+  ));
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (_isMobile) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

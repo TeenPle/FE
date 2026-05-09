@@ -12,7 +12,7 @@ class PrivacyPolicyPage extends StatelessWidget {
         elevation: 0,
         foregroundColor: const Color(0xFF111111),
         centerTitle: true,
-        title: const Text('개인정보처리방침', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        title: const Text('개인정보처리방침', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
       ),
       body: const SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20, 16, 20, 40),
@@ -88,9 +88,9 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF111111))),
+          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111111))),
           const SizedBox(height: 8),
-          Text(body, style: const TextStyle(fontSize: 14, height: 1.7, color: Color(0xFF444444))),
+          Text(body, style: const TextStyle(fontSize: 12, height: 1.7, color: Color(0xFF444444))),
         ],
       ),
     );

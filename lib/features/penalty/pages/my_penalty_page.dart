@@ -35,7 +35,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
         centerTitle: true,
         title: const Text(
           '제재 이력',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
       ),
       body: ListView(
@@ -51,7 +51,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
             child: Text(
               '제재 이력',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF9AA7B2),
                 letterSpacing: 0.3,
@@ -87,7 +87,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
               ),
               child: const Text(
                 '제재 이력이 없어요.',
-                style: TextStyle(fontSize: 14, color: Color(0xFF9AA7B2)),
+                style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
               ),
             )
           else
@@ -123,7 +123,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                             : const Text(
                                 '더보기',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF5C6975),
                                 ),
@@ -196,7 +196,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       const Text(
                         '현재 제재 중',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFFE05C7B),
                         ),
@@ -205,7 +205,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '사유: ${penalty.reasonLabel}',
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Color(0xFF6B7C8A),
                         ),
                       ),
@@ -213,7 +213,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '해제 예정: ${_formatDate(penalty.expiresAt!)}',
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Color(0xFF6B7C8A),
                         ),
                       ),
@@ -221,7 +221,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       const Text(
                         '제재 기간 중 게시글·댓글 작성 및 채팅이 제한됩니다.',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Color(0xFF9AA7B2),
                           height: 1.4,
                         ),
@@ -234,7 +234,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '정상 이용 중',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF43A047),
                         ),
@@ -243,7 +243,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '현재 활성 제재가 없어요.',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           color: Color(0xFF6B7C8A),
                         ),
                       ),
@@ -291,7 +291,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
             child: Text(
               expired ? '만료' : '제재 중',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: expired
                     ? const Color(0xFF9AA7B2)
@@ -307,7 +307,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
                 Text(
                   penalty.reasonLabel,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF333333),
                   ),
@@ -316,7 +316,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
                 Text(
                   '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF9AA7B2),
                   ),
                 ),

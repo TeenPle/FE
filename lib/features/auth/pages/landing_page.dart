@@ -132,7 +132,7 @@ class _LandingPageState extends ConsumerState<LandingPage>
                     const Text(
                       'TeenPle',
                       style: TextStyle(
-                        fontSize: 34,
+                        fontSize: 28,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1.0,
                         color: Color(0xFF111111),
@@ -143,7 +143,7 @@ class _LandingPageState extends ConsumerState<LandingPage>
                       '고등학생을 위한 로컬 커뮤니티',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.2,
                         color: Color(0xFF2C2C2C),
@@ -154,7 +154,7 @@ class _LandingPageState extends ConsumerState<LandingPage>
                       '이야기하고, 연결되고, 나누는 공간',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         height: 1.5,
                         color: Color(0xFF6B7280),
                       ),

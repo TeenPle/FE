@@ -33,7 +33,7 @@ class PollCard extends StatelessWidget {
               Text(
                 '투표',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF111111),
                 ),
@@ -58,7 +58,7 @@ class PollCard extends StatelessWidget {
             child: Text(
               '총 참여자 : ${poll.totalParticipants}명',
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF7D8790),
               ),
@@ -137,7 +137,7 @@ class _PollOptionTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF222222),
                       ),
@@ -148,7 +148,7 @@ class _PollOptionTile extends StatelessWidget {
                     Text(
                       '${option.voteCount}명 (${option.percentage}%)',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF52606D),
                       ),

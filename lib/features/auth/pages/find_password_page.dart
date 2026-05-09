@@ -91,7 +91,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 14),
+      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12),
       filled: true,
       fillColor: Colors.white,
       contentPadding:
@@ -158,7 +158,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                       ? '전송 중...'
                       : (_hasSentCode ? '인증 완료 후 다음' : '인증번호 받기')),
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -183,7 +183,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               const Text(
                 '비밀번호 찾기',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -194,7 +194,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               const Text(
                 '가입한 이메일로\n인증번호를 받아주세요.',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                   letterSpacing: -0.5,
@@ -207,7 +207,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               const Text(
                 '이메일',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -249,7 +249,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                         child: Text(
                           state.isSendLoading ? '전송 중' : '재전송',
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -264,22 +264,22 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               if (state.sendError != null)
                 Text(
                   state.sendError!,
-                  style: const TextStyle(fontSize: 12, color: Colors.red),
+                  style: const TextStyle(fontSize: 11, color: Colors.red),
                 )
               else if (isVerified)
                 const Text(
                   '인증이 완료된 이메일이에요.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF4A67F2)),
+                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
                 )
               else if (_hasSentCode)
                 const Text(
                   '인증번호를 전송했어요.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF8A8A8A)),
+                  style: TextStyle(fontSize: 11, color: Color(0xFF8A8A8A)),
                 )
               else
                 const Text(
                   '인증번호는 3분 동안 유효해요.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF8A8A8A)),
+                  style: TextStyle(fontSize: 11, color: Color(0xFF8A8A8A)),
                 ),
 
               if (_hasSentCode) ...[
@@ -288,7 +288,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                 const Text(
                   '인증번호',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF666666),
                   ),
@@ -314,7 +314,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                         Text(
                           '이메일 인증이 완료되었어요.',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF222222),
                           ),
@@ -363,7 +363,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                           child: Text(
                             state.isVerifyLoading ? '확인 중' : '확인',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -380,7 +380,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                         ? '인증 시간이 만료되었어요.'
                         : '남은 시간 ${_formatTime(_remainingSeconds)}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: isExpired
                           ? Colors.red
@@ -392,7 +392,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                   const SizedBox(height: 4),
                   Text(
                     state.verifyError!,
-                    style: const TextStyle(fontSize: 12, color: Colors.red),
+                    style: const TextStyle(fontSize: 11, color: Colors.red),
                   ),
                 ],
               ],

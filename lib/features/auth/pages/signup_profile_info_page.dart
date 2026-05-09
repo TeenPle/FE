@@ -115,7 +115,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
       hintText: hintText,
       hintStyle: const TextStyle(
         color: Color(0xFFB0B0B0),
-        fontSize: 14,
+        fontSize: 12,
       ),
       filled: true,
       fillColor: Colors.white,
@@ -211,7 +211,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
             child: const Text(
               '다음',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -244,7 +244,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '3/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -256,7 +256,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '프로필 정보',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -268,7 +268,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '프로필을 설정해주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -282,7 +282,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 'TeenPle에서 사용할 기본 정보를 입력해주세요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -294,7 +294,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '이름',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -317,7 +317,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               if (username.isNotEmpty && !isUsernameValid)
                 const Text(
                   '이름은 한글 또는 영어만 입력할 수 있으며, 최대 20자까지 가능해요.',
-                  style: TextStyle(fontSize: 12, color: Colors.red),
+                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
 
               const SizedBox(height: 16),
@@ -326,7 +326,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '닉네임',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -352,7 +352,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     return const Text(
                       '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF8A8A8A),
                       ),
                     );
@@ -361,7 +361,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                   if (!isNicknameValid) {
                     return const Text(
                       '닉네임은 한글 또는 영어로 3~10자 입력해주세요.',
-                      style: TextStyle(fontSize: 12, color: Colors.red),
+                      style: TextStyle(fontSize: 11, color: Colors.red),
                     );
                   }
 
@@ -369,7 +369,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     return const Text(
                       '닉네임 중복 여부를 확인하고 있어요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF4A67F2),
                       ),
                     );
@@ -379,7 +379,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                       isSameAsChecked) {
                     return Text(
                       nicknameCheckState.errorMessage!,
-                      style: const TextStyle(fontSize: 12, color: Colors.red),
+                      style: const TextStyle(fontSize: 11, color: Colors.red),
                     );
                   }
 
@@ -387,7 +387,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                       isSameAsChecked) {
                     return const Text(
                       '이미 사용 중인 닉네임이에요.',
-                      style: TextStyle(fontSize: 12, color: Colors.red),
+                      style: TextStyle(fontSize: 11, color: Colors.red),
                     );
                   }
 
@@ -396,7 +396,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     return const Text(
                       '사용 가능한 닉네임이에요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF4A67F2),
                       ),
                     );
@@ -405,7 +405,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                   return const Text(
                     '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF8A8A8A),
                     ),
                   );
@@ -418,7 +418,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '성별',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -430,7 +430,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               const Text(
                 '프로필에 표시할 성별을 선택해주세요.',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   color: Color(0xFF8A8A8A),
                 ),
               ),
@@ -461,7 +461,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                         child: Text(
                           '남성',
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: gender == 'MALE'
                                 ? const Color(0xFF4A67F2)
@@ -495,7 +495,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                         child: Text(
                           '여성',
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: gender == 'FEMALE'
                                 ? const Color(0xFF4A67F2)
@@ -513,7 +513,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               if (!isGenderSelected && (username.isNotEmpty || nickname.isNotEmpty))
                 const Text(
                   '성별을 선택해주세요.',
-                  style: TextStyle(fontSize: 12, color: Colors.red),
+                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
             ],
           ),

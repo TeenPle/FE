@@ -50,7 +50,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
         title: const Text(
           '내 북마크',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -75,7 +75,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
             SizedBox(height: 12),
             Text(
               '아직 북마크한 글이 없어요.',
-              style: TextStyle(fontSize: 15, color: Color(0xFF9AA7B2)),
+              style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
             ),
           ],
         ),
@@ -120,7 +120,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                       child: Text(
                         post.boardTitle!,
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF14A3F7),
                         ),
@@ -130,7 +130,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                 Text(
                   post.title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF111111),
                   ),
@@ -141,7 +141,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                 Text(
                   post.preview,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     height: 1.5,
                     color: Color(0xFF6E7B87),
                   ),
@@ -192,7 +192,7 @@ class _Chip extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             color: c,
             fontWeight: FontWeight.w600,
           ),

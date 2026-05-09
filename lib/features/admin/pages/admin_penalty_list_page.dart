@@ -122,7 +122,7 @@ class _PenaltyCard extends ConsumerWidget {
                 child: Text(
                   statusLabel,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: statusColor,
                   ),
@@ -139,7 +139,7 @@ class _PenaltyCard extends ConsumerWidget {
                 child: Text(
                   penalty.reasonLabel,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF5A8EA8),
                   ),
@@ -149,7 +149,7 @@ class _PenaltyCard extends ConsumerWidget {
               Text(
                 _formatDate(penalty.createdAt),
                 style: const TextStyle(
-                    fontSize: 12, color: Color(0xFF9AA7B2)),
+                    fontSize: 11, color: Color(0xFF9AA7B2)),
               ),
             ],
           ),
@@ -167,7 +167,7 @@ class _PenaltyCard extends ConsumerWidget {
                 child: Text(
                   penalty.userNickname,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     color: Color(0xFF5A8EA8),
                     decoration: TextDecoration.underline,
                   ),
@@ -180,7 +180,7 @@ class _PenaltyCard extends ConsumerWidget {
               Text(
                 '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
                 style: const TextStyle(
-                    fontSize: 13, color: Color(0xFF6B7C8A)),
+                    fontSize: 11, color: Color(0xFF6B7C8A)),
               ),
             ],
           ),
@@ -190,7 +190,7 @@ class _PenaltyCard extends ConsumerWidget {
               Text(
                 '신고 #${penalty.reportId}',
                 style: const TextStyle(
-                    fontSize: 12, color: Color(0xFF9AA7B2)),
+                    fontSize: 11, color: Color(0xFF9AA7B2)),
               ),
               const Spacer(),
               if (isActive)
@@ -206,7 +206,7 @@ class _PenaltyCard extends ConsumerWidget {
                   child: const Text(
                     '제재 취소',
                     style: TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700),
+                        fontSize: 11, fontWeight: FontWeight.w700),
                   ),
                 ),
             ],

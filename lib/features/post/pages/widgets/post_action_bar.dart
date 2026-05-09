@@ -113,7 +113,7 @@ class _ActionChip extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -151,7 +151,7 @@ class _StaticChip extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: Color(0xFF6E7B87),
             ),

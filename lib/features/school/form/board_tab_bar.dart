@@ -42,7 +42,7 @@ class BoardTabBar extends StatelessWidget {
                 child: Text(
                   '전체',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: isSelected ? Colors.white : const Color(0xFF4B4B4B),
                   ),
@@ -65,7 +65,7 @@ class BoardTabBar extends StatelessWidget {
               child: Text(
                 board.title,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: isSelected ? Colors.white : const Color(0xFF4B4B4B),
                 ),

@@ -56,7 +56,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                     child: Text(
                       '학교 인증 요청',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.4,
                         color: Color(0xFF111111),
@@ -75,7 +75,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                   const Text(
                     '현재 요청',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF6B7280),
                     ),
@@ -84,7 +84,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                   Text(
                     '${state.items.length}건',
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF4A67F2),
                     ),
@@ -138,7 +138,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                           child: Text(
                             status.label,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: isSelected
                                   ? Colors.white
@@ -161,7 +161,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                   child: Text(
                     state.errorMessage!,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.red,
                     ),
                   ),
@@ -200,7 +200,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                       Text(
                         '조회된 요청이 없어요.',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF374151),
                         ),
@@ -269,7 +269,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                                     Text(
                                       item.schoolName,
                                       style: const TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: -0.2,
                                         color: Color(0xFF111111),
@@ -279,7 +279,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                                     Text(
                                       item.userName,
                                       style: const TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: Color(0xFF222222),
                                       ),
@@ -297,7 +297,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                                           child: Text(
                                             item.userEmail,
                                             style: const TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               color:
                                               Color(0xFF555555),
                                             ),
@@ -319,7 +319,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                                             item.requestedAt,
                                           ),
                                           style: const TextStyle(
-                                            fontSize: 13,
+                                            fontSize: 11,
                                             color: Color(0xFF6B7280),
                                           ),
                                         ),

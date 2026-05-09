@@ -378,7 +378,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
               const Text(
                 '게시판 선택',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF111827),
                 ),
@@ -401,7 +401,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       title: Text(
                         board.title,
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight:
                               selected ? FontWeight.w900 : FontWeight.w700,
                           color: selected
@@ -484,7 +484,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                     Text(
                       titleText,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF111827),
                         letterSpacing: 0,
@@ -510,7 +510,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                           child: Text(
                             _isSubmitting ? '등록 중...' : submitText,
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 13,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0,
                             ),
@@ -549,7 +549,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w700,
                                     color: _selectedBoardId == null
                                         ? const Color(0xFF8B95A1)
@@ -585,7 +585,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                                   Text(
                                     '익명',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w900,
                                       color: Color(0xFF111827),
                                     ),
@@ -594,7 +594,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                                   Text(
                                     '닉네임이 노출되지 않아요',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       color: Color(0xFF8B95A1),
                                     ),
@@ -628,7 +628,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                               }) =>
                                   const SizedBox.shrink(),
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF111827),
                                 letterSpacing: 0,
@@ -639,7 +639,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                           Text(
                             '$_titleLength/$_titleLimit',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: _titleLength > _titleLimit
                                   ? const Color(0xFFE14B4B)
@@ -668,7 +668,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                             }) =>
                                 const SizedBox.shrink(),
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 13,
                               height: 1.55,
                               color: Color(0xFF2F3740),
                               letterSpacing: 0,
@@ -681,7 +681,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                             child: Text(
                               '$_contentLength/$_contentLimit',
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: _contentLength > _contentLimit
                                     ? const Color(0xFFE14B4B)
@@ -707,7 +707,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                               const Text(
                                 '첨부파일',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w900,
                                   color: Color(0xFF111827),
                                 ),
@@ -716,7 +716,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                               const Text(
                                 '(최대 5개)',
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFF8B95A1),
                                 ),
@@ -725,7 +725,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                               Text(
                                 '$attachedCount/$_maxFiles',
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFF2F80ED),
                                 ),
@@ -745,7 +745,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                           const Text(
                             '파일당 10MB 이하 | jpg, jpeg, png, gif, webp, pdf',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF8B95A1),
                               height: 1.3,
@@ -961,7 +961,7 @@ class _AddFileSlot extends StatelessWidget {
           Text(
             '파일 추가',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: FontWeight.w800,
               color: Color(0xFF2F80ED),
             ),
@@ -1028,7 +1028,7 @@ class _PollEditorSection extends StatelessWidget {
                     Text(
                       '투표 추가',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 14,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF111827),
                         letterSpacing: 0,
@@ -1038,7 +1038,7 @@ class _PollEditorSection extends StatelessWidget {
                     Text(
                       '투표로 의견을 모아보세요',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF8B95A1),
                         letterSpacing: 0,
@@ -1109,7 +1109,7 @@ class _PollEditorSection extends StatelessWidget {
                 child: Text(
                   '투표 항목은 최소 2개 입력해야 합니다.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFE05C5C),
                   ),

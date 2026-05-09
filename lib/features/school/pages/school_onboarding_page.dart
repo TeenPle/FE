@@ -107,7 +107,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
       textSkip: '건너뛰기',
       textStyleSkip: const TextStyle(
         color: Colors.white70,
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: FontWeight.w600,
       ),
       paddingFocus: 10,
@@ -165,7 +165,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 21,
+                      fontSize: 17,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF050505),
                     ),
@@ -194,7 +194,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
         children: [
           const Text(
             'D-DAY',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
           ),
           const SizedBox(width: 10),
           _MockDDayChip(label: '수능', days: 'D-47'),
@@ -233,7 +233,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                     child: Text(
                       '피드',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                       ),
@@ -249,7 +249,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                     child: Text(
                       '인기',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF8C8F95),
                       ),
@@ -262,7 +262,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                   child: Text(
                     '게시판',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF8C8F95),
                     ),
@@ -444,12 +444,12 @@ class _MockPostCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 author,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF151515)),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF151515)),
               ),
               const SizedBox(width: 10),
               Text(
                 time,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF8F9298)),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF8F9298)),
               ),
               const SizedBox(width: 10),
               Container(
@@ -460,7 +460,7 @@ class _MockPostCard extends StatelessWidget {
                 ),
                 child: Text(
                   category,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: categoryColor),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: categoryColor),
                 ),
               ),
             ],
@@ -475,7 +475,7 @@ class _MockPostCard extends StatelessWidget {
                   const TextSpan(
                     text: 'HOT ',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFFFF6B35),
                     ),
@@ -483,7 +483,7 @@ class _MockPostCard extends StatelessWidget {
                 TextSpan(
                   text: title,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF050505),
                   ),
@@ -497,11 +497,11 @@ class _MockPostCard extends StatelessWidget {
             children: [
               const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: Color(0xFF229BF3)),
               const SizedBox(width: 4),
-              Text('$comments', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF229BF3))),
+              Text('$comments', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF229BF3))),
               const SizedBox(width: 18),
               const Icon(Icons.favorite_border_rounded, size: 18, color: Color(0xFFFF5B6D)),
               const SizedBox(width: 4),
-              Text('$likes', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFFF5B6D))),
+              Text('$likes', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFFF5B6D))),
             ],
           ),
         ],
@@ -529,12 +529,12 @@ class _MockDDayChip extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF444444)),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF444444)),
           ),
           const SizedBox(width: 6),
           Text(
             days,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
           ),
         ],
       ),
@@ -569,7 +569,7 @@ class _MockNavItem extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
               color: color,
             ),
@@ -596,7 +596,7 @@ class _CoachContent extends StatelessWidget {
           title,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -605,7 +605,7 @@ class _CoachContent extends StatelessWidget {
           body,
           style: const TextStyle(
             color: Colors.white70,
-            fontSize: 14,
+            fontSize: 12,
             height: 1.5,
           ),
         ),

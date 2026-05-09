@@ -59,7 +59,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 14),
+      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12),
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -120,7 +120,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   )
                 : const Text(
                     '비밀번호 변경',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
           ),
         ),
@@ -144,7 +144,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               const Text(
                 '비밀번호 재설정',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -155,7 +155,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               const Text(
                 '새 비밀번호를\n설정해주세요.',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                   letterSpacing: -0.5,
@@ -167,7 +167,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               const Text(
                 '영문, 숫자, 특수문자 포함 8~20자로 입력해주세요.',
-                style: TextStyle(fontSize: 15, height: 1.5, color: Color(0xFF555555)),
+                style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF555555)),
               ),
 
               const SizedBox(height: 32),
@@ -175,7 +175,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               const Text(
                 '새 비밀번호',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -197,7 +197,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 const SizedBox(height: 8),
                 const Text(
                   '영문, 숫자, 특수문자를 포함한 8~20자로 입력해주세요.',
-                  style: TextStyle(fontSize: 12, color: Colors.red),
+                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
 
@@ -206,7 +206,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               const Text(
                 '새 비밀번호 확인',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -232,7 +232,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 const SizedBox(height: 8),
                 const Text(
                   '비밀번호가 일치하지 않습니다.',
-                  style: TextStyle(fontSize: 12, color: Colors.red),
+                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
 
@@ -240,7 +240,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 const SizedBox(height: 12),
                 Text(
                   state.errorMessage!,
-                  style: const TextStyle(fontSize: 12, color: Colors.red),
+                  style: const TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
             ],

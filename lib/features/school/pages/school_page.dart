@@ -166,11 +166,18 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6FBFF),
+      floatingActionButton: isPenalized
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _openWriteFlow(state.boards),
+              backgroundColor: const Color(0xFF229BF3),
+              elevation: 6,
+              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 24),
+            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: _SchoolBottomBar(
         currentIndex: _bottomIndex,
         chatUnreadCount: chatUnreadCount,
-        isPenalized: isPenalized,
-        onWriteTap: () => _openWriteFlow(state.boards),
         onNavTap: (index) {
           if (index == 1) {
             ref.read(chatRoomListProvider.notifier).load();
@@ -421,7 +428,7 @@ class _HomeTabButton extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               height: 1.05,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
               color: selected ? Colors.white : const Color(0xFF8C8F95),
@@ -461,20 +468,29 @@ class _FeedList extends StatelessWidget {
     if (posts.isEmpty && topRecommendedPosts.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 68, 18, 120),
+        padding: const EdgeInsets.fromLTRB(18, 68, 18, 20),
         children: const [_EmptyFeedState()],
       );
     }
 
-    return ListView.builder(
+    final totalPostCount = topRecommendedPosts.length + feedPosts.length;
+    return ListView.separated(
       controller: controller,
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 112),
-      itemCount: topRecommendedPosts.length + feedPosts.length + 1,
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+      itemCount: totalPostCount + 1,
+      separatorBuilder: (context, index) {
+        if (index >= totalPostCount - 1) return const SizedBox.shrink();
+        return const Divider(
+          height: 1, thickness: 1, color: Color(0xFFD5DDE6),
+          indent: 12, endIndent: 12,
+        );
+      },
       itemBuilder: (context, index) {
         if (index < topRecommendedPosts.length) {
           final post = topRecommendedPosts[index];
-          return _PostSurface(
+          return Container(
+            color: const Color(0xFFF6FBFF),
             child: PostSummaryCard(
               post: post,
               compact: true,
@@ -492,7 +508,8 @@ class _FeedList extends StatelessWidget {
         }
 
         final post = feedPosts[feedIndex];
-        return _PostSurface(
+        return Container(
+          color: const Color(0xFFF6FBFF),
           child: PostSummaryCard(
             post: post,
             compact: true,
@@ -527,10 +544,12 @@ class _PopularList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 112),
+      padding: const EdgeInsets.only(bottom: 16),
       children: [
-        _HotFilterRow(selected: filter, onChanged: onFilterChanged),
-        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+          child: _HotFilterRow(selected: filter, onChanged: onFilterChanged),
+        ),
         if (isLoading)
           const Padding(
             padding: EdgeInsets.only(top: 64),
@@ -539,16 +558,23 @@ class _PopularList extends StatelessWidget {
         else if (posts.isEmpty)
           _EmptyPopularState(filter: filter)
         else
-          for (final post in posts)
-            _PostSurface(
+          for (int i = 0; i < posts.length; i++) ...[
+            Container(
+              color: const Color(0xFFF6FBFF),
               child: PostSummaryCard(
-                post: post,
+                post: posts[i],
                 compact: true,
                 showDivider: false,
-                categoryLabel: boardNames[post.boardId],
-                onTap: () => onPostTap(post.id),
+                categoryLabel: boardNames[posts[i].boardId],
+                onTap: () => onPostTap(posts[i].id),
               ),
             ),
+            if (i < posts.length - 1)
+              const Divider(
+                height: 1, thickness: 1, color: Color(0xFFD5DDE6),
+                indent: 12, endIndent: 12,
+              ),
+          ],
       ],
     );
   }
@@ -588,7 +614,7 @@ class _HotFilterRow extends StatelessWidget {
               child: Text(
                 filter.label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w900,
                   color: isSelected ? Colors.white : const Color(0xFF6E7A86),
                 ),
@@ -615,14 +641,14 @@ class _BoardDirectory extends StatelessWidget {
     if (boards.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 68, 18, 120),
+        padding: const EdgeInsets.fromLTRB(18, 68, 18, 20),
         children: const [_EmptyBoardDirectoryState()],
       );
     }
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 112),
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
       itemCount: boards.length,
       separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
@@ -662,7 +688,7 @@ class _BoardDirectory extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF111111),
                         ),
@@ -674,7 +700,7 @@ class _BoardDirectory extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF7D8790),
                           ),
@@ -698,30 +724,6 @@ class _BoardDirectory extends StatelessWidget {
   }
 }
 
-class _PostSurface extends StatelessWidget {
-  final Widget child;
-
-  const _PostSurface({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 7),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 12,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
 
 class _PagingFooter extends StatelessWidget {
   final bool hasNext;
@@ -747,7 +749,7 @@ class _PagingFooter extends StatelessWidget {
         child: Text(
           hasNext ? '스크롤하면 더 불러와요' : '마지막 게시글까지 확인했어요',
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
             color: Color(0xFF8D9AA6),
           ),
@@ -813,13 +815,8 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 42),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE1ECF5)),
-      ),
       child: Column(
         children: [
           Icon(icon, size: 40, color: accentColor),
@@ -828,7 +825,7 @@ class _EmptyState extends StatelessWidget {
             title,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.w900,
               color: Color(0xFF111111),
             ),
@@ -838,7 +835,7 @@ class _EmptyState extends StatelessWidget {
             message,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 11,
               height: 1.5,
               fontWeight: FontWeight.w600,
               color: Color(0xFF7D8790),
@@ -873,7 +870,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
           Text(
             '이용 제한 안내',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -887,7 +884,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
           const Text(
             '커뮤니티 규칙 위반으로 일부 기능이 제한되었어요.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: Color(0xFF444444),
               height: 1.5,
             ),
@@ -906,7 +903,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
             child: const Text(
               '제한 기간에는 게시글, 댓글 작성과 채팅이 제한돼요. 게시글 열람은 가능해요.',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 color: Color(0xFFE05C7B),
                 height: 1.5,
               ),
@@ -957,7 +954,7 @@ class _WarningDialog extends ConsumerWidget {
           Text(
             '관리자 경고',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
             ),
@@ -971,7 +968,7 @@ class _WarningDialog extends ConsumerWidget {
           const Text(
             '커뮤니티 규칙 위반으로 관리자 경고를 받았어요.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: Color(0xFF444444),
               height: 1.5,
             ),
@@ -992,7 +989,7 @@ class _WarningDialog extends ConsumerWidget {
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF9AA7B2),
                     ),
@@ -1001,7 +998,7 @@ class _WarningDialog extends ConsumerWidget {
                   Text(
                     warning.targetSummary!,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       color: Color(0xFF444444),
                       height: 1.4,
                     ),
@@ -1024,7 +1021,7 @@ class _WarningDialog extends ConsumerWidget {
             child: Text(
               warning.adminComment,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Color(0xFF78350F),
                 height: 1.5,
               ),
@@ -1033,7 +1030,7 @@ class _WarningDialog extends ConsumerWidget {
           const SizedBox(height: 10),
           Text(
             '경고 일시: $issuedStr',
-            style: const TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+            style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
           ),
           const SizedBox(height: 8),
           Container(
@@ -1045,7 +1042,7 @@ class _WarningDialog extends ConsumerWidget {
             child: const Text(
               '경고 누적 시 이용이 제한될 수 있어요.',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 color: Color(0xFF6B7280),
                 height: 1.4,
               ),
@@ -1077,15 +1074,11 @@ class _WarningDialog extends ConsumerWidget {
 class _SchoolBottomBar extends StatelessWidget {
   final int currentIndex;
   final int chatUnreadCount;
-  final bool isPenalized;
-  final VoidCallback onWriteTap;
   final ValueChanged<int> onNavTap;
 
   const _SchoolBottomBar({
     required this.currentIndex,
     required this.chatUnreadCount,
-    required this.isPenalized,
-    required this.onWriteTap,
     required this.onNavTap,
   });
 
@@ -1093,90 +1086,48 @@ class _SchoolBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isPenalized)
-            Padding(
-              padding: const EdgeInsets.only(right: 28),
-              child: GestureDetector(
-                onTap: onWriteTap,
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF229BF3),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x3314A3F7),
-                        blurRadius: 14,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.edit_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFFE8EEF3), width: 1)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _BottomNavItem(
+              icon: Icons.home_rounded,
+              label: '홈',
+              selected: currentIndex == 0,
+              onTap: () => onNavTap(0),
             ),
-          const SizedBox(height: 8),
-          Container(
-            margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x1A000000),
-                  blurRadius: 24,
-                  offset: Offset(0, 8),
-                ),
-              ],
+            _BottomNavItem(
+              icon: Icons.chat_bubble_outline_rounded,
+              label: '채팅',
+              selected: currentIndex == 1,
+              onTap: () => onNavTap(1),
+              badgeCount: chatUnreadCount,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _BottomNavItem(
-                  icon: Icons.home_rounded,
-                  label: '홈',
-                  selected: currentIndex == 0,
-                  onTap: () => onNavTap(0),
-                ),
-                _BottomNavItem(
-                  icon: Icons.chat_bubble_outline_rounded,
-                  label: '채팅',
-                  selected: currentIndex == 1,
-                  onTap: () => onNavTap(1),
-                  badgeCount: chatUnreadCount,
-                ),
-                _BottomNavItem(
-                  icon: Icons.restaurant_outlined,
-                  label: '급식',
-                  selected: currentIndex == 2,
-                  onTap: () => onNavTap(2),
-                ),
-                _BottomNavItem(
-                  icon: Icons.calendar_today_outlined,
-                  label: '시간표',
-                  selected: currentIndex == 3,
-                  onTap: () => onNavTap(3),
-                ),
-                _BottomNavItem(
-                  icon: Icons.person_outline_rounded,
-                  label: '내정보',
-                  selected: currentIndex == 4,
-                  onTap: () => onNavTap(4),
-                ),
-              ],
+            _BottomNavItem(
+              icon: Icons.restaurant_outlined,
+              label: '급식',
+              selected: currentIndex == 2,
+              onTap: () => onNavTap(2),
             ),
-          ),
-        ],
+            _BottomNavItem(
+              icon: Icons.calendar_today_outlined,
+              label: '시간표',
+              selected: currentIndex == 3,
+              onTap: () => onNavTap(3),
+            ),
+            _BottomNavItem(
+              icon: Icons.person_outline_rounded,
+              label: '내정보',
+              selected: currentIndex == 4,
+              onTap: () => onNavTap(4),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1247,7 +1198,7 @@ class _BottomNavItem extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                 color: color,
                 letterSpacing: 0,
@@ -1278,7 +1229,7 @@ class _DialogInfoRow extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 color: Color(0xFF9AA7B2),
                 fontWeight: FontWeight.w600,
               ),
@@ -1288,7 +1239,7 @@ class _DialogInfoRow extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 color: Color(0xFF333333),
                 fontWeight: FontWeight.w600,
               ),

@@ -32,7 +32,7 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
         centerTitle: true,
         title: const Text(
           '내 경고 이력',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
       ),
       body: state.isLoading && state.items.isEmpty
@@ -48,7 +48,7 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
                   ? const Center(
                       child: Text(
                         '경고 이력이 없어요.',
-                        style: TextStyle(fontSize: 15, color: Color(0xFF9AA7B2)),
+                        style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
                       ),
                     )
                   : RefreshIndicator(
@@ -124,7 +124,7 @@ class _WarningHistoryCard extends StatelessWidget {
               const Text(
                 '관리자 경고',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFFF59E0B),
                 ),
@@ -132,7 +132,7 @@ class _WarningHistoryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 issuedStr,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
               ),
             ],
           ),
@@ -152,7 +152,7 @@ class _WarningHistoryCard extends StatelessWidget {
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF9AA7B2),
                     ),
@@ -161,7 +161,7 @@ class _WarningHistoryCard extends StatelessWidget {
                   Text(
                     warning.targetSummary!,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       color: Color(0xFF444444),
                       height: 1.4,
                     ),
@@ -184,7 +184,7 @@ class _WarningHistoryCard extends StatelessWidget {
             child: Text(
               warning.adminComment,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 11,
                 color: Color(0xFF78350F),
                 height: 1.5,
               ),

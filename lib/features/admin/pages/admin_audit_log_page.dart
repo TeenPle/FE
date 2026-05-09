@@ -252,10 +252,10 @@ class _AuditLogTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
                 child: Text(_actionLabel(log.action),
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: color)),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color)),
               ),
               const Spacer(),
-              Text(_formatDate(log.createdAt), style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+              Text(_formatDate(log.createdAt), style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
             ],
           ),
           const SizedBox(height: 10),
@@ -264,7 +264,7 @@ class _AuditLogTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${_targetLabel(log.targetType)} #${log.targetId}',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
                 ),
               ),
               if (_canOpenTarget(log))
@@ -277,14 +277,14 @@ class _AuditLogTile extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text('처리자: ${log.adminNickname} (${log.adminId})',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
           if (log.reason != null && log.reason!.trim().isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(log.reason!, style: const TextStyle(fontSize: 14, color: Color(0xFF334155), height: 1.45)),
+            Text(log.reason!, style: const TextStyle(fontSize: 12, color: Color(0xFF334155), height: 1.45)),
           ],
           if (log.metadata != null && log.metadata!.trim().isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(log.metadata!, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+            Text(log.metadata!, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
           ],
         ],
       ),

@@ -41,7 +41,7 @@ class SchoolHeader extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 21,
+                      fontSize: 17,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF050505),
                       letterSpacing: 0,

@@ -23,7 +23,7 @@ class FindEmailResultPage extends StatelessWidget {
         title: const Text(
           '아이디 찾기',
           style: TextStyle(
-            fontSize: 17,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
             color: Color(0xFF111111),
           ),
@@ -39,7 +39,7 @@ class FindEmailResultPage extends StatelessWidget {
               const Text(
                 '가입된 아이디를\n찾았어요.',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 21,
                   fontWeight: FontWeight.w800,
                   height: 1.35,
                   letterSpacing: -0.5,
@@ -66,7 +66,7 @@ class FindEmailResultPage extends StatelessWidget {
                     const Text(
                       '이메일 (아이디)',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF4A67F2),
                       ),
@@ -75,7 +75,7 @@ class FindEmailResultPage extends StatelessWidget {
                     Text(
                       maskedEmail,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF111111),
                         letterSpacing: -0.3,
@@ -89,7 +89,7 @@ class FindEmailResultPage extends StatelessWidget {
 
               const Text(
                 '보안을 위해 이메일 일부는 가려져 있어요.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF888888)),
+                style: TextStyle(fontSize: 11, color: Color(0xFF888888)),
               ),
 
               const Spacer(),
@@ -110,7 +110,7 @@ class FindEmailResultPage extends StatelessWidget {
                   child: const Text(
                     '로그인하기',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

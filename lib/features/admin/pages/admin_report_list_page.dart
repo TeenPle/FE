@@ -123,7 +123,7 @@ class _StatusTabBar extends StatelessWidget {
                   tab.$2,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight:
                         isActive ? FontWeight.w700 : FontWeight.w400,
                     color:
@@ -168,7 +168,7 @@ class _ReportCard extends StatelessWidget {
                 Text(
                   _formatDate(report.createdAt),
                   style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+                      const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
                 ),
               ],
             ),
@@ -180,14 +180,14 @@ class _ReportCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text('신고자: ${report.reporterNickname}',
                     style: const TextStyle(
-                        fontSize: 13, color: Color(0xFF6B7C8A))),
+                        fontSize: 11, color: Color(0xFF6B7C8A))),
                 const SizedBox(width: 16),
                 const Icon(Icons.gavel_rounded,
                     size: 14, color: Color(0xFF9AA7B2)),
                 const SizedBox(width: 4),
                 Text('피신고자: ${report.reportedUserNickname}',
                     style: const TextStyle(
-                        fontSize: 13, color: Color(0xFF6B7C8A))),
+                        fontSize: 11, color: Color(0xFF6B7C8A))),
               ],
             ),
             const SizedBox(height: 6),
@@ -223,7 +223,7 @@ class _TypeBadge extends StatelessWidget {
       ),
       child: Text(label,
           style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Color(0xFF5A8EA8))),
     );
@@ -244,7 +244,7 @@ class _ReasonBadge extends StatelessWidget {
       ),
       child: Text(label,
           style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Color(0xFFE05C7B))),
     );

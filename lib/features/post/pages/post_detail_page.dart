@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/active_page_provider.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../models/post_detail.dart';
@@ -35,10 +36,21 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
     debugPrint('PostDetailPage 진입 postId = ${widget.postId}');
 
-    /// 진입 시 게시글 상세 조회
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // 이 게시글을 보고 있음을 알림 억제 로직에 알린다.
+      ref.read(activePageProvider.notifier).state =
+          ActivePage(postId: widget.postId);
       ref.read(postDetailProvider(widget.postId).notifier).loadPostDetail();
     });
+  }
+
+  @override
+  void dispose() {
+    Future.microtask(() {
+      ref.read(activePageProvider.notifier).state = const ActivePage();
+    });
+    super.dispose();
   }
 
   @override
@@ -83,7 +95,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         title: const Text(
           '게시글',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -417,7 +429,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               '아직 댓글이 없어요.\n첫 댓글을 남겨보세요.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 height: 1.5,
                 color: Color(0xFF7D8790),
               ),
@@ -510,7 +522,7 @@ class _CommentSectionHeader extends StatelessWidget {
         const Text(
           '댓글',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -519,7 +531,7 @@ class _CommentSectionHeader extends StatelessWidget {
         Text(
           '$commentCount',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: Color(0xFF14A3F7),
           ),
@@ -616,7 +628,7 @@ void _showReportSheet(
               const Text(
                 '신고 사유 선택',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF111111),
                 ),

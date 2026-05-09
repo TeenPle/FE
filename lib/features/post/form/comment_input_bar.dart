@@ -81,7 +81,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                       child: Text(
                         '답글 작성 중',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF14A3F7),
                         ),
@@ -126,7 +126,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                       child: Text(
                         '익명',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color: widget.anonymous
                               ? const Color(0xFF14A3F7)
@@ -145,14 +145,14 @@ class _CommentInputBarState extends State<CommentInputBar> {
                         color: _isOverLimit
                             ? const Color(0xFFE05C5C)
                             : const Color(0xFF222222),
-                        fontSize: 15,
+                        fontSize: 13,
                         height: 1.4,
                       ),
                       decoration: const InputDecoration(
                         hintText: '댓글을 입력하세요',
                         hintStyle: TextStyle(
                           color: Color(0xFF9AA7B2),
-                          fontSize: 15,
+                          fontSize: 13,
                           height: 1.4,
                         ),
                         border: InputBorder.none,

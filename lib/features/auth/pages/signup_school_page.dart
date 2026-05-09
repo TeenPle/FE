@@ -67,7 +67,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
             child: const Text(
               '다음',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -100,7 +100,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               const Text(
                 '1/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -112,7 +112,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               const Text(
                 '학교 정보',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -124,7 +124,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               const Text(
                 '학교를 알려주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.6,
                   height: 1.22,
@@ -138,7 +138,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               const Text(
                 '재학 중인 학교를 검색하고 선택해주세요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -150,7 +150,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               const Text(
                 '학교 검색',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -178,7 +178,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                   hintText: '학교명을 검색해주세요',
                   hintStyle: const TextStyle(
                     color: Color(0xFFB0B0B0),
-                    fontSize: 14,
+                    fontSize: 12,
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -243,7 +243,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                   child: Text(
                     searchState.errorMessage!,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       color: Colors.red,
                     ),
                   ),
@@ -271,7 +271,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                         child: const Text(
                           '학교명을 입력하면\n검색 결과가 여기에 표시돼요.',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             height: 1.6,
                             color: Color(0xFF7A7A7A),
                           ),
@@ -315,7 +315,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                           '검색 결과가 없어요.\n학교명을 다시 확인해주세요.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             height: 1.6,
                             color: Color(0xFF777777),
                           ),
@@ -348,7 +348,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                 const Text(
                                   '검색 결과',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: Color(0xFF222222),
                                   ),
@@ -357,7 +357,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                 Text(
                                   '${searchState.schools.length}개',
                                   style: const TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF4A67F2),
                                   ),
@@ -438,7 +438,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                           child: Text(
                                             school.name,
                                             style: TextStyle(
-                                              fontSize: 15,
+                                              fontSize: 13,
                                               fontWeight: isSelected
                                                   ? FontWeight.w700
                                                   : FontWeight.w500,

@@ -118,12 +118,12 @@ class _PostTile extends StatelessWidget {
                     child: Text(
                       post.authorLabel,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                     ),
                   ),
                   Text(
                     _formatDate(post.createdAt),
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                   ),
                 ],
               ),
@@ -133,7 +133,7 @@ class _PostTile extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF1F2933),
                 ),
@@ -144,7 +144,7 @@ class _PostTile extends StatelessWidget {
                   post.contentPreview,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11, height: 1.4, color: Color(0xFF64748B)),
                 ),
               ],
               const SizedBox(height: 12),
@@ -192,7 +192,7 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
       child: Text(
         status,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color),
       ),
     );
   }
@@ -211,7 +211,7 @@ class _Metric extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
         const SizedBox(width: 4),
-        Text(value, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+        Text(value, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
       ],
     );
   }

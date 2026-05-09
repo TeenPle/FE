@@ -89,7 +89,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
       hintText: hintText,
       hintStyle: const TextStyle(
         color: Color(0xFFB0B0B0),
-        fontSize: 14,
+        fontSize: 12,
       ),
       filled: true,
       fillColor: Colors.white,
@@ -171,7 +171,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
             child: const Text(
               '다음',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -204,7 +204,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               const Text(
                 '4/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -216,7 +216,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               const Text(
                 '계정 정보',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -228,7 +228,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               const Text(
                 '이메일을 입력해주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -242,7 +242,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               const Text(
                 '가입 후 TeenPle 로그인과 이메일 인증에 사용할 주소예요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -254,7 +254,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               const Text(
                 '이메일',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -286,7 +286,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     return const Text(
                       '로그인과 본인 확인에 사용할 이메일이에요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF8A8A8A),
                       ),
                     );
@@ -296,7 +296,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     return const Text(
                       '올바른 이메일 형식으로 입력해주세요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     );
@@ -306,7 +306,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     return const Text(
                       '이메일 사용 가능 여부를 확인하고 있어요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF4A67F2),
                       ),
                     );
@@ -316,7 +316,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     return Text(
                       emailCheckState.errorMessage!,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     );
@@ -326,7 +326,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     return const Text(
                       '이미 사용 중인 이메일이에요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     );
@@ -336,7 +336,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     return const Text(
                       '사용 가능한 이메일이에요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF4A67F2),
                       ),
                     );
@@ -345,7 +345,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                   return const Text(
                     '로그인과 본인 확인에 사용할 이메일이에요.',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF8A8A8A),
                     ),
                   );

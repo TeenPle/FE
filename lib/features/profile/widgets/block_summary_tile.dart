@@ -31,7 +31,7 @@ class BlockSummaryTile extends ConsumerWidget {
           const Text(
             '차단한 사용자',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Color(0xFF111111),
             ),
@@ -47,7 +47,7 @@ class BlockSummaryTile extends ConsumerWidget {
             Text(
               '$count명',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF7D8790),
               ),
@@ -65,7 +65,7 @@ class BlockSummaryTile extends ConsumerWidget {
               ),
               child: const Text(
                 '전체 해제',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
               ),
             ),
           ],

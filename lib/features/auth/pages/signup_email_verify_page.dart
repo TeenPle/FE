@@ -138,7 +138,7 @@ class _SignupEmailVerifyPageState
       hintText: hintText,
       hintStyle: const TextStyle(
         color: Color(0xFFB0B0B0),
-        fontSize: 14,
+        fontSize: 12,
       ),
       filled: true,
       fillColor: Colors.white,
@@ -253,7 +253,7 @@ class _SignupEmailVerifyPageState
             child: Text(
               bottomButtonText,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -286,7 +286,7 @@ class _SignupEmailVerifyPageState
               const Text(
                 '5/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -298,7 +298,7 @@ class _SignupEmailVerifyPageState
               const Text(
                 '이메일 인증',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -310,7 +310,7 @@ class _SignupEmailVerifyPageState
               const Text(
                 '이메일을 인증해주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -328,7 +328,7 @@ class _SignupEmailVerifyPageState
                     ? '받은 인증번호를 입력하면 다음 단계로 이동할 수 있어요.'
                     : '입력한 이메일로 인증번호를 보내드릴게요.'),
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -340,7 +340,7 @@ class _SignupEmailVerifyPageState
               const Text(
                 '인증할 이메일',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -374,7 +374,7 @@ class _SignupEmailVerifyPageState
                       child: Text(
                         hasEmail ? email : '이메일 정보가 없습니다.',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight:
                           hasEmail ? FontWeight.w600 : FontWeight.w400,
                           color: hasEmail
@@ -394,7 +394,7 @@ class _SignupEmailVerifyPageState
                 Text(
                   sendState.errorMessage!,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.red,
                   ),
                 )
@@ -402,7 +402,7 @@ class _SignupEmailVerifyPageState
                 const Text(
                   '인증이 완료된 이메일이에요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF4A67F2),
                   ),
                 )
@@ -410,7 +410,7 @@ class _SignupEmailVerifyPageState
                   const Text(
                     '인증번호는 5분 동안 유효해요.',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF8A8A8A),
                     ),
                   )
@@ -418,7 +418,7 @@ class _SignupEmailVerifyPageState
                   const Text(
                     '인증번호를 전송했어요. 아래에서 확인을 완료해주세요.',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF8A8A8A),
                     ),
                   ),
@@ -431,7 +431,7 @@ class _SignupEmailVerifyPageState
                 const Text(
                   '인증번호',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF666666),
                   ),
@@ -467,7 +467,7 @@ class _SignupEmailVerifyPageState
                           child: Text(
                             '이메일 인증이 완료되었어요.',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF222222),
                             ),
@@ -550,7 +550,7 @@ class _SignupEmailVerifyPageState
                           child: Text(
                             verifyState.isLoading ? '확인 중' : '확인',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -570,7 +570,7 @@ class _SignupEmailVerifyPageState
                             ? '인증 시간이 만료되었어요.'
                             : '남은 시간 ${_formatRemainingTime(_remainingSeconds)}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: isExpired
                               ? Colors.red
@@ -592,7 +592,7 @@ class _SignupEmailVerifyPageState
                         child: const Text(
                           '인증번호 재전송',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF4A67F2),
                           ),
@@ -608,7 +608,7 @@ class _SignupEmailVerifyPageState
                   Text(
                     verifyState.errorMessage!,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.red,
                     ),
                   )
@@ -616,7 +616,7 @@ class _SignupEmailVerifyPageState
                   const Text(
                     '아래 다음 버튼을 눌러 비밀번호 설정으로 이동해주세요.',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF4A67F2),
                     ),
                   )
@@ -625,7 +625,7 @@ class _SignupEmailVerifyPageState
                     const Text(
                       '인증번호는 6자리 숫자로 입력해주세요.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.red,
                       ),
                     )
@@ -633,7 +633,7 @@ class _SignupEmailVerifyPageState
                       const Text(
                         '인증번호를 다시 전송한 뒤 새 번호로 인증해주세요.',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Colors.red,
                         ),
                       ),

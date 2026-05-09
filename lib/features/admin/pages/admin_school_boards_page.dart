@@ -104,13 +104,13 @@ class _BoardTile extends StatelessWidget {
                     decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
                     child: Text(
                       board.scopeLabel,
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
                     ),
                   ),
                   const Spacer(),
                   Text(
                     '${board.postCount}개',
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                   ),
                 ],
               ),
@@ -118,7 +118,7 @@ class _BoardTile extends StatelessWidget {
               Text(
                 board.title,
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF1F2933),
                 ),
@@ -127,7 +127,7 @@ class _BoardTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   board.description!,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280), height: 1.4),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280), height: 1.4),
                 ),
               ],
             ],

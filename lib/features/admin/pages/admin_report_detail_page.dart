@@ -106,11 +106,11 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('신고 대상 내용',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1F2933))),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933))),
                     const SizedBox(height: 12),
                     Text(
                       detail.targetContent.isEmpty ? '(내용 없음)' : detail.targetContent,
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF334155), height: 1.55),
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF334155), height: 1.55),
                     ),
                     if (detail.postId != null) ...[
                       const SizedBox(height: 14),
@@ -141,7 +141,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('처리 사유',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1F2933))),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933))),
                       const SizedBox(height: 10),
                       TextField(
                         controller: _commentController,
@@ -171,7 +171,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                           const SizedBox(width: 10),
                           const Expanded(
                             child: Text('신고 승인 시 입력한 기간만큼 제재가 적용됩니다.',
-                                style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                                style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                           ),
                         ],
                       ),
@@ -335,8 +335,8 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 78, child: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)))),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 14, color: Color(0xFF334155)))),
+          SizedBox(width: 78, child: Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)))),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 12, color: Color(0xFF334155)))),
         ],
       ),
     );
@@ -357,14 +357,14 @@ class _TappableInfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 78, child: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)))),
+          SizedBox(width: 78, child: Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)))),
           Expanded(
             child: GestureDetector(
               onTap: onTap,
               child: Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Color(0xFF426C82),
                   fontWeight: FontWeight.w700,
                   decoration: TextDecoration.underline,
@@ -395,7 +395,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-      child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: color)),
+      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color)),
     );
   }
 }

@@ -36,7 +36,7 @@ class CrisisBanner extends StatelessWidget {
                 const Text(
                   '힘드신가요? 혼자 견디지 않아도 됩니다.',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFB71C1C),
                     height: 1.4,
@@ -46,7 +46,7 @@ class CrisisBanner extends StatelessWidget {
                 const Text(
                   '자살예방상담전화 1393 (24시간)',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF7D2020),
                     height: 1.4,
                   ),
@@ -70,7 +70,7 @@ class CrisisBanner extends StatelessWidget {
               child: const Text(
                 '1393',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),

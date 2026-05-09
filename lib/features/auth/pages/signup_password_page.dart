@@ -71,7 +71,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
       hintText: hintText,
       hintStyle: const TextStyle(
         color: Color(0xFFB0B0B0),
-        fontSize: 14,
+        fontSize: 12,
       ),
       filled: true,
       fillColor: Colors.white,
@@ -158,7 +158,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
             child: const Text(
               '다음',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -191,7 +191,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 '6/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -203,7 +203,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 '보안 설정',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -215,7 +215,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 '거의 다 왔어요!\n비밀번호를 설정해주세요',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -229,7 +229,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 'TeenPle에서 사용할 비밀번호를 입력해주세요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -241,7 +241,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 '가입 이메일',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -277,7 +277,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                             ? '이메일 정보가 없습니다.'
                             : signupFormState.email,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: signupFormState.email.isEmpty
                               ? FontWeight.w400
                               : FontWeight.w600,
@@ -297,7 +297,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 '비밀번호',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -346,7 +346,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 const Text(
                   '영문, 숫자, 특수문자(@\$!%*#?&)를 포함해 8~20자로 입력해주세요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF8A8A8A),
                   ),
                 )
@@ -354,7 +354,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 const Text(
                   '비밀번호는 영문, 숫자, 특수문자(@\$!%*#?&)를 포함한 8~20자여야 해요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.red,
                   ),
                 )
@@ -362,7 +362,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 const Text(
                   '사용 가능한 비밀번호 형식이에요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF4A67F2),
                   ),
                 ),
@@ -373,7 +373,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               const Text(
                 '비밀번호 확인',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -424,7 +424,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 const Text(
                   '비밀번호가 일치하지 않아요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.red,
                   ),
                 )
@@ -434,7 +434,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 const Text(
                   '비밀번호가 일치해요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF4A67F2),
                   ),
                 ),

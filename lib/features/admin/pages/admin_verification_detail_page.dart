@@ -196,7 +196,7 @@ class _AdminVerificationDetailPageState
                   child: Text(
                     state.isActionLoading ? '처리 중...' : '승인',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -235,7 +235,7 @@ class _AdminVerificationDetailPageState
                   child: Text(
                     state.isActionLoading ? '처리 중...' : '거절',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -253,7 +253,7 @@ class _AdminVerificationDetailPageState
         child: Text(
           state.errorMessage ?? '상세 정보를 불러오지 못했습니다.',
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             color: Colors.red,
           ),
         ),
@@ -320,7 +320,7 @@ class _AdminVerificationDetailPageState
                         Text(
                           _statusText(detail.status),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: _statusColor(detail.status),
                           ),
@@ -329,7 +329,7 @@ class _AdminVerificationDetailPageState
                         Text(
                           _statusHelperText(detail.status),
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             height: 1.5,
                             color: Color(0xFF4B5563),
                           ),
@@ -360,7 +360,7 @@ class _AdminVerificationDetailPageState
                   Text(
                     detail.schoolName,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 17,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111111),
                     ),
@@ -369,7 +369,7 @@ class _AdminVerificationDetailPageState
                   Text(
                     '이름: ${detail.userName}',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Color(0xFF222222),
                     ),
                   ),
@@ -377,7 +377,7 @@ class _AdminVerificationDetailPageState
                   Text(
                     '이메일: ${detail.userEmail}',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Color(0xFF222222),
                     ),
                   ),
@@ -385,7 +385,7 @@ class _AdminVerificationDetailPageState
                   Text(
                     '요청일: ${_formatDate(detail.requestedAt)}',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Color(0xFF222222),
                     ),
                   ),
@@ -393,7 +393,7 @@ class _AdminVerificationDetailPageState
                   Text(
                     '상태: ${detail.status.label}',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Color(0xFF222222),
                     ),
                   ),
@@ -402,7 +402,7 @@ class _AdminVerificationDetailPageState
                     Text(
                       '처리일: ${_formatDate(detail.processedAt)}',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Color(0xFF222222),
                       ),
                     ),
@@ -413,7 +413,7 @@ class _AdminVerificationDetailPageState
                     Text(
                       '관리자 코멘트: ${detail.adminComment}',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Color(0xFF222222),
                       ),
                     ),
@@ -435,7 +435,7 @@ class _AdminVerificationDetailPageState
                 decoration: InputDecoration(
                   hintText: '승인 코멘트 또는 거절 사유를 입력해주세요.',
                   hintStyle: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Color(0xFFB0B0B0),
                   ),
                   filled: true,
@@ -469,7 +469,7 @@ class _AdminVerificationDetailPageState
                 Text(
                   state.actionErrorMessage!,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.red,
                   ),
                 ),
@@ -509,7 +509,7 @@ class _ImagePlaceholderCard extends StatelessWidget {
                 message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Color(0xFF6B7280),
                 ),
               ),

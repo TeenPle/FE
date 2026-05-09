@@ -51,7 +51,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 const Text(
                   '학년을 선택해주세요',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.4,
                     color: Color(0xFF111111),
@@ -64,7 +64,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 const Text(
                   '현재 재학 중인 학년을 선택하면 다음 단계로 이동할 수 있어요.',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     height: 1.5,
                     color: Color(0xFF666666),
                   ),
@@ -107,7 +107,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                             child: Text(
                               '$grade학년',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 13,
                                 fontWeight: selectedGrade == grade
                                     ? FontWeight.w700
                                     : FontWeight.w500,
@@ -177,7 +177,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
             child: const Text(
               '다음',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -210,7 +210,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
               const Text(
                 '2/8',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF8E8E93),
                 ),
@@ -222,7 +222,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
               const Text(
                 '재학 정보',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF4A67F2),
                 ),
@@ -234,7 +234,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
               const Text(
                 '몇 학년에 재학 중이신가요?',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.6,
                   height: 1.22,
@@ -248,7 +248,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
               const Text(
                 '선택한 학교를 기준으로 현재 학년을 알려주세요.',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   height: 1.5,
                   color: Color(0xFF555555),
                 ),
@@ -260,7 +260,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
               const Text(
                 '학년',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -302,7 +302,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                             ? '학년을 선택해주세요'
                             : '$selectedGrade학년',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight: selectedGrade == null
                               ? FontWeight.w400
                               : FontWeight.w700,
@@ -326,7 +326,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
               const Text(
                 '선택한 학교',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF666666),
                 ),
@@ -360,7 +360,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                       child: Text(
                         selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: selectedSchool != null
                               ? FontWeight.w600
                               : FontWeight.w400,

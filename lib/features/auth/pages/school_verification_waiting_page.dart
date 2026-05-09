@@ -56,7 +56,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
             child: const Text(
               '확인',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -101,7 +101,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 child: Text(
                   _statusLabel(),
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF4A67F2),
                   ),
@@ -114,7 +114,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
               Text(
                 blockedReason.title,
                 style: const TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -128,7 +128,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
               Text(
                 blockedReason.description,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   height: 1.6,
                   color: Color(0xFF555555),
                 ),
@@ -170,7 +170,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                       child: Text(
                         _helperText(),
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           height: 1.6,
                           color: Color(0xFF666666),
                         ),

@@ -50,7 +50,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
         title: const Text(
           '내가 쓴 댓글',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -74,7 +74,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
             SizedBox(height: 12),
             Text(
               '아직 쓴 댓글이 없어요.',
-              style: TextStyle(fontSize: 15, color: Color(0xFF9AA7B2)),
+              style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
             ),
           ],
         ),
@@ -118,7 +118,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                         child: Text(
                           comment.boardTitle!,
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF14A3F7),
                           ),
@@ -132,7 +132,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                       child: Text(
                         comment.postTitle,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Color(0xFF9AA7B2),
                           fontWeight: FontWeight.w600,
                         ),
@@ -146,7 +146,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                 Text(
                   comment.content,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     height: 1.5,
                     color: Color(0xFF2F3740),
                   ),
@@ -162,7 +162,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                     Text(
                       '${comment.likeCount}',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF9AA7B2),
                         fontWeight: FontWeight.w600,
                       ),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../../core/active_page_provider.dart';
 import '../models/chat_message_model.dart';
 import '../provider/chat_message_provider.dart';
 import '../provider/chat_room_list_provider.dart';
@@ -49,6 +50,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       setState(() => _messageSearchQuery =
           _messageSearchController.text.trim().toLowerCase());
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // 이 채팅방을 보고 있음을 알림 억제 로직에 알린다.
+      ref.read(activePageProvider.notifier).state =
+          ActivePage(chatRoomId: widget.roomId);
+    });
     Future.microtask(() async {
       final notifier =
           ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier);
@@ -65,6 +72,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   void dispose() {
+    Future.microtask(() {
+      ref.read(activePageProvider.notifier).state = const ActivePage();
+    });
     _scrollController.removeListener(_handleScroll);
     _inputController.dispose();
     _scrollController.dispose();
@@ -271,7 +281,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               const Text(
                 '신고 사유 선택',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF111111),
                 ),
@@ -435,7 +445,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF111111),
               ),
@@ -443,7 +453,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             const Text(
               '익명',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 color: Color(0xFF9AA7B2),
               ),
             ),
@@ -503,7 +513,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 decoration: InputDecoration(
                   hintText: '메시지 검색',
                   hintStyle:
-                      const TextStyle(fontSize: 15, color: Color(0xFFB0BEC5)),
+                      const TextStyle(fontSize: 13, color: Color(0xFFB0BEC5)),
                   prefixIcon: const Icon(
                     Icons.search_rounded,
                     color: Color(0xFFB0BEC5),
@@ -518,7 +528,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 style:
-                    const TextStyle(fontSize: 15, color: Color(0xFF111111)),
+                    const TextStyle(fontSize: 13, color: Color(0xFF111111)),
               ),
             ),
 
@@ -533,7 +543,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               ? '검색 결과가 없어요.'
                               : '첫 메시지를 보내보세요!',
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             color: Color(0xFF9AA7B2),
                           ),
                         ),
@@ -609,7 +619,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               color: const Color(0xFFFFEBEE),
               child: Text(
                 state.errorMessage!,
-                style: const TextStyle(fontSize: 13, color: Color(0xFFF44336)),
+                style: const TextStyle(fontSize: 11, color: Color(0xFFF44336)),
               ),
             ),
 
@@ -718,7 +728,7 @@ class _MessageBubble extends StatelessWidget {
                   child: Text(
                     '익명',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF7D8790),
                     ),
@@ -739,7 +749,7 @@ class _MessageBubble extends StatelessWidget {
                             const Text(
                               '1',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFFFFD600),
                               ),
@@ -748,7 +758,7 @@ class _MessageBubble extends StatelessWidget {
                             Text(
                               _formatTime(message.createdAt),
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 color: Color(0xFF9AA7B2),
                               ),
                             ),
@@ -833,7 +843,7 @@ class _MessageBubble extends StatelessWidget {
                                       Text(
                                         '이미지를 불러올 수 없습니다',
                                         style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 10,
                                           color: isMe ? Colors.white60 : const Color(0xFF9AA7B2),
                                         ),
                                       ),
@@ -846,7 +856,7 @@ class _MessageBubble extends StatelessWidget {
                         : Text(
                             message.content ?? '',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                               height: 1.4,
                               color: isMe
                                   ? Colors.white
@@ -860,7 +870,7 @@ class _MessageBubble extends StatelessWidget {
                       child: Text(
                         _formatTime(message.createdAt),
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 10,
                           color: Color(0xFF9AA7B2),
                         ),
                       ),
@@ -979,7 +989,7 @@ class _MessageInputBar extends StatelessWidget {
                       hintText: pendingImage == null ? '메시지 입력...' : '사진 전송 대기 중',
                       counterText: '',
                       hintStyle: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         color: Color(0xFF9AA7B2),
                       ),
                       border: InputBorder.none,
@@ -987,7 +997,7 @@ class _MessageInputBar extends StatelessWidget {
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 13,
                       color: Color(0xFF111111),
                     ),
                   ),
@@ -1060,7 +1070,7 @@ class _PenaltyInputBar extends StatelessWidget {
         child: Text(
           message,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: Color(0xFFD1432F),
           ),
@@ -1115,7 +1125,7 @@ class _BlockedInputBar extends StatelessWidget {
                     ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
                     : '차단한 사용자와는 채팅할 수 없습니다.',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF6B7280),
                 ),
@@ -1157,7 +1167,7 @@ class _DateSeparator extends StatelessWidget {
           Text(
             _formatDate(date),
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w500,
               color: Color(0xFF9AA7B2),
             ),
@@ -1199,7 +1209,7 @@ class _BottomSheetItem extends StatelessWidget {
       title: Text(
         label,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
           color: color,
         ),
@@ -1237,7 +1247,7 @@ class _ChatNoticeBar extends StatelessWidget {
               '욕설·비방·음란물·폭력적 내용 등 부적절한 메시지에 대한 책임은 작성자 본인에게 있습니다. '
               '위반 시 신고를 통해 이용이 제한될 수 있습니다.',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 height: 1.5,
                 color: Color(0xFF92400E),
               ),

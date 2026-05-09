@@ -35,7 +35,8 @@
       "Bash(git commit *)",
       "Bash(flutter devices *)",
       "Bash(flutter emulators *)",
-      "Bash(flutter run *)"
+      "Bash(flutter run *)",
+      "Bash(adb devices *)"
     ]
   }
 }

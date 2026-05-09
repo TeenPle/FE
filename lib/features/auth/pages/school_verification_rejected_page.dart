@@ -113,7 +113,7 @@ class _SchoolVerificationRejectedPageState
             child: Text(
               reapplyState.isSubmitLoading ? '재요청 중...' : '다시 인증 요청하기',
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -175,7 +175,7 @@ class _SchoolVerificationRejectedPageState
                 child: const Text(
                   '학교 인증 반려',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFFF7A45),
                   ),
@@ -188,7 +188,7 @@ class _SchoolVerificationRejectedPageState
               const Text(
                 '학교 인증이 반려되었어요.',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
@@ -202,7 +202,7 @@ class _SchoolVerificationRejectedPageState
               const Text(
                 '반려 사유를 확인한 뒤 학생증 사진을 다시 업로드해주세요.',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   height: 1.6,
                   color: Color(0xFF555555),
                 ),
@@ -225,7 +225,7 @@ class _SchoolVerificationRejectedPageState
                   child: Text(
                     reapplyState.errorMessage!,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       height: 1.6,
                       color: Colors.red,
                     ),
@@ -279,7 +279,7 @@ class _SchoolVerificationRejectedPageState
                       const Text(
                         '학교',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF6B7280),
                         ),
@@ -288,7 +288,7 @@ class _SchoolVerificationRejectedPageState
                       Text(
                         reapplyState.info!.schoolName,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF111111),
                         ),
@@ -316,7 +316,7 @@ class _SchoolVerificationRejectedPageState
                       const Text(
                         '반려 사유',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFFFF7A45),
                         ),
@@ -327,7 +327,7 @@ class _SchoolVerificationRejectedPageState
                             ? '관리자 코멘트가 없습니다.'
                             : reapplyState.info!.adminComment,
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           height: 1.6,
                           color: Color(0xFF444444),
                         ),
@@ -342,7 +342,7 @@ class _SchoolVerificationRejectedPageState
                 const Text(
                   '학생증 이미지',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF666666),
                   ),
@@ -387,7 +387,7 @@ class _SchoolVerificationRejectedPageState
                                 ? '학생증 사진 다시 업로드하기'
                                 : selectedFileName,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                               fontWeight: selectedFileName.isEmpty
                                   ? FontWeight.w400
                                   : FontWeight.w600,
@@ -407,7 +407,7 @@ class _SchoolVerificationRejectedPageState
                 const Text(
                   '학생증 정보가 잘 보이는 사진을 올려주세요.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Color(0xFF6B7280),
                   ),
                 ),
@@ -419,7 +419,7 @@ class _SchoolVerificationRejectedPageState
                   const Text(
                     '미리보기',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF666666),
                     ),
@@ -447,7 +447,7 @@ class _SchoolVerificationRejectedPageState
                             child: Text(
                               '이미지를 불러올 수 없어요.',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 11,
                                 color: Color(0xFF888888),
                               ),
                             ),
@@ -462,7 +462,7 @@ class _SchoolVerificationRejectedPageState
                   const Text(
                     '선택한 이미지가 맞는지 확인해주세요.',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Color(0xFF4A67F2),
                     ),
                   ),
@@ -473,7 +473,7 @@ class _SchoolVerificationRejectedPageState
                   Text(
                     reapplyState.submitErrorMessage!,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.red,
                     ),
                   ),

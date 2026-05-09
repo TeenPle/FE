@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 
+// 모든 페이지 전환에 적용할 좌우 슬라이드 트랜지션
+const _transitions = PageTransitionsTheme(
+  builders: {
+    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+  },
+);
+
 ThemeData buildTeenpleLightTheme() {
   return ThemeData(
     useMaterial3: true,
@@ -8,6 +16,7 @@ ThemeData buildTeenpleLightTheme() {
       seedColor: const Color(0xFF1DA1F2),
       brightness: Brightness.light,
     ),
+    pageTransitionsTheme: _transitions,
   );
 }
 
@@ -29,6 +38,7 @@ ThemeData buildTeenpleDarkTheme() {
       foregroundColor: Color(0xFFEEEEEE),
       elevation: 0,
     ),
+    pageTransitionsTheme: _transitions,
   );
 }
 

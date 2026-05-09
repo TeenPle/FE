@@ -159,7 +159,7 @@ class _SchoolTile extends StatelessWidget {
                     Text(
                       school.name,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF1F2933),
                       ),
@@ -167,7 +167,7 @@ class _SchoolTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       school.regionName ?? '지역 정보 없음',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
                     ),
                   ],
                 ),

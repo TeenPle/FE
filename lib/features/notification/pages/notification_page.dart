@@ -57,7 +57,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
         title: const Text(
           '알림',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -168,7 +168,7 @@ class _CommentNotificationContent extends StatelessWidget {
           Text(
             notification.boardName!,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Color(0xFF14A3F7),
             ),
@@ -178,7 +178,7 @@ class _CommentNotificationContent extends StatelessWidget {
         Text(
           notification.message,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
             color: const Color(0xFF111111),
             height: 1.4,
@@ -190,7 +190,7 @@ class _CommentNotificationContent extends StatelessWidget {
         Text(
           timeAgo(notification.createdAt),
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             color: Color(0xFF9AA7B2),
           ),
         ),
@@ -216,7 +216,7 @@ class _DefaultNotificationContent extends StatelessWidget {
         Text(
           notification.message,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
             color: const Color(0xFF111111),
             height: 1.4,
@@ -226,7 +226,7 @@ class _DefaultNotificationContent extends StatelessWidget {
         Text(
           timeAgo(notification.createdAt),
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             color: Color(0xFF9AA7B2),
           ),
         ),
@@ -291,7 +291,7 @@ class _EmptyState extends StatelessWidget {
           Text(
             '아직 알림이 없어요',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: Color(0xFF111111),
             ),
@@ -299,7 +299,7 @@ class _EmptyState extends StatelessWidget {
           SizedBox(height: 6),
           Text(
             '새 댓글이나 공감이 오면 알려드릴게요.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
           ),
         ],
       ),

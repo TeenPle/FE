@@ -10,6 +10,7 @@ class CommentItem extends StatelessWidget {
   final CommentModel comment;
   final List<CommentModel> replies;
   final bool likedByMe;
+  final bool isReplyTarget;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
   final void Function(CommentModel comment)? onEditTap;
@@ -23,6 +24,7 @@ class CommentItem extends StatelessWidget {
     required this.comment,
     required this.replies,
     this.likedByMe = false,
+    this.isReplyTarget = false,
     this.onReplyTap,
     this.onLikeTap,
     this.onEditTap,
@@ -35,7 +37,7 @@ class CommentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.fromLTRB(0, 11, 0, 11),
       child: Column(
         children: [
           _CommentBody(
@@ -43,6 +45,8 @@ class CommentItem extends StatelessWidget {
             showReplyButton: !comment.isReply,
             isMyComment: comment.isMine,
             likedByMe: likedByMe,
+            isReply: false,
+            isReplyTarget: isReplyTarget,
             onReplyTap: onReplyTap,
             onLikeTap: onLikeTap,
             onEditTap: () => onEditTap?.call(comment),
@@ -53,37 +57,43 @@ class CommentItem extends StatelessWidget {
                 ? () => onBlockTap?.call(comment.authorUserId!)
                 : null,
           ),
-          if (replies.isNotEmpty) const SizedBox(height: 14),
+          if (replies.isNotEmpty) const SizedBox(height: 10),
           if (replies.isNotEmpty)
             ...replies.map(
               (reply) => Padding(
-                padding: const EdgeInsets.only(left: 12, top: 10),
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FBFE),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFEAF0F5)),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 24,
-                        alignment: Alignment.topCenter,
-                        child: const Icon(
+                padding: const EdgeInsets.only(left: 6, top: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 18,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: Icon(
                           Icons.subdirectory_arrow_right_rounded,
-                          size: 18,
-                          color: Color(0xFF9AA7B2),
+                          size: 17,
+                          color: Color(0xFF6FAFEA),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Expanded(
+                    ),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEAF5FF),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFFCFE8FF),
+                          ),
+                        ),
                         child: _CommentBody(
                           comment: reply,
                           showReplyButton: false,
                           isMyComment: reply.isMine,
                           likedByMe: false,
+                          isReply: true,
+                          isReplyTarget: false,
                           onLikeTap: () {},
                           onEditTap: () => onEditTap?.call(reply),
                           onDeleteTap: () => onDeleteTap?.call(reply.commentId),
@@ -94,8 +104,8 @@ class CommentItem extends StatelessWidget {
                               : null,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -111,6 +121,8 @@ class _CommentBody extends StatelessWidget {
   final bool showReplyButton;
   final bool isMyComment;
   final bool likedByMe;
+  final bool isReply;
+  final bool isReplyTarget;
   final VoidCallback? onReplyTap;
   final VoidCallback? onLikeTap;
   final VoidCallback? onEditTap;
@@ -124,6 +136,8 @@ class _CommentBody extends StatelessWidget {
     required this.showReplyButton,
     required this.isMyComment,
     required this.likedByMe,
+    required this.isReply,
+    required this.isReplyTarget,
     this.onReplyTap,
     this.onLikeTap,
     this.onEditTap,
@@ -144,34 +158,60 @@ class _CommentBody extends StatelessWidget {
       return dt != null ? timeAgo(dt) : '';
     }();
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 36,
-          height: 36,
+    final canReplyFromSurface = showReplyButton && onReplyTap != null;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: canReplyFromSurface
+            ? () {
+                AppHaptics.light();
+                onReplyTap!();
+              }
+            : null,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.fromLTRB(
+            isReplyTarget ? 12 : 0,
+            isReplyTarget ? 12 : 0,
+            isReplyTarget ? 12 : 0,
+            isReplyTarget ? 12 : 0,
+          ),
           decoration: BoxDecoration(
-            color: const Color(0xFFEAF3FB),
-            borderRadius: BorderRadius.circular(12),
+            color: isReplyTarget ? const Color(0xFFDFF0FF) : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            border: isReplyTarget
+                ? Border.all(color: const Color(0xFF9BD0FF), width: 1.2)
+                : null,
           ),
-          child: const Icon(
-            Icons.person_rounded,
-            color: Color(0xFF8EA2B5),
-            size: 22,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: isReply ? 30 : 34,
+                    height: isReply ? 30 : 34,
+                    decoration: BoxDecoration(
+                      color: isReply ? const Color(0xFFFFFFFF) : const Color(0xFFE4F2FF),
+                      borderRadius: BorderRadius.circular(isReply ? 10 : 12),
+                    ),
+                    child: Icon(
+                      Icons.person_rounded,
+                      color: const Color(0xFF8EA2B5),
+                      size: isReply ? 18 : 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 6,
-                      runSpacing: 4,
+                      runSpacing: 3,
                       children: [
                         Text(
                           comment.displayAuthorName,
@@ -181,16 +221,8 @@ class _CommentBody extends StatelessWidget {
                             color: Color(0xFF111111),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F6FA),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
+                        if (createdAtText.isNotEmpty)
+                          Text(
                             createdAtText,
                             style: const TextStyle(
                               fontSize: 10,
@@ -198,7 +230,6 @@ class _CommentBody extends StatelessWidget {
                               color: Color(0xFF7D8790),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -224,29 +255,28 @@ class _CommentBody extends StatelessWidget {
                       if (isMyComment) ...[
                         const PopupMenuItem(
                           value: 'edit',
-                          child: Text('수정하기'),
+                          child: _CompactMenuText('수정하기'),
                         ),
                         const PopupMenuItem(
                           value: 'delete',
-                          child: Text('삭제하기'),
+                          child: _CompactMenuText('삭제하기'),
                         ),
                       ],
                       if (!isMyComment) ...[
+                        if (comment.canChatWithAuthor)
                         const PopupMenuItem(
                           value: 'chat',
-                          child: Text('채팅'),
+                          child: _CompactMenuText('채팅'),
                         ),
+                        if (comment.canReportAuthor)
                         const PopupMenuItem(
                           value: 'report',
-                          child: Text('신고하기'),
+                          child: _CompactMenuText('신고하기'),
                         ),
-                        if (onBlockTap != null)
+                        if (comment.canBlockAuthor && onBlockTap != null)
                           const PopupMenuItem(
                             value: 'block',
-                            child: Text(
-                              '차단하기',
-                              style: TextStyle(color: Color(0xFFE05C5C)),
-                            ),
+                            child: _CompactMenuText('차단하기', color: Color(0xFFE05C5C)),
                           ),
                       ],
                     ],
@@ -261,41 +291,48 @@ class _CommentBody extends StatelessWidget {
                   ),
                 ],
               ),
-              if (comment.content.isNotEmpty) const SizedBox(height: 8),
+              if (comment.content.isNotEmpty) const SizedBox(height: 5),
               if (comment.content.isNotEmpty)
-                Text(
-                  comment.content,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.5,
-                    color: Color(0xFF2F3740),
+                Padding(
+                  padding: EdgeInsets.only(left: isReply ? 0 : 1),
+                  child: Text(
+                    comment.content,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.48,
+                      color: Color(0xFF2F3740),
+                      letterSpacing: 0,
+                    ),
                   ),
                 ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  if (showReplyButton)
+              const SizedBox(height: 7),
+              Padding(
+                padding: EdgeInsets.only(left: isReply ? 0 : 1),
+                child: Row(
+                  children: [
+                    if (showReplyButton)
+                      _InlineActionButton(
+                        icon: Icons.mode_comment_outlined,
+                        label: '답글',
+                        onTap: onReplyTap,
+                        isActive: isReplyTarget,
+                      ),
+                    if (showReplyButton) const SizedBox(width: 8),
                     _InlineActionButton(
-                      icon: Icons.chat_bubble_outline_rounded,
-                      label: '답글',
-                      onTap: onReplyTap,
-                      isActive: false,
+                      icon: likedByMe
+                          ? Icons.thumb_up_alt
+                          : Icons.thumb_up_alt_outlined,
+                      label: '공감 ${comment.likeCount}',
+                      onTap: onLikeTap,
+                      isActive: likedByMe,
                     ),
-                  if (showReplyButton) const SizedBox(width: 10),
-                  _InlineActionButton(
-                    icon: likedByMe
-                        ? Icons.thumb_up_alt
-                        : Icons.thumb_up_alt_outlined,
-                    label: '공감 ${comment.likeCount}',
-                    onTap: onLikeTap,
-                    isActive: likedByMe,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -350,6 +387,7 @@ class _InlineActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isActive ? const Color(0xFF14A3F7) : const Color(0xFF7D8790);
+
     return TapScale(
       scale: 0.90,
       child: InkWell(
@@ -361,23 +399,45 @@ class _InlineActionButton extends StatelessWidget {
               },
         borderRadius: BorderRadius.circular(999),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 16, color: color),
+              Icon(icon, size: 15, color: color),
               const SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: color,
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CompactMenuText extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _CompactMenuText(
+    this.text, {
+    this.color = const Color(0xFF222222),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: color,
       ),
     );
   }

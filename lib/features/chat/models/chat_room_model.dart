@@ -8,6 +8,10 @@ class ChatRoomModel {
   final bool blocked;
   final bool blockedByMe;
   final bool blockedByOther;
+  final bool otherUserDeleted;
+  final bool canSendMessage;
+  final bool canReport;
+  final bool canBlock;
 
   const ChatRoomModel({
     required this.roomId,
@@ -19,6 +23,10 @@ class ChatRoomModel {
     required this.blocked,
     required this.blockedByMe,
     required this.blockedByOther,
+    this.otherUserDeleted = false,
+    this.canSendMessage = true,
+    this.canReport = true,
+    this.canBlock = true,
   });
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +44,10 @@ class ChatRoomModel {
       blocked: json['blocked'] as bool? ?? false,
       blockedByMe: json['blockedByMe'] as bool? ?? false,
       blockedByOther: json['blockedByOther'] as bool? ?? false,
+      otherUserDeleted: json['otherUserDeleted'] as bool? ?? false,
+      canSendMessage: json['canSendMessage'] as bool? ?? true,
+      canReport: json['canReport'] as bool? ?? true,
+      canBlock: json['canBlock'] as bool? ?? true,
     );
   }
 }

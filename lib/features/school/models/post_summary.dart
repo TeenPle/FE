@@ -10,9 +10,10 @@ class PostSummary {
   final int likeCount;
   final int dislikeCount;
   final int boardId;
-  final int userId;
+  final int? userId;
   final String username;
   final String? authorProfileImageUrl;
+  final bool authorDeleted;
   final int commentCount;
   final List<PostMediaItem> mediaList;
   final String createdAt;
@@ -29,9 +30,10 @@ class PostSummary {
     required this.likeCount,
     required this.dislikeCount,
     required this.boardId,
-    required this.userId,
+    this.userId,
     required this.username,
     this.authorProfileImageUrl,
+    this.authorDeleted = false,
     required this.commentCount,
     this.mediaList = const [],
     this.createdAt = '',
@@ -51,11 +53,12 @@ class PostSummary {
       likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
       dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
       boardId: json['boardId'] != null ? (json['boardId'] as num).toInt() : 0,
-      userId: json['userId'] != null ? (json['userId'] as num).toInt() : 0,
+      userId: json['userId'] != null ? (json['userId'] as num).toInt() : null,
       username: json['username'] as String? ?? '',
       authorProfileImageUrl: (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
           ? rawProfileUrl
           : null,
+      authorDeleted: json['authorDeleted'] as bool? ?? false,
       commentCount: json['commentCount'] != null ? (json['commentCount'] as num).toInt() : 0,
       mediaList: (json['mediaList'] as List<dynamic>? ?? [])
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
@@ -68,5 +71,5 @@ class PostSummary {
 
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
-  String get displayAuthorName => anonymous ? '익명' : username;
+  String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
 }

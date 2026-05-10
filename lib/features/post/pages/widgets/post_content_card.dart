@@ -15,12 +15,7 @@ class PostContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
-      ),
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -29,23 +24,29 @@ class PostContentCard extends StatelessWidget {
           Text(
             post.title,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 19,
               fontWeight: FontWeight.w800,
               color: Color(0xFF111111),
               height: 1.3,
+              letterSpacing: 0,
             ),
           ),
-          const SizedBox(height: 14),
+          Container(
+            height: 1,
+            margin: const EdgeInsets.symmetric(vertical: 16),
+            color: const Color(0xFFDDEAF6),
+          ),
           LinkableText(
             text: post.content,
             style: const TextStyle(
               fontSize: 13,
-              height: 1.7,
+              height: 1.68,
               color: Color(0xFF2F3740),
+              letterSpacing: 0,
             ),
           ),
           if (post.mediaUrls.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             _MediaGallery(mediaUrls: post.mediaUrls),
           ],
         ],
@@ -80,7 +81,7 @@ class _MediaGallery extends StatelessWidget {
         if (imageUrls.isNotEmpty) ...[
           Container(
             height: 1,
-            color: const Color(0xFFEEF3F7),
+            color: const Color(0xFFDDEAF6),
             margin: const EdgeInsets.only(bottom: 14),
           ),
           // 이미지가 1개면 전체 너비, 여러 개면 가로 스크롤
@@ -182,9 +183,9 @@ class _FileAttachmentChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F8FB),
+          color: const Color(0xFFEFF7FF),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFD6DEE7)),
+          border: Border.all(color: const Color(0xFFD2E7F8)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -219,7 +220,7 @@ Widget _defaultAvatar() {
     width: 42,
     height: 42,
     decoration: BoxDecoration(
-      color: const Color(0xFFEAF3FB),
+      color: const Color(0xFFE4F2FF),
       borderRadius: BorderRadius.circular(14),
     ),
     child: const Icon(
@@ -301,7 +302,7 @@ class _PostMetaRow extends StatelessWidget {
                 )
               : _defaultAvatar(),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,7 +317,8 @@ class _PostMetaRow extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   _MetaText('조회 ${post.viewCount}'),
                   if (post.createdAtMs != null) ...[

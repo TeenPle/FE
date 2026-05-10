@@ -17,11 +17,12 @@ class PollCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+      padding: const EdgeInsets.fromLTRB(0, 18, 0, 16),
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Color(0xFFDDEAF6)),
+          bottom: BorderSide(color: Color(0xFFDDEAF6)),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +34,7 @@ class PollCard extends StatelessWidget {
               Text(
                 '투표',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF111111),
                 ),
@@ -58,7 +59,7 @@ class PollCard extends StatelessWidget {
             child: Text(
               '총 참여자 : ${poll.totalParticipants}명',
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF7D8790),
               ),
@@ -93,9 +94,9 @@ class _PollOptionTile extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            height: 46,
+            height: 42,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FBFE),
+              color: const Color(0xFFEFF7FF),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: option.selectedByMe
@@ -137,7 +138,7 @@ class _PollOptionTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF222222),
                       ),
@@ -148,7 +149,7 @@ class _PollOptionTile extends StatelessWidget {
                     Text(
                       '${option.voteCount}명 (${option.percentage}%)',
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF52606D),
                       ),

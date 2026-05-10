@@ -507,6 +507,10 @@ final GoRouter router = GoRouter(
           initialBlocked: extra['blocked'] as bool? ?? false,
           initialBlockedByMe: extra['blockedByMe'] as bool? ?? false,
           initialBlockedByOther: extra['blockedByOther'] as bool? ?? false,
+          initialOtherUserDeleted: extra['otherUserDeleted'] as bool? ?? false,
+          initialCanSendMessage: extra['canSendMessage'] as bool? ?? true,
+          initialCanReport: extra['canReport'] as bool? ?? true,
+          initialCanBlock: extra['canBlock'] as bool? ?? true,
         );
       },
     ),

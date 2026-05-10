@@ -12,6 +12,10 @@ class ChatMessageListResult {
   final bool blocked;
   final bool blockedByMe;
   final bool blockedByOther;
+  final bool otherUserDeleted;
+  final bool canSendMessage;
+  final bool canReport;
+  final bool canBlock;
 
   const ChatMessageListResult({
     required this.messages,
@@ -19,6 +23,10 @@ class ChatMessageListResult {
     this.blocked = false,
     this.blockedByMe = false,
     this.blockedByOther = false,
+    this.otherUserDeleted = false,
+    this.canSendMessage = true,
+    this.canReport = true,
+    this.canBlock = true,
   });
 }
 
@@ -87,6 +95,10 @@ class ChatApi {
         blocked: map['blocked'] as bool? ?? false,
         blockedByMe: map['blockedByMe'] as bool? ?? false,
         blockedByOther: map['blockedByOther'] as bool? ?? false,
+        otherUserDeleted: map['otherUserDeleted'] as bool? ?? false,
+        canSendMessage: map['canSendMessage'] as bool? ?? true,
+        canReport: map['canReport'] as bool? ?? true,
+        canBlock: map['canBlock'] as bool? ?? true,
       );
     });
     if (!resp.isSuccess || resp.result == null) throw Exception(resp.message);

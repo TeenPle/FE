@@ -36,7 +36,8 @@
       "Bash(flutter devices *)",
       "Bash(flutter emulators *)",
       "Bash(flutter run *)",
-      "Bash(adb devices *)"
+      "Bash(adb devices *)",
+      "Bash(python3 *)"
     ]
   }
 }

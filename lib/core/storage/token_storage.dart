@@ -9,7 +9,7 @@ final tokenStorageProvider = Provider<TokenStorage>((ref) {
 class TokenStorage {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
   );
 
   static const _accessTokenKey = 'access_token';
@@ -38,24 +38,36 @@ class TokenStorage {
     return val == 'true';
   }
 
-  Future<void> saveUserId(int userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_userIdKey, userId);
-  }
+  Future<void> saveUserId(int userId) =>
+      _storage.write(key: _userIdKey, value: userId.toString());
 
   Future<int?> getUserId() async {
+    final val = await _storage.read(key: _userIdKey);
+    if (val != null) return int.tryParse(val);
+    // 기존 SharedPreferences에 저장된 값 마이그레이션 (1회 수행 후 제거)
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_userIdKey);
+    final legacy = prefs.getInt(_userIdKey);
+    if (legacy != null) {
+      await saveUserId(legacy);
+      await prefs.remove(_userIdKey);
+    }
+    return legacy;
   }
 
-  Future<void> saveUserRole(String role) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userRoleKey, role);
-  }
+  Future<void> saveUserRole(String role) =>
+      _storage.write(key: _userRoleKey, value: role);
 
   Future<String?> getUserRole() async {
+    final val = await _storage.read(key: _userRoleKey);
+    if (val != null) return val;
+    // 기존 SharedPreferences에 저장된 값 마이그레이션 (1회 수행 후 제거)
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userRoleKey);
+    final legacy = prefs.getString(_userRoleKey);
+    if (legacy != null) {
+      await saveUserRole(legacy);
+      await prefs.remove(_userRoleKey);
+    }
+    return legacy;
   }
 
   Future<void> saveSchoolId(int schoolId) =>
@@ -73,6 +85,7 @@ class TokenStorage {
 
   Future<void> clearAll() async {
     await _storage.deleteAll();
+    // 레거시 SharedPreferences 잔여 데이터 정리
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userIdKey);
     await prefs.remove(_userRoleKey);

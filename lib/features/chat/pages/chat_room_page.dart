@@ -265,7 +265,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   void _showReportSheet() {
-    final reasons = ['스팸', '욕설/비방', '음란물', '폭력', '기타'];
+    // (표시 라벨, BE enum 값) 쌍 — ReportReason enum: SPAM, ABUSE, OBSCENE, ILLEGAL, HARASSMENT, ETC
+    const reasons = [
+      ('스팸', 'SPAM'),
+      ('욕설·비방', 'ABUSE'),
+      ('음란물', 'OBSCENE'),
+      ('불법 정보', 'ILLEGAL'),
+      ('괴롭힘·위협', 'HARASSMENT'),
+      ('기타', 'ETC'),
+    ];
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -288,14 +296,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               ),
               const SizedBox(height: 16),
               ...reasons.map(
-                (reason) => ListTile(
+                ((String label, String value) reason) => ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(reason),
+                  title: Text(reason.$1),
                   onTap: () async {
                     Navigator.pop(ctx);
                     await ref
                         .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
-                        .reportRoom(reason);
+                        .reportRoom(reason.$2);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('신고가 접수되었습니다.')),

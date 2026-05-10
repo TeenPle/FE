@@ -466,7 +466,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         TextButton(
                           onPressed: () {
                             ref.read(loginProvider.notifier).reset();
-                            context.push(AppRoutes.signupSchool);
+                            context.push(AppRoutes.signupConsent);
                           },
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 8),

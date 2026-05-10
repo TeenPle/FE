@@ -3,11 +3,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 푸시 알림 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- 정확한 알림음 재생 -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:label="teenple_frontend"
+        android:label="TeenPle"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="false">

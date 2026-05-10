@@ -18,6 +18,10 @@ class PostDetail {
   final String postStatus;
   final String username;
   final String? authorProfileImageUrl;
+  final bool authorDeleted;
+  final bool canChatWithAuthor;
+  final bool canReportAuthor;
+  final bool canBlockAuthor;
   final String createdAt;
   final int? createdAtMs;
   final List<CommentModel> comments;
@@ -41,6 +45,10 @@ class PostDetail {
     required this.postStatus,
     required this.username,
     this.authorProfileImageUrl,
+    this.authorDeleted = false,
+    this.canChatWithAuthor = true,
+    this.canReportAuthor = true,
+    this.canBlockAuthor = true,
     required this.createdAt,
     this.createdAtMs,
     required this.comments,
@@ -69,6 +77,10 @@ class PostDetail {
       authorProfileImageUrl: (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
           ? rawProfileUrl
           : null,
+      authorDeleted: json['authorDeleted'] as bool? ?? false,
+      canChatWithAuthor: json['canChatWithAuthor'] as bool? ?? true,
+      canReportAuthor: json['canReportAuthor'] as bool? ?? true,
+      canBlockAuthor: json['canBlockAuthor'] as bool? ?? true,
       createdAt: json['createdAt'] as String? ?? '',
       createdAtMs: json['createdAtMs'] != null ? (json['createdAtMs'] as num).toInt() : null,
       comments: (json['comments'] as List<dynamic>? ?? [])
@@ -100,6 +112,10 @@ class PostDetail {
     String? postStatus,
     String? username,
     String? authorProfileImageUrl,
+    bool? authorDeleted,
+    bool? canChatWithAuthor,
+    bool? canReportAuthor,
+    bool? canBlockAuthor,
     String? createdAt,
     int? createdAtMs,
     List<CommentModel>? comments,
@@ -123,6 +139,10 @@ class PostDetail {
       postStatus: postStatus ?? this.postStatus,
       username: username ?? this.username,
       authorProfileImageUrl: authorProfileImageUrl ?? this.authorProfileImageUrl,
+      authorDeleted: authorDeleted ?? this.authorDeleted,
+      canChatWithAuthor: canChatWithAuthor ?? this.canChatWithAuthor,
+      canReportAuthor: canReportAuthor ?? this.canReportAuthor,
+      canBlockAuthor: canBlockAuthor ?? this.canBlockAuthor,
       createdAt: createdAt ?? this.createdAt,
       createdAtMs: createdAtMs ?? this.createdAtMs,
       comments: comments ?? this.comments,
@@ -134,5 +154,5 @@ class PostDetail {
 
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
-  String get displayAuthorName => anonymous ? '익명' : username;
+  String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
 }

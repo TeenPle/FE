@@ -54,15 +54,17 @@ class PostActionBar extends StatelessWidget {
               : const Color(0xFF6E7B87),
           backgroundColor: bookmarkedByMe
               ? const Color(0xFFFFF8ED)
-              : Colors.white,
+              : const Color(0xFFEFF7FF),
           borderColor: bookmarkedByMe
               ? const Color(0xFFFFE0A0)
-              : const Color(0xFFE6EDF3),
+              : const Color(0xFFD2E7F8),
           onTap: onBookmarkTap,
         ),
         const SizedBox(width: 8),
         _IconActionButton(
           icon: Icons.ios_share_rounded,
+          backgroundColor: const Color(0xFFEFF7FF),
+          borderColor: const Color(0xFFD2E7F8),
           onTap: onShareTap,
         ),
       ],
@@ -84,9 +86,9 @@ class _StaticChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFEFF7FF),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: const Color(0xFFD2E7F8)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -136,9 +138,9 @@ class _IconActionButton extends StatelessWidget {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.white,
+            color: backgroundColor ?? const Color(0xFFEFF7FF),
             shape: BoxShape.circle,
-            border: Border.all(color: borderColor ?? const Color(0xFFE6EDF3)),
+            border: Border.all(color: borderColor ?? const Color(0xFFD2E7F8)),
           ),
           child: Icon(
             icon,

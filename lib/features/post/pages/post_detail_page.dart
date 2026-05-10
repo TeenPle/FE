@@ -86,10 +86,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: const Color(0xFFF7FBFF),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: const Color(0xFFF7FBFF),
         foregroundColor: const Color(0xFF111111),
         centerTitle: true,
         title: const Text(
@@ -141,7 +141,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('자신의 게시글에는 채팅할 수 없습니다.')),
                   );
-                } else if (post.authorId == null) {
+                } else if (post.authorDeleted || !post.canChatWithAuthor || post.authorId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('채팅을 시작할 수 없습니다.')),
                   );
@@ -153,14 +153,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     post: post,
                   );
                 }
-              } else if (value == 'report') {
+              } else if (value == 'report' && post != null && post.canReportAuthor) {
                 _showReportSheet(
                   context,
                   onSubmit: (reason) {
                     notifier.reportPost(reason);
                   },
                 );
-              } else if (value == 'block' && post != null && post.authorUserId != null) {
+              } else if (value == 'block' && post != null && post.canBlockAuthor && post.authorUserId != null) {
                 final confirmed = await _showBlockConfirmDialog(context);
                 if (confirmed == true && mounted) {
                   try {
@@ -185,29 +185,28 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               if (post != null && post.isMine) ...[
                 const PopupMenuItem(
                   value: 'edit',
-                  child: Text('수정하기'),
+                  child: _CompactMenuText('수정하기'),
                 ),
                 const PopupMenuItem(
                   value: 'delete',
-                  child: Text('삭제하기'),
+                  child: _CompactMenuText('삭제하기'),
                 ),
               ],
               if (post == null || !post.isMine) ...[
+                if (post != null && post.canChatWithAuthor)
                 const PopupMenuItem(
                   value: 'chat',
-                  child: Text('채팅'),
+                  child: _CompactMenuText('채팅'),
                 ),
+                if (post != null && post.canReportAuthor)
                 const PopupMenuItem(
                   value: 'report',
-                  child: Text('신고하기'),
+                  child: _CompactMenuText('신고하기'),
                 ),
-                if (post != null && post.authorUserId != null)
+                if (post != null && post.canBlockAuthor && post.authorUserId != null)
                   const PopupMenuItem(
                     value: 'block',
-                    child: Text(
-                      '차단하기',
-                      style: TextStyle(color: Color(0xFFE05C5C)),
-                    ),
+                    child: _CompactMenuText('차단하기', color: Color(0xFFE05C5C)),
                   ),
               ],
             ],
@@ -243,18 +242,18 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         onRefresh: notifier.refresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
           children: [
             PostContentCard(post: post),
             if (post.poll != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               PollCard(
                 poll: post.poll!,
                 isSubmitting: state.isSubmittingReaction,
                 onVote: notifier.votePoll,
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
             PostActionBar(
               likeCount: post.likeCount,
               commentCount: state.comments.length,
@@ -266,94 +265,86 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 debugPrint('share post: ${post.postId}');
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             _CommentSectionHeader(commentCount: state.comments.length),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: const Color(0xFFE6EDF3),
-                ),
-              ),
-              child: Column(
-                children: _buildCommentWidgets(
-                  comments: state.comments,
-                  onReplyTap: (commentId, isReply) {
-                    notifier.startReply(commentId, isReply: isReply);
-                  },
-                  onCommentLikeTap: (commentId) => notifier.likeComment(commentId),
-                  likedCommentIds: state.likedCommentIds,
-                  onCommentChatTap: (comment) async {
-                    if (comment.isMine) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('자신의 댓글에는 채팅할 수 없습니다.')),
+            const SizedBox(height: 4),
+            Column(
+              children: _buildCommentWidgets(
+                comments: state.comments,
+                replyingToCommentId: state.replyingToCommentId,
+                onReplyTap: (commentId, isReply) {
+                  notifier.startReply(commentId, isReply: isReply);
+                },
+                onCommentLikeTap: (commentId) => notifier.likeComment(commentId),
+                likedCommentIds: state.likedCommentIds,
+                onCommentChatTap: (comment) async {
+                  if (comment.isMine) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('자신의 댓글에는 채팅할 수 없습니다.')),
+                    );
+                    return;
+                  }
+                  if (!comment.canChatWithAuthor || comment.authorUserId == null || post == null) return;
+                  await _startChat(
+                    context: context,
+                    ref: ref,
+                    otherUserId: comment.authorUserId!,
+                    post: post,
+                  );
+                },
+                onCommentReportTap: (commentId) {
+                  _showReportSheet(
+                    context,
+                    onSubmit: (reason) {
+                      notifier.reportComment(commentId, reason);
+                    },
+                  );
+                },
+                onCommentEditTap: (comment) {
+                  _showEditCommentDialog(
+                    context,
+                    initialContent: comment.content,
+                    initialAnonymous: comment.anonymous,
+                    onSubmit: (content, anonymous) {
+                      notifier.updateComment(
+                        commentId: comment.commentId,
+                        content: content,
+                        anonymous: anonymous,
                       );
-                      return;
-                    }
-                    if (comment.authorUserId == null || post == null) return;
-                    await _startChat(
-                      context: context,
-                      ref: ref,
-                      otherUserId: comment.authorUserId!,
-                      post: post,
-                    );
-                  },
-                  onCommentReportTap: (commentId) {
-                    _showReportSheet(
-                      context,
-                      onSubmit: (reason) {
-                        notifier.reportComment(commentId, reason);
-                      },
-                    );
-                  },
-                  onCommentEditTap: (comment) {
-                    _showEditCommentDialog(
-                      context,
-                      initialContent: comment.content,
-                      initialAnonymous: comment.anonymous,
-                      onSubmit: (content, anonymous) {
-                        notifier.updateComment(
-                          commentId: comment.commentId,
-                          content: content,
-                          anonymous: anonymous,
-                        );
-                      },
-                    );
-                  },
-                  onCommentDeleteTap: (commentId) async {
-                    final confirmed = await _showDeleteConfirmDialog(
-                      context,
-                      title: '댓글을 삭제할까요?',
-                      description: '삭제한 댓글은 되돌릴 수 없습니다.',
-                    );
+                    },
+                  );
+                },
+                onCommentDeleteTap: (commentId) async {
+                  final confirmed = await _showDeleteConfirmDialog(
+                    context,
+                    title: '댓글을 삭제할까요?',
+                    description: '삭제한 댓글은 되돌릴 수 없습니다.',
+                  );
 
-                    if (confirmed == true) {
-                      await notifier.deleteComment(commentId);
-                    }
-                  },
-                  onCommentBlockTap: (authorUserId) async {
-                    final confirmed = await _showBlockConfirmDialog(context);
-                    if (confirmed == true && mounted) {
-                      try {
-                        await ref.read(blockActionProvider).block(authorUserId);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
-                          );
-                          await notifier.loadPostDetail();
-                        }
-                      } catch (_) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('차단 처리에 실패했습니다.')),
-                          );
-                        }
+                  if (confirmed == true) {
+                    await notifier.deleteComment(commentId);
+                  }
+                },
+                onCommentBlockTap: (authorUserId) async {
+                  final confirmed = await _showBlockConfirmDialog(context);
+                  if (confirmed == true && mounted) {
+                    try {
+                      await ref.read(blockActionProvider).block(authorUserId);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
+                        );
+                        await notifier.loadPostDetail();
+                      }
+                    } catch (_) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('차단 처리에 실패했습니다.')),
+                        );
                       }
                     }
-                  },
-                ),
+                  }
+                },
               ),
             ),
           ],
@@ -365,6 +356,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   /// 부모 댓글과 대댓글을 묶어서 화면에 구성
   List<Widget> _buildCommentWidgets({
     required List<CommentModel> comments,
+    required int? replyingToCommentId,
     required void Function(int commentId, bool isReply) onReplyTap,
     required void Function(int commentId) onCommentLikeTap,
     required void Function(CommentModel comment) onCommentChatTap,
@@ -407,6 +399,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             comment: parent,
             replies: replies,
             likedByMe: likedCommentIds.contains(parent.commentId),
+            isReplyTarget: replyingToCommentId == parent.commentId,
             onReplyTap: () => onReplyTap(parent.commentId, false),
             onLikeTap: () => onCommentLikeTap(parent.commentId),
             onChatTap: onCommentChatTap,
@@ -419,7 +412,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             const Divider(
               height: 1,
               thickness: 1,
-              color: Color(0xFFF0F4F8),
+              color: Color(0xFFDDEAF6),
             ),
         ],
       );
@@ -451,6 +444,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           'blocked': result['blocked'] as bool? ?? false,
           'blockedByMe': result['blockedByMe'] as bool? ?? false,
           'blockedByOther': result['blockedByOther'] as bool? ?? false,
+          'otherUserDeleted': result['otherUserDeleted'] as bool? ?? false,
+          'canSendMessage': result['canSendMessage'] as bool? ?? true,
+          'canReport': result['canReport'] as bool? ?? true,
+          'canBlock': result['canBlock'] as bool? ?? true,
         });
       }
     } catch (e) {
@@ -478,7 +475,7 @@ class _CommentSectionHeader extends StatelessWidget {
         const Text(
           '댓글',
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w800,
             color: Color(0xFF111111),
           ),
@@ -487,12 +484,34 @@ class _CommentSectionHeader extends StatelessWidget {
         Text(
           '$commentCount',
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: Color(0xFF14A3F7),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CompactMenuText extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _CompactMenuText(
+    this.text, {
+    this.color = const Color(0xFF222222),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ),
     );
   }
 }

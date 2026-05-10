@@ -30,6 +30,10 @@ class ChatRoomState {
   final bool isBlocked;
   final bool blockedByMe;
   final bool blockedByOther;
+  final bool otherUserDeleted;
+  final bool canSendMessage;
+  final bool canReport;
+  final bool canBlock;
   final bool isPenalized;
   final DateTime? penaltyExpiresAt;
 
@@ -45,6 +49,10 @@ class ChatRoomState {
     this.isBlocked = false,
     this.blockedByMe = false,
     this.blockedByOther = false,
+    this.otherUserDeleted = false,
+    this.canSendMessage = true,
+    this.canReport = true,
+    this.canBlock = true,
     this.isPenalized = false,
     this.penaltyExpiresAt,
   });
@@ -61,6 +69,10 @@ class ChatRoomState {
     bool? isBlocked,
     bool? blockedByMe,
     bool? blockedByOther,
+    bool? otherUserDeleted,
+    bool? canSendMessage,
+    bool? canReport,
+    bool? canBlock,
     bool? isPenalized,
     DateTime? penaltyExpiresAt,
     bool clearPenaltyExpiresAt = false,
@@ -80,6 +92,10 @@ class ChatRoomState {
       isBlocked: isBlocked ?? this.isBlocked,
       blockedByMe: blockedByMe ?? this.blockedByMe,
       blockedByOther: blockedByOther ?? this.blockedByOther,
+      otherUserDeleted: otherUserDeleted ?? this.otherUserDeleted,
+      canSendMessage: canSendMessage ?? this.canSendMessage,
+      canReport: canReport ?? this.canReport,
+      canBlock: canBlock ?? this.canBlock,
       isPenalized: isPenalized ?? this.isPenalized,
       penaltyExpiresAt: clearPenaltyExpiresAt
           ? null
@@ -148,11 +164,19 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     required bool blocked,
     required bool blockedByMe,
     required bool blockedByOther,
+    bool otherUserDeleted = false,
+    bool canSendMessage = true,
+    bool canReport = true,
+    bool canBlock = true,
   }) {
     state = state.copyWith(
       isBlocked: blocked,
       blockedByMe: blockedByMe,
       blockedByOther: blockedByOther,
+      otherUserDeleted: otherUserDeleted,
+      canSendMessage: canSendMessage && !blocked && !otherUserDeleted,
+      canReport: canReport && !otherUserDeleted,
+      canBlock: canBlock && !otherUserDeleted,
     );
   }
 
@@ -171,6 +195,10 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         isBlocked: result.blocked,
         blockedByMe: result.blockedByMe,
         blockedByOther: result.blockedByOther,
+        otherUserDeleted: result.otherUserDeleted,
+        canSendMessage: result.canSendMessage,
+        canReport: result.canReport,
+        canBlock: result.canBlock,
       );
 
       if (markAsRead && sorted.isNotEmpty) {
@@ -210,6 +238,10 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         isBlocked: result.blocked,
         blockedByMe: result.blockedByMe,
         blockedByOther: result.blockedByOther,
+        otherUserDeleted: result.otherUserDeleted,
+        canSendMessage: result.canSendMessage,
+        canReport: result.canReport,
+        canBlock: result.canBlock,
       );
     } catch (e) {
       if (!mounted) return;
@@ -425,6 +457,10 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.');
       return;
     }
+    if (!state.canSendMessage || state.otherUserDeleted) {
+      state = state.copyWith(errorMessage: '탈퇴한 사용자와는 채팅할 수 없습니다.');
+      return;
+    }
     state = state.copyWith(isSending: true, errorMessage: null);
 
     await _sendTextByHttp(content.trim());
@@ -483,11 +519,13 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   }
 
   Future<void> blockRoom() async {
+    if (!state.canBlock || state.otherUserDeleted) return;
     await _api.block(roomId);
     state = state.copyWith(
       isBlocked: true,
       blockedByMe: true,
       blockedByOther: state.blockedByOther,
+      canSendMessage: false,
     );
   }
 
@@ -497,10 +535,12 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       isBlocked: state.blockedByOther,
       blockedByMe: false,
       blockedByOther: state.blockedByOther,
+      canSendMessage: !state.blockedByOther && !state.otherUserDeleted,
     );
   }
 
   Future<void> reportRoom(String reason) async {
+    if (!state.canReport || state.otherUserDeleted) return;
     await _api.report(roomId, reason);
   }
 

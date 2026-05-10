@@ -18,6 +18,10 @@ class ChatRoomPage extends ConsumerStatefulWidget {
   final bool initialBlocked;
   final bool initialBlockedByMe;
   final bool initialBlockedByOther;
+  final bool initialOtherUserDeleted;
+  final bool initialCanSendMessage;
+  final bool initialCanReport;
+  final bool initialCanBlock;
 
   const ChatRoomPage({
     super.key,
@@ -27,6 +31,10 @@ class ChatRoomPage extends ConsumerStatefulWidget {
     this.initialBlocked = false,
     this.initialBlockedByMe = false,
     this.initialBlockedByOther = false,
+    this.initialOtherUserDeleted = false,
+    this.initialCanSendMessage = true,
+    this.initialCanReport = true,
+    this.initialCanBlock = true,
   });
 
   @override
@@ -64,6 +72,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         blocked: widget.initialBlocked,
         blockedByMe: widget.initialBlockedByMe,
         blockedByOther: widget.initialBlockedByOther,
+        otherUserDeleted: widget.initialOtherUserDeleted,
+        canSendMessage: widget.initialCanSendMessage,
+        canReport: widget.initialCanReport,
+        canBlock: widget.initialCanBlock,
       );
       await notifier.init();
       _scrollToBottom();
@@ -132,7 +144,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
-    if (ref.read(chatRoomProvider((widget.roomId, widget.otherUserId))).isBlocked) {
+    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    if (state.isBlocked || !state.canSendMessage || state.otherUserDeleted) {
       return;
     }
     _inputController.clear();
@@ -142,7 +155,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   Future<void> _pickImage() async {
     final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending) return;
+    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
 
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -158,7 +171,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   Future<void> _sendPendingImage() async {
     final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending) return;
+    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
 
     final picked = _pendingImage;
     if (picked == null) return;
@@ -203,6 +216,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   void _showMoreMenu() {
+    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -224,7 +238,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              _BottomSheetItem(
+              if (state.canReport && !state.otherUserDeleted)
+                _BottomSheetItem(
                 icon: Icons.report_outlined,
                 label: '신고하기',
                 color: const Color(0xFFF44336),
@@ -233,7 +248,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   _showReportSheet();
                 },
               ),
-              _BottomSheetItem(
+              if (!state.otherUserDeleted && (state.canBlock || _blockedByMe))
+                _BottomSheetItem(
                 icon: _blockedByMe ? Icons.lock_open_rounded : Icons.block_rounded,
                 label: _blockedByMe ? '차단 해제' : '차단하기',
                 color: _blockedByMe
@@ -632,7 +648,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             ),
 
           // 입력창
-          state.isPenalized
+          state.otherUserDeleted
+              ? const _DeletedUserInputBar()
+              : state.isPenalized
               ? _PenaltyInputBar(expiresAt: state.penaltyExpiresAt)
               : isBlocked
                   ? _BlockedInputBar(
@@ -1151,6 +1169,41 @@ class _BlockedInputBar extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _DeletedUserInputBar extends StatelessWidget {
+  const _DeletedUserInputBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFECEFF3))),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F7FA),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Text(
+            '탈퇴한 사용자와는 채팅할 수 없습니다.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF7D8790),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
     );
   }

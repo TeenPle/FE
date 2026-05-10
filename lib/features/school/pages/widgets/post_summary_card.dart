@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/time_format.dart';
+import '../../../../core/widgets/tap_scale.dart';
 import '../../models/post_summary.dart';
 
 class PostSummaryCard extends StatelessWidget {
@@ -48,11 +50,18 @@ class PostSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final thumbnailUrl = _thumbnailUrl;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+    return TapScale(
+      scale: 0.97,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap == null
+              ? null
+              : () {
+                  AppHaptics.selection();
+                  onTap!();
+                },
+          borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 15, 18, 12),
           child: Column(
@@ -150,6 +159,7 @@ class PostSummaryCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

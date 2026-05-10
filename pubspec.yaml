@@ -29,6 +29,7 @@ dependencies:
   shimmer: ^3.0.0
   stomp_dart_client: ^0.4.4
   tutorial_coach_mark: ^1.2.11
+  flutter_staggered_animations: ^1.1.1
 
 dev_dependencies:
   flutter_test:

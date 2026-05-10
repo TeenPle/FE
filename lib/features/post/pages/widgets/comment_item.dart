@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/time_format.dart';
+import '../../../../core/widgets/tap_scale.dart';
 import '../../models/comment_model.dart';
 
 /// 댓글 및 대댓글 아이템 위젯
@@ -347,25 +350,33 @@ class _InlineActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isActive ? const Color(0xFF14A3F7) : const Color(0xFF7D8790);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
+    return TapScale(
+      scale: 0.90,
+      child: InkWell(
+        onTap: onTap == null
+            ? null
+            : () {
+                AppHaptics.light();
+                onTap!();
+              },
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

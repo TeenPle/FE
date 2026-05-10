@@ -260,43 +260,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               commentCount: state.comments.length,
               likedByMe: state.likedByMe,
               bookmarkedByMe: state.bookmarkedByMe,
-              onBookmarkTap: () async {
-                if (state.bookmarkedByMe) {
-                  notifier.toggleBookmark();
-                } else {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      title: const Text('북마크 추가'),
-                      content: const Text('이 게시글을 북마크에 추가할까요?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('취소'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text(
-                            '추가',
-                            style: TextStyle(color: Color(0xFFF5A623)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirmed == true) notifier.toggleBookmark();
-                }
-              },
-              onLikeTap: () async {
-                final confirmed = await _showLikeConfirmDialog(
-                  context,
-                  isPost: true,
-                  alreadyLiked: state.likedByMe,
-                );
-                if (confirmed == true) notifier.toggleLike();
-              },
+              onBookmarkTap: () => notifier.toggleBookmark(),
+              onLikeTap: () => notifier.toggleLike(),
               onShareTap: () {
                 debugPrint('share post: ${post.postId}');
               },
@@ -318,16 +283,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   onReplyTap: (commentId, isReply) {
                     notifier.startReply(commentId, isReply: isReply);
                   },
-                  onCommentLikeTap: (commentId) async {
-                    final alreadyLiked =
-                        state.likedCommentIds.contains(commentId);
-                    final confirmed = await _showLikeConfirmDialog(
-                      context,
-                      isPost: false,
-                      alreadyLiked: alreadyLiked,
-                    );
-                    if (confirmed == true) notifier.likeComment(commentId);
-                  },
+                  onCommentLikeTap: (commentId) => notifier.likeComment(commentId),
                   likedCommentIds: state.likedCommentIds,
                   onCommentChatTap: (comment) async {
                     if (comment.isMine) {
@@ -566,37 +522,6 @@ Future<bool?> _showBlockConfirmDialog(BuildContext context) {
   );
 }
 
-/// 공감 확인 다이얼로그
-Future<bool?> _showLikeConfirmDialog(
-  BuildContext context, {
-  required bool isPost,
-  required bool alreadyLiked,
-}) {
-  final target = isPost ? '게시글' : '댓글';
-  final action = alreadyLiked ? '공감을 취소' : '공감';
-
-  return showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('$target $action'),
-      content: Text('이 $target에 ${alreadyLiked ? '공감을 취소하시겠습니까?' : '공감하시겠습니까?'}'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('취소'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, true),
-          child: Text(
-            alreadyLiked ? '취소하기' : '공감하기',
-            style: const TextStyle(color: Color(0xFF14A3F7)),
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 /// 신고 사유 선택 바텀시트
 void _showReportSheet(

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/haptics.dart';
+import '../../../../core/widgets/like_burst_button.dart';
+import '../../../../core/widgets/tap_scale.dart';
+
 class PostActionBar extends StatelessWidget {
   final int likeCount;
   final int commentCount;
@@ -22,24 +26,14 @@ class PostActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final likeColor =
-    likedByMe ? const Color(0xFF14A3F7) : const Color(0xFF6E7B87);
-
     return Row(
       children: [
         Expanded(
           child: Row(
             children: [
-              _ActionChip(
-                icon: likedByMe ? Icons.thumb_up : Icons.thumb_up_outlined,
-                label: '공감 $likeCount',
-                color: likeColor,
-                backgroundColor: likedByMe
-                    ? const Color(0xFFEAF7FF)
-                    : Colors.white,
-                borderColor: likedByMe
-                    ? const Color(0xFFBFE6FF)
-                    : const Color(0xFFE6EDF3),
+              LikeBurstButton(
+                liked: likedByMe,
+                likeCount: likeCount,
                 onTap: onLikeTap,
               ),
               const SizedBox(width: 8),
@@ -72,55 +66,6 @@ class PostActionBar extends StatelessWidget {
           onTap: onShareTap,
         ),
       ],
-    );
-  }
-}
-
-class _ActionChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final Color backgroundColor;
-  final Color borderColor;
-  final VoidCallback onTap;
-
-  const _ActionChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.backgroundColor,
-    required this.borderColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: borderColor),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -179,21 +124,27 @@ class _IconActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: borderColor ?? const Color(0xFFE6EDF3)),
-        ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: iconColor ?? const Color(0xFF6E7B87),
+    return TapScale(
+      scale: 0.90,
+      child: InkWell(
+        onTap: () {
+          AppHaptics.light();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: backgroundColor ?? Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: borderColor ?? const Color(0xFFE6EDF3)),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: iconColor ?? const Color(0xFF6E7B87),
+          ),
         ),
       ),
     );

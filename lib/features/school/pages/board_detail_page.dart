@@ -72,7 +72,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF4F9),
+      backgroundColor: const Color(0xFFF6FBFF),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(64),
         child: Container(
@@ -212,7 +212,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
 
                         if (index < state.posts.length) {
                           return Container(
-                            color: const Color(0xFFEFF4F9),
+                            color: const Color(0xFFF6FBFF),
                             child: PostSummaryCard(
                               post: state.posts[index],
                               compact: true,
@@ -707,7 +707,7 @@ class _TodayLatestSection extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: const Color(0xFFEFF4F9),
+      color: const Color(0xFFF6FBFF),
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
       child: featuredPost == null
           ? const SizedBox.shrink()

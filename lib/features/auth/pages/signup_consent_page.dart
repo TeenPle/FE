@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/utils/haptics.dart';
+
 import '../../../app/routes.dart';
 
 /// 회원가입 시작 전 필수 동의 페이지
@@ -159,7 +161,10 @@ class _AllAgreeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onChanged(!checked),
+      onTap: () {
+        AppHaptics.selection();
+        onChanged(!checked);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
@@ -216,13 +221,19 @@ class _ConsentItem extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => onChanged(!checked),
+            onTap: () {
+              AppHaptics.selection();
+              onChanged(!checked);
+            },
             child: _CheckCircle(checked: checked),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: GestureDetector(
-              onTap: () => onChanged(!checked),
+              onTap: () {
+                AppHaptics.selection();
+                onChanged(!checked);
+              },
               child: Text(
                 label,
                 style: const TextStyle(
@@ -261,7 +272,10 @@ class _AgeConsentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onChanged(!checked),
+      onTap: () {
+        AppHaptics.selection();
+        onChanged(!checked);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(

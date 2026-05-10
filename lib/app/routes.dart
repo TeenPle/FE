@@ -21,6 +21,7 @@ import '../features/auth/pages/find_password_page.dart';
 import '../features/auth/pages/reset_password_page.dart';
 import '../features/auth/pages/landing_page.dart';
 import '../features/auth/pages/login_page.dart';
+import '../features/auth/pages/signup_consent_page.dart';
 import '../features/auth/pages/school_verification_rejected_page.dart';
 import '../features/auth/pages/school_verification_waiting_page.dart';
 import '../features/auth/pages/signup_email_verify_page.dart';
@@ -65,6 +66,9 @@ class AppRoutes {
   static const login = '/login';
 
   /// ?뚯썝媛??1?④퀎 - ?숆탳 ?좏깮 ?섏씠吏
+  /// 회원가입 동의 페이지 (약관·개인정보·연령 동의)
+  static const signupConsent = '/signup/consent';
+
   static const signupSchool = '/signup/school';
 
   /// ?뚯썝媛??2?④퀎 - ?숇뀈 ?낅젰 ?섏씠吏
@@ -224,6 +228,11 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.login,
       builder: (context, state) => const LoginPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.signupConsent,
+      builder: (context, state) => const SignupConsentPage(),
     ),
 
     GoRoute(

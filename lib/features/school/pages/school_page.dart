@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
-import '../../../core/services/onboarding_service.dart';
+import '../../../core/utils/haptics.dart';
+import '../../../core/widgets/tap_scale.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/post_summary_skeleton.dart';
 import '../../../features/auth/provider/login_provider.dart';
@@ -18,10 +20,8 @@ import '../../../features/warning/models/warning_model.dart';
 import '../../../features/warning/provider/warning_provider.dart';
 import '../models/board_model.dart';
 import '../models/hot_filter.dart';
-import '../models/post_summary.dart';
 import '../provider/school_providers.dart';
 import '../provider/school_state.dart';
-import 'school_onboarding_page.dart';
 import 'widgets/post_summary_card.dart';
 import 'widgets/school_header.dart';
 
@@ -92,28 +92,6 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       ref.read(chatRoomListProvider.notifier).load();
       ref.read(chatRoomListProvider.notifier).startRealtime();
 
-      if (kDebugMode) await OnboardingService().resetForDebug();
-      await Future.delayed(const Duration(milliseconds: 900));
-      if (!mounted || _penaltyDialogShown || _warningDialogShown) return;
-
-      final onboardingSvc = OnboardingService();
-      final isFirst = await onboardingSvc.isFirstSchoolVisit();
-      if (!mounted) return;
-      if (isFirst) {
-        await onboardingSvc.markSchoolVisited();
-        if (!mounted) return;
-        Navigator.of(context, rootNavigator: true).push(
-          PageRouteBuilder(
-            opaque: true,
-            transitionDuration: const Duration(milliseconds: 200),
-            reverseTransitionDuration: Duration.zero,
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const SchoolOnboardingPage(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-                FadeTransition(opacity: animation, child: child),
-          ),
-        );
-      }
     });
   }
 
@@ -144,6 +122,31 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     }
   }
 
+  /// 홈 탭 재탭: 최상단까지 부드럽게 스크롤 후 새로고침
+  Future<void> _scrollToTopAndRefresh() async {
+    if (_scrollController.hasClients && _scrollController.offset > 0) {
+      await _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOutCubic,
+      );
+    }
+    if (!mounted) return;
+    if (_selectedTab == _HomeTab.popular) {
+      await ref.read(schoolProvider.notifier).loadHotPosts();
+    } else {
+      await ref.read(schoolProvider.notifier).refreshPosts();
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    if (_selectedTab == _HomeTab.popular) {
+      await ref.read(schoolProvider.notifier).loadHotPosts();
+    } else {
+      await ref.read(schoolProvider.notifier).refreshPosts();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(schoolProvider);
@@ -160,9 +163,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       if (!mounted) return;
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
     });
 
@@ -171,10 +173,14 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       floatingActionButton: isPenalized
           ? null
           : FloatingActionButton(
-              onPressed: () => _openWriteFlow(state.boards),
+              onPressed: () {
+                AppHaptics.light();
+                _openWriteFlow(state.boards);
+              },
               backgroundColor: const Color(0xFF229BF3),
               elevation: 6,
-              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 24),
+              child: const Icon(Icons.edit_rounded,
+                  color: Colors.white, size: 24),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: _SchoolBottomBar(
@@ -198,14 +204,21 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
             context.push(AppRoutes.profile);
             return;
           }
-          setState(() => _bottomIndex = index);
+          // 홈(index 0): 이미 홈이면 최상단으로 스크롤 후 새로고침
+          if (_bottomIndex == 0) {
+            _scrollToTopAndRefresh();
+          }
+          setState(() => _bottomIndex = 0);
         },
       ),
       body: SafeArea(
         child: Column(
           children: [
+            // 상단바는 항상 고정
             SchoolHeader(
-              schoolName: state.schoolName.isEmpty ? '학교 로딩 중...' : state.schoolName,
+              schoolName: state.schoolName.isEmpty
+                  ? '학교 로딩 중...'
+                  : state.schoolName,
               onSearchTap: () => context.push(
                 AppRoutes.search,
                 extra: {
@@ -216,29 +229,46 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                 },
               ),
             ),
-            const DDayStrip(),
-            _HomeTabBar(
-              selectedTab: _selectedTab,
-              onChanged: (tab) {
-                setState(() => _selectedTab = tab);
-                if (tab == _HomeTab.feed && state.selectedBoardId != null) {
-                  notifier.selectAllBoards();
-                }
-                if (tab == _HomeTab.popular) {
-                  notifier.loadHotPosts();
-                }
-              },
-            ),
+            // D-Day, 탭바, 게시글 목록이 하나의 스크롤로 이어짐
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () async {
-                  if (_selectedTab == _HomeTab.popular) {
-                    await notifier.loadHotPosts();
-                  } else {
-                    await notifier.refreshPosts();
-                  }
-                },
-                child: _buildTabBody(state),
+                onRefresh: _onRefresh,
+                child: AnimationLimiter(
+                  key: ValueKey(
+                    _selectedTab == _HomeTab.popular
+                        ? 'popular_${state.isLoadingHot}'
+                        : _selectedTab.index,
+                  ),
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      const SliverToBoxAdapter(child: DDayStrip()),
+                      SliverToBoxAdapter(
+                        child: _HomeTabBar(
+                          selectedTab: _selectedTab,
+                          onChanged: (tab) {
+                            setState(() {
+                              _selectedTab = tab;
+                              // 탭 전환 시 스크롤 위치 초기화
+                              if (_scrollController.hasClients) {
+                                _scrollController.jumpTo(0);
+                              }
+                            });
+                            if (tab == _HomeTab.feed &&
+                                state.selectedBoardId != null) {
+                              notifier.selectAllBoards();
+                            }
+                            if (tab == _HomeTab.popular) {
+                              notifier.loadHotPosts();
+                            }
+                          },
+                        ),
+                      ),
+                      ..._buildTabSlivers(state),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -247,72 +277,327 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     );
   }
 
-  Widget _buildTabBody(SchoolState state) {
+  /// 현재 탭에 맞는 슬리버 목록 반환
+  List<Widget> _buildTabSlivers(SchoolState state) {
+    if (state.isLoading && !state.hasLoadedOnce) {
+      return [
+        const SliverToBoxAdapter(
+          child: PostListSkeleton(count: 5),
+        ),
+      ];
+    }
+
+    switch (_selectedTab) {
+      case _HomeTab.feed:
+        return _buildFeedSlivers(state);
+      case _HomeTab.popular:
+        return _buildPopularSlivers(state);
+      case _HomeTab.boards:
+        return _buildBoardSlivers(state);
+    }
+  }
+
+  List<Widget> _buildFeedSlivers(SchoolState state) {
+    final notifier = ref.read(schoolProvider.notifier);
+    final boardNames = {
+      for (final board in state.boards) board.id: board.title,
+    };
+    final hotIds =
+        state.topRecommendedPosts.map((post) => post.id).toSet();
+    final feedPosts =
+        state.posts.where((post) => !hotIds.contains(post.id)).toList();
+
+    if (state.posts.isEmpty && state.topRecommendedPosts.isEmpty) {
+      return [
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(18, 68, 18, 20),
+            child: _EmptyFeedState(),
+          ),
+        ),
+      ];
+    }
+
+    final showAdSlot = _showSchoolMainAdTestSlot;
+    final adInsertIndex = state.topRecommendedPosts.isNotEmpty ? 1 : 0;
+    final totalPostCount =
+        state.topRecommendedPosts.length + feedPosts.length;
+    final totalItemCount =
+        totalPostCount + (showAdSlot ? 1 : 0) + 1; // +1 for footer
+
+    return [
+      SliverPadding(
+        padding: const EdgeInsets.only(bottom: 16),
+        sliver: SliverList.separated(
+          itemCount: totalItemCount,
+          separatorBuilder: (context, index) {
+            if (index >= totalItemCount - 2) return const SizedBox.shrink();
+            return const Divider(
+              height: 1,
+              thickness: 1,
+              color: Color(0xFFD5DDE6),
+              indent: 12,
+              endIndent: 12,
+            );
+          },
+          itemBuilder: (context, index) {
+            Widget item;
+            if (index == totalItemCount - 1) {
+              item = _PagingFooter(
+                hasNext: state.hasNext,
+                isLoading: state.isLoadingMore,
+              );
+            } else if (showAdSlot && index == adInsertIndex) {
+              item = const _SchoolMainAdCard();
+            } else {
+              final postIndex =
+                  showAdSlot && index > adInsertIndex ? index - 1 : index;
+
+              if (postIndex < state.topRecommendedPosts.length) {
+                final post = state.topRecommendedPosts[postIndex];
+                item = Container(
+                  color: const Color(0xFFF6FBFF),
+                  child: PostSummaryCard(
+                    post: post,
+                    compact: true,
+                    showDivider: false,
+                    categoryLabel: boardNames[post.boardId],
+                    hot: true,
+                    onTap: () async {
+                      final refreshed =
+                          await context.push<bool>('/post/${post.id}');
+                      if (refreshed == true && mounted) {
+                        notifier.reloadCurrentBoard();
+                      }
+                    },
+                  ),
+                );
+              } else {
+                final feedIndex =
+                    postIndex - state.topRecommendedPosts.length;
+                final post = feedPosts[feedIndex];
+                item = Container(
+                  color: const Color(0xFFF6FBFF),
+                  child: PostSummaryCard(
+                    post: post,
+                    compact: true,
+                    showDivider: false,
+                    categoryLabel: boardNames[post.boardId],
+                    onTap: () async {
+                      final refreshed =
+                          await context.push<bool>('/post/${post.id}');
+                      if (refreshed == true && mounted) {
+                        notifier.reloadCurrentBoard();
+                      }
+                    },
+                  ),
+                );
+              }
+            }
+            return AnimationConfiguration.staggeredList(
+              position: index,
+              duration: const Duration(milliseconds: 380),
+              child: SlideAnimation(
+                verticalOffset: 30,
+                child: FadeInAnimation(child: item),
+              ),
+            );
+          },
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildPopularSlivers(SchoolState state) {
     final notifier = ref.read(schoolProvider.notifier);
     final boardNames = {
       for (final board in state.boards) board.id: board.title,
     };
 
-    if (state.isLoading && !state.hasLoadedOnce) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        children: const [PostListSkeleton(count: 5)],
-      );
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+          child: _HotFilterRow(
+            selected: state.hotFilter,
+            onChanged: notifier.changeHotFilter,
+          ),
+        ),
+      ),
+      if (state.isLoadingHot)
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(top: 64),
+            child: Center(
+                child: CircularProgressIndicator(strokeWidth: 2.4)),
+          ),
+        )
+      else if (state.hotPosts.isEmpty)
+        SliverToBoxAdapter(
+            child: _EmptyPopularState(filter: state.hotFilter))
+      else
+        SliverList.separated(
+          itemCount: state.hotPosts.length,
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+            thickness: 1,
+            color: Color(0xFFD5DDE6),
+            indent: 12,
+            endIndent: 12,
+          ),
+          itemBuilder: (context, index) {
+            final post = state.hotPosts[index];
+            return AnimationConfiguration.staggeredList(
+              position: index,
+              duration: const Duration(milliseconds: 380),
+              child: SlideAnimation(
+                verticalOffset: 30,
+                child: FadeInAnimation(
+                  child: Container(
+                    color: const Color(0xFFF6FBFF),
+                    child: PostSummaryCard(
+                      post: post,
+                      compact: true,
+                      showDivider: false,
+                      categoryLabel: boardNames[post.boardId],
+                      onTap: () async {
+                        final refreshed =
+                            await context.push<bool>('/post/${post.id}');
+                        if (refreshed == true && mounted) {
+                          notifier.loadHotPosts();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      const SliverToBoxAdapter(child: SizedBox(height: 16)),
+    ];
+  }
+
+  List<Widget> _buildBoardSlivers(SchoolState state) {
+    final notifier = ref.read(schoolProvider.notifier);
+
+    if (state.boards.isEmpty) {
+      return [
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(18, 68, 18, 20),
+            child: _EmptyBoardDirectoryState(),
+          ),
+        ),
+      ];
     }
 
-    switch (_selectedTab) {
-      case _HomeTab.feed:
-        return _FeedList(
-          controller: _scrollController,
-          posts: state.posts,
-          topRecommendedPosts: state.topRecommendedPosts,
-          boardNames: boardNames,
-          hasNext: state.hasNext,
-          isLoadingMore: state.isLoadingMore,
-          onPostTap: (postId) async {
-            final refreshed = await context.push<bool>('/post/$postId');
-            if (refreshed == true && mounted) {
-              notifier.reloadCurrentBoard();
-            }
-          },
-        );
-      case _HomeTab.popular:
-        return _PopularList(
-          posts: state.hotPosts,
-          boardNames: boardNames,
-          filter: state.hotFilter,
-          isLoading: state.isLoadingHot,
-          onFilterChanged: notifier.changeHotFilter,
-          onPostTap: (postId) async {
-            final refreshed = await context.push<bool>('/post/$postId');
-            if (refreshed == true && mounted) {
-              notifier.loadHotPosts();
-            }
-          },
-        );
-      case _HomeTab.boards:
-        return _BoardDirectory(
-          boards: state.boards,
-          onBoardTap: (board) async {
-            await context.push(
-              '/board/${board.id}',
-              extra: {'boardId': board.id, 'boardTitle': board.title},
+    return [
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
+        sliver: SliverList.separated(
+          itemCount: state.boards.length,
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: 10),
+          itemBuilder: (context, index) {
+            final board = state.boards[index];
+            return AnimationConfiguration.staggeredList(
+              position: index,
+              duration: const Duration(milliseconds: 380),
+              child: SlideAnimation(
+                verticalOffset: 30,
+                child: FadeInAnimation(
+                  child: TapScale(
+                    scale: 0.97,
+                    child: InkWell(
+                      onTap: () async {
+                        AppHaptics.selection();
+                        await context.push(
+                          '/board/${board.id}',
+                          extra: {
+                            'boardId': board.id,
+                            'boardTitle': board.title,
+                          },
+                        );
+                        if (mounted) {
+                          notifier.selectAllBoards();
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFE1ECF5)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEAF7FF),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.tag_rounded,
+                                  color: Color(0xFF14A3F7), size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    board.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF111111),
+                                    ),
+                                  ),
+                                  if (board.description.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      board.description,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF7D8790),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.chevron_right_rounded,
+                                color: Color(0xFF9AA7B2), size: 24),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             );
-            if (mounted) {
-              notifier.selectAllBoards();
-            }
           },
-        );
-    }
+        ),
+      ),
+    ];
   }
 
   Future<void> _openWriteFlow(List<BoardModel> boards) async {
     final activeBoards = boards.where((b) => b.active).toList();
     if (activeBoards.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('글을 작성할 게시판이 없어요.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('글을 작성할 게시판이 없어요.')));
       return;
     }
 
@@ -325,11 +610,12 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
     await ref.read(schoolProvider.notifier).refreshPosts();
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('게시글이 등록되었어요.')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('게시글이 등록되었어요.')));
   }
 }
+
+// ─── 탭바 ─────────────────────────────────────────────────
 
 class _HomeTabBar extends StatelessWidget {
   final _HomeTab selectedTab;
@@ -424,7 +710,10 @@ class _HomeTabButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          AppHaptics.selection();
+          onTap();
+        },
         behavior: HitTestBehavior.opaque,
         child: Center(
           child: Text(
@@ -432,8 +721,11 @@ class _HomeTabButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               height: 1.05,
-              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-              color: selected ? Colors.white : const Color(0xFF8C8F95),
+              fontWeight:
+                  selected ? FontWeight.w800 : FontWeight.w600,
+              color: selected
+                  ? Colors.white
+                  : const Color(0xFF8C8F95),
               letterSpacing: 0,
             ),
           ),
@@ -443,99 +735,64 @@ class _HomeTabButton extends StatelessWidget {
   }
 }
 
-class _FeedList extends StatelessWidget {
-  final ScrollController controller;
-  final List<PostSummary> posts;
-  final List<PostSummary> topRecommendedPosts;
-  final Map<int, String> boardNames;
-  final bool hasNext;
-  final bool isLoadingMore;
-  final ValueChanged<int> onPostTap;
+// ─── 인기 필터 ───────────────────────────────────────────
 
-  const _FeedList({
-    required this.controller,
-    required this.posts,
-    required this.topRecommendedPosts,
-    required this.boardNames,
-    required this.hasNext,
-    required this.isLoadingMore,
-    required this.onPostTap,
+class _HotFilterRow extends StatelessWidget {
+  final HotFilter selected;
+  final ValueChanged<HotFilter> onChanged;
+
+  const _HotFilterRow({
+    required this.selected,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hotIds = topRecommendedPosts.map((post) => post.id).toSet();
-    final feedPosts = posts.where((post) => !hotIds.contains(post.id)).toList();
-
-    if (posts.isEmpty && topRecommendedPosts.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 68, 18, 20),
-        children: const [_EmptyFeedState()],
-      );
-    }
-
-    final totalPostCount = topRecommendedPosts.length + feedPosts.length;
-    final showAdSlot = _showSchoolMainAdTestSlot && totalPostCount > 0;
-    final adInsertIndex = topRecommendedPosts.isNotEmpty ? 1 : 0;
-    final totalItemCount = totalPostCount + (showAdSlot ? 1 : 0) + 1;
-
-    return ListView.separated(
-      controller: controller,
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-      itemCount: totalItemCount,
-      separatorBuilder: (context, index) {
-        if (index >= totalItemCount - 2) return const SizedBox.shrink();
-        return const Divider(
-          height: 1, thickness: 1, color: Color(0xFFD5DDE6),
-          indent: 12, endIndent: 12,
-        );
-      },
-      itemBuilder: (context, index) {
-        if (index == totalItemCount - 1) {
-          return _PagingFooter(hasNext: hasNext, isLoading: isLoadingMore);
-        }
-
-        if (showAdSlot && index == adInsertIndex) {
-          return const _SchoolMainAdCard();
-        }
-
-        final postIndex = showAdSlot && index > adInsertIndex
-            ? index - 1
-            : index;
-
-        if (postIndex < topRecommendedPosts.length) {
-          final post = topRecommendedPosts[postIndex];
-          return Container(
-            color: const Color(0xFFF6FBFF),
-            child: PostSummaryCard(
-              post: post,
-              compact: true,
-              showDivider: false,
-              categoryLabel: boardNames[post.boardId],
-              hot: true,
-              onTap: () => onPostTap(post.id),
+    return Row(
+      children: HotFilter.values.map((filter) {
+        final isSelected = selected == filter;
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: InkWell(
+            onTap: () {
+              AppHaptics.selection();
+              onChanged(filter);
+            },
+            borderRadius: BorderRadius.circular(999),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFFFF6B35)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFFFF6B35)
+                      : const Color(0xFFE1ECF5),
+                ),
+              ),
+              child: Text(
+                filter.label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected
+                      ? Colors.white
+                      : const Color(0xFF6E7A86),
+                ),
+              ),
             ),
-          );
-        }
-
-        final feedIndex = postIndex - topRecommendedPosts.length;
-        final post = feedPosts[feedIndex];
-        return Container(
-          color: const Color(0xFFF6FBFF),
-          child: PostSummaryCard(
-            post: post,
-            compact: true,
-            showDivider: false,
-            categoryLabel: boardNames[post.boardId],
-            onTap: () => onPostTap(post.id),
           ),
         );
-      },
+      }).toList(),
     );
   }
 }
+
+// ─── 광고 카드 ───────────────────────────────────────────
 
 class _SchoolMainAdCard extends StatelessWidget {
   const _SchoolMainAdCard();
@@ -589,9 +846,7 @@ class _SchoolMainAdCard extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 3,
-                            ),
+                                horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFF4DF),
                               borderRadius: BorderRadius.circular(999),
@@ -667,207 +922,7 @@ class _SchoolMainAdCard extends StatelessWidget {
   }
 }
 
-class _PopularList extends StatelessWidget {
-  final List<PostSummary> posts;
-  final Map<int, String> boardNames;
-  final HotFilter filter;
-  final bool isLoading;
-  final ValueChanged<HotFilter> onFilterChanged;
-  final ValueChanged<int> onPostTap;
-
-  const _PopularList({
-    required this.posts,
-    required this.boardNames,
-    required this.filter,
-    required this.isLoading,
-    required this.onFilterChanged,
-    required this.onPostTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 16),
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-          child: _HotFilterRow(selected: filter, onChanged: onFilterChanged),
-        ),
-        if (isLoading)
-          const Padding(
-            padding: EdgeInsets.only(top: 64),
-            child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
-          )
-        else if (posts.isEmpty)
-          _EmptyPopularState(filter: filter)
-        else
-          for (int i = 0; i < posts.length; i++) ...[
-            Container(
-              color: const Color(0xFFF6FBFF),
-              child: PostSummaryCard(
-                post: posts[i],
-                compact: true,
-                showDivider: false,
-                categoryLabel: boardNames[posts[i].boardId],
-                onTap: () => onPostTap(posts[i].id),
-              ),
-            ),
-            if (i < posts.length - 1)
-              const Divider(
-                height: 1, thickness: 1, color: Color(0xFFD5DDE6),
-                indent: 12, endIndent: 12,
-              ),
-          ],
-      ],
-    );
-  }
-}
-
-class _HotFilterRow extends StatelessWidget {
-  final HotFilter selected;
-  final ValueChanged<HotFilter> onChanged;
-
-  const _HotFilterRow({
-    required this.selected,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: HotFilter.values.map((filter) {
-        final isSelected = selected == filter;
-        return Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: InkWell(
-            onTap: () => onChanged(filter),
-            borderRadius: BorderRadius.circular(999),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFFF6B35) : Colors.white,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFFFF6B35)
-                      : const Color(0xFFE1ECF5),
-                ),
-              ),
-              child: Text(
-                filter.label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: isSelected ? Colors.white : const Color(0xFF6E7A86),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class _BoardDirectory extends StatelessWidget {
-  final List<BoardModel> boards;
-  final ValueChanged<BoardModel> onBoardTap;
-
-  const _BoardDirectory({
-    required this.boards,
-    required this.onBoardTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (boards.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 68, 18, 20),
-        children: const [_EmptyBoardDirectoryState()],
-      );
-    }
-
-    return ListView.separated(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
-      itemCount: boards.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 10),
-      itemBuilder: (context, index) {
-        final board = boards[index];
-        return InkWell(
-          onTap: () => onBoardTap(board),
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE1ECF5)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEAF7FF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.tag_rounded,
-                    color: Color(0xFF14A3F7),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        board.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF111111),
-                        ),
-                      ),
-                      if (board.description.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          board.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF7D8790),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFF9AA7B2),
-                  size: 24,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
+// ─── 페이징 푸터 ─────────────────────────────────────────
 
 class _PagingFooter extends StatelessWidget {
   final bool hasNext;
@@ -902,6 +957,9 @@ class _PagingFooter extends StatelessWidget {
     );
   }
 }
+
+// ─── 빈 상태 ─────────────────────────────────────────────
+
 class _EmptyFeedState extends StatelessWidget {
   const _EmptyFeedState();
 
@@ -991,6 +1049,8 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
+// ─── 다이얼로그 ──────────────────────────────────────────
+
 void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
   final expiresAt = penalty.expiresAt;
   final reasonLabel = penalty.reasonLabel;
@@ -1006,7 +1066,8 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
     context: context,
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Row(
         children: [
           Icon(Icons.gavel_rounded, color: Color(0xFFE05C7B), size: 22),
@@ -1028,10 +1089,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
           const Text(
             '커뮤니티 규칙 위반으로 일부 기능이 제한되었어요.',
             style: TextStyle(
-              fontSize: 12,
-              color: Color(0xFF444444),
-              height: 1.5,
-            ),
+                fontSize: 12, color: Color(0xFF444444), height: 1.5),
           ),
           const SizedBox(height: 16),
           _DialogInfoRow(label: '사유', value: reasonLabel),
@@ -1047,10 +1105,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
             child: const Text(
               '제한 기간에는 게시글, 댓글 작성과 채팅이 제한돼요. 게시글 열람은 가능해요.',
               style: TextStyle(
-                fontSize: 11,
-                color: Color(0xFFE05C7B),
-                height: 1.5,
-              ),
+                  fontSize: 11, color: Color(0xFFE05C7B), height: 1.5),
             ),
           ),
         ],
@@ -1061,9 +1116,7 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
           child: const Text(
             '확인',
             style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF14A3F7),
-            ),
+                fontWeight: FontWeight.w700, color: Color(0xFF14A3F7)),
           ),
         ),
       ],
@@ -1090,10 +1143,12 @@ class _WarningDialog extends ConsumerWidget {
         '${warning.issuedAt.year}.${warning.issuedAt.month.toString().padLeft(2, '0')}.${warning.issuedAt.day.toString().padLeft(2, '0')}';
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Color(0xFFF59E0B), size: 22),
+          Icon(Icons.warning_amber_rounded,
+              color: Color(0xFFF59E0B), size: 22),
           SizedBox(width: 8),
           Text(
             '관리자 경고',
@@ -1112,16 +1167,15 @@ class _WarningDialog extends ConsumerWidget {
           const Text(
             '커뮤니티 규칙 위반으로 관리자 경고를 받았어요.',
             style: TextStyle(
-              fontSize: 12,
-              color: Color(0xFF444444),
-              height: 1.5,
-            ),
+                fontSize: 12, color: Color(0xFF444444), height: 1.5),
           ),
-          if (warning.targetType != null && warning.targetSummary != null) ...[
+          if (warning.targetType != null &&
+              warning.targetSummary != null) ...[
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8F9FA),
                 borderRadius: BorderRadius.circular(8),
@@ -1165,16 +1219,16 @@ class _WarningDialog extends ConsumerWidget {
             child: Text(
               warning.adminComment,
               style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF78350F),
-                height: 1.5,
-              ),
+                  fontSize: 12,
+                  color: Color(0xFF78350F),
+                  height: 1.5),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             '경고 일시: $issuedStr',
-            style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
+            style: const TextStyle(
+                fontSize: 11, color: Color(0xFF9AA7B2)),
           ),
           const SizedBox(height: 8),
           Container(
@@ -1186,10 +1240,9 @@ class _WarningDialog extends ConsumerWidget {
             child: const Text(
               '경고 누적 시 이용이 제한될 수 있어요.',
               style: TextStyle(
-                fontSize: 11,
-                color: Color(0xFF6B7280),
-                height: 1.4,
-              ),
+                  fontSize: 11,
+                  color: Color(0xFF6B7280),
+                  height: 1.4),
             ),
           ),
         ],
@@ -1205,15 +1258,16 @@ class _WarningDialog extends ConsumerWidget {
           child: const Text(
             '확인했어요',
             style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color(0xFFF59E0B),
-            ),
+                fontWeight: FontWeight.w700,
+                color: Color(0xFFF59E0B)),
           ),
         ),
       ],
     );
   }
 }
+
+// ─── 하단 네비게이션바 ────────────────────────────────────
 
 class _SchoolBottomBar extends StatelessWidget {
   final int currentIndex;
@@ -1233,7 +1287,8 @@ class _SchoolBottomBar extends StatelessWidget {
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(color: Color(0xFFE8EEF3), width: 1)),
+          border:
+              Border(top: BorderSide(color: Color(0xFFE8EEF3), width: 1)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Row(
@@ -1294,14 +1349,20 @@ class _BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? const Color(0xFF229BF3) : const Color(0xFF282D33);
+    final color =
+        selected ? const Color(0xFF229BF3) : const Color(0xFF282D33);
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        AppHaptics.selection();
+        onTap();
+      },
       behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 54,
-        child: Column(
+      child: TapScale(
+        scale: 0.88,
+        child: SizedBox(
+          width: 54,
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
@@ -1314,17 +1375,13 @@ class _BottomNavItem extends StatelessWidget {
                     right: -8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
+                          horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF44336),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
+                          minWidth: 16, minHeight: 16),
                       child: Text(
                         badgeCount > 99 ? '99+' : '$badgeCount',
                         style: const TextStyle(
@@ -1343,7 +1400,8 @@ class _BottomNavItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                fontWeight:
+                    selected ? FontWeight.w800 : FontWeight.w500,
                 color: color,
                 letterSpacing: 0,
               ),
@@ -1351,9 +1409,12 @@ class _BottomNavItem extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
+
+// ─── 다이얼로그 정보 행 ───────────────────────────────────
 
 class _DialogInfoRow extends StatelessWidget {
   final String label;

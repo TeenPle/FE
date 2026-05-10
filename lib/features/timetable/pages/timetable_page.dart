@@ -1,13 +1,10 @@
-﻿import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../core/services/onboarding_service.dart';
 import '../provider/timetable_provider.dart';
-import 'timetable_onboarding_page.dart';
 
 class TimetablePage extends ConsumerStatefulWidget {
   const TimetablePage({super.key});
@@ -19,54 +16,18 @@ class TimetablePage extends ConsumerStatefulWidget {
 class _TimetablePageState extends ConsumerState<TimetablePage> {
   List<String> _todayMemos = const [];
   int _memoWeekday = DateTime.now().weekday;
-  bool _onboardingTriggered = false;
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      if (kDebugMode) await OnboardingService().resetTimetableForDebug(); // TODO: remove after testing
+    Future.microtask(() {
       ref.read(timetableProvider.notifier).init();
     });
     _loadTodayMemos();
   }
 
-  /// 시간표 데이터가 처음 로드 완료된 시점에 호출된다.
-  Future<void> _maybeShowOnboarding() async {
-    final isFirst = await OnboardingService().isFirstTimetableVisit();
-    if (!mounted) return;
-    if (!isFirst) return;
-    await OnboardingService().markTimetableVisited();
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    // ignore: use_build_context_synchronously
-    Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-      opaque: true,
-      transitionDuration: const Duration(milliseconds: 200),
-      reverseTransitionDuration: Duration.zero,
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          const TimetableOnboardingPage(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-          FadeTransition(opacity: animation, child: child),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(timetableProvider);
-
-    // 반 설정 + 시간표 로드 완료 시점에 온보딩을 트리거한다.
-    ref.listen<TimetableState>(timetableProvider, (prev, next) {
-      if (_onboardingTriggered) return;
-      final justLoaded = next.classRoom != null &&
-          !next.isLoading &&
-          next.week != null &&
-          (prev == null || prev.isLoading);
-      if (justLoaded) {
-        _onboardingTriggered = true;
-        _maybeShowOnboarding();
-      }
-    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F9FF),

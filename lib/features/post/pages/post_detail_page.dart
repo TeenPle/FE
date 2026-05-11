@@ -278,8 +278,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             ),
             const SizedBox(height: 8),
             Container(
-              height: 8,
-              color: c.dividerBlue,
+              height: 1,
+              color: c.divider,
             ),
             const SizedBox(height: 16),
             Padding(

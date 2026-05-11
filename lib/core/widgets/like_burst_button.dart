@@ -69,7 +69,7 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
     final backgroundColor =
         widget.liked ? const Color(0xFFEAF7FF) : c.cardBg;
     final borderColor =
-        widget.liked ? const Color(0xFFBFE6FF) : const Color(0xFFE6EDF3);
+        widget.liked ? const Color(0xFFBFE6FF) : c.border;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -86,7 +86,7 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(999),
@@ -106,15 +106,15 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
                           ? Icons.thumb_up
                           : Icons.thumb_up_outlined,
                       key: ValueKey(widget.liked),
-                      size: 18,
+                      size: 15,
                       color: color,
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 5),
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),

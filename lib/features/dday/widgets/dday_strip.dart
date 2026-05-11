@@ -41,34 +41,6 @@ class DDayStrip extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => context.push(AppRoutes.ddaySettings),
-                  child: Row(
-                    children: [
-                      Text(
-                        '전체 보기',
-                        style: TextStyle(
-                          fontSize: 10,
-                          height: 1.0,
-                          fontWeight: FontWeight.w600,
-                          color: c.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 14,
-                        color: c.textPrimary,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
             if (sorted.isEmpty)
               GestureDetector(
                 onTap: () => context.push(AppRoutes.ddaySettings),
@@ -82,14 +54,38 @@ class DDayStrip extends ConsumerWidget {
                         color: c.textDisabled,
                       ),
                       const SizedBox(width: 7),
-                      Text(
-                        '중요한 날을 D-Day로 기록해보세요',
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.0,
-                          fontWeight: FontWeight.w500,
-                          color: c.textDisabled,
-                          letterSpacing: 0,
+                      Expanded(
+                        child: Text(
+                          '중요한 날을 D-Day로 기록해보세요',
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.0,
+                            fontWeight: FontWeight.w500,
+                            color: c.textDisabled,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.push(AppRoutes.ddaySettings),
+                        child: Row(
+                          children: [
+                            Text(
+                              '전체 보기',
+                              style: TextStyle(
+                                fontSize: 10,
+                                height: 1.0,
+                                fontWeight: FontWeight.w600,
+                                color: c.textMuted,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              size: 14,
+                              color: c.textMuted,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -108,6 +104,8 @@ class DDayStrip extends ConsumerWidget {
                         const SizedBox(width: 7),
                       ],
                       const _AddChip(),
+                      const SizedBox(width: 4),
+                      _ViewAllChip(),
                     ],
                   ),
                 ),
@@ -196,6 +194,41 @@ class _DDayChip extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ViewAllChip extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return GestureDetector(
+      onTap: () => context.push(AppRoutes.ddaySettings),
+      child: Container(
+        width: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: c.subtleBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: c.borderBlue),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.more_horiz_rounded, size: 16, color: c.textMuted),
+            const SizedBox(height: 3),
+            Text(
+              '전체',
+              style: TextStyle(
+                fontSize: 9,
+                height: 1.0,
+                fontWeight: FontWeight.w700,
+                color: c.textTertiary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

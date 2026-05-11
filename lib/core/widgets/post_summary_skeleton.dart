@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../core/theme/app_colors.dart';
+
 class PostListSkeleton extends StatelessWidget {
   final int count;
 
@@ -8,10 +10,11 @@ class PostListSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       margin: const EdgeInsets.fromLTRB(18, 10, 18, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
@@ -20,10 +23,10 @@ class PostListSkeleton extends StatelessWidget {
             children: [
               _PostSkeletonItem(),
               if (i < count - 1)
-                const Divider(
+                Divider(
                   height: 1,
                   thickness: 1,
-                  color: Color(0xFFF0F4F8),
+                  color: c.borderSubtle,
                   indent: 18,
                   endIndent: 18,
                 ),
@@ -38,9 +41,12 @@ class PostListSkeleton extends StatelessWidget {
 class _PostSkeletonItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFEEEEEE),
-      highlightColor: const Color(0xFFF8F8F8),
+      baseColor: isDark ? const Color(0xFF252D3A) : const Color(0xFFEEEEEE),
+      highlightColor:
+          isDark ? const Color(0xFF2E3848) : const Color(0xFFF8F8F8),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
         child: Column(

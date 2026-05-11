@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/login_blocked_reason.dart';
 import '../provider/login_provider.dart';
 
@@ -34,7 +35,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
         loginState.blockedReason ?? LoginBlockedReason.pending;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         child: SizedBox(
@@ -53,7 +54,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '확인',
               style: TextStyle(
                 fontSize: 13,
@@ -69,7 +70,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 상태 아이콘
               Container(
@@ -86,7 +87,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               /// 상태 배지
               Container(
@@ -100,7 +101,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 ),
                 child: Text(
                   _statusLabel(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF4A67F2),
@@ -108,43 +109,43 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               /// 제목
               Text(
                 blockedReason.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               /// 설명
               Text(
                 blockedReason.description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   height: 1.6,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               /// 안내 카드
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: const Color(0xFFE3E7EF),
+                    color: context.colors.border,
                   ),
                   boxShadow: const [
                     BoxShadow(
@@ -157,22 +158,22 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 1),
                       child: Icon(
                         Icons.info_outline_rounded,
                         size: 18,
-                        color: Color(0xFF7A7A7A),
+                        color: context.colors.iconSecondary,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         _helperText(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           height: 1.6,
-                          color: Color(0xFF666666),
+                          color: context.colors.textMuted,
                         ),
                       ),
                     ),

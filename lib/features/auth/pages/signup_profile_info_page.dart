@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_nickname_check_provider.dart';
 
@@ -108,36 +109,34 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFFB0B0B0),
+      hintStyle: TextStyle(color: c.textHint,
         fontSize: 12,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 17,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: Color(0xFF4A67F2),
           width: 1.3,
         ),
@@ -176,7 +175,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
             !nicknameCheckState.isLoading;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -208,7 +207,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '다음',
               style: TextStyle(
                 fontSize: 13,
@@ -232,28 +231,28 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '3/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '프로필 정보',
                 style: TextStyle(
                   fontSize: 11,
@@ -262,111 +261,111 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '프로필을 설정해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 'TeenPle에서 사용할 기본 정보를 입력해주세요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 이름 라벨
-              const Text(
+              Text(
                 '이름',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 이름 입력창
               TextField(
                 controller: _usernameController,
                 onChanged: _onUsernameChanged,
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '이름을 입력해주세요',
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 이름 안내/에러 메시지
               if (username.isNotEmpty && !isUsernameValid)
-                const Text(
+                Text(
                   '이름은 한글 또는 영어만 입력할 수 있으며, 최대 20자까지 가능해요.',
                   style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               /// 닉네임 라벨
-              const Text(
+              Text(
                 '닉네임',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 닉네임 입력창
               TextField(
                 controller: _nicknameController,
                 onChanged: _onNicknameChanged,
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '닉네임을 입력해주세요',
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 닉네임 상태 메시지
               Builder(
                 builder: (context) {
                   if (nickname.isEmpty) {
-                    return const Text(
+                    return Text(
                       '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF8A8A8A),
+                        color: context.colors.textMuted,
                       ),
                     );
                   }
 
                   if (!isNicknameValid) {
-                    return const Text(
+                    return Text(
                       '닉네임은 한글 또는 영어로 3~10자 입력해주세요.',
                       style: TextStyle(fontSize: 11, color: Colors.red),
                     );
                   }
 
                   if (nicknameCheckState.isLoading) {
-                    return const Text(
+                    return Text(
                       '닉네임 중복 여부를 확인하고 있어요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -379,13 +378,13 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                       isSameAsChecked) {
                     return Text(
                       nicknameCheckState.errorMessage!,
-                      style: const TextStyle(fontSize: 11, color: Colors.red),
+                      style: TextStyle(fontSize: 11, color: Colors.red),
                     );
                   }
 
                   if (nicknameCheckState.isAvailable == false &&
                       isSameAsChecked) {
-                    return const Text(
+                    return Text(
                       '이미 사용 중인 닉네임이에요.',
                       style: TextStyle(fontSize: 11, color: Colors.red),
                     );
@@ -393,7 +392,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
 
                   if (nicknameCheckState.isAvailable == true &&
                       isSameAsChecked) {
-                    return const Text(
+                    return Text(
                       '사용 가능한 닉네임이에요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -402,40 +401,40 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     );
                   }
 
-                  return const Text(
+                  return Text(
                     '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF8A8A8A),
+                      color: context.colors.textMuted,
                     ),
                   );
                 },
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               /// 성별 라벨
-              const Text(
+              Text(
                 '성별',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 성별 선택 설명
-              const Text(
+              Text(
                 '프로필에 표시할 성별을 선택해주세요.',
                 style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF8A8A8A),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               /// 성별 선택 버튼
               Row(
@@ -449,12 +448,12 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                         decoration: BoxDecoration(
                           color: gender == 'MALE'
                               ? const Color(0xFFF2F5FF)
-                              : Colors.white,
+                              : context.colors.cardBg,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: gender == 'MALE'
                                 ? const Color(0xFF4A67F2)
-                                : const Color(0xFFE3E7EF),
+                                : context.colors.border,
                             width: gender == 'MALE' ? 1.3 : 1.0,
                           ),
                         ),
@@ -465,14 +464,14 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                             fontWeight: FontWeight.w700,
                             color: gender == 'MALE'
                                 ? const Color(0xFF4A67F2)
-                                : const Color(0xFF222222),
+                                : context.colors.textPrimary,
                           ),
                         ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
 
                   Expanded(
                     child: GestureDetector(
@@ -483,12 +482,12 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                         decoration: BoxDecoration(
                           color: gender == 'FEMALE'
                               ? const Color(0xFFF2F5FF)
-                              : Colors.white,
+                              : context.colors.cardBg,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: gender == 'FEMALE'
                                 ? const Color(0xFF4A67F2)
-                                : const Color(0xFFE3E7EF),
+                                : context.colors.border,
                             width: gender == 'FEMALE' ? 1.3 : 1.0,
                           ),
                         ),
@@ -499,7 +498,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                             fontWeight: FontWeight.w700,
                             color: gender == 'FEMALE'
                                 ? const Color(0xFF4A67F2)
-                                : const Color(0xFF222222),
+                                : context.colors.textPrimary,
                           ),
                         ),
                       ),
@@ -508,10 +507,10 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                 ],
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               if (!isGenderSelected && (username.isNotEmpty || nickname.isNotEmpty))
-                const Text(
+                Text(
                   '성별을 선택해주세요.',
                   style: TextStyle(fontSize: 11, color: Colors.red),
                 ),

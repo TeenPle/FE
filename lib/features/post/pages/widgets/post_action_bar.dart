@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/widgets/like_burst_button.dart';
 import '../../../../core/widgets/tap_scale.dart';
@@ -26,6 +27,7 @@ class PostActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
         Expanded(
@@ -40,6 +42,9 @@ class PostActionBar extends StatelessWidget {
               _StaticChip(
                 icon: Icons.chat_bubble_outline_rounded,
                 label: '댓글 $commentCount',
+                bgColor: c.tintBg,
+                borderColor: c.borderBlue,
+                iconColor: c.iconOnCard,
               ),
             ],
           ),
@@ -51,18 +56,19 @@ class PostActionBar extends StatelessWidget {
               : Icons.bookmark_border_rounded,
           iconColor: bookmarkedByMe
               ? const Color(0xFFF5A623)
-              : const Color(0xFF6E7B87),
-          backgroundColor: bookmarkedByMe
-              ? const Color(0xFFFFF8ED)
-              : Colors.white,
-          borderColor: bookmarkedByMe
-              ? const Color(0xFFFFE0A0)
-              : const Color(0xFFE6EDF3),
+              : c.iconOnCard,
+          backgroundColor:
+              bookmarkedByMe ? const Color(0xFFFFF8ED) : c.tintBg,
+          borderColor:
+              bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
           onTap: onBookmarkTap,
         ),
         const SizedBox(width: 8),
         _IconActionButton(
           icon: Icons.ios_share_rounded,
+          backgroundColor: c.tintBg,
+          borderColor: c.borderBlue,
+          iconColor: c.iconOnCard,
           onTap: onShareTap,
         ),
       ],
@@ -73,10 +79,16 @@ class PostActionBar extends StatelessWidget {
 class _StaticChip extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color bgColor;
+  final Color borderColor;
+  final Color iconColor;
 
   const _StaticChip({
     required this.icon,
     required this.label,
+    required this.bgColor,
+    required this.borderColor,
+    required this.iconColor,
   });
 
   @override
@@ -84,21 +96,21 @@ class _StaticChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: bgColor,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF6E7B87)),
+          Icon(icon, size: 18, color: iconColor),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF6E7B87),
+              color: iconColor,
             ),
           ),
         ],
@@ -124,6 +136,7 @@ class _IconActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return TapScale(
       scale: 0.90,
       child: InkWell(
@@ -136,14 +149,14 @@ class _IconActionButton extends StatelessWidget {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.white,
+            color: backgroundColor ?? c.tintBg,
             shape: BoxShape.circle,
-            border: Border.all(color: borderColor ?? const Color(0xFFE6EDF3)),
+            border: Border.all(color: borderColor ?? c.borderBlue),
           ),
           child: Icon(
             icon,
             size: 20,
-            color: iconColor ?? const Color(0xFF6E7B87),
+            color: iconColor ?? c.iconOnCard,
           ),
         ),
       ),

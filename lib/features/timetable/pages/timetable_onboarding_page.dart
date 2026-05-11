@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
+import '../../../core/theme/app_colors.dart';
+
 /// 최초 접속 시 표시되는 온보딩 튜토리얼 페이지.
 /// 목 데이터로 시간표 화면을 재현하고, 고정 레이아웃에서 코치마크를 실행해
 /// 스포트라이트 위치를 픽셀 단위로 정확하게 유지한다.
@@ -129,23 +131,24 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF3F9FF),
+        backgroundColor: c.pageBg,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: const Icon(
+        leading: Icon(
           Icons.arrow_back_ios_new_rounded,
           size: 20,
-          color: Colors.black87,
+          color: c.textPrimary,
         ),
-        title: const Text(
+        title: Text(
           '시간표',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -222,11 +225,12 @@ class _MockWeekNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       key: widgetKey,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE1ECF5)),
       ),
@@ -234,14 +238,14 @@ class _MockWeekNavigator extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _CircleArrow(icon: Icons.chevron_left_rounded),
-          const Column(
+          Column(
             children: [
               Text(
                 '5월 5일 ~ 9일',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111111),
+                  color: c.textPrimary,
                 ),
               ),
               Text(
@@ -283,11 +287,12 @@ class _MockMemoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       key: widgetKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE1ECF5)),
       ),
@@ -311,12 +316,12 @@ class _MockMemoCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '수요일 메모',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF111111),
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -369,10 +374,11 @@ class _MockTimetableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE1ECF5)),
       ),

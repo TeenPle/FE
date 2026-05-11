@@ -5,6 +5,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/haptics.dart';
 import '../../../core/widgets/tap_scale.dart';
 import '../../../core/storage/token_storage.dart';
@@ -168,8 +169,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBFF),
+      backgroundColor: c.pageBg,
       floatingActionButton: isPenalized
           ? null
           : FloatingActionButton(
@@ -333,10 +335,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
           itemCount: totalItemCount,
           separatorBuilder: (context, index) {
             if (index >= totalItemCount - 2) return const SizedBox.shrink();
-            return const Divider(
+            return Divider(
               height: 1,
               thickness: 1,
-              color: Color(0xFFD5DDE6),
+              color: context.colors.divider,
               indent: 12,
               endIndent: 12,
             );
@@ -357,7 +359,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
               if (postIndex < state.topRecommendedPosts.length) {
                 final post = state.topRecommendedPosts[postIndex];
                 item = Container(
-                  color: const Color(0xFFF6FBFF),
+                  color: context.colors.pageBg,
                   child: PostSummaryCard(
                     post: post,
                     compact: true,
@@ -378,7 +380,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     postIndex - state.topRecommendedPosts.length;
                 final post = feedPosts[feedIndex];
                 item = Container(
-                  color: const Color(0xFFF6FBFF),
+                  color: context.colors.pageBg,
                   child: PostSummaryCard(
                     post: post,
                     compact: true,
@@ -439,10 +441,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       else
         SliverList.separated(
           itemCount: state.hotPosts.length,
-          separatorBuilder: (context, index) => const Divider(
+          separatorBuilder: (context, index) => Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFD5DDE6),
+            color: context.colors.divider,
             indent: 12,
             endIndent: 12,
           ),
@@ -455,7 +457,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                 verticalOffset: 30,
                 child: FadeInAnimation(
                   child: Container(
-                    color: const Color(0xFFF6FBFF),
+                    color: context.colors.pageBg,
                     child: PostSummaryCard(
                       post: post,
                       compact: true,
@@ -526,61 +528,66 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                         }
                       },
                       borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE1ECF5)),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 38,
-                              height: 38,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEAF7FF),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(Icons.tag_rounded,
-                                  color: Color(0xFF14A3F7), size: 22),
+                      child: Builder(
+                        builder: (context) {
+                          final c = context.colors;
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: c.cardBg,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: c.border),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    board.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF111111),
-                                    ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(
+                                    color: c.tintBg,
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  if (board.description.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      board.description,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF7D8790),
+                                  child: const Icon(Icons.tag_rounded,
+                                      color: Color(0xFF14A3F7), size: 22),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        board.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w900,
+                                          color: c.textPrimary,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ],
-                              ),
+                                      if (board.description.isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          board.description,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: c.textMuted,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(Icons.chevron_right_rounded,
+                                    color: c.iconSecondary, size: 24),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.chevron_right_rounded,
-                                color: Color(0xFF9AA7B2), size: 24),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -628,8 +635,9 @@ class _HomeTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: const Color(0xFFF6FBFF),
+      color: c.pageBg,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Center(
         child: Container(
@@ -637,7 +645,7 @@ class _HomeTabBar extends StatelessWidget {
           width: 236,
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            color: const Color(0xFFEBF2F9),
+            color: c.chipContainerBg,
             borderRadius: BorderRadius.circular(999),
           ),
           child: Stack(
@@ -725,7 +733,7 @@ class _HomeTabButton extends StatelessWidget {
                   selected ? FontWeight.w800 : FontWeight.w600,
               color: selected
                   ? Colors.white
-                  : const Color(0xFF8C8F95),
+                  : context.colors.textTertiary,
               letterSpacing: 0,
             ),
           ),
@@ -759,32 +767,28 @@ class _HotFilterRow extends StatelessWidget {
               onChanged(filter);
             },
             borderRadius: BorderRadius.circular(999),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFFFF6B35)
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFFFF6B35)
-                      : const Color(0xFFE1ECF5),
+            child: Builder(builder: (context) {
+              final c = context.colors;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFFFF6B35) : c.cardBg,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: isSelected ? const Color(0xFFFF6B35) : c.border,
+                  ),
                 ),
-              ),
-              child: Text(
-                filter.label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: isSelected
-                      ? Colors.white
-                      : const Color(0xFF6E7A86),
+                child: Text(
+                  filter.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? Colors.white : c.textMuted,
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
         );
       }).toList(),
@@ -799,11 +803,12 @@ class _SchoolMainAdCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: const Color(0xFFF6FBFF),
+      color: c.pageBg,
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
       child: Material(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: () {},
@@ -812,7 +817,7 @@ class _SchoolMainAdCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(15, 13, 15, 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFDCE8F2)),
+              border: Border.all(color: c.border),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x0D000000),
@@ -863,7 +868,7 @@ class _SchoolMainAdCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 7),
-                          const Expanded(
+                          Expanded(
                             child: Text(
                               '학교생활 제휴 안내',
                               maxLines: 1,
@@ -871,7 +876,7 @@ class _SchoolMainAdCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF6E7A86),
+                                color: c.textMuted,
                                 letterSpacing: 0,
                               ),
                             ),
@@ -879,7 +884,7 @@ class _SchoolMainAdCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 9),
-                      const Text(
+                      Text(
                         '우리 학교 근처 스터디 혜택 모아보기',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -887,12 +892,12 @@ class _SchoolMainAdCard extends StatelessWidget {
                           fontSize: 13,
                           height: 1.2,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111111),
+                          color: c.textPrimary,
                           letterSpacing: 0,
                         ),
                       ),
                       const SizedBox(height: 5),
-                      const Text(
+                      Text(
                         '청소년 이용 가능 제휴만 검수해서 보여주는 테스트 광고 영역입니다.',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -900,7 +905,7 @@ class _SchoolMainAdCard extends StatelessWidget {
                           fontSize: 11,
                           height: 1.35,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF59616C),
+                          color: c.textSecondary,
                           letterSpacing: 0,
                         ),
                       ),
@@ -947,10 +952,10 @@ class _PagingFooter extends StatelessWidget {
       child: Center(
         child: Text(
           hasNext ? '스크롤하면 더 불러와요' : '마지막 게시글까지 확인했어요',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF8D9AA6),
+            color: context.colors.textTertiary,
           ),
         ),
       ),
@@ -1017,6 +1022,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 42),
       child: Column(
@@ -1026,21 +1032,21 @@ class _EmptyState extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               height: 1.5,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF7D8790),
+              color: c.textMuted,
             ),
           ),
         ],
@@ -1068,16 +1074,16 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
     builder: (ctx) => AlertDialog(
       shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.gavel_rounded, color: Color(0xFFE05C7B), size: 22),
-          SizedBox(width: 8),
+          const Icon(Icons.gavel_rounded, color: Color(0xFFE05C7B), size: 22),
+          const SizedBox(width: 8),
           Text(
             '이용 제한 안내',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
             ),
           ),
         ],
@@ -1145,17 +1151,17 @@ class _WarningDialog extends ConsumerWidget {
     return AlertDialog(
       shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.warning_amber_rounded,
+          const Icon(Icons.warning_amber_rounded,
               color: Color(0xFFF59E0B), size: 22),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             '관리자 경고',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
             ),
           ),
         ],
@@ -1282,13 +1288,13 @@ class _SchoolBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return SafeArea(
       top: false,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border:
-              Border(top: BorderSide(color: Color(0xFFE8EEF3), width: 1)),
+        decoration: BoxDecoration(
+          color: c.cardBg,
+          border: Border(top: BorderSide(color: c.border, width: 1)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Row(
@@ -1350,7 +1356,7 @@ class _BottomNavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color =
-        selected ? const Color(0xFF229BF3) : const Color(0xFF282D33);
+        selected ? const Color(0xFF229BF3) : context.colors.textMuted;
 
     return GestureDetector(
       onTap: () {
@@ -1424,6 +1430,7 @@ class _DialogInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -1433,9 +1440,9 @@ class _DialogInfoRow extends StatelessWidget {
             width: 64,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: Color(0xFF9AA7B2),
+                color: c.textTertiary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1443,9 +1450,9 @@ class _DialogInfoRow extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: Color(0xFF333333),
+                color: c.textBody,
                 fontWeight: FontWeight.w600,
               ),
             ),

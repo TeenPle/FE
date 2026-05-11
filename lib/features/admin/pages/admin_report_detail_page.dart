@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
 
@@ -48,10 +49,11 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         foregroundColor: const Color(0xFF1F2933),
         elevation: 0,
         title: const Text('신고 상세', style: TextStyle(fontWeight: FontWeight.w800)),
@@ -310,10 +312,11 @@ class _Panel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
@@ -385,12 +388,13 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final (label, color, bg) = switch (status) {
       'PENDING' => ('대기 중', const Color(0xFF426C82), const Color(0xFFEAF3FB)),
       'RESOLVED' => ('승인 완료', const Color(0xFF2F7D46), const Color(0xFFE8F5E9)),
       'REJECTED' => ('거절됨', const Color(0xFF64748B), const Color(0xFFF1F5F9)),
       'WARNED' => ('경고 발령', const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
-      _ => (status, Colors.grey, const Color(0xFFF1F5F9)),
+      _ => (status, c.textMuted, const Color(0xFFF1F5F9)),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

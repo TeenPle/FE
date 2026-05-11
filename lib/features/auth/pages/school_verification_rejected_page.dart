@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/login_provider.dart';
 import '../provider/verification_reapply_provider.dart';
 
@@ -75,7 +76,7 @@ class _SchoolVerificationRejectedPageState
         !reapplyState.isSubmitLoading;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         child: SizedBox(
@@ -112,7 +113,7 @@ class _SchoolVerificationRejectedPageState
             ),
             child: Text(
               reapplyState.isSubmitLoading ? '재요청 중...' : '다시 인증 요청하기',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -122,7 +123,7 @@ class _SchoolVerificationRejectedPageState
       ),
       body: SafeArea(
         child: reapplyState.isInfoLoading
-            ? const Center(
+            ? Center(
           child: CircularProgressIndicator(),
         )
             : SingleChildScrollView(
@@ -137,13 +138,13 @@ class _SchoolVerificationRejectedPageState
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 상태 아이콘
               Container(
@@ -153,14 +154,14 @@ class _SchoolVerificationRejectedPageState
                   color: const Color(0xFFFFF3EC),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.report_problem_outlined,
                   size: 30,
                   color: Color(0xFFFF7A45),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               /// 상태 배지
               Container(
@@ -172,7 +173,7 @@ class _SchoolVerificationRejectedPageState
                   color: const Color(0xFFFFF3EC),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: const Text(
+                child: Text(
                   '학교 인증 반려',
                   style: TextStyle(
                     fontSize: 11,
@@ -182,33 +183,33 @@ class _SchoolVerificationRejectedPageState
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               /// 제목
-              const Text(
+              Text(
                 '학교 인증이 반려되었어요.',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               /// 설명
-              const Text(
+              Text(
                 '반려 사유를 확인한 뒤 학생증 사진을 다시 업로드해주세요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.6,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               /// 조회 에러
               if (reapplyState.errorMessage != null) ...[
@@ -216,7 +217,7 @@ class _SchoolVerificationRejectedPageState
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: const Color(0xFFFFD8D8),
@@ -224,7 +225,7 @@ class _SchoolVerificationRejectedPageState
                   ),
                   child: Text(
                     reapplyState.errorMessage!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       height: 1.6,
                       color: Colors.red,
@@ -232,7 +233,7 @@ class _SchoolVerificationRejectedPageState
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 SizedBox(
                   height: 50,
@@ -245,14 +246,14 @@ class _SchoolVerificationRejectedPageState
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
+                      side: BorderSide(
                         color: Color(0xFF4A67F2),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       '다시 불러오기',
                       style: TextStyle(
                         color: Color(0xFF4A67F2),
@@ -267,44 +268,44 @@ class _SchoolVerificationRejectedPageState
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: const Color(0xFFE3E7EF),
+                      color: context.colors.border,
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         '학교',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF6B7280),
+                          color: context.colors.textMuted,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         reapplyState.info!.schoolName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF111111),
+                          color: context.colors.textPrimary,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 /// 관리자 반려 사유 카드
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: const Color(0xFFFFE1D1),
@@ -313,7 +314,7 @@ class _SchoolVerificationRejectedPageState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         '반려 사유',
                         style: TextStyle(
                           fontSize: 11,
@@ -321,34 +322,34 @@ class _SchoolVerificationRejectedPageState
                           color: Color(0xFFFF7A45),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Text(
                         reapplyState.info!.adminComment.trim().isEmpty
                             ? '관리자 코멘트가 없습니다.'
                             : reapplyState.info!.adminComment,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           height: 1.6,
-                          color: Color(0xFF444444),
+                          color: context.colors.textBody,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 /// 학생증 업로드 라벨
-                const Text(
+                Text(
                   '학생증 이미지',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF666666),
+                    color: context.colors.textMuted,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 /// 이미지 업로드 버튼
                 GestureDetector(
@@ -360,12 +361,12 @@ class _SchoolVerificationRejectedPageState
                       vertical: 18,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: selectedFilePath.isNotEmpty
                             ? const Color(0xFF4A67F2)
-                            : const Color(0xFFE3E7EF),
+                            : context.colors.border,
                         width: selectedFilePath.isNotEmpty ? 1.3 : 1.0,
                       ),
                     ),
@@ -378,9 +379,9 @@ class _SchoolVerificationRejectedPageState
                           size: 20,
                           color: selectedFilePath.isNotEmpty
                               ? const Color(0xFF4A67F2)
-                              : const Color(0xFF7A7A7A),
+                              : context.colors.iconSecondary,
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             selectedFileName.isEmpty
@@ -392,8 +393,8 @@ class _SchoolVerificationRejectedPageState
                                   ? FontWeight.w400
                                   : FontWeight.w600,
                               color: selectedFileName.isEmpty
-                                  ? const Color(0xFF9A9A9A)
-                                  : const Color(0xFF222222),
+                                  ? context.colors.textTertiary
+                                  : context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -402,39 +403,39 @@ class _SchoolVerificationRejectedPageState
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
 
-                const Text(
+                Text(
                   '학생증 정보가 잘 보이는 사진을 올려주세요.',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF6B7280),
+                    color: context.colors.textMuted,
                   ),
                 ),
 
                 /// 선택한 이미지 미리보기
                 if (selectedFilePath.isNotEmpty) ...[
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     '미리보기',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF666666),
+                      color: context.colors.textMuted,
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   Container(
                     width: double.infinity,
                     height: 220,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFFE3E7EF),
+                        color: context.colors.border,
                       ),
                     ),
                     child: ClipRRect(
@@ -443,12 +444,12 @@ class _SchoolVerificationRejectedPageState
                         File(selectedFilePath),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return const Center(
+                          return Center(
                             child: Text(
                               '이미지를 불러올 수 없어요.',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Color(0xFF888888),
+                                color: context.colors.iconSecondary,
                               ),
                             ),
                           );
@@ -457,9 +458,9 @@ class _SchoolVerificationRejectedPageState
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
-                  const Text(
+                  Text(
                     '선택한 이미지가 맞는지 확인해주세요.',
                     style: TextStyle(
                       fontSize: 11,
@@ -469,10 +470,10 @@ class _SchoolVerificationRejectedPageState
                 ],
 
                 if (reapplyState.submitErrorMessage != null) ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Text(
                     reapplyState.submitErrorMessage!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: Colors.red,
                     ),

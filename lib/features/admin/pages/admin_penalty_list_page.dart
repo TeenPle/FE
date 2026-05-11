@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/penalty_summary_model.dart';
 import '../provider/admin_penalty_provider.dart';
 
@@ -26,12 +27,13 @@ class _AdminPenaltyListPageState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminPenaltyListProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: c.cardBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
         centerTitle: true,
         title: const Text('제재 내역',
@@ -42,11 +44,11 @@ class _AdminPenaltyListPageState
           : state.error != null && state.penalties.isEmpty
               ? Center(
                   child: Text(state.error!,
-                      style: const TextStyle(color: Colors.grey)))
+                      style: TextStyle(color: c.textMuted)))
               : state.penalties.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text('제재 내역이 없어요.',
-                          style: TextStyle(color: Colors.grey)))
+                          style: TextStyle(color: c.textMuted)))
                   : RefreshIndicator(
                       onRefresh: () =>
                           ref.read(adminPenaltyListProvider.notifier).load(),

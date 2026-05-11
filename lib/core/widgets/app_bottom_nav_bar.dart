@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -14,13 +15,14 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return SafeArea(
       top: false,
       child: Container(
         margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.cardBg,
           borderRadius: BorderRadius.circular(30),
           boxShadow: const [
             BoxShadow(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/board_model.dart';
 
 class BoardTabBar extends StatelessWidget {
@@ -17,6 +18,7 @@ class BoardTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     // 전체 탭 + 개별 게시판 탭: 총 boards.length + 1개
     final itemCount = boards.length + 1;
 
@@ -36,7 +38,7 @@ class BoardTabBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF14A3F7) : Colors.white,
+                  color: isSelected ? const Color(0xFF14A3F7) : c.cardBg,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Text(
@@ -59,7 +61,7 @@ class BoardTabBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF14A3F7) : Colors.white,
+                color: isSelected ? const Color(0xFF14A3F7) : c.cardBg,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Text(

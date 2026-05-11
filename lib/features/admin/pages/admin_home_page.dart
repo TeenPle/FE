@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../auth/provider/login_provider.dart';
 import '../provider/admin_dashboard_provider.dart';
 
@@ -23,12 +24,13 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
   @override
   Widget build(BuildContext context) {
     final dashboard = ref.watch(adminDashboardProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
         title: const Text('관리자 콘솔', style: TextStyle(fontWeight: FontWeight.w800)),
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         foregroundColor: const Color(0xFF1F2933),
         elevation: 0,
         actions: [
@@ -189,8 +191,9 @@ class _ConsoleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Material(
-      color: Colors.white,
+      color: c.cardBg,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -306,10 +309,11 @@ class _GuidelineTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),

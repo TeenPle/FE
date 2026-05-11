@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../notification/provider/notification_provider.dart';
 
 class SchoolHeader extends ConsumerWidget {
@@ -16,12 +17,13 @@ class SchoolHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final unreadCount = ref.watch(
       notificationProvider.select((s) => s.unreadCount),
     );
 
     return Container(
-      color: const Color(0xFFF6FBFF),
+      color: c.pageBg,
       padding: const EdgeInsets.fromLTRB(26, 12, 26, 12),
       child: Row(
         children: [
@@ -40,10 +42,10 @@ class SchoolHeader extends ConsumerWidget {
                     schoolName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF050505),
+                      color: c.textPrimary,
                       letterSpacing: 0,
                     ),
                   ),
@@ -60,7 +62,7 @@ class SchoolHeader extends ConsumerWidget {
           const SizedBox(width: 12),
           GestureDetector(
             onTap: onSearchTap,
-            child: const _HeaderIcon(icon: Icons.search_rounded),
+            child: Icon(Icons.search_rounded, size: 29, color: c.iconPrimary),
           ),
           const SizedBox(width: 13),
           GestureDetector(
@@ -73,6 +75,7 @@ class SchoolHeader extends ConsumerWidget {
             child: _BadgeIcon(
               icon: Icons.notifications_none_rounded,
               count: unreadCount,
+              iconColor: c.iconPrimary,
             ),
           ),
         ],
@@ -84,15 +87,20 @@ class SchoolHeader extends ConsumerWidget {
 class _BadgeIcon extends StatelessWidget {
   final IconData icon;
   final int count;
+  final Color iconColor;
 
-  const _BadgeIcon({required this.icon, required this.count});
+  const _BadgeIcon({
+    required this.icon,
+    required this.count,
+    required this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Icon(icon, size: 29, color: Color(0xFF0B0B0B)),
+        Icon(icon, size: 29, color: iconColor),
         if (count > 0)
           Positioned(
             top: 1,
@@ -118,16 +126,5 @@ class _BadgeIcon extends StatelessWidget {
           ),
       ],
     );
-  }
-}
-
-class _HeaderIcon extends StatelessWidget {
-  final IconData icon;
-
-  const _HeaderIcon({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(icon, size: 29, color: const Color(0xFF0B0B0B));
   }
 }

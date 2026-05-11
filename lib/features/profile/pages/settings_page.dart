@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
@@ -25,19 +26,20 @@ class SettingsPage extends ConsumerWidget {
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF3F9FF),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '설정',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -203,12 +205,12 @@ class _ThemeCard extends ConsumerWidget {
                 color: Color(0xFF14A3F7),
               ),
               const SizedBox(width: 14),
-              const Text(
+              Text(
                 '테마',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
               const Spacer(),
@@ -261,7 +263,7 @@ class _ThemeSegment extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? const Color(0xFF14A3F7)
-                : const Color(0xFFD0D8E4),
+                : context.colors.border,
           ),
         ),
         child: Text(
@@ -269,7 +271,7 @@ class _ThemeSegment extends StatelessWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: selected ? Colors.white : const Color(0xFF9AA7B2),
+            color: selected ? Colors.white : context.colors.textMuted,
           ),
         ),
       ),
@@ -379,8 +381,9 @@ class _NotificationToggleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = enabled && value;
-    final color = enabled ? const Color(0xFF111111) : const Color(0xFFB0BEC5);
-    final iconColor = enabled ? const Color(0xFF14A3F7) : const Color(0xFFB0BEC5);
+    final c = context.colors;
+    final color = enabled ? c.textPrimary : c.textDisabled;
+    final iconColor = enabled ? const Color(0xFF14A3F7) : c.textDisabled;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -468,18 +471,18 @@ class _InfoTile extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
             ),
           ),
           const Spacer(),
           Text(
             trailing,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF9AA7B2),
+              color: context.colors.textTertiary,
             ),
           ),
         ],
@@ -502,10 +505,10 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 4),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF9AA7B2),
+          color: context.colors.textTertiary,
           letterSpacing: 0.3,
         ),
       ),
@@ -519,11 +522,12 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Column(children: children),
     );
@@ -535,7 +539,7 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8), indent: 52);
+    return Divider(height: 1, thickness: 1, color: context.colors.borderSubtle, indent: 52);
   }
 }
 
@@ -556,7 +560,7 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = labelColor ?? const Color(0xFF111111);
+    final color = labelColor ?? context.colors.textPrimary;
     final iColor = iconColor ?? const Color(0xFF14A3F7);
 
     return InkWell(
@@ -577,7 +581,7 @@ class _SettingsTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFB0BEC5), size: 22),
+            Icon(Icons.chevron_right_rounded, color: context.colors.iconSecondary, size: 22),
           ],
         ),
       ),

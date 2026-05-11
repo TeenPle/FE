@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../models/penalty_model.dart';
 import '../provider/penalty_provider.dart';
 
@@ -26,34 +27,33 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
     final active = ref.watch(activePenaltyProvider);
     final history = ref.watch(penaltyHistoryProvider);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '제재 이력',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
         children: [
-          // 현재 제재 상태 카드
           _ActivePenaltyCard(state: active),
           const SizedBox(height: 24),
 
-          // 이력 섹션
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
               '제재 이력',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF9AA7B2),
+                color: c.textTertiary,
                 letterSpacing: 0.3,
               ),
             ),
@@ -72,7 +72,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                 padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Text(
                   history.error!,
-                  style: const TextStyle(color: Color(0xFF9AA7B2)),
+                  style: TextStyle(color: c.textMuted),
                 ),
               ),
             )
@@ -81,13 +81,13 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
               padding: const EdgeInsets.symmetric(vertical: 40),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: c.cardBg,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE6EDF3)),
+                border: Border.all(color: c.borderStrong),
               ),
-              child: const Text(
+              child: Text(
                 '제재 이력이 없어요.',
-                style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+                style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             )
           else
@@ -107,8 +107,8 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                                 .read(penaltyHistoryProvider.notifier)
                                 .loadMore(),
                         style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: const BorderSide(color: Color(0xFFD6DEE7)),
+                          backgroundColor: c.cardBg,
+                          side: BorderSide(color: c.border),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -117,15 +117,14 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text(
+                            : Text(
                                 '더보기',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF5C6975),
+                                  color: c.textMuted,
                                 ),
                               ),
                       ),
@@ -146,13 +145,15 @@ class _ActivePenaltyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+
     if (state.isLoading) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE6EDF3)),
+          border: Border.all(color: c.borderStrong),
         ),
         child: const Center(
           child: CircularProgressIndicator(strokeWidth: 2),
@@ -204,34 +205,28 @@ class _ActivePenaltyCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '사유: ${penalty.reasonLabel}',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF6B7C8A),
-                        ),
+                        style: TextStyle(fontSize: 11, color: c.iconOnCard),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '해제 예정: ${_formatDate(penalty.expiresAt!)}',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF6B7C8A),
-                        ),
+                        style: TextStyle(fontSize: 11, color: c.iconOnCard),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
+                      Text(
                         '제재 기간 중 게시글·댓글 작성 및 채팅이 제한됩니다.',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF9AA7B2),
+                          color: c.textMuted,
                           height: 1.4,
                         ),
                       ),
                     ],
                   )
-                : const Column(
+                : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         '정상 이용 중',
                         style: TextStyle(
                           fontSize: 13,
@@ -239,13 +234,10 @@ class _ActivePenaltyCard extends StatelessWidget {
                           color: Color(0xFF43A047),
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         '현재 활성 제재가 없어요.',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF6B7C8A),
-                        ),
+                        style: TextStyle(fontSize: 11, color: c.iconOnCard),
                       ),
                     ],
                   ),
@@ -270,22 +262,21 @@ class _PenaltyHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final expired = penalty.isExpired;
 
+    final c = context.colors;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: expired
-                  ? const Color(0xFFF0F0F0)
-                  : const Color(0xFFFFF3F3),
+              color: expired ? c.subtleBg : const Color(0xFFFFF3F3),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -293,9 +284,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: expired
-                    ? const Color(0xFF9AA7B2)
-                    : const Color(0xFFE05C7B),
+                color: expired ? c.textMuted : const Color(0xFFE05C7B),
               ),
             ),
           ),
@@ -306,19 +295,16 @@ class _PenaltyHistoryCard extends StatelessWidget {
               children: [
                 Text(
                   penalty.reasonLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333),
+                    color: c.textBody,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9AA7B2),
-                  ),
+                  style: TextStyle(fontSize: 11, color: c.textMuted),
                 ),
               ],
             ),

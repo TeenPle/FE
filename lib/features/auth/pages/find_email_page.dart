@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/find_email_provider.dart';
 
 class FindEmailPage extends ConsumerStatefulWidget {
@@ -44,28 +45,29 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
     }
   }
 
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
     required IconData icon,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12),
+      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-      prefixIcon: Icon(icon, color: const Color(0xFF7A7A7A)),
+      prefixIcon: Icon(icon, color: c.iconSecondary),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFE3E7EF)),
+        borderSide: BorderSide(color: c.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFE3E7EF)),
+        borderSide: BorderSide(color: c.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF4A67F2), width: 1.3),
+        borderSide: BorderSide(color: Color(0xFF4A67F2), width: 1.3),
       ),
     );
   }
@@ -73,9 +75,10 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(findEmailProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: c.pageBg,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         child: SizedBox(
@@ -94,7 +97,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
             ),
             child: Text(
               state.isLoading ? '조회 중...' : '아이디 찾기',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -107,15 +110,15 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
             children: [
               IconButton(
                 onPressed: () { if (context.canPop()) context.pop(); },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
-              const Text(
+              Text(
                 '아이디 찾기',
                 style: TextStyle(
                   fontSize: 11,
@@ -124,58 +127,58 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
-              const Text(
+              Text(
                 '가입할 때 입력한\n이름과 전화번호를 입력해주세요.',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                   letterSpacing: -0.5,
-                  color: Color(0xFF111111),
+                  color: c.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
-              const Text(
+              Text(
                 '입력한 정보와 일치하는 아이디를 알려드릴게요.',
-                style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF555555)),
+                style: TextStyle(fontSize: 13, height: 1.5, color: c.textBody),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
-              const Text(
+              Text(
                 '이름',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: c.textMuted,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextField(
                 controller: _nameController,
                 textInputAction: TextInputAction.next,
                 onChanged: (_) => setState(() {}),
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '이름을 입력해주세요.',
                   icon: Icons.person_outline_rounded,
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
-              const Text(
+              Text(
                 '휴대폰 번호',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: c.textMuted,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
@@ -188,17 +191,17 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
                 onSubmitted: (_) {
                   if (_canSubmit && !state.isLoading) _submit();
                 },
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '예: 01012345678',
                   icon: Icons.phone_iphone_rounded,
                 ),
               ),
 
               if (state.errorMessage != null) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   state.errorMessage!,
-                  style: const TextStyle(fontSize: 11, color: Colors.red),
+                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
             ],

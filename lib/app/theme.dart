@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_colors.dart';
+
 /// 모든 페이지 전환에 적용되는 커스텀 트랜지션.
 ///
 /// 진입: 오른쪽에서 슬라이드 + 초반 페이드인 (easeOutCubic)
@@ -71,33 +73,83 @@ const _transitions = PageTransitionsTheme(
 ThemeData buildTeenpleLightTheme() {
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: const Color(0xFFECF6FF),
+    scaffoldBackgroundColor: AppColors.light().pageBg,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF1DA1F2),
       brightness: Brightness.light,
     ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppColors.light().pageBg,
+      foregroundColor: AppColors.light().textPrimary,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: AppColors.light().popupBg,
+      surfaceTintColor: Colors.transparent,
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: AppColors.light().cardBg,
+      surfaceTintColor: Colors.transparent,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.light().cardBg,
+      surfaceTintColor: Colors.transparent,
+    ),
+    extensions: [AppColors.light()],
     pageTransitionsTheme: _transitions,
   );
 }
 
 ThemeData buildTeenpleDarkTheme() {
+  final colors = AppColors.dark();
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: const Color(0xFF121212),
+    scaffoldBackgroundColor: colors.pageBg,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF1DA1F2),
       brightness: Brightness.dark,
     ).copyWith(
-      surface: const Color(0xFF1E1E1E),
-      surfaceContainer: const Color(0xFF1E1E1E),
+      surface: colors.cardBg,
+      surfaceContainer: colors.cardBg,
+      onSurface: colors.textPrimary,
     ),
-    cardColor: const Color(0xFF1E1E1E),
-    dividerColor: const Color(0xFF2C2C2C),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF121212),
-      foregroundColor: Color(0xFFEEEEEE),
+    appBarTheme: AppBarTheme(
+      backgroundColor: colors.pageBg,
+      foregroundColor: colors.textPrimary,
       elevation: 0,
+      surfaceTintColor: Colors.transparent,
     ),
+    cardColor: colors.cardBg,
+    dividerColor: colors.divider,
+    popupMenuTheme: PopupMenuThemeData(
+      color: colors.popupBg,
+      surfaceTintColor: Colors.transparent,
+      textStyle: TextStyle(color: colors.textPrimary, fontSize: 12),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: colors.cardBg,
+      surfaceTintColor: Colors.transparent,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: colors.cardBg,
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: colors.textPrimary,
+      ),
+      contentTextStyle: TextStyle(fontSize: 13, color: colors.textSecondary),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: colors.inputBg,
+      hintStyle: TextStyle(color: colors.textHint),
+    ),
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: Color(0xFF229BF3),
+    ),
+    extensions: [colors],
     pageTransitionsTheme: _transitions,
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../models/poll_model.dart';
 
 class PollCard extends StatelessWidget {
@@ -16,26 +17,29 @@ class PollCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+      padding: const EdgeInsets.fromLTRB(0, 18, 0, 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border(
+          top: BorderSide(color: c.dividerBlue),
+          bottom: BorderSide(color: c.dividerBlue),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.poll_rounded, size: 19, color: Color(0xFF14A3F7)),
-              SizedBox(width: 8),
+              const Icon(Icons.poll_rounded,
+                  size: 19, color: Color(0xFF14A3F7)),
+              const SizedBox(width: 8),
               Text(
                 '투표',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+                  color: c.textPrimary,
                 ),
               ),
             ],
@@ -57,10 +61,10 @@ class PollCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               '총 참여자 : ${poll.totalParticipants}명',
-              style: const TextStyle(
-                fontSize: 11,
+              style: TextStyle(
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF7D8790),
+                color: c.textMuted,
               ),
             ),
           ),
@@ -85,7 +89,9 @@ class _PollOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fillRatio = showResult ? (option.percentage.clamp(0, 100) / 100.0) : 0.0;
+    final c = context.colors;
+    final fillRatio =
+        showResult ? (option.percentage.clamp(0, 100) / 100.0) : 0.0;
 
     return InkWell(
       onTap: showResult || isSubmitting ? null : onTap,
@@ -95,12 +101,12 @@ class _PollOptionTile extends StatelessWidget {
           Container(
             height: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FBFE),
+              color: c.tintBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: option.selectedByMe
                     ? const Color(0xFF14A3F7)
-                    : const Color(0xFFE1E9F0),
+                    : c.border,
               ),
             ),
           ),
@@ -128,7 +134,7 @@ class _PollOptionTile extends StatelessWidget {
                     size: 18,
                     color: option.selectedByMe
                         ? const Color(0xFF14A3F7)
-                        : const Color(0xFF9AA7B2),
+                        : c.iconSecondary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -136,10 +142,10 @@ class _PollOptionTile extends StatelessWidget {
                       option.text,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: TextStyle(
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF222222),
+                        color: c.textPrimary,
                       ),
                     ),
                   ),
@@ -147,10 +153,10 @@ class _PollOptionTile extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       '${option.voteCount}명 (${option.percentage}%)',
-                      style: const TextStyle(
-                        fontSize: 11,
+                      style: TextStyle(
+                        fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF52606D),
+                        color: c.textSecondary,
                       ),
                     ),
                   ],

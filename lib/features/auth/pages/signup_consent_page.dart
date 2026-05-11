@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/haptics.dart';
 
 import '../../../app/routes.dart';
@@ -37,8 +38,9 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: c.pageBg,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         child: SizedBox(
@@ -57,7 +59,7 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '동의하고 계속하기',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
@@ -75,37 +77,37 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
                 onPressed: () {
                   if (context.canPop()) context.pop();
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
-              const Text(
+              Text(
                 '서비스 이용에\n동의해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: c.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
-              const Text(
+              Text(
                 'TeenPle는 만 15세 이상 고등학교 재학생을 위한 서비스입니다.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: c.textBody,
                 ),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // 전체 동의
               _AllAgreeCard(
@@ -113,7 +115,7 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
                 onChanged: _toggleAll,
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               // 개별 항목
               _ConsentItem(
@@ -123,7 +125,7 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
                 onViewTap: () => context.push(AppRoutes.terms),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _ConsentItem(
                 checked: _agreePrivacy,
@@ -132,14 +134,14 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
                 onViewTap: () => context.push(AppRoutes.privacyPolicy),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _AgeConsentItem(
                 checked: _agreeAge,
                 onChanged: (v) => setState(() => _agreeAge = v ?? false),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               const _PrivacyNote(),
             ],
@@ -160,6 +162,7 @@ class _AllAgreeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return GestureDetector(
       onTap: () {
         AppHaptics.selection();
@@ -168,23 +171,23 @@ class _AllAgreeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: checked ? const Color(0xFFF2F5FF) : Colors.white,
+          color: checked ? const Color(0xFFF2F5FF) : c.cardBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: checked ? const Color(0xFF4A67F2) : const Color(0xFFE3E7EF),
+            color: checked ? const Color(0xFF4A67F2) : c.border,
             width: checked ? 1.3 : 1.0,
           ),
         ),
         child: Row(
           children: [
             _CheckCircle(checked: checked),
-            const SizedBox(width: 12),
-            const Text(
+            SizedBox(width: 12),
+            Text(
               '전체 동의',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111111),
+                color: c.textPrimary,
               ),
             ),
           ],
@@ -211,12 +214,13 @@ class _ConsentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE3E7EF)),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         children: [
@@ -227,7 +231,7 @@ class _ConsentItem extends StatelessWidget {
             },
             child: _CheckCircle(checked: checked),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: GestureDetector(
               onTap: () {
@@ -236,17 +240,17 @@ class _ConsentItem extends StatelessWidget {
               },
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF333333),
+                  color: c.textBody,
                 ),
               ),
             ),
           ),
           GestureDetector(
             onTap: onViewTap,
-            child: const Text(
+            child: Text(
               '보기',
               style: TextStyle(
                 fontSize: 11,
@@ -271,6 +275,7 @@ class _AgeConsentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return GestureDetector(
       onTap: () {
         AppHaptics.selection();
@@ -279,16 +284,16 @@ class _AgeConsentItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.cardBg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFE3E7EF)),
+          border: Border.all(color: c.border),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _CheckCircle(checked: checked),
-            const SizedBox(width: 12),
-            const Expanded(
+            SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -297,7 +302,7 @@ class _AgeConsentItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF333333),
+                      color: c.textBody,
                     ),
                   ),
                   SizedBox(height: 3),
@@ -306,7 +311,7 @@ class _AgeConsentItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.4,
-                      color: Color(0xFF8A8A8A),
+                      color: c.textMuted,
                     ),
                   ),
                 ],
@@ -328,20 +333,21 @@ class _CheckCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       width: 22,
       height: 22,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: checked ? const Color(0xFF4A67F2) : Colors.white,
+        color: checked ? const Color(0xFF4A67F2) : c.cardBg,
         border: Border.all(
           color: checked ? const Color(0xFF4A67F2) : const Color(0xFFCBD1DB),
           width: 1.5,
         ),
       ),
       child: checked
-          ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+          ? Icon(Icons.check_rounded, size: 14, color: Colors.white)
           : null,
     );
   }
@@ -354,12 +360,13 @@ class _PrivacyNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Text.rich(
       TextSpan(
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           height: 1.6,
-          color: Color(0xFF9AA7B2),
+          color: c.textMuted,
         ),
         children: [
           const TextSpan(
@@ -368,7 +375,7 @@ class _PrivacyNote extends StatelessWidget {
           ),
           TextSpan(
             text: '개인정보처리방침',
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF4A67F2),
               fontWeight: FontWeight.w600,
               decoration: TextDecoration.underline,

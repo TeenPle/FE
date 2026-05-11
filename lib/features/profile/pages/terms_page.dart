@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_colors.dart';
 
 class TermsPage extends StatelessWidget {
   const TermsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text('이용약관', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+        title: Text('이용약관', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary)),
       ),
       body: const SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20, 16, 20, 40),
@@ -79,14 +81,15 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111111))),
+          Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: c.textPrimary)),
           const SizedBox(height: 8),
-          Text(body, style: const TextStyle(fontSize: 12, height: 1.7, color: Color(0xFF444444))),
+          Text(body, style: TextStyle(fontSize: 12, height: 1.7, color: c.textBody)),
         ],
       ),
     );

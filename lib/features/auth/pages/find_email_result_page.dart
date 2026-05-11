@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 
 class FindEmailResultPage extends StatelessWidget {
   final String maskedEmail;
@@ -10,22 +11,22 @@ class FindEmailResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: c.pageBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111)),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: c.textPrimary),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           '아이디 찾기',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -36,18 +37,18 @@ class FindEmailResultPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 '가입된 아이디를\n찾았어요.',
                 style: TextStyle(
                   fontSize: 21,
                   fontWeight: FontWeight.w800,
                   height: 1.35,
                   letterSpacing: -0.5,
-                  color: Color(0xFF111111),
+                  color: c.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               Container(
                 width: double.infinity,
@@ -63,7 +64,7 @@ class FindEmailResultPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       '이메일 (아이디)',
                       style: TextStyle(
                         fontSize: 11,
@@ -71,13 +72,13 @@ class FindEmailResultPage extends StatelessWidget {
                         color: Color(0xFF4A67F2),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       maskedEmail,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                         letterSpacing: -0.3,
                       ),
                     ),
@@ -85,11 +86,11 @@ class FindEmailResultPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
-              const Text(
+              Text(
                 '보안을 위해 이메일 일부는 가려져 있어요.',
-                style: TextStyle(fontSize: 11, color: Color(0xFF888888)),
+                style: TextStyle(fontSize: 11, color: c.textMuted),
               ),
 
               const Spacer(),
@@ -107,7 +108,7 @@ class FindEmailResultPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     '로그인하기',
                     style: TextStyle(
                       fontSize: 13,

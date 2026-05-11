@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../provider/profile_provider.dart';
 
 class MyBookmarksPage extends ConsumerStatefulWidget {
@@ -39,20 +40,21 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(myBookmarksNotifierProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '내 북마크',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -61,21 +63,22 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
   }
 
   Widget _buildBody(MyBookmarksState state) {
+    final c = context.colors;
+
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (state.items.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.bookmark_border_rounded,
-                size: 52, color: Color(0xFFCDD5DB)),
-            SizedBox(height: 12),
+            Icon(Icons.bookmark_border_rounded, size: 52, color: c.iconMuted),
+            const SizedBox(height: 12),
             Text(
               '아직 북마크한 글이 없어요.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
+              style: TextStyle(fontSize: 13, color: c.textMuted),
             ),
           ],
         ),
@@ -87,7 +90,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.items.length + (state.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, i) {
+      itemBuilder: (ctx, i) {
         if (i == state.items.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
@@ -95,14 +98,15 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
           );
         }
         final post = state.items[i];
+        final cc = ctx.colors;
         return GestureDetector(
-          onTap: () => context.push('/post/${post.postId}'),
+          onTap: () => ctx.push('/post/${post.postId}'),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cc.cardBg,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE6EDF3)),
+              border: Border.all(color: cc.borderStrong),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +118,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF7FF),
+                        color: cc.tintBg,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -129,10 +133,10 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                   ),
                 Text(
                   post.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111111),
+                    color: cc.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -140,10 +144,10 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                 const SizedBox(height: 6),
                 Text(
                   post.preview,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     height: 1.5,
-                    color: Color(0xFF6E7B87),
+                    color: cc.iconOnCard,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -156,9 +160,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                         label: '북마크',
                         color: const Color(0xFFF5A623)),
                     const SizedBox(width: 8),
-                    _Chip(
-                        icon: Icons.thumb_up_outlined,
-                        label: '${post.likeCount}'),
+                    _Chip(icon: Icons.thumb_up_outlined, label: '${post.likeCount}'),
                     const SizedBox(width: 8),
                     _Chip(
                         icon: Icons.chat_bubble_outline_rounded,
@@ -183,7 +185,7 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? const Color(0xFF9AA7B2);
+    final c = color ?? context.colors.textMuted;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

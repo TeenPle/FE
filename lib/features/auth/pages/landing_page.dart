@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/theme/app_colors.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -94,8 +95,9 @@ class _LandingPageState extends ConsumerState<LandingPage>
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBFF),
+      backgroundColor: c.pageBg,
       body: SafeArea(
         child: Center(
           child: FadeTransition(
@@ -128,35 +130,35 @@ class _LandingPageState extends ConsumerState<LandingPage>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 28),
-                    const Text(
+                    SizedBox(height: 28),
+                    Text(
                       'TeenPle',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1.0,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
+                    SizedBox(height: 10),
+                    Text(
                       '고등학생을 위한 로컬 커뮤니티',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.2,
-                        color: Color(0xFF2C2C2C),
+                        color: c.textBody,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       '이야기하고, 연결되고, 나누는 공간',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
                         height: 1.5,
-                        color: Color(0xFF6B7280),
+                        color: c.textSecondary,
                       ),
                     ),
                   ],

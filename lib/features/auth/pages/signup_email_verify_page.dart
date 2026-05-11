@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_email_send_provider.dart';
 import '../provider/signup_email_verify_provider.dart';
 import '../provider/signup_form_provider.dart';
@@ -130,18 +131,18 @@ class _SignupEmailVerifyPageState
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
     Widget? prefixIcon,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFFB0B0B0),
+      hintStyle: TextStyle(color: c.textHint,
         fontSize: 12,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 17,
@@ -149,19 +150,17 @@ class _SignupEmailVerifyPageState
       prefixIcon: prefixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: Color(0xFF4A67F2),
           width: 1.3,
         ),
@@ -217,7 +216,7 @@ class _SignupEmailVerifyPageState
         : (sendState.isLoading ? '전송 중...' : '인증번호 받기');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -252,7 +251,7 @@ class _SignupEmailVerifyPageState
             ),
             child: Text(
               bottomButtonText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -274,28 +273,28 @@ class _SignupEmailVerifyPageState
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '5/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '이메일 인증',
                 style: TextStyle(
                   fontSize: 11,
@@ -304,21 +303,21 @@ class _SignupEmailVerifyPageState
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '이메일을 인증해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 설명
               Text(
@@ -327,26 +326,26 @@ class _SignupEmailVerifyPageState
                     : (_hasSentCode
                     ? '받은 인증번호를 입력하면 다음 단계로 이동할 수 있어요.'
                     : '입력한 이메일로 인증번호를 보내드릴게요.'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 이메일 라벨
-              const Text(
+              Text(
                 '인증할 이메일',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 이메일 표시 박스
               Container(
@@ -356,20 +355,20 @@ class _SignupEmailVerifyPageState
                   vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFE3E7EF),
+                    color: context.colors.border,
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.mail_outline_rounded,
                       size: 18,
-                      color: Color(0xFF7A7A7A),
+                      color: context.colors.iconSecondary,
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         hasEmail ? email : '이메일 정보가 없습니다.',
@@ -378,8 +377,8 @@ class _SignupEmailVerifyPageState
                           fontWeight:
                           hasEmail ? FontWeight.w600 : FontWeight.w400,
                           color: hasEmail
-                              ? const Color(0xFF222222)
-                              : const Color(0xFF9A9A9A),
+                              ? context.colors.textPrimary
+                              : context.colors.textTertiary,
                         ),
                       ),
                     ),
@@ -387,19 +386,19 @@ class _SignupEmailVerifyPageState
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 전송 안내/에러 메시지
               if (sendState.errorMessage != null)
                 Text(
                   sendState.errorMessage!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     color: Colors.red,
                   ),
                 )
               else if (isVerified)
-                const Text(
+                Text(
                   '인증이 완료된 이메일이에요.',
                   style: TextStyle(
                     fontSize: 11,
@@ -407,37 +406,37 @@ class _SignupEmailVerifyPageState
                   ),
                 )
               else if (!_hasSentCode)
-                  const Text(
+                  Text(
                     '인증번호는 5분 동안 유효해요.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF8A8A8A),
+                      color: context.colors.textMuted,
                     ),
                   )
                 else
-                  const Text(
+                  Text(
                     '인증번호를 전송했어요. 아래에서 확인을 완료해주세요.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF8A8A8A),
+                      color: context.colors.textMuted,
                     ),
                   ),
 
               /// 인증번호를 한 번이라도 전송했거나 이미 인증 완료된 경우 노출
               if (showVerificationSection) ...[
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
 
                 /// 인증번호 라벨
-                const Text(
+                Text(
                   '인증번호',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF666666),
+                    color: context.colors.textMuted,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 /// 이미 인증 완료된 경우 완료 상태 표시
                 if (isVerified)
@@ -448,14 +447,14 @@ class _SignupEmailVerifyPageState
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: const Color(0xFF4A67F2),
                         width: 1.2,
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(
                           Icons.check_circle_rounded,
@@ -469,7 +468,7 @@ class _SignupEmailVerifyPageState
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF222222),
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -491,11 +490,11 @@ class _SignupEmailVerifyPageState
                             ref.read(signupEmailVerifyProvider.notifier).reset();
                             setState(() {});
                           },
-                          decoration: _inputDecoration(
+                          decoration: _inputDecoration(context,
                             hintText: '6자리 인증번호를 입력해주세요',
-                            prefixIcon: const Icon(
+                            prefixIcon: Icon(
                               Icons.verified_outlined,
-                              color: Color(0xFF7A7A7A),
+                              color: context.colors.iconSecondary,
                             ),
                           ).copyWith(
                             counterText: '',
@@ -503,7 +502,7 @@ class _SignupEmailVerifyPageState
                         ),
                       ),
 
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
 
                       /// 인증번호 확인 버튼
                       SizedBox(
@@ -549,7 +548,7 @@ class _SignupEmailVerifyPageState
                           ),
                           child: Text(
                             verifyState.isLoading ? '확인 중' : '확인',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -559,7 +558,7 @@ class _SignupEmailVerifyPageState
                     ],
                   ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 /// 타이머 / 재전송 영역
                 if (!isVerified)
@@ -589,7 +588,7 @@ class _SignupEmailVerifyPageState
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
+                        child: Text(
                           '인증번호 재전송',
                           style: TextStyle(
                             fontSize: 11,
@@ -601,19 +600,19 @@ class _SignupEmailVerifyPageState
                     ],
                   ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 /// 인증 상태 메시지
                 if (!isVerified && verifyState.errorMessage != null)
                   Text(
                     verifyState.errorMessage!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: Colors.red,
                     ),
                   )
                 else if (isVerified)
-                  const Text(
+                  Text(
                     '아래 다음 버튼을 눌러 비밀번호 설정으로 이동해주세요.',
                     style: TextStyle(
                       fontSize: 11,
@@ -622,7 +621,7 @@ class _SignupEmailVerifyPageState
                   )
                 else if (_codeController.text.isNotEmpty &&
                       !_isValidCode(_codeController.text))
-                    const Text(
+                    Text(
                       '인증번호는 6자리 숫자로 입력해주세요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -630,7 +629,7 @@ class _SignupEmailVerifyPageState
                       ),
                     )
                   else if (isExpired)
-                      const Text(
+                      Text(
                         '인증번호를 다시 전송한 뒤 새 번호로 인증해주세요.',
                         style: TextStyle(
                           fontSize: 11,

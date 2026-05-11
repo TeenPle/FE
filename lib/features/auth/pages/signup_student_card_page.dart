@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_submit_provider.dart';
 
@@ -68,7 +69,7 @@ class _SignupStudentCardPageState
         studentCardFilePath.isNotEmpty && !submitState.isLoading;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -103,7 +104,7 @@ class _SignupStudentCardPageState
             ),
             child: Text(
               submitState.isLoading ? '가입 중...' : '완료',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -125,28 +126,28 @@ class _SignupStudentCardPageState
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '8/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '재학 인증',
                 style: TextStyle(
                   fontSize: 11,
@@ -155,45 +156,45 @@ class _SignupStudentCardPageState
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '학생증을 업로드해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 '마지막 단계예요. 재학 확인에 사용할 사진이에요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 학생증 업로드 라벨
-              const Text(
+              Text(
                 '학생증 이미지',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 업로드 버튼 영역
               GestureDetector(
@@ -205,12 +206,12 @@ class _SignupStudentCardPageState
                     vertical: 18,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: studentCardFilePath.isNotEmpty
                           ? const Color(0xFF4A67F2)
-                          : const Color(0xFFE3E7EF),
+                          : context.colors.border,
                       width: studentCardFilePath.isNotEmpty ? 1.3 : 1.0,
                     ),
                   ),
@@ -223,9 +224,9 @@ class _SignupStudentCardPageState
                         size: 20,
                         color: studentCardFilePath.isNotEmpty
                             ? const Color(0xFF4A67F2)
-                            : const Color(0xFF7A7A7A),
+                            : context.colors.iconSecondary,
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           selectedFileName.isEmpty
@@ -237,8 +238,8 @@ class _SignupStudentCardPageState
                                 ? FontWeight.w400
                                 : FontWeight.w600,
                             color: selectedFileName.isEmpty
-                                ? const Color(0xFF9A9A9A)
-                                : const Color(0xFF222222),
+                                ? context.colors.textTertiary
+                                : context.colors.textPrimary,
                           ),
                         ),
                       ),
@@ -247,42 +248,42 @@ class _SignupStudentCardPageState
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 안내 문구
-              const Text(
+              Text(
                 '학생증 정보가 잘 보이는 사진을 올려주세요.',
                 style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF6B7280),
+                  color: context.colors.textMuted,
                 ),
               ),
 
               /// 선택한 이미지 미리보기
               if (studentCardFilePath.isNotEmpty) ...[
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 /// 미리보기 라벨
-                const Text(
+                Text(
                   '미리보기',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF666666),
+                    color: context.colors.textMuted,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 /// 이미지 미리보기 박스
                 Container(
                   width: double.infinity,
                   height: 220,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color(0xFFE3E7EF),
+                      color: context.colors.border,
                     ),
                   ),
                   child: ClipRRect(
@@ -291,12 +292,12 @@ class _SignupStudentCardPageState
                       File(studentCardFilePath),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Center(
+                        return Center(
                           child: Text(
                             '이미지를 불러올 수 없어요.',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF888888),
+                              color: context.colors.iconSecondary,
                             ),
                           ),
                         );
@@ -305,10 +306,10 @@ class _SignupStudentCardPageState
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
 
                 /// 업로드 성공 안내
-                const Text(
+                Text(
                   '선택한 이미지가 맞는지 확인해주세요.',
                   style: TextStyle(
                     fontSize: 11,
@@ -319,10 +320,10 @@ class _SignupStudentCardPageState
 
               /// 회원가입 에러 메시지
               if (submitState.errorMessage != null) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   submitState.errorMessage!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     color: Colors.red,
                   ),

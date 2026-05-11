@@ -300,10 +300,10 @@ class _CommentBody extends StatelessWidget {
                   padding: EdgeInsets.only(left: isReply ? 0 : 1),
                   child: Text(
                     comment.content,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       height: 1.48,
-                      color: Color(0xFF2F3740),
+                      color: c.textBody,
                       letterSpacing: 0,
                     ),
                   ),

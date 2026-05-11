@@ -428,7 +428,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                               height: 1,
                               color: _titleLength > _titleLimit
                                   ? const Color(0xFFE14B4B)
-                                  : const Color(0xFFDDEAF6),
+                                  : context.colors.divider,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -452,10 +452,10 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       maxLength: _contentLimit,
                       buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
                       const SizedBox.shrink(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         height: 1.58,
-                        color: Color(0xFF26323F),
+                        color: context.colors.textBody,
                         letterSpacing: 0,
                       ),
                       decoration: _plainInputDecoration('내용을 입력해주세요'),
@@ -528,6 +528,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         fontSize: 12,
         letterSpacing: 0,
       ),
+      filled: true,
+      fillColor: Colors.transparent,
       border: InputBorder.none,
       enabledBorder: InputBorder.none,
       focusedBorder: InputBorder.none,
@@ -660,10 +662,10 @@ class _PostWritingGuidelines extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: Color(0xFFDDEAF6)),
-          bottom: BorderSide(color: Color(0xFFDDEAF6)),
+          top: BorderSide(color: context.colors.divider),
+          bottom: BorderSide(color: context.colors.divider),
         ),
       ),
       child: Column(
@@ -753,7 +755,7 @@ class _WriteBottomToolbar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
       decoration: BoxDecoration(
         color: context.colors.pageBg,
-        border: const Border(top: BorderSide(color: Color(0xFFE0ECF7))),
+        border: Border(top: BorderSide(color: context.colors.border)),
       ),
       child: SafeArea(
         top: false,
@@ -782,17 +784,17 @@ class _WriteBottomToolbar extends StatelessWidget {
                   color: anonymous ? const Color(0xFFEAF5FF) : context.colors.cardBg,
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
-                    color: anonymous ? const Color(0xFFB9D9FF) : const Color(0xFFD9E6F2),
+                    color: anonymous ? const Color(0xFFB9D9FF) : context.colors.border,
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Text(
+                    Text(
                       '익명',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF27415C),
+                        color: context.colors.textPrimary,
                       ),
                     ),
                     Transform.scale(
@@ -863,7 +865,7 @@ class _ToolIconButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? const Color(0xFFEAF5FF) : c.cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? const Color(0xFFB9D9FF) : const Color(0xFFD9E6F2)),
+          border: Border.all(color: selected ? const Color(0xFFB9D9FF) : c.border),
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -964,9 +966,9 @@ class _PollSummaryStrip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF5FF),
+        color: context.colors.tintBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFCAE4FF)),
+        border: Border.all(color: context.colors.borderBlue),
       ),
       child: Row(
         children: [
@@ -975,10 +977,10 @@ class _PollSummaryStrip extends StatelessWidget {
           Expanded(
             child: Text(
               '투표 $count개 항목',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF27415C),
+                color: context.colors.textPrimary,
               ),
             ),
           ),
@@ -1120,11 +1122,11 @@ class _PollFormPageState extends State<_PollFormPage> {
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFFDDEAF6)),
+                                  borderSide: BorderSide(color: context.colors.border),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFFDDEAF6)),
+                                  borderSide: BorderSide(color: context.colors.border),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),

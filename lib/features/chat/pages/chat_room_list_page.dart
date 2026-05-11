@@ -246,12 +246,16 @@ class _ChatRoomItem extends ConsumerWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: Color(0xFFE3F2FD),
+                color: room.otherUserDeleted
+                    ? c.subtleBg
+                    : const Color(0xFFE3F2FD),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.person_rounded,
-                color: Color(0xFF1DA1F2),
+                color: room.otherUserDeleted
+                    ? c.textMuted
+                    : const Color(0xFF1DA1F2),
                 size: 28,
               ),
             ),
@@ -270,11 +274,31 @@ class _ChatRoomItem extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: c.textPrimary,
+                            color: room.otherUserDeleted
+                                ? c.textMuted
+                                : c.textPrimary,
                           ),
                         ),
                       ),
-                      if (isMuted) ...[
+                      if (room.otherUserDeleted) ...[
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: c.subtleBg,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: c.border),
+                          ),
+                          child: Text(
+                            '탈퇴',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                              color: c.textMuted,
+                            ),
+                          ),
+                        ),
+                      ] else if (isMuted) ...[
                         const SizedBox(width: 4),
                         Icon(
                           Icons.notifications_off_rounded,
@@ -287,14 +311,24 @@ class _ChatRoomItem extends ConsumerWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      const Text(
-                        '익명',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1DA1F2),
+                      if (room.otherUserDeleted)
+                        Text(
+                          '탈퇴한 사용자',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: c.textMuted,
+                          ),
+                        )
+                      else
+                        const Text(
+                          '익명',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1DA1F2),
+                          ),
                         ),
-                      ),
                       if (room.lastPreview.isNotEmpty) ...[
                         Text(
                           '  ·  ',

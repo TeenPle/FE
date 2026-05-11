@@ -25,6 +25,7 @@ import '../provider/school_providers.dart';
 import '../provider/school_state.dart';
 import 'widgets/post_summary_card.dart';
 import 'widgets/school_header.dart';
+import '../../post/provider/post_detail_providers.dart';
 
 enum _HomeTab { feed, popular, boards }
 
@@ -367,8 +368,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     categoryLabel: boardNames[post.boardId],
                     hot: true,
                     onTap: () async {
-                      final refreshed =
-                          await context.push<bool>('/post/${post.id}');
+                      final postId = post.id;
+                      final refreshed = await context.push<bool>('/post/$postId');
+                      final detailState = ref.read(postDetailProvider(postId));
+                      notifier.updatePostCommentCount(postId, detailState.comments.length);
                       if (refreshed == true && mounted) {
                         notifier.reloadCurrentBoard();
                       }
@@ -387,8 +390,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     showDivider: false,
                     categoryLabel: boardNames[post.boardId],
                     onTap: () async {
-                      final refreshed =
-                          await context.push<bool>('/post/${post.id}');
+                      final postId = post.id;
+                      final refreshed = await context.push<bool>('/post/$postId');
+                      final detailState = ref.read(postDetailProvider(postId));
+                      notifier.updatePostCommentCount(postId, detailState.comments.length);
                       if (refreshed == true && mounted) {
                         notifier.reloadCurrentBoard();
                       }
@@ -464,8 +469,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                       showDivider: false,
                       categoryLabel: boardNames[post.boardId],
                       onTap: () async {
-                        final refreshed =
-                            await context.push<bool>('/post/${post.id}');
+                        final postId = post.id;
+                        final refreshed = await context.push<bool>('/post/$postId');
+                        final detailState = ref.read(postDetailProvider(postId));
+                        notifier.updatePostCommentCount(postId, detailState.comments.length);
                         if (refreshed == true && mounted) {
                           notifier.loadHotPosts();
                         }

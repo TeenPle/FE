@@ -217,6 +217,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   void _showMoreMenu() {
+    final chatState = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    final canReport = chatState.canReport;
+    final canBlock = chatState.canBlock;
     final sheetBg = context.colors.cardBg;
     showModalBottomSheet(
       context: context,
@@ -241,30 +244,32 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _BottomSheetItem(
-                  icon: Icons.report_outlined,
-                  label: '신고하기',
-                  color: const Color(0xFFF44336),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showReportSheet();
-                  },
-                ),
-                _BottomSheetItem(
-                  icon: _blockedByMe ? Icons.lock_open_rounded : Icons.block_rounded,
-                  label: _blockedByMe ? '차단 해제' : '차단하기',
-                  color: _blockedByMe
-                      ? const Color(0xFF1DA1F2)
-                      : const Color(0xFFF44336),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    if (_blockedByMe) {
-                      _showUnblockConfirm();
-                    } else {
-                      _showBlockConfirm();
-                    }
-                  },
-                ),
+                if (canReport)
+                  _BottomSheetItem(
+                    icon: Icons.report_outlined,
+                    label: '신고하기',
+                    color: const Color(0xFFF44336),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _showReportSheet();
+                    },
+                  ),
+                if (_blockedByMe || canBlock)
+                  _BottomSheetItem(
+                    icon: _blockedByMe ? Icons.lock_open_rounded : Icons.block_rounded,
+                    label: _blockedByMe ? '차단 해제' : '차단하기',
+                    color: _blockedByMe
+                        ? const Color(0xFF1DA1F2)
+                        : const Color(0xFFF44336),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      if (_blockedByMe) {
+                        _showUnblockConfirm();
+                      } else {
+                        _showBlockConfirm();
+                      }
+                    },
+                  ),
                 _BottomSheetItem(
                   icon: Icons.exit_to_app_rounded,
                   label: '채팅방 나가기',

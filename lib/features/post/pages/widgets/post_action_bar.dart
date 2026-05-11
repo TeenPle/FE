@@ -94,7 +94,7 @@ class _StaticChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(999),
@@ -103,12 +103,12 @@ class _StaticChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: iconColor),
-          const SizedBox(width: 6),
+          Icon(icon, size: 13, color: iconColor),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               fontWeight: FontWeight.w700,
               color: iconColor,
             ),
@@ -146,8 +146,8 @@ class _IconActionButton extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(999),
         child: Container(
-          width: 42,
-          height: 42,
+          width: 30,
+          height: 30,
           decoration: BoxDecoration(
             color: backgroundColor ?? c.tintBg,
             shape: BoxShape.circle,
@@ -155,7 +155,7 @@ class _IconActionButton extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            size: 20,
+            size: 14,
             color: iconColor ?? c.iconOnCard,
           ),
         ),

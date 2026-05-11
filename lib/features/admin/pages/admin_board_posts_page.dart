@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
 
@@ -48,11 +49,12 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminPostListProvider(widget.boardId));
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         foregroundColor: const Color(0xFF1F2933),
         elevation: 0,
         title: Text(widget.boardTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -95,8 +97,9 @@ class _PostTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Material(
-      color: Colors.white,
+      color: c.cardBg,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),

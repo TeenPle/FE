@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../utils/haptics.dart';
 
 class LikeBurstButton extends StatefulWidget {
@@ -62,10 +63,11 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final color =
         widget.liked ? const Color(0xFF14A3F7) : const Color(0xFF6E7B87);
     final backgroundColor =
-        widget.liked ? const Color(0xFFEAF7FF) : Colors.white;
+        widget.liked ? const Color(0xFFEAF7FF) : c.cardBg;
     final borderColor =
         widget.liked ? const Color(0xFFBFE6FF) : const Color(0xFFE6EDF3);
 

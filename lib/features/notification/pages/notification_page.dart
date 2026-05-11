@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/time_format.dart';
 import '../models/notification_model.dart';
 import '../provider/notification_provider.dart';
@@ -34,32 +35,32 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   @override
   void dispose() {
     _scrollController.dispose();
-    // 페이지 떠날 때 서버에만 전체 읽음 처리 (배지 초기화)
     _notifier.markAllAsReadServerOnly();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final state = ref.watch(notificationProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF3F9FF),
+        backgroundColor: c.pageBg,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: Colors.black87,
+          color: c.iconPrimary,
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           '알림',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -95,7 +96,6 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     if (notification.targetType == 'POST') {
       context.push('/post/${notification.targetId}');
     }
-    // COMMENT targetType은 현재 사용하지 않음 (BE가 모두 POST로 통일)
   }
 }
 
@@ -105,17 +105,17 @@ class _NotificationItem extends StatelessWidget {
 
   const _NotificationItem({required this.notification, required this.onTap});
 
-  // boardName이 있는 알림은 모두 게시판 이름 표시 레이아웃 사용
   bool get _hasBoardName => notification.boardName != null;
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final isUnread = !notification.isRead;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: isUnread ? const Color(0xFFEAF3FB) : Colors.white,
+        color: isUnread ? c.tintBg : c.cardBg,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,6 +161,7 @@ class _CommentNotificationContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -180,7 +181,7 @@ class _CommentNotificationContent extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
-            color: const Color(0xFF111111),
+            color: c.textPrimary,
             height: 1.4,
           ),
           maxLines: 2,
@@ -189,9 +190,9 @@ class _CommentNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: Color(0xFF9AA7B2),
+            color: c.textTertiary,
           ),
         ),
       ],
@@ -210,6 +211,7 @@ class _DefaultNotificationContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,16 +220,16 @@ class _DefaultNotificationContent extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
-            color: const Color(0xFF111111),
+            color: c.textPrimary,
             height: 1.4,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: Color(0xFF9AA7B2),
+            color: c.textTertiary,
           ),
         ),
       ],
@@ -282,24 +284,25 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final c = context.colors;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none_rounded, size: 52, color: Color(0xFFB0BEC5)),
-          SizedBox(height: 16),
+          Icon(Icons.notifications_none_rounded, size: 52, color: c.iconSecondary),
+          const SizedBox(height: 16),
           Text(
             '아직 알림이 없어요',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             '새 댓글이나 공감이 오면 알려드릴게요.',
-            style: TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 11, color: c.textTertiary),
           ),
         ],
       ),

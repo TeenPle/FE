@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../models/warning_model.dart';
 import '../provider/warning_provider.dart';
 
@@ -23,16 +24,17 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(warningHistoryProvider);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '내 경고 이력',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary),
         ),
       ),
       body: state.isLoading && state.items.isEmpty
@@ -41,14 +43,14 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
               ? Center(
                   child: Text(
                     state.error!,
-                    style: const TextStyle(color: Color(0xFF9AA7B2)),
+                    style: TextStyle(color: c.textMuted),
                   ),
                 )
               : state.items.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
                         '경고 이력이 없어요.',
-                        style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
+                        style: TextStyle(fontSize: 13, color: c.textMuted),
                       ),
                     )
                   : RefreshIndicator(
@@ -58,8 +60,9 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
                         itemCount:
                             state.items.length + (state.hasMore ? 1 : 0),
-                        itemBuilder: (context, index) {
+                        itemBuilder: (ctx, index) {
                           if (index == state.items.length) {
+                            final cc = ctx.colors;
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 12),
@@ -73,15 +76,17 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
                                                 .notifier)
                                             .loadMore(),
                                         style: OutlinedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          side: const BorderSide(
-                                              color: Color(0xFFD6DEE7)),
+                                          backgroundColor: cc.cardBg,
+                                          side: BorderSide(color: cc.border),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(14),
                                           ),
                                         ),
-                                        child: const Text('더보기'),
+                                        child: Text(
+                                          '더보기',
+                                          style: TextStyle(color: cc.textMuted),
+                                        ),
                                       ),
                               ),
                             );
@@ -105,13 +110,14 @@ class _WarningHistoryCard extends StatelessWidget {
     final issuedStr =
         '${warning.issuedAt.year}.${warning.issuedAt.month.toString().padLeft(2, '0')}.${warning.issuedAt.day.toString().padLeft(2, '0')}';
 
+    final c = context.colors;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +138,7 @@ class _WarningHistoryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 issuedStr,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
+                style: TextStyle(fontSize: 11, color: c.textMuted),
               ),
             ],
           ),
@@ -142,27 +148,27 @@ class _WarningHistoryCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FA),
+                color: c.subtleBg,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE9ECEF)),
+                border: Border.all(color: c.borderSubtle),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF9AA7B2),
+                      color: c.textMuted,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     warning.targetSummary!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF444444),
+                      color: c.textBody,
                       height: 1.4,
                     ),
                     maxLines: 2,

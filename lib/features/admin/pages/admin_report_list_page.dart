@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
 
@@ -32,11 +33,12 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(adminReportListProvider);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: c.cardBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
         title: const Text('신고 관리',
             style: TextStyle(fontWeight: FontWeight.w700)),
@@ -56,11 +58,11 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
                 : state.error != null
                     ? Center(
                         child: Text(state.error!,
-                            style: const TextStyle(color: Colors.grey)))
+                            style: TextStyle(color: c.textMuted)))
                     : state.reports.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text('신고 내역이 없어요.',
-                                style: TextStyle(color: Colors.grey)))
+                                style: TextStyle(color: c.textMuted)))
                         : RefreshIndicator(
                             onRefresh: () => ref
                                 .read(adminReportListProvider.notifier)
@@ -99,8 +101,9 @@ class _StatusTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: Colors.white,
+      color: c.cardBg,
       child: Row(
         children: tabs.map((tab) {
           final isActive = tab.$1 == activeStatus;
@@ -127,7 +130,7 @@ class _StatusTabBar extends StatelessWidget {
                     fontWeight:
                         isActive ? FontWeight.w700 : FontWeight.w400,
                     color:
-                        isActive ? const Color(0xFF5A8EA8) : Colors.grey,
+                        isActive ? const Color(0xFF5A8EA8) : c.textMuted,
                   ),
                 ),
               ),

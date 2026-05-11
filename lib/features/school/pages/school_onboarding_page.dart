@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
+import '../../../core/theme/app_colors.dart';
+
 class SchoolOnboardingPage extends StatefulWidget {
   const SchoolOnboardingPage({super.key});
 
@@ -125,7 +127,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBFF),
+      backgroundColor: context.colors.pageBg,
       bottomNavigationBar: _buildMockBottomBar(),
       body: SafeArea(
         child: Column(
@@ -142,7 +144,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
 
   Widget _buildMockHeader() {
     return Container(
-      color: const Color(0xFFF6FBFF),
+      color: context.colors.pageBg,
       padding: const EdgeInsets.fromLTRB(26, 12, 26, 12),
       child: Row(
         children: [
@@ -188,7 +190,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
   Widget _buildMockDDayStrip() {
     return Container(
       height: 48,
-      color: Colors.white,
+      color: context.colors.cardBg,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
@@ -209,7 +211,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
 
   Widget _buildMockTabBar() {
     return Container(
-      color: const Color(0xFFF6FBFF),
+      color: context.colors.pageBg,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Center(
         child: Container(
@@ -308,7 +310,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
             margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.colors.cardBg,
               borderRadius: BorderRadius.circular(30),
               boxShadow: const [
                 BoxShadow(
@@ -420,7 +422,7 @@ class _MockPostCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 7),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.cardBg,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 5)),

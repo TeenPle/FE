@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../provider/profile_provider.dart';
 
 class EditNicknamePage extends ConsumerStatefulWidget {
@@ -52,19 +53,20 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '닉네임 변경',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -79,7 +81,6 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 쿨다운 안내 배너
                 if (!canChange)
                   Container(
                     width: double.infinity,
@@ -111,12 +112,12 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                     ),
                   ),
 
-                const Text(
+                Text(
                   '새 닉네임',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111111),
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -130,28 +131,27 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                   },
                   decoration: InputDecoration(
                     hintText: '2~20자로 입력해주세요',
-                    hintStyle: const TextStyle(color: Color(0xFFB0BEC5)),
+                    hintStyle: TextStyle(color: c.textHint),
                     filled: true,
-                    fillColor:
-                        canChange ? Colors.white : const Color(0xFFF7FAFC),
+                    fillColor: canChange ? c.cardBg : c.subtleBg,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     errorText: _errorText,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE6EDF3)),
+                      borderSide: BorderSide(color: c.borderStrong),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
                         color: _errorText != null
                             ? const Color(0xFFE05C5C)
-                            : const Color(0xFFE6EDF3),
+                            : c.borderStrong,
                       ),
                     ),
                     disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE6EDF3)),
+                      borderSide: BorderSide(color: c.borderStrong),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

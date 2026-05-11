@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/penalty/provider/penalty_provider.dart';
 import '../form/board_tab_bar.dart';
@@ -71,12 +72,13 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
       );
     }
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBFF),
+      backgroundColor: c.pageBg,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(64),
         child: Container(
-          color: Colors.white,
+          color: c.cardBg,
           child: SafeArea(
             bottom: false,
             child: SizedBox(
@@ -95,9 +97,9 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                           context.go('/school');
                         }
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFF111111),
+                        color: c.iconPrimary,
                         size: 22,
                       ),
                     ),
@@ -105,10 +107,10 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                   Center(
                     child: Text(
                       currentBoardTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                       ),
                     ),
                   ),
@@ -129,9 +131,9 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                                 'scopeTitle': currentBoardTitle,
                               },
                             ),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.search,
-                              color: Color(0xFF111111),
+                              color: c.iconPrimary,
                               size: 26,
                             ),
                           ),
@@ -170,7 +172,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
               }
             },
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
+          Divider(height: 1, thickness: 1, color: c.divider),
           _TodayLatestSection(
             posts: state.posts,
             onPostTap: (postId) async {
@@ -195,10 +197,10 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                       separatorBuilder: (context, index) {
                         if (state.posts.isEmpty) return const SizedBox.shrink();
                         if (index < state.posts.length - 1) {
-                          return const Divider(
+                          return Divider(
                             height: 1,
                             thickness: 1,
-                            color: Color(0xFFD5DDE6),
+                            color: context.colors.divider,
                             indent: 12,
                             endIndent: 12,
                           );
@@ -212,7 +214,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
 
                         if (index < state.posts.length) {
                           return Container(
-                            color: const Color(0xFFF6FBFF),
+                            color: context.colors.pageBg,
                             child: PostSummaryCard(
                               post: state.posts[index],
                               compact: true,
@@ -265,7 +267,7 @@ class _ModernBoardDetailScaffold extends ConsumerWidget {
     final selectedBoardId = state.selectedBoardId ?? boardId;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
+      backgroundColor: context.colors.pageBg,
       floatingActionButton: _WriteFab(state: state, notifier: notifier),
       body: SafeArea(
         bottom: false,
@@ -372,9 +374,9 @@ class _ModernBoardHeader extends ConsumerWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(8, 8, 12, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFE4EEF7))),
+      decoration: BoxDecoration(
+        color: context.colors.cardBg,
+        border: const Border(bottom: BorderSide(color: Color(0xFFE4EEF7))),
       ),
       child: Column(
         children: [
@@ -384,9 +386,9 @@ class _ModernBoardHeader extends ConsumerWidget {
               children: [
                 IconButton(
                   onPressed: onBack,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    color: Color(0xFF111111),
+                    color: context.colors.textPrimary,
                     size: 21,
                   ),
                 ),
@@ -395,10 +397,10 @@ class _ModernBoardHeader extends ConsumerWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111111),
+                      color: context.colors.textPrimary,
                     ),
                   ),
                 ),
@@ -452,17 +454,18 @@ class _ModernBoardToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: const Color(0xFFF3F9FF),
+      color: c.pageBg,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
       child: Row(
         children: [
-          const Text(
+          Text(
             '게시글',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const Spacer(),
@@ -493,7 +496,7 @@ class _ModernPostList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.cardBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE1ECF5)),
       ),
@@ -537,24 +540,24 @@ class _ModernEmptyBoardPostState extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 42),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.cardBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE1ECF5)),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.forum_outlined, size: 38, color: Color(0xFF14A3F7)),
-          SizedBox(height: 12),
+          const Icon(Icons.forum_outlined, size: 38, color: Color(0xFF14A3F7)),
+          const SizedBox(height: 12),
           Text(
             '아직 게시글이 없어요',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
             ),
           ),
-          SizedBox(height: 6),
-          Text(
+          const SizedBox(height: 6),
+          const Text(
             '첫 게시글을 작성해서 이야기를 시작해보세요.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -589,7 +592,7 @@ class _SortSegment extends StatelessWidget {
         duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF14A3F7) : Colors.white,
+          color: selected ? const Color(0xFF14A3F7) : context.colors.cardBg,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected ? const Color(0xFF14A3F7) : const Color(0xFFD8E5EF),
@@ -626,7 +629,7 @@ class _ModernIconButton extends StatelessWidget {
           color: const Color(0xFFF1F8FE),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: const Color(0xFF111111), size: 22),
+        child: Icon(icon, color: context.colors.textPrimary, size: 22),
       ),
     );
   }
@@ -657,9 +660,9 @@ class _ModernNotificationButton extends StatelessWidget {
           clipBehavior: Clip.none,
           alignment: Alignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.notifications_none_rounded,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
               size: 23,
             ),
             if (unreadCount > 0)
@@ -705,9 +708,10 @@ class _TodayLatestSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final featuredPost = _pickTopLikedPost();
 
+    final c = context.colors;
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF6FBFF),
+      color: c.pageBg,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
       child: featuredPost == null
           ? const SizedBox.shrink()
@@ -738,8 +742,9 @@ class _TodayLatestTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Material(
-      color: const Color(0xFFEAF7FF),
+      color: c.tintBg,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -749,7 +754,7 @@ class _TodayLatestTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFCFEAFF)),
+            border: Border.all(color: c.borderBlue),
           ),
           child: Row(
             children: [
@@ -767,10 +772,10 @@ class _TodayLatestTile extends StatelessWidget {
                     post.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF26343D),
+                      color: c.textBody,
                     ),
                   ),
                 ),
@@ -811,6 +816,7 @@ class _BoardNotificationButton extends ConsumerWidget {
       notificationProvider.select((s) => s.unreadCount),
     );
 
+    final c = context.colors;
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -818,10 +824,10 @@ class _BoardNotificationButton extends ConsumerWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            const Icon(
+            Icon(
               Icons.notifications_none,
               size: 26,
-              color: Color(0xFF111111),
+              color: c.iconPrimary,
             ),
             if (unreadCount > 0)
               Positioned(
@@ -870,7 +876,7 @@ class _SortDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<PostSortType>(
-      color: Colors.white,
+      color: context.colors.cardBg,
       padding: EdgeInsets.zero,
       onSelected: onSortSelected,
       itemBuilder: (context) => const [
@@ -944,22 +950,22 @@ class _EmptyBoardPostState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(18, 40, 18, 0),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 40, 18, 0),
       child: Column(
         children: [
-          Icon(Icons.forum_outlined, size: 40, color: Color(0xFF9AA7B2)),
-          SizedBox(height: 12),
+          const Icon(Icons.forum_outlined, size: 40, color: Color(0xFF9AA7B2)),
+          const SizedBox(height: 12),
           Text(
             '아직 게시글이 없어요.',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
             ),
           ),
-          SizedBox(height: 6),
-          Text(
+          const SizedBox(height: 6),
+          const Text(
             '첫 게시글을 작성해서 이야기를 시작해보세요.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -1016,7 +1022,7 @@ class _LoadMoreSection extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onLoadMore,
         style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor: context.colors.cardBg,
           side: const BorderSide(color: Color(0xFFD6DEE7)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

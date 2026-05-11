@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../models/dday_model.dart';
 import '../provider/dday_provider.dart';
 
@@ -12,12 +13,13 @@ class DDaySettingsPage extends ConsumerWidget {
     final ddays = ref.watch(ddayProvider);
     final notifier = ref.read(ddayProvider.notifier);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
         title: const Text(
           'D-Day 관리',
@@ -107,10 +109,11 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
     final isEdit = widget.existing != null;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
+    final c = context.colors;
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
@@ -118,53 +121,48 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
             Center(
               child: Container(
                 margin: const EdgeInsets.only(top: 12, bottom: 18),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDDE3EA),
+                  color: c.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-
-            // Title
             Text(
               isEdit ? 'D-Day 수정' : 'D-Day 추가',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
+                color: c.textPrimary,
               ),
             ),
             const SizedBox(height: 22),
-
-            // Label field
-            const Text(
+            Text(
               '이름',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B7280),
+                color: c.textMuted,
               ),
             ),
             const SizedBox(height: 6),
             TextField(
               controller: _labelCtrl,
               maxLength: 20,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.textPrimary),
               decoration: InputDecoration(
                 hintText: '예: 수능, 기말고사, 졸업식',
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   fontSize: 13,
-                  color: Color(0xFFB0B8C1),
+                  color: c.textMuted,
                 ),
                 counterText: '',
                 filled: true,
-                fillColor: const Color(0xFFF5F7FA),
+                fillColor: c.inputBg,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -183,14 +181,12 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Date picker
-            const Text(
+            Text(
               '날짜',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B7280),
+                color: c.textMuted,
               ),
             ),
             const SizedBox(height: 6),
@@ -219,7 +215,7 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F7FA),
+                  color: c.inputBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -232,31 +228,29 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                     const SizedBox(width: 10),
                     Text(
                       '${_selectedDate.year}.${_selectedDate.month.toString().padLeft(2, '0')}.${_selectedDate.day.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                       ),
                     ),
                     const Spacer(),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       size: 18,
-                      color: Color(0xFFB0B8C1),
+                      color: c.iconSecondary,
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
-
-            // Icon picker
-            const Text(
+            Text(
               '아이콘',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B7280),
+                color: c.textMuted,
               ),
             ),
             const SizedBox(height: 10),
@@ -273,20 +267,14 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     decoration: BoxDecoration(
-                      color: selected
-                          ? const Color(0xFF229BF3)
-                          : const Color(0xFFF0F4F8),
+                      color: selected ? const Color(0xFF229BF3) : c.subtleBg,
                       borderRadius: BorderRadius.circular(14),
-                      border: selected
-                          ? null
-                          : Border.all(color: const Color(0xFFE5EAF0)),
+                      border: selected ? null : Border.all(color: c.border),
                     ),
                     child: Icon(
                       entry.value,
                       size: 22,
-                      color: selected
-                          ? Colors.white
-                          : const Color(0xFF6E7A86),
+                      color: selected ? Colors.white : c.iconOnCard,
                     ),
                   ),
                 );
@@ -360,12 +348,13 @@ class _DDayTile extends StatelessWidget {
                 : const Color(0xFF9AA7B2);
     final icon = ddayIconMap[dday.iconName] ?? Icons.event_rounded;
 
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Row(
         children: [
@@ -387,10 +376,10 @@ class _DDayTile extends StatelessWidget {
               children: [
                 Text(
                   dday.label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111111),
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -407,9 +396,9 @@ class _DDayTile extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       '${dday.targetDate.year}.${dday.targetDate.month.toString().padLeft(2, '0')}.${dday.targetDate.day.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF9AA7B2),
+                        color: c.textTertiary,
                       ),
                     ),
                   ],
@@ -419,7 +408,7 @@ class _DDayTile extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.edit_outlined, size: 20),
-            color: const Color(0xFF9AA7B2),
+            color: c.textMuted,
             onPressed: onEdit,
           ),
           IconButton(
@@ -440,28 +429,29 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.event_available_outlined,
             size: 52,
-            color: Color(0xFFB0BEC5),
+            color: c.iconMuted,
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'D-Day가 없어요',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             '수능, 시험일 등 중요한 날짜를 추가해보세요.',
-            style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 12, color: c.textTertiary),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(

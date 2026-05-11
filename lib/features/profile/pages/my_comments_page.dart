@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../provider/profile_provider.dart';
 
 class MyCommentsPage extends ConsumerStatefulWidget {
@@ -39,20 +40,21 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(myCommentsNotifierProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '내가 쓴 댓글',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -61,20 +63,22 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
   }
 
   Widget _buildBody(MyCommentsState state) {
+    final c = context.colors;
+
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (state.items.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.chat_bubble_outline_rounded, size: 52, color: Color(0xFFCDD5DB)),
-            SizedBox(height: 12),
+            Icon(Icons.chat_bubble_outline_rounded, size: 52, color: c.iconMuted),
+            const SizedBox(height: 12),
             Text(
               '아직 쓴 댓글이 없어요.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
+              style: TextStyle(fontSize: 13, color: c.textMuted),
             ),
           ],
         ),
@@ -86,7 +90,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.items.length + (state.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, i) {
+      itemBuilder: (ctx, i) {
         if (i == state.items.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
@@ -94,14 +98,15 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
           );
         }
         final comment = state.items[i];
+        final cc = ctx.colors;
         return GestureDetector(
-          onTap: () => context.push('/post/${comment.postId}'),
+          onTap: () => ctx.push('/post/${comment.postId}'),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cc.cardBg,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE6EDF3)),
+              border: Border.all(color: cc.borderStrong),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +117,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEAF7FF),
+                          color: cc.tintBg,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -126,14 +131,14 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                       ),
                       const SizedBox(width: 6),
                     ],
-                    const Icon(Icons.article_outlined, size: 13, color: Color(0xFF9AA7B2)),
+                    Icon(Icons.article_outlined, size: 13, color: cc.textMuted),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         comment.postTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF9AA7B2),
+                          color: cc.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
@@ -145,10 +150,10 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                 const SizedBox(height: 8),
                 Text(
                   comment.content,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     height: 1.5,
-                    color: Color(0xFF2F3740),
+                    color: cc.textBody,
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -157,13 +162,13 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.thumb_up_outlined, size: 13, color: Color(0xFF9AA7B2)),
+                    Icon(Icons.thumb_up_outlined, size: 13, color: cc.textMuted),
                     const SizedBox(width: 3),
                     Text(
                       '${comment.likeCount}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF9AA7B2),
+                        color: cc.textMuted,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

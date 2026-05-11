@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../school/models/board_model.dart';
 import '../models/create_post_request.dart';
 import '../models/post_media_item.dart';
@@ -68,7 +69,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   int get _attachedCount => _existingMedia.length + _selectedFiles.length;
   bool get _showCrisisBanner =>
       CrisisBanner.containsCrisisKeyword(_titleController.text) ||
-      CrisisBanner.containsCrisisKeyword(_contentController.text);
+          CrisisBanner.containsCrisisKeyword(_contentController.text);
 
   bool get _canSubmit {
     return (widget.isEditMode || _selectedBoardId != null) &&
@@ -264,22 +265,22 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     if (!hasInput) return true;
 
     return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?'),
-            content: const Text('저장되지 않은 내용은 사라집니다.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('취소'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('나가기'),
-              ),
-            ],
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?'),
+        content: const Text('저장되지 않은 내용은 사라집니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
           ),
-        ) ??
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('나가기'),
+          ),
+        ],
+      ),
+    ) ??
         false;
   }
 
@@ -288,7 +289,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
     final board = await showModalBottomSheet<BoardModel>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -305,18 +306,18 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                   width: 38,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD7E2EC),
+                    color: context.colors.border,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
+              Text(
                 '게시판 선택',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111827),
+                  color: context.colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -325,7 +326,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: widget.availableBoards.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFEAF1F7)),
+                  separatorBuilder: (_, __) => Divider(height: 1, color: context.colors.borderSubtle),
                   itemBuilder: (context, index) {
                     final board = widget.availableBoards[index];
                     final selected = board.id == _selectedBoardId;
@@ -336,16 +337,16 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
-                          color: selected ? const Color(0xFF2F80ED) : const Color(0xFF111827),
+                          color: selected ? const Color(0xFF2F80ED) : context.colors.textBody,
                         ),
                       ),
                       subtitle: board.description.isEmpty
                           ? null
                           : Text(
-                              board.description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        board.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       trailing: selected ? const Icon(Icons.check_rounded, color: Color(0xFF2F80ED)) : null,
                       onTap: () => Navigator.pop(context, board),
                     );
@@ -379,7 +380,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         if (canLeave) Navigator.pop(context);
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7FBFF),
+        backgroundColor: context.colors.pageBg,
         body: SafeArea(
           child: Column(
             children: [
@@ -408,12 +409,12 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       controller: _titleController,
                       maxLength: _titleLimit,
                       buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                          const SizedBox.shrink(),
-                      style: const TextStyle(
+                      const SizedBox.shrink(),
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                         height: 1.28,
-                        color: Color(0xFF111827),
+                        color: context.colors.textPrimary,
                         letterSpacing: 0,
                       ),
                       decoration: _plainInputDecoration('제목'),
@@ -450,7 +451,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       maxLines: null,
                       maxLength: _contentLimit,
                       buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                          const SizedBox.shrink(),
+                      const SizedBox.shrink(),
                       style: const TextStyle(
                         fontSize: 12,
                         height: 1.58,
@@ -553,26 +554,27 @@ class _WriteHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE5EFF8))),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: c.border)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: onClose,
-            icon: const Icon(Icons.close_rounded, size: 28, color: Color(0xFF111827)),
+            icon: Icon(Icons.close_rounded, size: 28, color: c.iconPrimary),
           ),
           Expanded(
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF111827),
+                color: c.textPrimary,
                 letterSpacing: 0,
               ),
             ),
@@ -684,7 +686,7 @@ class _PostWritingGuidelines extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ..._rules.map(
-            (rule) => Padding(
+                (rule) => Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -749,9 +751,9 @@ class _WriteBottomToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF7FBFF),
-        border: Border(top: BorderSide(color: Color(0xFFE0ECF7))),
+      decoration: BoxDecoration(
+        color: context.colors.pageBg,
+        border: const Border(top: BorderSide(color: Color(0xFFE0ECF7))),
       ),
       child: SafeArea(
         top: false,
@@ -777,7 +779,7 @@ class _WriteBottomToolbar extends StatelessWidget {
                 height: 40,
                 padding: const EdgeInsets.only(left: 12, right: 8),
                 decoration: BoxDecoration(
-                  color: anonymous ? const Color(0xFFEAF5FF) : Colors.white,
+                  color: anonymous ? const Color(0xFFEAF5FF) : context.colors.cardBg,
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: anonymous ? const Color(0xFFB9D9FF) : const Color(0xFFD9E6F2),
@@ -851,6 +853,7 @@ class _ToolIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = selected ? const Color(0xFF2F80ED) : const Color(0xFF596A7A);
+    final c = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -858,7 +861,7 @@ class _ToolIconButton extends StatelessWidget {
         width: 42,
         height: 40,
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFEAF5FF) : Colors.white,
+          color: selected ? const Color(0xFFEAF5FF) : c.cardBg,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: selected ? const Color(0xFFB9D9FF) : const Color(0xFFD9E6F2)),
         ),
@@ -1062,7 +1065,7 @@ class _PollFormPageState extends State<_PollFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FBFF),
+      backgroundColor: context.colors.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -1077,12 +1080,12 @@ class _PollFormPageState extends State<_PollFormPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(22, 20, 22, 28),
                 children: [
-                  const Text(
+                  Text(
                     '투표 항목',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF111827),
+                      color: context.colors.textPrimary,
                       letterSpacing: 0,
                     ),
                   ),
@@ -1099,11 +1102,11 @@ class _PollFormPageState extends State<_PollFormPage> {
                               controller: controller,
                               maxLength: 100,
                               buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                                  const SizedBox.shrink(),
-                              style: const TextStyle(
+                              const SizedBox.shrink(),
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF111827),
+                                color: context.colors.textPrimary,
                               ),
                               decoration: InputDecoration(
                                 hintText: '항목 ${index + 1}',
@@ -1113,7 +1116,7 @@ class _PollFormPageState extends State<_PollFormPage> {
                                   fontSize: 11,
                                 ),
                                 filled: true,
-                                fillColor: Colors.white,
+                                fillColor: context.colors.inputBg,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -1200,14 +1203,14 @@ class _ExistingMediaThumb extends StatelessWidget {
       label: isImage ? null : _filename,
       child: isImage
           ? CachedNetworkImage(
-              imageUrl: url,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => Container(color: const Color(0xFFEAF1F7)),
-              errorWidget: (_, __, ___) => const Icon(
-                Icons.broken_image_rounded,
-                color: Color(0xFF9AA7B2),
-              ),
-            )
+        imageUrl: url,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => Container(color: context.colors.borderSubtle),
+        errorWidget: (_, __, ___) => const Icon(
+          Icons.broken_image_rounded,
+          color: Color(0xFF9AA7B2),
+        ),
+      )
           : const _FilePlaceholder(),
     );
   }
@@ -1263,7 +1266,7 @@ class _ThumbFrame extends StatelessWidget {
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            color: const Color(0xFFEAF1F7),
+            color: context.colors.borderSubtle,
             child: child,
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../provider/block_provider.dart';
 
 class BlockSummaryTile extends ConsumerWidget {
@@ -19,6 +20,7 @@ class BlockSummaryTile extends ConsumerWidget {
     final count = summary.valueOrNull ?? 0;
     final isLoading = summary.isLoading && !summary.hasValue;
 
+    final c = context.colors;
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: horizontalPadding,
@@ -28,12 +30,12 @@ class BlockSummaryTile extends ConsumerWidget {
         children: [
           const Icon(Icons.block_rounded, size: 20, color: Color(0xFF14A3F7)),
           const SizedBox(width: 14),
-          const Text(
+          Text(
             '차단한 사용자',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const Spacer(),
@@ -46,10 +48,10 @@ class BlockSummaryTile extends ConsumerWidget {
           else ...[
             Text(
               '$count명',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF7D8790),
+                color: c.textMuted,
               ),
             ),
             const SizedBox(width: 10),
@@ -61,7 +63,7 @@ class BlockSummaryTile extends ConsumerWidget {
                 minimumSize: const Size(0, 34),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 foregroundColor: const Color(0xFFE05C5C),
-                disabledForegroundColor: const Color(0xFFB0BEC5),
+                disabledForegroundColor: c.iconSecondary,
               ),
               child: const Text(
                 '전체 해제',

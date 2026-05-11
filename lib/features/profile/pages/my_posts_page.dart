@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../provider/profile_provider.dart';
 
 class MyPostsPage extends ConsumerStatefulWidget {
@@ -39,20 +40,21 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(myPostsNotifierProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '내가 쓴 글',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -61,20 +63,22 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
   }
 
   Widget _buildBody(MyPostsState state) {
+    final c = context.colors;
+
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (state.items.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.article_outlined, size: 52, color: Color(0xFFCDD5DB)),
-            SizedBox(height: 12),
+            Icon(Icons.article_outlined, size: 52, color: c.iconMuted),
+            const SizedBox(height: 12),
             Text(
               '아직 쓴 글이 없어요.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2)),
+              style: TextStyle(fontSize: 13, color: c.textMuted),
             ),
           ],
         ),
@@ -86,7 +90,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.items.length + (state.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (context, i) {
+      itemBuilder: (ctx, i) {
         if (i == state.items.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
@@ -94,14 +98,15 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
           );
         }
         final post = state.items[i];
+        final cc = ctx.colors;
         return GestureDetector(
-          onTap: () => context.push('/post/${post.postId}'),
+          onTap: () => ctx.push('/post/${post.postId}'),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cc.cardBg,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE6EDF3)),
+              border: Border.all(color: cc.borderStrong),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +117,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF7FF),
+                        color: cc.tintBg,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -127,10 +132,10 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                   ),
                 Text(
                   post.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111111),
+                    color: cc.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -138,10 +143,10 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                 const SizedBox(height: 6),
                 Text(
                   post.preview,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     height: 1.5,
-                    color: Color(0xFF6E7B87),
+                    color: cc.iconOnCard,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -173,16 +178,17 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors.textMuted;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF9AA7B2)),
+        Icon(icon, size: 14, color: c),
         const SizedBox(width: 3),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: Color(0xFF9AA7B2),
+            color: c,
             fontWeight: FontWeight.w600,
           ),
         ),

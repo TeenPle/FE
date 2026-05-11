@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_email_check_provider.dart';
 import '../provider/signup_form_provider.dart';
 
@@ -81,18 +82,18 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
     Widget? prefixIcon,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFFB0B0B0),
+      hintStyle: TextStyle(color: c.textHint,
         fontSize: 12,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 17,
@@ -100,19 +101,17 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
       prefixIcon: prefixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: Color(0xFF4A67F2),
           width: 1.3,
         ),
@@ -141,7 +140,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
             !emailCheckState.isLoading;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -168,7 +167,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '다음',
               style: TextStyle(
                 fontSize: 13,
@@ -192,28 +191,28 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '4/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '계정 정보',
                 style: TextStyle(
                   fontSize: 11,
@@ -222,45 +221,45 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '이메일을 입력해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 '가입 후 TeenPle 로그인과 이메일 인증에 사용할 주소예요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 이메일 라벨
-              const Text(
+              Text(
                 '이메일',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 이메일 입력창
               TextField(
@@ -268,32 +267,32 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 onChanged: _onChanged,
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '이메일을 입력해주세요',
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.mail_outline_rounded,
-                    color: Color(0xFF7A7A7A),
+                    color: context.colors.iconSecondary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 상태 메시지
               Builder(
                 builder: (context) {
                   if (email.isEmpty) {
-                    return const Text(
+                    return Text(
                       '로그인과 본인 확인에 사용할 이메일이에요.',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF8A8A8A),
+                        color: context.colors.textMuted,
                       ),
                     );
                   }
 
                   if (!isValidEmail) {
-                    return const Text(
+                    return Text(
                       '올바른 이메일 형식으로 입력해주세요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -303,7 +302,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                   }
 
                   if (emailCheckState.isLoading) {
-                    return const Text(
+                    return Text(
                       '이메일 사용 가능 여부를 확인하고 있어요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -315,7 +314,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                   if (emailCheckState.errorMessage != null && isSameAsChecked) {
                     return Text(
                       emailCheckState.errorMessage!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: Colors.red,
                       ),
@@ -323,7 +322,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                   }
 
                   if (emailCheckState.isAvailable == false && isSameAsChecked) {
-                    return const Text(
+                    return Text(
                       '이미 사용 중인 이메일이에요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -333,7 +332,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                   }
 
                   if (emailCheckState.isAvailable == true && isSameAsChecked) {
-                    return const Text(
+                    return Text(
                       '사용 가능한 이메일이에요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -342,11 +341,11 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
                     );
                   }
 
-                  return const Text(
+                  return Text(
                     '로그인과 본인 확인에 사용할 이메일이에요.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF8A8A8A),
+                      color: context.colors.textMuted,
                     ),
                   );
                 },

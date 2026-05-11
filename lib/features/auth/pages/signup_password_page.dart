@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
 
 /// 회원가입 6단계 비밀번호 설정 페이지
@@ -62,19 +63,19 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
     Widget? prefixIcon,
     Widget? suffixIcon,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFFB0B0B0),
+      hintStyle: TextStyle(color: c.textHint,
         fontSize: 12,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 17,
@@ -83,19 +84,17 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
       suffixIcon: suffixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: Color(0xFF4A67F2),
           width: 1.3,
         ),
@@ -123,7 +122,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
     final canProceed = isPasswordValid && isPasswordConfirmValid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -155,7 +154,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '다음',
               style: TextStyle(
                 fontSize: 13,
@@ -179,28 +178,28 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '6/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '보안 설정',
                 style: TextStyle(
                   fontSize: 11,
@@ -209,45 +208,45 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '거의 다 왔어요!\n비밀번호를 설정해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 'TeenPle에서 사용할 비밀번호를 입력해주세요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 가입 이메일 라벨
-              const Text(
+              Text(
                 '가입 이메일',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 이메일 표시 박스
               Container(
@@ -257,20 +256,20 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                   vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFE3E7EF),
+                    color: context.colors.border,
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.mail_outline_rounded,
                       size: 18,
-                      color: Color(0xFF7A7A7A),
+                      color: context.colors.iconSecondary,
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         signupFormState.email.isEmpty
@@ -282,8 +281,8 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                               ? FontWeight.w400
                               : FontWeight.w600,
                           color: signupFormState.email.isEmpty
-                              ? const Color(0xFF9A9A9A)
-                              : const Color(0xFF222222),
+                              ? context.colors.textTertiary
+                              : context.colors.textPrimary,
                         ),
                       ),
                     ),
@@ -291,19 +290,19 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               /// 비밀번호 라벨
-              const Text(
+              Text(
                 '비밀번호',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 비밀번호 입력창
               TextField(
@@ -317,11 +316,11 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                   ref.read(signupFormProvider.notifier).updatePassword(value);
                   setState(() {});
                 },
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '비밀번호를 입력해주세요',
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.lock_outline_rounded,
-                    color: Color(0xFF7A7A7A),
+                    color: context.colors.iconSecondary,
                   ),
                   suffixIcon: IconButton(
                     onPressed: () {
@@ -333,25 +332,25 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                       _obscurePassword
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFF888888),
+                      color: context.colors.iconSecondary,
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 비밀번호 안내/에러 메시지
               if (password.isEmpty)
-                const Text(
+                Text(
                   '영문, 숫자, 특수문자(@\$!%*#?&)를 포함해 8~20자로 입력해주세요.',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF8A8A8A),
+                    color: context.colors.textMuted,
                   ),
                 )
               else if (!isPasswordValid)
-                const Text(
+                Text(
                   '비밀번호는 영문, 숫자, 특수문자(@\$!%*#?&)를 포함한 8~20자여야 해요.',
                   style: TextStyle(
                     fontSize: 11,
@@ -359,7 +358,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                   ),
                 )
               else
-                const Text(
+                Text(
                   '사용 가능한 비밀번호 형식이에요.',
                   style: TextStyle(
                     fontSize: 11,
@@ -367,19 +366,19 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                   ),
                 ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               /// 비밀번호 확인 라벨
-              const Text(
+              Text(
                 '비밀번호 확인',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 비밀번호 재입력 입력창
               TextField(
@@ -395,11 +394,11 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                       .updatePasswordConfirm(value);
                   setState(() {});
                 },
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '비밀번호를 다시 입력해주세요',
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.lock_outline_rounded,
-                    color: Color(0xFF7A7A7A),
+                    color: context.colors.iconSecondary,
                   ),
                   suffixIcon: IconButton(
                     onPressed: () {
@@ -411,17 +410,17 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                       _obscurePasswordConfirm
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFF888888),
+                      color: context.colors.iconSecondary,
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 비밀번호 재입력 안내/에러 메시지
               if (passwordConfirm.isNotEmpty && password != passwordConfirm)
-                const Text(
+                Text(
                   '비밀번호가 일치하지 않아요.',
                   style: TextStyle(
                     fontSize: 11,
@@ -431,7 +430,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               else if (passwordConfirm.isNotEmpty &&
                   password == passwordConfirm &&
                   isPasswordValid)
-                const Text(
+                Text(
                   '비밀번호가 일치해요.',
                   style: TextStyle(
                     fontSize: 11,

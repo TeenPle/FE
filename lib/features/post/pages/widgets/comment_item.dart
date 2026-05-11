@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/tap_scale.dart';
@@ -36,6 +37,7 @@ class CommentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 11, 0, 11),
       child: Column(
@@ -60,19 +62,19 @@ class CommentItem extends StatelessWidget {
           if (replies.isNotEmpty) const SizedBox(height: 10),
           if (replies.isNotEmpty)
             ...replies.map(
-              (reply) => Padding(
+                  (reply) => Padding(
                 padding: const EdgeInsets.only(left: 6, top: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 18,
                       child: Padding(
-                        padding: EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(top: 10),
                         child: Icon(
                           Icons.subdirectory_arrow_right_rounded,
                           size: 17,
-                          color: Color(0xFF6FAFEA),
+                          color: c.borderBlue,
                         ),
                       ),
                     ),
@@ -81,10 +83,10 @@ class CommentItem extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEAF5FF),
+                          color: c.replyBg,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFFCFE8FF),
+                            color: c.borderBlue,
                           ),
                         ),
                         child: _CommentBody(
@@ -153,6 +155,7 @@ class _CommentBody extends StatelessWidget {
       return _DeletedCommentPlaceholder();
     }
 
+    final c = context.colors;
     final createdAtText = () {
       final dt = parseCreatedAtMs(comment.createdAtMs);
       return dt != null ? timeAgo(dt) : '';
@@ -166,9 +169,9 @@ class _CommentBody extends StatelessWidget {
       child: InkWell(
         onTap: canReplyFromSurface
             ? () {
-                AppHaptics.light();
-                onReplyTap!();
-              }
+          AppHaptics.light();
+          onReplyTap!();
+        }
             : null,
         borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
@@ -197,7 +200,7 @@ class _CommentBody extends StatelessWidget {
                     width: isReply ? 30 : 34,
                     height: isReply ? 30 : 34,
                     decoration: BoxDecoration(
-                      color: isReply ? const Color(0xFFFFFFFF) : const Color(0xFFE4F2FF),
+                      color: isReply ? c.cardBg : const Color(0xFFE4F2FF),
                       borderRadius: BorderRadius.circular(isReply ? 10 : 12),
                     ),
                     child: Icon(
@@ -215,10 +218,10 @@ class _CommentBody extends StatelessWidget {
                       children: [
                         Text(
                           comment.displayAuthorName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111111),
+                            color: c.textPrimary,
                           ),
                         ),
                         if (createdAtText.isNotEmpty)
@@ -236,7 +239,7 @@ class _CommentBody extends StatelessWidget {
 
                   /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고/차단
                   PopupMenuButton<String>(
-                    color: Colors.white,
+                    color: c.cardBg,
                     onSelected: (value) {
                       switch (value) {
                         case 'edit':
@@ -264,15 +267,15 @@ class _CommentBody extends StatelessWidget {
                       ],
                       if (!isMyComment) ...[
                         if (comment.canChatWithAuthor)
-                        const PopupMenuItem(
-                          value: 'chat',
-                          child: _CompactMenuText('채팅'),
-                        ),
+                          const PopupMenuItem(
+                            value: 'chat',
+                            child: _CompactMenuText('채팅'),
+                          ),
                         if (comment.canReportAuthor)
-                        const PopupMenuItem(
-                          value: 'report',
-                          child: _CompactMenuText('신고하기'),
-                        ),
+                          const PopupMenuItem(
+                            value: 'report',
+                            child: _CompactMenuText('신고하기'),
+                          ),
                         if (comment.canBlockAuthor && onBlockTap != null)
                           const PopupMenuItem(
                             value: 'block',
@@ -394,9 +397,9 @@ class _InlineActionButton extends StatelessWidget {
         onTap: onTap == null
             ? null
             : () {
-                AppHaptics.light();
-                onTap!();
-              },
+          AppHaptics.light();
+          onTap!();
+        },
         borderRadius: BorderRadius.circular(999),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -426,9 +429,9 @@ class _CompactMenuText extends StatelessWidget {
   final Color color;
 
   const _CompactMenuText(
-    this.text, {
-    this.color = const Color(0xFF222222),
-  });
+      this.text, {
+        this.color = const Color(0xFF222222),
+      });
 
   @override
   Widget build(BuildContext context) {

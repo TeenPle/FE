@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../../core/active_page_provider.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/chat_message_model.dart';
 import '../provider/chat_message_provider.dart';
 import '../provider/chat_room_list_provider.dart';
@@ -216,67 +217,68 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   void _showMoreMenu() {
-    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    final sheetBg = context.colors.cardBg;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: sheetBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0E0E0),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) {
+        final bc = ctx.colors;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: bc.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              if (state.canReport && !state.otherUserDeleted)
+                const SizedBox(height: 20),
                 _BottomSheetItem(
-                icon: Icons.report_outlined,
-                label: '신고하기',
-                color: const Color(0xFFF44336),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _showReportSheet();
-                },
-              ),
-              if (!state.otherUserDeleted && (state.canBlock || _blockedByMe))
+                  icon: Icons.report_outlined,
+                  label: '신고하기',
+                  color: const Color(0xFFF44336),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showReportSheet();
+                  },
+                ),
                 _BottomSheetItem(
-                icon: _blockedByMe ? Icons.lock_open_rounded : Icons.block_rounded,
-                label: _blockedByMe ? '차단 해제' : '차단하기',
-                color: _blockedByMe
-                    ? const Color(0xFF1DA1F2)
-                    : const Color(0xFFF44336),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  if (_blockedByMe) {
-                    _showUnblockConfirm();
-                  } else {
-                    _showBlockConfirm();
-                  }
-                },
-              ),
-              _BottomSheetItem(
-                icon: Icons.exit_to_app_rounded,
-                label: '채팅방 나가기',
-                color: const Color(0xFF7D8790),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _showLeaveConfirm();
-                },
-              ),
-            ],
+                  icon: _blockedByMe ? Icons.lock_open_rounded : Icons.block_rounded,
+                  label: _blockedByMe ? '차단 해제' : '차단하기',
+                  color: _blockedByMe
+                      ? const Color(0xFF1DA1F2)
+                      : const Color(0xFFF44336),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    if (_blockedByMe) {
+                      _showUnblockConfirm();
+                    } else {
+                      _showBlockConfirm();
+                    }
+                  },
+                ),
+                _BottomSheetItem(
+                  icon: Icons.exit_to_app_rounded,
+                  label: '채팅방 나가기',
+                  color: const Color(0xFF7D8790),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showLeaveConfirm();
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -290,48 +292,52 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       ('괴롭힘·위협', 'HARASSMENT'),
       ('기타', 'ETC'),
     ];
+    final sheetBg = context.colors.cardBg;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: sheetBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                '신고 사유 선택',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+      builder: (ctx) {
+        final bc = ctx.colors;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '신고 사유 선택',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: bc.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              ...reasons.map(
-                ((String label, String value) reason) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(reason.$1),
-                  onTap: () async {
-                    Navigator.pop(ctx);
-                    await ref
-                        .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
-                        .reportRoom(reason.$2);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('신고가 접수되었습니다.')),
-                      );
-                    }
-                  },
+                const SizedBox(height: 16),
+                ...reasons.map(
+                  ((String label, String value) reason) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(reason.$1),
+                    onTap: () async {
+                      Navigator.pop(ctx);
+                      await ref
+                          .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+                          .reportRoom(reason.$2);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('신고가 접수되었습니다.')),
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -451,14 +457,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFECF6FF),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF111111), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: c.iconPrimary, size: 20),
           onPressed: () => context.pop(),
         ),
         centerTitle: true,
@@ -468,40 +475,36 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               widget.displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
+                color: c.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '익명',
               style: TextStyle(
                 fontSize: 11,
-                color: Color(0xFF9AA7B2),
+                color: c.textMuted,
               ),
             ),
           ],
         ),
         actions: [
-          // 채팅방 알림 on/off 토글 (꺼진 상태면 회색 종 아이콘)
           IconButton(
             icon: Icon(
               isMuted
                   ? Icons.notifications_off_rounded
                   : Icons.notifications_rounded,
-              color: isMuted
-                  ? const Color(0xFF9AA7B2)
-                  : const Color(0xFF111111),
+              color: isMuted ? c.textMuted : c.iconPrimary,
             ),
             onPressed: () =>
                 ref.read(mutedRoomsProvider.notifier).toggle(widget.roomId),
           ),
-          // 검색 아이콘: 활성 시 X로 전환하여 닫기
           IconButton(
             icon: Icon(
               _isSearchActive ? Icons.close_rounded : Icons.search_rounded,
-              color: const Color(0xFF111111),
+              color: c.iconPrimary,
             ),
             onPressed: () => setState(() {
               _isSearchActive = !_isSearchActive;
@@ -512,51 +515,44 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             }),
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF111111)),
+            icon: Icon(Icons.more_vert_rounded, color: c.iconPrimary),
             onPressed: _showMoreMenu,
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFEEEEEE)),
+          child: Container(height: 1, color: c.border),
         ),
       ),
       body: Column(
         children: [
-          // 채팅 이용 안내 배너: 메시지가 하나도 없을 때만 표시
           if (!_isSearchActive && state.messages.isEmpty) const _ChatNoticeBar(),
-
-          // 검색창 (검색 활성 시에만 표시)
           if (_isSearchActive)
             Container(
-              color: Colors.white,
+              color: c.cardBg,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
               child: TextField(
                 controller: _messageSearchController,
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: '메시지 검색',
-                  hintStyle:
-                      const TextStyle(fontSize: 13, color: Color(0xFFB0BEC5)),
-                  prefixIcon: const Icon(
+                  hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
+                  prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Color(0xFFB0BEC5),
+                    color: c.textMuted,
                     size: 20,
                   ),
                   filled: true,
-                  fillColor: const Color(0xFFF5F7FA),
+                  fillColor: c.subtleBg,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
-                style:
-                    const TextStyle(fontSize: 13, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 13, color: c.textPrimary),
               ),
             ),
-
-          // 메시지 목록
           Expanded(
             child: state.isLoading && state.messages.isEmpty
                 ? const Center(child: CircularProgressIndicator())
@@ -566,9 +562,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                           isSearchFiltered
                               ? '검색 결과가 없어요.'
                               : '첫 메시지를 보내보세요!',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF9AA7B2),
+                            color: c.textMuted,
                           ),
                         ),
                       )
@@ -636,7 +632,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       ),
           ),
 
-          // 오류 메시지
           if (state.errorMessage != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -717,6 +712,7 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: EdgeInsets.only(bottom: isLastInGroup ? 10 : 3),
       child: Row(
@@ -725,15 +721,14 @@ class _MessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe && showProfile) ...[
-            // 상대방 아바타
             Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: const Color(0xFFEAF3FB),
-                borderRadius: BorderRadius.circular(10),
+                color: Color(0xFFEAF3FB),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.person_rounded,
                 size: 20,
                 color: Color(0xFF8EA2B5),
@@ -741,7 +736,6 @@ class _MessageBubble extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ] else if (!isMe) ...[
-            // 같은 사람이 같은 분에 이어 보낸 메시지는 프로필을 숨기되 말풍선 시작 위치는 유지한다.
             const SizedBox(width: 40),
           ],
           Column(
@@ -749,14 +743,14 @@ class _MessageBubble extends StatelessWidget {
                 isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               if (!isMe && showProfile)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4, left: 4),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4, left: 4),
                   child: Text(
                     '익명',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF7D8790),
+                      color: c.textMuted,
                     ),
                   ),
                 ),
@@ -770,7 +764,6 @@ class _MessageBubble extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // 상대방이 안 읽으면 "1" 표시
                           if (showUnread)
                             const Text(
                               '1',
@@ -783,9 +776,9 @@ class _MessageBubble extends StatelessWidget {
                           if (showMeta)
                             Text(
                               _formatTime(message.createdAt),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF9AA7B2),
+                                color: c.textMuted,
                               ),
                             ),
                         ],
@@ -798,9 +791,7 @@ class _MessageBubble extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isMe
-                          ? const Color(0xFF1DA1F2)
-                          : Colors.white,
+                      color: isMe ? const Color(0xFF1DA1F2) : c.cardBg,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(18),
                         topRight: const Radius.circular(18),
@@ -822,8 +813,7 @@ class _MessageBubble extends StatelessWidget {
                               message.imageUrl!,
                               width: 180,
                               fit: BoxFit.cover,
-                              // 이미지 로딩 중 프로그레스 표시
-                              loadingBuilder: (context, child, loadingProgress) {
+                              loadingBuilder: (ctx, child, loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return Container(
                                   width: 180,
@@ -831,13 +821,13 @@ class _MessageBubble extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: isMe
                                         ? const Color(0xFF1888D0)
-                                        : const Color(0xFFEEEEEE),
+                                        : ctx.colors.subtleBg,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Center(
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: isMe ? Colors.white70 : const Color(0xFF9AA7B2),
+                                      color: isMe ? Colors.white70 : ctx.colors.textMuted,
                                       value: loadingProgress.expectedTotalBytes != null
                                           ? loadingProgress.cumulativeBytesLoaded /
                                               loadingProgress.expectedTotalBytes!
@@ -846,15 +836,14 @@ class _MessageBubble extends StatelessWidget {
                                   ),
                                 );
                               },
-                              // S3 CORS 차단 등 로드 실패 시 대체 UI 표시
-                              errorBuilder: (context, error, stackTrace) {
+                              errorBuilder: (ctx, error, stackTrace) {
                                 return Container(
                                   width: 180,
                                   height: 100,
                                   decoration: BoxDecoration(
                                     color: isMe
                                         ? const Color(0xFF1888D0)
-                                        : const Color(0xFFEEEEEE),
+                                        : ctx.colors.subtleBg,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Column(
@@ -863,14 +852,14 @@ class _MessageBubble extends StatelessWidget {
                                       Icon(
                                         Icons.broken_image_rounded,
                                         size: 28,
-                                        color: isMe ? Colors.white60 : const Color(0xFF9AA7B2),
+                                        color: isMe ? Colors.white60 : ctx.colors.textMuted,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         '이미지를 불러올 수 없습니다',
                                         style: TextStyle(
                                           fontSize: 10,
-                                          color: isMe ? Colors.white60 : const Color(0xFF9AA7B2),
+                                          color: isMe ? Colors.white60 : ctx.colors.textMuted,
                                         ),
                                       ),
                                     ],
@@ -884,9 +873,7 @@ class _MessageBubble extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 13,
                               height: 1.4,
-                              color: isMe
-                                  ? Colors.white
-                                  : const Color(0xFF1F2937),
+                              color: isMe ? Colors.white : c.textBody,
                             ),
                           ),
                   ),
@@ -895,9 +882,9 @@ class _MessageBubble extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 6, bottom: 2),
                       child: Text(
                         _formatTime(message.createdAt),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
-                          color: Color(0xFF9AA7B2),
+                          color: c.textMuted,
                         ),
                       ),
                     ),
@@ -939,8 +926,9 @@ class _MessageInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: Colors.white,
+      color: c.cardBg,
       padding: EdgeInsets.only(
         left: 16,
         right: 12,
@@ -1001,7 +989,7 @@ class _MessageInputBar extends StatelessWidget {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F6FF),
+                    color: c.inputBg,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: TextField(
@@ -1014,17 +1002,17 @@ class _MessageInputBar extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: pendingImage == null ? '메시지 입력...' : '사진 전송 대기 중',
                       counterText: '',
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF9AA7B2),
+                        color: c.textMuted,
                       ),
                       border: InputBorder.none,
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF111111),
+                      color: c.textPrimary,
                     ),
                   ),
                 ),
@@ -1079,7 +1067,7 @@ class _PenaltyInputBar extends StatelessWidget {
         : '현재 정지 중이라 채팅을 사용할 수 없습니다.\n해제: ${_formatExpiresAt(expiresAt!)}';
 
     return Container(
-      color: Colors.white,
+      color: context.colors.cardBg,
       padding: EdgeInsets.only(
         left: 16,
         right: 16,
@@ -1128,8 +1116,9 @@ class _BlockedInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: Colors.white,
+      color: c.cardBg,
       padding: EdgeInsets.only(
         left: 16,
         right: 16,
@@ -1143,7 +1132,7 @@ class _BlockedInputBar extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 44),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
+                color: c.subtleBg,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Text(
@@ -1153,7 +1142,7 @@ class _BlockedInputBar extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6B7280),
+                  color: c.textMuted,
                 ),
               ),
             ),
@@ -1179,11 +1168,12 @@ class _DeletedUserInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFECEFF3))),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        border: Border(top: BorderSide(color: c.border)),
       ),
       child: SafeArea(
         top: false,
@@ -1191,15 +1181,15 @@ class _DeletedUserInputBar extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F7FA),
+            color: c.subtleBg,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Text(
+          child: Text(
             '탈퇴한 사용자와는 채팅할 수 없습니다.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFF7D8790),
+              color: c.textMuted,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1217,25 +1207,26 @@ class _DateSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
         children: [
-          const Expanded(
-            child: Divider(color: Color(0xFFDDE3E9), thickness: 1),
+          Expanded(
+            child: Divider(color: c.divider, thickness: 1),
           ),
           const SizedBox(width: 12),
           Text(
             _formatDate(date),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF9AA7B2),
+              color: c.textMuted,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Divider(color: Color(0xFFDDE3E9), thickness: 1),
+          Expanded(
+            child: Divider(color: c.divider, thickness: 1),
           ),
         ],
       ),

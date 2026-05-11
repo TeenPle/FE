@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/reset_password_provider.dart';
 
 class ResetPasswordPage extends ConsumerStatefulWidget {
@@ -52,37 +53,38 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     }
   }
 
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
     required bool obscure,
     required VoidCallback onToggle,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: Color(0xFFB0B0B0), fontSize: 12),
+      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-      prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF7A7A7A)),
+      prefixIcon: Icon(Icons.lock_outline_rounded, color: context.colors.iconSecondary),
       suffixIcon: IconButton(
         onPressed: onToggle,
         icon: Icon(
           obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-          color: const Color(0xFF7A7A7A),
+          color: context.colors.iconSecondary,
           size: 20,
         ),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFE3E7EF)),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFE3E7EF)),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF4A67F2), width: 1.3),
+        borderSide: BorderSide(color: Color(0xFF4A67F2), width: 1.3),
       ),
     );
   }
@@ -92,7 +94,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     final state = ref.watch(resetPasswordProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         child: SizedBox(
@@ -110,7 +112,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               ),
             ),
             child: state.isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 22,
                     height: 22,
                     child: CircularProgressIndicator(
@@ -118,7 +120,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                       color: Colors.white,
                     ),
                   )
-                : const Text(
+                : Text(
                     '비밀번호 변경',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
@@ -133,15 +135,15 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
             children: [
               IconButton(
                 onPressed: () { if (context.canPop()) context.pop(); },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
-              const Text(
+              Text(
                 '비밀번호 재설정',
                 style: TextStyle(
                   fontSize: 11,
@@ -150,43 +152,43 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
-              const Text(
+              Text(
                 '새 비밀번호를\n설정해주세요.',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                   letterSpacing: -0.5,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
-              const Text(
+              Text(
                 '영문, 숫자, 특수문자 포함 8~20자로 입력해주세요.',
-                style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF555555)),
+                style: TextStyle(fontSize: 13, height: 1.5, color: context.colors.textBody),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
-              const Text(
+              Text(
                 '새 비밀번호',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextField(
                 obscureText: _obscureNew,
                 controller: _newCtrl,
                 textInputAction: TextInputAction.next,
                 onChanged: (_) => setState(() {}),
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '새 비밀번호를 입력해주세요.',
                   obscure: _obscureNew,
                   onToggle: () => setState(() => _obscureNew = !_obscureNew),
@@ -194,24 +196,24 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               ),
 
               if (_newCtrl.text.isNotEmpty && !_isValidPassword) ...[
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   '영문, 숫자, 특수문자를 포함한 8~20자로 입력해주세요.',
                   style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
-              const Text(
+              Text(
                 '새 비밀번호 확인',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextField(
                 obscureText: _obscureConfirm,
                 controller: _confirmCtrl,
@@ -220,7 +222,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 onSubmitted: (_) {
                   if (_canSubmit && !state.isLoading) _submit();
                 },
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '비밀번호를 한 번 더 입력해주세요.',
                   obscure: _obscureConfirm,
                   onToggle: () =>
@@ -229,18 +231,18 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               ),
 
               if (_confirmCtrl.text.isNotEmpty && !_isPasswordMatch) ...[
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   '비밀번호가 일치하지 않습니다.',
                   style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
 
               if (state.errorMessage != null) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   state.errorMessage!,
-                  style: const TextStyle(fontSize: 11, color: Colors.red),
+                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
               ],
             ],

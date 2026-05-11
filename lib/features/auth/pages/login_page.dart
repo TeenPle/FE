@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/login_blocked_reason.dart';
 import '../provider/login_provider.dart';
 
@@ -134,8 +135,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final canLogin =
         email.isNotEmpty && password.isNotEmpty && !loginState.isLoading;
 
+    final c = context.colors;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: c.cardBg,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -145,7 +148,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   Center(
                     child: Container(
@@ -153,7 +156,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       height: 104,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(28),
-                        color: const Color(0xFFF5F8FF),
+                        color: c.subtleBg,
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(28),
@@ -161,7 +164,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           'assets/images/Logo.png',
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Center(
+                            return Center(
                               child: Text(
                                 'T',
                                 style: TextStyle(
@@ -177,60 +180,58 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
-                  const Center(
+                  Center(
                     child: Text(
                       'TeenPle',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.8,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
-                  const Center(
+                  Center(
                     child: Text(
                       '우리 학교와 동네를 잇는 학생 커뮤니티',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.5,
-                        color: Color(0xFF666666),
+                        color: c.textSecondary,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 36),
+                  SizedBox(height: 36),
 
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     autocorrect: false,
+                    style: TextStyle(fontSize: 13, color: c.textPrimary),
                     onChanged: (_) {
                       ref.read(loginProvider.notifier).clearTransientState();
                       setState(() {});
                     },
                     decoration: InputDecoration(
                       hintText: '이메일을 입력해주세요.',
-                      hintStyle: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFB3B3B3),
-                      ),
+                      hintStyle: TextStyle(fontSize: 12, color: c.textHint),
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: c.inputBg,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.mail_outline_rounded,
-                        color: Color(0xFF7A7A7A),
+                        color: c.textMuted,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -242,7 +243,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: Color(0xFF4A67F2),
                           width: 1.2,
                         ),
@@ -250,7 +251,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   TextField(
                     controller: _passwordController,
@@ -258,10 +259,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     autocorrect: false,
                     enableSuggestions: false,
                     textInputAction: TextInputAction.done,
+                    style: TextStyle(fontSize: 13, color: c.textPrimary),
                     onSubmitted: (_) {
-                      if (canLogin) {
-                        _submit();
-                      }
+                      if (canLogin) _submit();
                     },
                     onChanged: (_) {
                       ref.read(loginProvider.notifier).clearTransientState();
@@ -269,31 +269,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     },
                     decoration: InputDecoration(
                       hintText: '비밀번호를 입력해주세요.',
-                      hintStyle: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFB3B3B3),
-                      ),
+                      hintStyle: TextStyle(fontSize: 12, color: c.textHint),
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: c.inputBg,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.lock_outline_rounded,
-                        color: Color(0xFF7A7A7A),
+                        color: c.textMuted,
                       ),
                       suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
-                          color: const Color(0xFF7A7A7A),
+                          color: c.textMuted,
                         ),
                       ),
                       border: OutlineInputBorder(
@@ -306,7 +300,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: Color(0xFF4A67F2),
                           width: 1.2,
                         ),
@@ -314,17 +308,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
 
                   Row(
                     children: [
                       InkWell(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          setState(() {
-                            _keepLoggedIn = !_keepLoggedIn;
-                          });
-                        },
+                        onTap: () =>
+                            setState(() => _keepLoggedIn = !_keepLoggedIn),
                         child: Row(
                           children: [
                             SizedBox(
@@ -332,28 +323,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               height: 22,
                               child: Checkbox(
                                 value: _keepLoggedIn,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _keepLoggedIn = value ?? false;
-                                  });
-                                },
+                                onChanged: (value) => setState(
+                                    () => _keepLoggedIn = value ?? false),
                                 activeColor: const Color(0xFF4A67F2),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                side: const BorderSide(
-                                  color: Color(0xFFB8BEC8),
+                                side: BorderSide(
+                                  color: c.textTertiary,
                                   width: 1.2,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const Text(
+                            SizedBox(width: 8),
+                            Text(
                               '로그인 상태 유지',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
-                                color: Color(0xFF555555),
+                                color: c.textSecondary,
                               ),
                             ),
                           ],
@@ -361,55 +349,49 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       const Spacer(),
                       TextButton(
-                        onPressed: () {
-                          context.push(AppRoutes.findEmail);
-                        },
+                        onPressed: () => context.push(AppRoutes.findEmail),
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
+                        child: Text(
                           '아이디 찾기',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF666666),
+                            color: c.textSecondary,
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
                           '|',
                           style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFFCCCCCC),
-                          ),
+                              fontSize: 11, color: c.textTertiary),
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          context.push(AppRoutes.findPassword);
-                        },
+                        onPressed: () => context.push(AppRoutes.findPassword),
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
+                        child: Text(
                           '비밀번호 찾기',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF666666),
+                            color: c.textSecondary,
                           ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   if (loginState.errorMessage != null &&
                       loginState.errorMessage!.isNotEmpty)
@@ -417,14 +399,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       padding: const EdgeInsets.only(left: 4),
                       child: Text(
                         loginState.errorMessage!,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.red),
                       ),
                     ),
 
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
 
                   SizedBox(
                     height: 52,
@@ -442,7 +422,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       child: Text(
                         loginState.isLoading ? '로그인 중...' : '로그인',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -450,17 +430,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
 
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
+                        Text(
                           '계정이 없으신가요?',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF888888),
+                            color: c.textTertiary,
                           ),
                         ),
                         TextButton(
@@ -469,11 +449,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             context.push(AppRoutes.signupConsent);
                           },
                           style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: const Text(
+                          child: Text(
                             '회원가입',
                             style: TextStyle(
                               fontSize: 12,

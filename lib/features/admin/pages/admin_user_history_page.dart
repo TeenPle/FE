@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../models/penalty_summary_model.dart';
 import '../models/warning_history_model.dart';
 import '../provider/admin_penalty_provider.dart';
@@ -47,12 +48,13 @@ class _AdminUserHistoryPageState extends ConsumerState<AdminUserHistoryPage>
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
         title: Text(
           '${widget.userNickname} 이력',
@@ -121,6 +123,7 @@ class _UserPenaltyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final isCancelled = penalty.status == 'CANCELLED';
     final isActive = penalty.isActive;
 
@@ -134,7 +137,7 @@ class _UserPenaltyCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE6EDF3)),
       ),
@@ -241,6 +244,7 @@ class _UserWarningCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final issuedStr =
         '${warning.issuedAt.year}.${warning.issuedAt.month.toString().padLeft(2, '0')}.${warning.issuedAt.day.toString().padLeft(2, '0')}';
 
@@ -248,7 +252,7 @@ class _UserWarningCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE6EDF3)),
       ),

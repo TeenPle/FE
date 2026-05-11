@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_phone_check_provider.dart';
 
@@ -79,18 +80,18 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration({
+  InputDecoration _inputDecoration(BuildContext context, {
     required String hintText,
     Widget? prefixIcon,
   }) {
+    final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFFB0B0B0),
+      hintStyle: TextStyle(color: c.textHint,
         fontSize: 12,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 17,
@@ -98,19 +99,17 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
       prefixIcon: prefixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: Color(0xFFE3E7EF),
+        borderSide: BorderSide(color: context.colors.border,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
+        borderSide: BorderSide(
           color: Color(0xFF4A67F2),
           width: 1.3,
         ),
@@ -140,7 +139,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
             !phoneCheckState.isLoading;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -169,7 +168,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '다음',
               style: TextStyle(
                 fontSize: 13,
@@ -193,28 +192,28 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '7/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '연락처 정보',
                 style: TextStyle(
                   fontSize: 11,
@@ -223,45 +222,45 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '전화번호를 등록해주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.22,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 '계정 확인과 안내에 사용할 휴대폰 번호예요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 전화번호 라벨
-              const Text(
+              Text(
                 '휴대폰 번호',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 전화번호 입력창
               TextField(
@@ -272,32 +271,32 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(11),
                 ],
-                decoration: _inputDecoration(
+                decoration: _inputDecoration(context,
                   hintText: '예: 01012345678',
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.phone_iphone_rounded,
-                    color: Color(0xFF7A7A7A),
+                    color: context.colors.iconSecondary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 상태 메시지
               Builder(
                 builder: (context) {
                   if (phoneNumber.isEmpty) {
-                    return const Text(
+                    return Text(
                       '예시) 01012345678',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF6B7280),
+                        color: context.colors.textMuted,
                       ),
                     );
                   }
 
                   if (!isValidPhoneNumber) {
-                    return const Text(
+                    return Text(
                       '예시) 01012345678',
                       style: TextStyle(
                         fontSize: 11,
@@ -307,7 +306,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                   }
 
                   if (phoneCheckState.isLoading) {
-                    return const Text(
+                    return Text(
                       '전화번호 사용 가능 여부를 확인하고 있어요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -319,7 +318,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                   if (phoneCheckState.errorMessage != null && isSameAsChecked) {
                     return Text(
                       phoneCheckState.errorMessage!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: Colors.red,
                       ),
@@ -327,7 +326,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                   }
 
                   if (phoneCheckState.isAvailable == false && isSameAsChecked) {
-                    return const Text(
+                    return Text(
                       '이미 사용 중인 전화번호예요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -337,7 +336,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                   }
 
                   if (phoneCheckState.isAvailable == true && isSameAsChecked) {
-                    return const Text(
+                    return Text(
                       '등록 가능한 전화번호예요.',
                       style: TextStyle(
                         fontSize: 11,
@@ -346,11 +345,11 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
                     );
                   }
 
-                  return const Text(
+                  return Text(
                     '예시) 01012345678',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF6B7280),
+                      color: context.colors.textMuted,
                     ),
                   );
                 },

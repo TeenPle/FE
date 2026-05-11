@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
 
 /// 회원가입 2단계 - 학년 선택 페이지
@@ -23,8 +24,8 @@ class SignupStudentInfoPage extends ConsumerWidget {
 
         return Container(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: context.colors.cardBg,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: SafeArea(
@@ -45,32 +46,32 @@ class SignupStudentInfoPage extends ConsumerWidget {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 /// 바텀시트 제목
-                const Text(
+                Text(
                   '학년을 선택해주세요',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.4,
-                    color: Color(0xFF111111),
+                    color: context.colors.textPrimary,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 /// 바텀시트 설명
-                const Text(
+                Text(
                   '현재 재학 중인 학년을 선택하면 다음 단계로 이동할 수 있어요.',
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.5,
-                    color: Color(0xFF666666),
+                    color: context.colors.textMuted,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 /// 학년 선택 항목
                 for (final grade in [1, 2, 3]) ...[
@@ -92,7 +93,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: selectedGrade == grade
                             ? const Color(0xFFF2F5FF)
-                            : Colors.white,
+                            : context.colors.cardBg,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: selectedGrade == grade
@@ -111,12 +112,12 @@ class SignupStudentInfoPage extends ConsumerWidget {
                                 fontWeight: selectedGrade == grade
                                     ? FontWeight.w700
                                     : FontWeight.w500,
-                                color: const Color(0xFF111111),
+                                color: context.colors.textPrimary,
                               ),
                             ),
                           ),
                           if (selectedGrade == grade)
-                            const Icon(
+                            Icon(
                               Icons.check_circle_rounded,
                               size: 20,
                               color: Color(0xFF4A67F2),
@@ -125,7 +126,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  if (grade != 3) const SizedBox(height: 10),
+                  if (grade != 3) SizedBox(height: 10),
                 ],
               ],
             ),
@@ -150,7 +151,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
     final isNextEnabled = selectedSchool != null && selectedGrade != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -174,7 +175,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '다음',
               style: TextStyle(
                 fontSize: 13,
@@ -198,28 +199,28 @@ class SignupStudentInfoPage extends ConsumerWidget {
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '2/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '재학 정보',
                 style: TextStyle(
                   fontSize: 11,
@@ -228,45 +229,45 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '몇 학년에 재학 중이신가요?',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.6,
                   height: 1.22,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 '선택한 학교를 기준으로 현재 학년을 알려주세요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 학년 라벨
-              const Text(
+              Text(
                 '학년',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 학년 선택 영역
               InkWell(
@@ -278,12 +279,12 @@ class SignupStudentInfoPage extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   alignment: Alignment.centerLeft,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: selectedGrade != null
                           ? const Color(0xFF4A67F2)
-                          : const Color(0xFFE3E7EF),
+                          : context.colors.border,
                       width: selectedGrade != null ? 1.3 : 1.0,
                     ),
                     boxShadow: const [
@@ -307,32 +308,31 @@ class SignupStudentInfoPage extends ConsumerWidget {
                               ? FontWeight.w400
                               : FontWeight.w700,
                           color: selectedGrade == null
-                              ? const Color(0xFFB0B0B0)
-                              : const Color(0xFF111111),
+                              ? context.colors.textHint : context.colors.textPrimary,
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: Color(0xFF777777),
+                        color: context.colors.textMuted,
                       ),
                     ],
                   ),
                 ),
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               /// 선택한 학교 라벨
-              const Text(
+              Text(
                 '선택한 학교',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 이전 단계에서 선택한 학교 표시
               Container(
@@ -342,20 +342,20 @@ class SignupStudentInfoPage extends ConsumerWidget {
                   vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFE3E7EF),
+                    color: context.colors.border,
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.school_outlined,
                       size: 18,
-                      color: Color(0xFF7A7A7A),
+                      color: context.colors.iconSecondary,
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
@@ -365,8 +365,8 @@ class SignupStudentInfoPage extends ConsumerWidget {
                               ? FontWeight.w600
                               : FontWeight.w400,
                           color: selectedSchool != null
-                              ? const Color(0xFF222222)
-                              : const Color(0xFF9A9A9A),
+                              ? context.colors.textPrimary
+                              : context.colors.textTertiary,
                         ),
                       ),
                     ),

@@ -10,6 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
@@ -57,18 +58,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '내 프로필',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -81,7 +83,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 children: [
                   Text(
                     state.errorMessage ?? '프로필을 불러오지 못했습니다.',
-                    style: const TextStyle(color: Color(0xFF7D8790)),
+                    style: TextStyle(color: c.textMuted),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -134,12 +136,13 @@ class _ProfileHeaderCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isSaving = ref.watch(profileProvider).isSaving;
 
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Column(
         children: [
@@ -157,7 +160,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: const Color(0xFF14A3F7),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: c.cardBg, width: 2),
                     ),
                     child: isSaving
                         ? const Padding(
@@ -180,25 +183,25 @@ class _ProfileHeaderCard extends ConsumerWidget {
           const SizedBox(height: 14),
           Text(
             profile.nickname,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.school_outlined,
                 size: 14,
-                color: Color(0xFF9AA7B2),
+                color: c.textTertiary,
               ),
               const SizedBox(width: 4),
               Text(
                 '${profile.schoolName} · ${profile.gradeLabel}',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF7D8790)),
+                style: TextStyle(fontSize: 11, color: c.textMuted),
               ),
               if (profile.verified) ...[
                 const SizedBox(width: 6),
@@ -208,7 +211,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEAF7FF),
+                    color: c.tintBg,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: const Text(
@@ -231,13 +234,13 @@ class _ProfileHeaderCard extends ConsumerWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: profile.canChangeNickname
                   ? const Color(0xFF14A3F7)
-                  : const Color(0xFFB0BEC5),
+                  : c.iconSecondary,
               side: BorderSide(
                 color: profile.canChangeNickname
                     ? const Color(0xFF14A3F7)
-                    : const Color(0xFFD0D8E4),
+                    : c.border,
               ),
-              disabledForegroundColor: const Color(0xFFB0BEC5),
+              disabledForegroundColor: c.iconSecondary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -264,22 +267,23 @@ class _InfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '내 정보',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 14),
@@ -322,6 +326,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Column(
       children: [
         Padding(
@@ -330,7 +335,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF7D8790)),
+                style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
               const Spacer(),
               Text(
@@ -338,14 +343,14 @@ class _InfoRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: valueColor ?? const Color(0xFF111111),
+                  color: valueColor ?? c.textPrimary,
                 ),
               ),
             ],
           ),
         ),
         if (!isLast)
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F4F8)),
+          Divider(height: 1, thickness: 1, color: c.borderSubtle),
       ],
     );
   }
@@ -357,13 +362,14 @@ class _ActivitySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final profile = ref.watch(profileProvider).profile;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Column(
         children: [
@@ -373,50 +379,26 @@ class _ActivitySection extends ConsumerWidget {
             count: profile?.myPostCount,
             onTap: () => context.push(AppRoutes.myPosts),
           ),
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color(0xFFF0F4F8),
-            indent: 16,
-            endIndent: 16,
-          ),
+          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
           _ActivityTile(
             icon: Icons.chat_bubble_outline_rounded,
             label: '내가 쓴 댓글',
             count: profile?.myCommentCount,
             onTap: () => context.push(AppRoutes.myComments),
           ),
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color(0xFFF0F4F8),
-            indent: 16,
-            endIndent: 16,
-          ),
+          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
           _ActivityTile(
             icon: Icons.thumb_up_outlined,
             label: '내가 공감한 글',
             onTap: () => context.push(AppRoutes.myLikedPosts),
           ),
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color(0xFFF0F4F8),
-            indent: 16,
-            endIndent: 16,
-          ),
+          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
           _ActivityTile(
             icon: Icons.bookmark_border_rounded,
             label: '내 북마크',
             onTap: () => context.push(AppRoutes.myBookmarks),
           ),
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color(0xFFF0F4F8),
-            indent: 16,
-            endIndent: 16,
-          ),
+          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
           _ActivityTile(
             icon: Icons.warning_amber_rounded,
             label: '내 경고 이력',
@@ -471,6 +453,7 @@ class _AvatarWidget extends StatelessWidget {
       ),
     );
   }
+  // Avatar uses fixed colors intentionally — acts as a brand accent
 }
 
 class _ActivityTile extends StatelessWidget {
@@ -490,6 +473,7 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: isLast
@@ -503,10 +487,10 @@ class _ActivityTile extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF111111),
+                color: c.textPrimary,
               ),
             ),
             const Spacer(),
@@ -520,9 +504,9 @@ class _ActivityTile extends StatelessWidget {
                 ),
               ),
             const SizedBox(width: 4),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
-              color: Color(0xFFB0BEC5),
+              color: c.iconSecondary,
               size: 22,
             ),
           ],
@@ -662,6 +646,7 @@ class _ProfileThemeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final mode = ref.watch(themeModeProvider);
     final notifier = ref.read(themeModeProvider.notifier);
 
@@ -677,12 +662,12 @@ class _ProfileThemeCard extends ConsumerWidget {
                 color: Color(0xFF14A3F7),
               ),
               const SizedBox(width: 14),
-              const Text(
+              Text(
                 '테마',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF111111),
+                  color: c.textPrimary,
                 ),
               ),
               const Spacer(),
@@ -724,6 +709,7 @@ class _ProfileThemeSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -733,7 +719,7 @@ class _ProfileThemeSegment extends StatelessWidget {
           color: selected ? const Color(0xFF14A3F7) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected ? const Color(0xFF14A3F7) : const Color(0xFFD0D8E4),
+            color: selected ? const Color(0xFF14A3F7) : c.border,
           ),
         ),
         child: Text(
@@ -741,7 +727,7 @@ class _ProfileThemeSegment extends StatelessWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: selected ? Colors.white : const Color(0xFF9AA7B2),
+            color: selected ? Colors.white : c.textTertiary,
           ),
         ),
       ),
@@ -857,11 +843,10 @@ class _ProfileNotificationToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final active = enabled && value;
-    final color = enabled ? const Color(0xFF111111) : const Color(0xFFB0BEC5);
-    final iconColor = enabled
-        ? const Color(0xFF14A3F7)
-        : const Color(0xFFB0BEC5);
+    final color = enabled ? c.textPrimary : c.iconSecondary;
+    final iconColor = enabled ? const Color(0xFF14A3F7) : c.iconSecondary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -937,6 +922,7 @@ class _ProfileInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
@@ -949,16 +935,16 @@ class _ProfileInfoTile extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const Spacer(),
           Text(
             trailing,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 12, color: c.textTertiary),
           ),
         ],
       ),
@@ -972,14 +958,15 @@ class _ProfileSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF7D8790),
+          color: c.textMuted,
         ),
       ),
     );
@@ -992,11 +979,12 @@ class _ProfileSettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.borderStrong),
       ),
       child: Column(children: children),
     );
@@ -1008,10 +996,10 @@ class _ProfileSettingsDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
+    return Divider(
       height: 1,
       thickness: 1,
-      color: Color(0xFFF0F4F8),
+      color: context.colors.borderSubtle,
       indent: 52,
     );
   }
@@ -1034,7 +1022,8 @@ class _ProfileSettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = labelColor ?? const Color(0xFF111111);
+    final c = context.colors;
+    final color = labelColor ?? c.textPrimary;
     final iColor = iconColor ?? const Color(0xFF14A3F7);
 
     return InkWell(
@@ -1055,9 +1044,9 @@ class _ProfileSettingsTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
-              color: Color(0xFFB0BEC5),
+              color: c.iconSecondary,
               size: 22,
             ),
           ],

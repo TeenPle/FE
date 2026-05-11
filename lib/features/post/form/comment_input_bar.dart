@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_colors.dart';
 import '../pages/widgets/crisis_banner.dart';
 
 class CommentInputBar extends StatefulWidget {
@@ -53,10 +54,11 @@ class _CommentInputBarState extends State<CommentInputBar> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return SafeArea(
       top: false,
       child: Container(
-        color: const Color(0xFFF7FAFC),
+        color: c.pageBg,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -71,9 +73,9 @@ class _CommentInputBarState extends State<CommentInputBar> {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF5FF),
+                  color: c.replyBg,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFCFEAFF)),
+                  border: Border.all(color: c.borderBlue),
                 ),
                 child: Row(
                   children: [
@@ -89,22 +91,21 @@ class _CommentInputBarState extends State<CommentInputBar> {
                     ),
                     GestureDetector(
                       onTap: widget.onCancelReply,
-                      child: const Icon(
+                      child: Icon(
                         Icons.close_rounded,
                         size: 18,
-                        color: Color(0xFF555555),
+                        color: c.textMuted,
                       ),
                     ),
                   ],
                 ),
               ),
-            // 흰색 입력 컨테이너: Row만 포함, 높이 항상 고정
             Container(
               padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: c.cardBg,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE6EDF3)),
+                border: Border.all(color: c.borderStrong),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -118,9 +119,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: widget.anonymous
-                            ? const Color(0xFFEAF7FF)
-                            : const Color(0xFFF4F7FA),
+                        color: widget.anonymous ? c.tintBg : c.subtleBg,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -130,7 +129,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                           fontWeight: FontWeight.w800,
                           color: widget.anonymous
                               ? const Color(0xFF14A3F7)
-                              : const Color(0xFF7D8790),
+                              : c.textMuted,
                         ),
                       ),
                     ),
@@ -142,16 +141,14 @@ class _CommentInputBarState extends State<CommentInputBar> {
                       minLines: 1,
                       maxLines: 4,
                       style: TextStyle(
-                        color: _isOverLimit
-                            ? const Color(0xFFE05C5C)
-                            : const Color(0xFF222222),
+                        color: _isOverLimit ? const Color(0xFFE05C5C) : c.textBody,
                         fontSize: 13,
                         height: 1.4,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '댓글을 입력하세요',
                         hintStyle: TextStyle(
-                          color: Color(0xFF9AA7B2),
+                          color: c.textTertiary,
                           fontSize: 13,
                           height: 1.4,
                         ),
@@ -170,7 +167,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                       height: 40,
                       decoration: BoxDecoration(
                         color: (widget.isSubmitting || _isOverLimit)
-                            ? const Color(0xFFD9EAF7)
+                            ? c.tintBg
                             : const Color(0xFF14A3F7),
                         shape: BoxShape.circle,
                       ),

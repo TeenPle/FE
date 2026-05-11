@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
 
@@ -42,10 +43,11 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(adminSchoolListProvider);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         foregroundColor: const Color(0xFF1F2933),
         elevation: 0,
         title: const Text('학교 모니터링', style: TextStyle(fontWeight: FontWeight.w700)),
@@ -53,7 +55,7 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
       body: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: c.cardBg,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: TextField(
               controller: _searchController,
@@ -128,8 +130,9 @@ class _SchoolTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Material(
-      color: Colors.white,
+      color: c.cardBg,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),

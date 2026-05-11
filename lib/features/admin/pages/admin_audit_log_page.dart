@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/admin_audit_log_model.dart';
 import '../provider/admin_audit_log_provider.dart';
 
@@ -42,12 +43,13 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminAuditLogProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
         title: const Text('감사 로그', style: TextStyle(fontWeight: FontWeight.w800)),
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         foregroundColor: const Color(0xFF1F2933),
         elevation: 0,
       ),
@@ -127,10 +129,11 @@ class _FilterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
@@ -235,11 +238,12 @@ class _AuditLogTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final color = _actionColor(log.action);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),

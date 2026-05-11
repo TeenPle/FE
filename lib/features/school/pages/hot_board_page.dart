@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../features/dday/widgets/dday_strip.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../models/hot_filter.dart';
@@ -31,12 +32,13 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
     final state = ref.watch(schoolProvider);
     final notifier = ref.read(schoolProvider.notifier);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
+      backgroundColor: c.pageBg,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(64),
         child: Container(
-          color: Colors.white,
+          color: c.cardBg,
           child: SafeArea(
             bottom: false,
             child: SizedBox(
@@ -51,28 +53,25 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                         if (context.canPop()) context.pop();
                         else context.go('/school');
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFF111111),
+                        color: c.iconPrimary,
                         size: 22,
                       ),
                     ),
                   ),
-                  const Center(
+                  Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '🔥',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        SizedBox(width: 6),
+                        const Text('🔥', style: TextStyle(fontSize: 15)),
+                        const SizedBox(width: 6),
                         Text(
                           'HOT 게시판',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111111),
+                            color: c.textPrimary,
                           ),
                         ),
                       ],
@@ -87,9 +86,9 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                         children: [
                           IconButton(
                             onPressed: () => context.push(AppRoutes.profile),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.account_circle_outlined,
-                              color: Color(0xFF111111),
+                              color: c.iconPrimary,
                               size: 26,
                             ),
                           ),
@@ -105,9 +104,9 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                           ),
                           IconButton(
                             onPressed: () => context.push(AppRoutes.settings),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.settings_outlined,
-                              color: Color(0xFF111111),
+                              color: c.iconPrimary,
                               size: 24,
                             ),
                           ),
@@ -124,11 +123,9 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
       body: Column(
         children: [
           const DDayStrip(),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
-
-          // 필터 칩
+          Divider(height: 1, thickness: 1, color: c.divider),
           Container(
-            color: Colors.white,
+            color: c.cardBg,
             padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
             child: Row(
               children: HotFilter.values.map((f) {
@@ -146,7 +143,7 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                       decoration: BoxDecoration(
                         color: selected
                             ? const Color(0xFFFF6B35)
-                            : const Color(0xFFF3F6FA),
+                            : c.subtleBg,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -154,9 +151,7 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: selected
-                              ? Colors.white
-                              : const Color(0xFF7D8790),
+                          color: selected ? Colors.white : c.textMuted,
                         ),
                       ),
                     ),
@@ -165,9 +160,7 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
               }).toList(),
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE2E6EA)),
-
-          // 게시글 목록
+          Divider(height: 1, thickness: 1, color: c.divider),
           Expanded(
             child: state.isLoadingHot
                 ? const Center(child: CircularProgressIndicator())
@@ -182,8 +175,8 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                             final post = state.hotPosts[i];
                             return Container(
                               color: i.isEven
-                                  ? Colors.white
-                                  : const Color(0xFFFAFBFC),
+                                  ? ctx.colors.cardBg
+                                  : ctx.colors.pageBg,
                               child: Column(
                                 children: [
                                   PostSummaryCard(
@@ -198,10 +191,10 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                                     },
                                   ),
                                   if (i < state.hotPosts.length - 1)
-                                    const Divider(
+                                    Divider(
                                       height: 1,
                                       thickness: 1,
-                                      color: Color(0xFFF0F4F8),
+                                      color: ctx.colors.borderSubtle,
                                       indent: 18,
                                       endIndent: 18,
                                     ),
@@ -233,16 +226,16 @@ class _EmptyHotState extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             '${filter.label} HOT 게시글이 없어요',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             '좋아요를 많이 받은 글이 여기에 모여요.',
-            style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
           ),
         ],
       ),
@@ -269,10 +262,10 @@ class _HotNotificationButton extends ConsumerWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            const Icon(
+            Icon(
               Icons.notifications_none,
               size: 26,
-              color: Color(0xFF111111),
+              color: context.colors.iconPrimary,
             ),
             if (unreadCount > 0)
               Positioned(

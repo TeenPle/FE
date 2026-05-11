@@ -15,6 +15,7 @@ import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
 import 'widgets/poll_card.dart';
 import 'write_post_page.dart';
+import '../../../core/theme/app_colors.dart';
 
 /// 게시글 상세 페이지
 class PostDetailPage extends ConsumerStatefulWidget {
@@ -58,6 +59,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     final state = ref.watch(postDetailProvider(widget.postId));
     final notifier = ref.read(postDetailProvider(widget.postId).notifier);
     final post = state.post;
+    final c = context.colors;
 
     ref.listen(postDetailProvider(widget.postId), (previous, next) async {
       if (!mounted) return;
@@ -86,24 +88,24 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FBFF),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF7FBFF),
-        foregroundColor: const Color(0xFF111111),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '게시글',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         actions: [
           PopupMenuButton<String>(
-            color: Colors.white,
-            icon: const Icon(Icons.more_horiz, color: Color(0xFF111111)),
+            color: c.popupBg,
+            icon: Icon(Icons.more_horiz, color: c.iconPrimary),
             onSelected: (value) async {
               if (value == 'edit' && post != null) {
                 final updated = await Navigator.of(context).push<bool>(
@@ -194,15 +196,15 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               ],
               if (post == null || !post.isMine) ...[
                 if (post != null && post.canChatWithAuthor)
-                const PopupMenuItem(
-                  value: 'chat',
-                  child: _CompactMenuText('채팅'),
-                ),
+                  const PopupMenuItem(
+                    value: 'chat',
+                    child: _CompactMenuText('채팅'),
+                  ),
                 if (post != null && post.canReportAuthor)
-                const PopupMenuItem(
-                  value: 'report',
-                  child: _CompactMenuText('신고하기'),
-                ),
+                  const PopupMenuItem(
+                    value: 'report',
+                    child: _CompactMenuText('신고하기'),
+                  ),
                 if (post != null && post.canBlockAuthor && post.authorUserId != null)
                   const PopupMenuItem(
                     value: 'block',
@@ -235,40 +237,59 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ? Center(
         child: Text(
           state.errorMessage ?? '게시글을 불러오지 못했습니다.',
-          style: const TextStyle(color: Color(0xFF222222)),
+          style: TextStyle(color: c.textBody),
         ),
       )
           : RefreshIndicator(
         onRefresh: notifier.refresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
+          padding: const EdgeInsets.only(bottom: 120),
           children: [
-            PostContentCard(post: post),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: PostContentCard(post: post),
+            ),
             if (post.poll != null) ...[
-              const SizedBox(height: 20),
-              PollCard(
-                poll: post.poll!,
-                isSubmitting: state.isSubmittingReaction,
-                onVote: notifier.votePoll,
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: PollCard(
+                  poll: post.poll!,
+                  isSubmitting: state.isSubmittingReaction,
+                  onVote: notifier.votePoll,
+                ),
               ),
             ],
-            const SizedBox(height: 18),
-            PostActionBar(
-              likeCount: post.likeCount,
-              commentCount: state.comments.length,
-              likedByMe: state.likedByMe,
-              bookmarkedByMe: state.bookmarkedByMe,
-              onBookmarkTap: () => notifier.toggleBookmark(),
-              onLikeTap: () => notifier.toggleLike(),
-              onShareTap: () {
-                debugPrint('share post: ${post.postId}');
-              },
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: PostActionBar(
+                likeCount: post.likeCount,
+                commentCount: state.comments.length,
+                likedByMe: state.likedByMe,
+                bookmarkedByMe: state.bookmarkedByMe,
+                onBookmarkTap: () => notifier.toggleBookmark(),
+                onLikeTap: () => notifier.toggleLike(),
+                onShareTap: () {
+                  debugPrint('share post: ${post.postId}');
+                },
+              ),
             ),
-            const SizedBox(height: 24),
-            _CommentSectionHeader(commentCount: state.comments.length),
+            const SizedBox(height: 8),
+            Container(
+              height: 8,
+              color: c.dividerBlue,
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _CommentSectionHeader(commentCount: state.comments.length),
+            ),
             const SizedBox(height: 4),
-            Column(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
               children: _buildCommentWidgets(
                 comments: state.comments,
                 replyingToCommentId: state.replyingToCommentId,
@@ -347,6 +368,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 },
               ),
             ),
+            ),
           ],
         ),
       ),
@@ -409,10 +431,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             onBlockTap: onCommentBlockTap,
           ),
           if (index != parents.length - 1)
-            const Divider(
+            Divider(
               height: 1,
               thickness: 1,
-              color: Color(0xFFDDEAF6),
+              color: context.colors.dividerBlue,
             ),
         ],
       );
@@ -470,14 +492,15 @@ class _CommentSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
-        const Text(
+        Text(
           '댓글',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         const SizedBox(width: 6),
@@ -496,12 +519,12 @@ class _CommentSectionHeader extends StatelessWidget {
 
 class _CompactMenuText extends StatelessWidget {
   final String text;
-  final Color color;
+  final Color? color;
 
   const _CompactMenuText(
-    this.text, {
-    this.color = const Color(0xFF222222),
-  });
+      this.text, {
+        this.color,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -510,7 +533,7 @@ class _CompactMenuText extends StatelessWidget {
       style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        color: color,
+        color: color ?? context.colors.textPrimary,
       ),
     );
   }
@@ -549,7 +572,7 @@ void _showReportSheet(
     }) {
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: context.colors.cardBg,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -569,17 +592,17 @@ void _showReportSheet(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 '신고 사유 선택',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
               ...reasons.map(
-                (r) => ListTile(
+                    (r) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(r.$2),
                   onTap: () {

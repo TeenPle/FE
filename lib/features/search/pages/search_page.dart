@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../school/models/post_summary.dart';
 import '../provider/search_provider.dart';
 
-/// 검색 페이지
 class SearchPage extends ConsumerStatefulWidget {
   final String? initialKeyword;
   final int? boardId;
@@ -36,16 +36,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       final notifier = ref.read(searchProvider.notifier);
       notifier.setScope(boardId: widget.boardId, scopeTitle: widget.scopeTitle);
 
-      /// 검색 페이지에 새로 들어왔고 초기 검색어가 없으면 검색 결과 화면을 초기화
       if (_controller.text.trim().isEmpty) {
         notifier.resetSearchView();
       }
 
-      /// 최근 검색어를 먼저 불러옴
       await notifier.loadRecentKeywords();
       notifier.setKeyword(_controller.text);
 
-      /// 초기 키워드가 있으면 바로 검색
       if (_controller.text.trim().isNotEmpty) {
         await notifier.search();
       } else {
@@ -61,14 +58,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     super.dispose();
   }
 
-  /// 검색 버튼 또는 엔터 입력 시 검색 수행
   Future<void> _submitSearch() async {
     ref.read(searchProvider.notifier).setKeyword(_controller.text);
     await ref.read(searchProvider.notifier).search();
     setState(() {});
   }
 
-  /// 검색창 내용을 모두 지움
   void _clearSearchInput() {
     _controller.clear();
     ref.read(searchProvider.notifier).setKeyword('');
@@ -79,6 +74,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final state = ref.watch(searchProvider);
     final notifier = ref.read(searchProvider.notifier);
 
@@ -94,11 +90,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF4F9),
+      backgroundColor: c.pageBg,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(68),
         child: Container(
-          color: Colors.white,
+          color: c.cardBg,
           child: SafeArea(
             bottom: false,
             child: Padding(
@@ -106,7 +102,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               child: Row(
                 children: [
                   IconButton(
-                    /// 이전 화면으로 이동
                     onPressed: () {
                       if (context.canPop()) {
                         context.pop();
@@ -114,47 +109,46 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         context.go('/school');
                       }
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFF111111),
+                      color: c.textPrimary,
                     ),
                   ),
                   Expanded(
                     child: Container(
                       height: 44,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF2F4F7),
+                        color: c.inputBg,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: TextField(
                         controller: _controller,
                         focusNode: _focusNode,
                         textInputAction: TextInputAction.search,
+                        style: TextStyle(fontSize: 13, color: c.textPrimary),
                         onChanged: (value) {
                           notifier.setKeyword(value);
                           setState(() {});
                         },
-
-                        /// 엔터 입력 시 검색 수행
                         onSubmitted: (_) async {
                           await _submitSearch();
                         },
                         decoration: InputDecoration(
                           hintText: '제목, 본문으로 검색',
-                          hintStyle: const TextStyle(
-                            color: Color(0xFF9AA7B2),
+                          hintStyle: TextStyle(
+                            color: c.textTertiary,
                             fontSize: 12,
                           ),
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.search,
-                            color: Color(0xFF7D8790),
+                            color: c.textMuted,
                           ),
                           suffixIcon: _controller.text.isNotEmpty
                               ? IconButton(
                                   onPressed: _clearSearchInput,
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.close_rounded,
-                                    color: Color(0xFF7D8790),
+                                    color: c.textMuted,
                                   ),
                                 )
                               : null,
@@ -171,14 +165,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   ),
                   const SizedBox(width: 8),
                   TextButton(
-                    /// 검색 버튼 클릭 시 검색 수행
                     onPressed: state.isLoading ? null : _submitSearch,
-                    child: const Text(
+                    child: Text(
                       '검색',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                       ),
                     ),
                   ),
@@ -197,10 +190,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               state.hasSearched
                   ? '"${state.keyword}" 검색 결과${state.scopeTitle == null ? '' : ' · ${state.scopeTitle}'}'
                   : '${state.scopeTitle ?? '전체 게시판'}에서 제목이나 본문 키워드를 검색해보세요.',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6E7A86),
+                color: c.textMuted,
               ),
             ),
           ),
@@ -233,10 +226,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     itemCount: state.results.length + 1,
                     separatorBuilder: (context, index) {
                       if (index < state.results.length - 1) {
-                        return const Divider(
+                        return Divider(
                           height: 1,
                           thickness: 1,
-                          color: Color(0xFFD5DDE6),
+                          color: context.colors.divider,
                           indent: 12,
                           endIndent: 12,
                         );
@@ -247,22 +240,17 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       if (index < state.results.length) {
                         final post = state.results[index];
 
-                        return Container(
-                          color: const Color(0xFFEFF4F9),
-                          child: _SearchResultCard(
-                            post: post,
-                            keyword: state.keyword,
-
-                            /// 검색 결과 게시글 클릭 시 상세 페이지로 이동
-                            onTap: () async {
-                              final refreshed = await context.push<bool>(
-                                '/post/${post.id}',
-                              );
-                              if (refreshed == true && mounted) {
-                                ref.read(searchProvider.notifier).search();
-                              }
-                            },
-                          ),
+                        return _SearchResultCard(
+                          post: post,
+                          keyword: state.keyword,
+                          onTap: () async {
+                            final refreshed = await context.push<bool>(
+                              '/post/${post.id}',
+                            );
+                            if (refreshed == true && mounted) {
+                              ref.read(searchProvider.notifier).search();
+                            }
+                          },
                         );
                       }
 
@@ -285,7 +273,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   }
 }
 
-/// 검색 결과 전용 카드
 class _SearchResultCard extends StatelessWidget {
   final PostSummary post;
   final String keyword;
@@ -328,6 +315,7 @@ class _SearchResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -340,7 +328,7 @@ class _SearchResultCard extends StatelessWidget {
                 width: 74,
                 height: 74,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
+                  color: c.subtleBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -354,10 +342,10 @@ class _SearchResultCard extends StatelessWidget {
                     text: post.title,
                     keyword: keyword,
                     maxLines: 2,
-                    defaultStyle: const TextStyle(
+                    defaultStyle: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111111),
+                      color: c.textPrimary,
                       height: 1.2,
                     ),
                     highlightStyle: const TextStyle(
@@ -372,9 +360,9 @@ class _SearchResultCard extends StatelessWidget {
                     text: post.content,
                     keyword: keyword,
                     maxLines: 3,
-                    defaultStyle: const TextStyle(
+                    defaultStyle: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF222222),
+                      color: c.textBody,
                       height: 1.35,
                       fontWeight: FontWeight.w500,
                     ),
@@ -390,26 +378,26 @@ class _SearchResultCard extends StatelessWidget {
                     children: [
                       Text(
                         _timeText,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF8E8E8E),
+                          color: c.textTertiary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         '|',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFFC3C3C3),
+                          color: c.borderSubtle,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         post.displayAuthorName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF8E8E8E),
+                          color: c.textTertiary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -437,7 +425,6 @@ class _SearchResultCard extends StatelessWidget {
   }
 }
 
-/// 검색어 포함 부분만 강조해서 보여주는 텍스트 위젯
 class _HighlightedText extends StatelessWidget {
   final String text;
   final String keyword;
@@ -512,7 +499,6 @@ class _HighlightedText extends StatelessWidget {
   }
 }
 
-/// 좋아요/댓글 수 표시용 메타 텍스트 위젯
 class _MetaText extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -543,7 +529,6 @@ class _MetaText extends StatelessWidget {
   }
 }
 
-/// 최근 검색어 섹션
 class _RecentSearchSection extends StatelessWidget {
   final bool isLoadingRecent;
   final List<String> recentKeywords;
@@ -569,29 +554,30 @@ class _RecentSearchSection extends StatelessWidget {
       return const _SearchInitialState();
     }
 
+    final c = context.colors;
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
         Row(
           children: [
-            const Text(
+            Text(
               '최근 검색어',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
+                color: c.textPrimary,
               ),
             ),
             const Spacer(),
             TextButton(
-              /// 최근 검색어 전체 삭제
               onPressed: onClearAll,
-              child: const Text(
+              child: Text(
                 '전체 삭제',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF7D8790),
+                  color: c.textMuted,
                 ),
               ),
             ),
@@ -603,31 +589,30 @@ class _RecentSearchSection extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: c.cardBg,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2EAF0)),
+              border: Border.all(color: c.border),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: InkWell(
-                    /// 최근 검색어 탭 시 바로 검색
                     onTap: () => onKeywordTap(keyword),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.history_rounded,
                           size: 18,
-                          color: Color(0xFF7D8790),
+                          color: c.textMuted,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             keyword,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF111111),
+                              color: c.textPrimary,
                             ),
                           ),
                         ),
@@ -636,12 +621,11 @@ class _RecentSearchSection extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  /// 특정 최근 검색어 삭제
                   onPressed: () => onDeleteKeyword(keyword),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close_rounded,
                     size: 18,
-                    color: Color(0xFF8D98A3),
+                    color: c.iconSecondary,
                   ),
                 ),
               ],
@@ -653,41 +637,41 @@ class _RecentSearchSection extends StatelessWidget {
   }
 }
 
-/// 검색 전 초기 안내 상태
 class _SearchInitialState extends StatelessWidget {
   const _SearchInitialState();
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final c = context.colors;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Text(
           '최근 검색어가 없어요.\n찾고 싶은 게시글의 제목이나 본문 키워드를 입력해보세요.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF7D8790)),
+          style: TextStyle(fontSize: 13, height: 1.5, color: c.textMuted),
         ),
       ),
     );
   }
 }
 
-/// 검색 결과가 없을 때 표시되는 상태
 class _SearchEmptyState extends StatelessWidget {
   const _SearchEmptyState();
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final c = context.colors;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Text(
           '검색 결과가 없어요.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF7D8790),
+            color: c.textMuted,
           ),
         ),
       ),
@@ -695,7 +679,6 @@ class _SearchEmptyState extends StatelessWidget {
   }
 }
 
-/// 더보기 / 로딩 / 마지막 상태 영역
 class _LoadMoreSection extends StatelessWidget {
   final bool hasNext;
   final bool isLoadingMore;
@@ -709,6 +692,7 @@ class _LoadMoreSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     if (isLoadingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
@@ -723,21 +707,20 @@ class _LoadMoreSection extends StatelessWidget {
     return SizedBox(
       height: 44,
       child: OutlinedButton(
-        /// 다음 페이지 검색 결과를 불러옴
         onPressed: onLoadMore,
         style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          side: const BorderSide(color: Color(0xFFD6DEE7)),
+          backgroundColor: c.cardBg,
+          side: BorderSide(color: c.divider),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
         ),
-        child: const Text(
+        child: Text(
           '검색 결과 더보기',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF5C6975),
+            color: c.textSecondary,
           ),
         ),
       ),

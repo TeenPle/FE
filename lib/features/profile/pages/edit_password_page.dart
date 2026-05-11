@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../provider/profile_provider.dart';
 
 class EditPasswordPage extends ConsumerStatefulWidget {
@@ -81,19 +82,20 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
       }
     });
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAFC),
+        backgroundColor: c.pageBg,
         elevation: 0,
-        foregroundColor: const Color(0xFF111111),
+        foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '비밀번호 변경',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
       ),
@@ -181,15 +183,16 @@ class _PwField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -198,18 +201,18 @@ class _PwField extends StatelessWidget {
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFFB0BEC5)),
+            hintStyle: TextStyle(color: c.textHint),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: c.cardBg,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE6EDF3)),
+              borderSide: BorderSide(color: c.borderStrong),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE6EDF3)),
+              borderSide: BorderSide(color: c.borderStrong),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -218,7 +221,7 @@ class _PwField extends StatelessWidget {
             suffixIcon: IconButton(
               icon: Icon(
                 obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                color: const Color(0xFF9AA7B2),
+                color: c.iconSecondary,
                 size: 20,
               ),
               onPressed: onToggle,

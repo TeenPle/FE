@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
 
@@ -31,10 +32,11 @@ class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(adminBoardListProvider(widget.schoolId));
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: c.cardBg,
         foregroundColor: const Color(0xFF1F2933),
         elevation: 0,
         title: Text(widget.schoolName, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -82,8 +84,9 @@ class _BoardTile extends StatelessWidget {
     final color = isRegion ? const Color(0xFF7C6A46) : const Color(0xFF426C82);
     final bg = isRegion ? const Color(0xFFFFF7E8) : const Color(0xFFEAF3FB);
 
+    final c = context.colors;
     return Material(
-      color: Colors.white,
+      color: c.cardBg,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../models/verification_status_model.dart';
 import '../provider/admin_verification_list_provider.dart';
 
@@ -26,9 +27,10 @@ class AdminVerificationListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(adminVerificationListProvider);
+    final c = context.colors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: c.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -52,14 +54,14 @@ class AdminVerificationListPage extends ConsumerWidget {
                     splashRadius: 22,
                   ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       '학교 인증 요청',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.4,
-                        color: Color(0xFF111111),
+                        color: c.textPrimary,
                       ),
                     ),
                   ),
@@ -182,10 +184,10 @@ class AdminVerificationListPage extends ConsumerWidget {
                     vertical: 24,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: c.cardBg,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: const Color(0xFFE3E7EF),
+                      color: c.border,
                     ),
                   ),
                   child: const Column(
@@ -244,10 +246,10 @@ class AdminVerificationListPage extends ConsumerWidget {
                         child: Ink(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: c.cardBg,
                             borderRadius: BorderRadius.circular(18),
                             border: Border.all(
-                              color: const Color(0xFFE3E7EF),
+                              color: c.border,
                             ),
                             boxShadow: const [
                               BoxShadow(
@@ -268,11 +270,11 @@ class AdminVerificationListPage extends ConsumerWidget {
                                   children: [
                                     Text(
                                       item.schoolName,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: -0.2,
-                                        color: Color(0xFF111111),
+                                        color: c.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -287,19 +289,18 @@ class AdminVerificationListPage extends ConsumerWidget {
                                     const SizedBox(height: 10),
                                     Row(
                                       children: [
-                                        const Icon(
+                                        Icon(
                                           Icons.mail_outline_rounded,
                                           size: 16,
-                                          color: Color(0xFF7A7A7A),
+                                          color: c.iconSecondary,
                                         ),
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
                                             item.userEmail,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
-                                              color:
-                                              Color(0xFF555555),
+                                              color: c.textBody,
                                             ),
                                           ),
                                         ),
@@ -308,10 +309,10 @@ class AdminVerificationListPage extends ConsumerWidget {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        const Icon(
+                                        Icon(
                                           Icons.schedule_rounded,
                                           size: 16,
-                                          color: Color(0xFF7A7A7A),
+                                          color: c.iconSecondary,
                                         ),
                                         const SizedBox(width: 6),
                                         Text(

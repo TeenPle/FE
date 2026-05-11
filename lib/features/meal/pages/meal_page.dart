@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../models/meal_model.dart';
 import '../provider/meal_provider.dart';
 
@@ -21,6 +22,7 @@ class _MealPageState extends ConsumerState<MealPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final state = ref.watch(mealProvider);
     final selectedDate = _parseDateKey(state.selectedDate) ?? DateTime.now();
     final weekStart = _weekStart(selectedDate);
@@ -30,22 +32,22 @@ class _MealPageState extends ConsumerState<MealPage> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F9FF),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF3F9FF),
+        backgroundColor: c.pageBg,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: Colors.black87,
+          color: c.iconPrimary,
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           '급식',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111111),
+            color: c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -115,14 +117,15 @@ class _WeekNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final weekEnd = weekStart.add(const Duration(days: 4));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE1ECF5)),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         children: [
@@ -141,10 +144,10 @@ class _WeekNavigator extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   '${_monthDay(weekStart)} - ${_monthDay(weekEnd)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF111111),
+                    color: c.textPrimary,
                   ),
                 ),
               ],
@@ -172,12 +175,13 @@ class _WeekDayStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE1ECF5)),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         children: [
@@ -214,8 +218,9 @@ class _WeekDayTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = selected ? Colors.white : const Color(0xFF111111);
-    final subColor = selected ? Colors.white70 : const Color(0xFF7D8790);
+    final c = context.colors;
+    final foreground = selected ? Colors.white : c.textPrimary;
+    final subColor = selected ? Colors.white70 : c.textMuted;
 
     return InkWell(
       onTap: onTap,
@@ -281,17 +286,18 @@ class _SelectedMealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE1ECF5)),
-        boxShadow: const [
+        border: Border.all(color: c.border),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0F000000),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -314,19 +320,19 @@ class _SelectedMealCard extends StatelessWidget {
                 children: [
                   Text(
                     '${_monthDay(date)} ${_weekdayLabel(date)}요일',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF111111),
+                      color: c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  Text(
                     '중식',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF7D8790),
+                      color: c.textMuted,
                     ),
                   ),
                 ],
@@ -339,7 +345,7 @@ class _SelectedMealCard extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEAF7FF),
+                    color: c.tintBg,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
@@ -376,10 +382,10 @@ class _SelectedMealCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         dish,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF26343D),
+                          color: c.textBody,
                           height: 1.4,
                         ),
                       ),
@@ -409,22 +415,23 @@ class _WeeklySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE1ECF5)),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '이번 주 한눈에 보기',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF111111),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -456,6 +463,7 @@ class _WeeklySummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final summary = meal == null || meal!.dishes.isEmpty
         ? '급식 없음'
         : meal!.dishes.take(3).join(' · ');
@@ -466,7 +474,7 @@ class _WeeklySummaryRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFEAF7FF) : Colors.transparent,
+          color: selected ? c.tintBg : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -476,9 +484,7 @@ class _WeeklySummaryRow extends StatelessWidget {
               height: 26,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected
-                    ? const Color(0xFF14A3F7)
-                    : const Color(0xFFF1F5F9),
+                color: selected ? const Color(0xFF14A3F7) : c.subtleBg,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -486,7 +492,7 @@ class _WeeklySummaryRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
-                  color: selected ? Colors.white : const Color(0xFF6E7A86),
+                  color: selected ? Colors.white : c.textMuted,
                 ),
               ),
             ),
@@ -499,9 +505,7 @@ class _WeeklySummaryRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: meal == null
-                      ? const Color(0xFF9AA7B2)
-                      : const Color(0xFF26343D),
+                  color: meal == null ? c.textTertiary : c.textBody,
                 ),
               ),
             ),
@@ -520,14 +524,15 @@ class _CircleArrowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
       child: Container(
         width: 36,
         height: 36,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEAF7FF),
+        decoration: BoxDecoration(
+          color: c.tintBg,
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: const Color(0xFF14A3F7), size: 24),
@@ -541,12 +546,13 @@ class _LoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE1ECF5)),
+        border: Border.all(color: c.border),
       ),
       child: const Center(child: CircularProgressIndicator()),
     );
@@ -558,19 +564,20 @@ class _EmptyMealInline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 22),
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 22),
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.no_meals_rounded, size: 42, color: Color(0xFFB0BEC5)),
-            SizedBox(height: 10),
+            Icon(Icons.no_meals_rounded, size: 42, color: c.iconSecondary),
+            const SizedBox(height: 10),
             Text(
               '이 날짜에는 급식 정보가 없어요.',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF6B7C8A),
+                color: c.textSecondary,
               ),
             ),
           ],
@@ -585,24 +592,25 @@ class _NeisNotConfigured extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final c = context.colors;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.link_off_rounded, size: 48, color: Color(0xFFB0BEC5)),
-          SizedBox(height: 12),
+          Icon(Icons.link_off_rounded, size: 48, color: c.iconSecondary),
+          const SizedBox(height: 12),
           Text(
             '급식 서비스가 연결되지 않았어요',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF6B7C8A),
+              color: c.textSecondary,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             '학교 NEIS 정보가 아직 등록되지 않았어요.',
-            style: TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
+            style: TextStyle(fontSize: 11, color: c.textTertiary),
           ),
         ],
       ),
@@ -617,13 +625,14 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF9AA7B2)),
+          style: TextStyle(fontSize: 12, color: c.textTertiary),
         ),
       ),
     );

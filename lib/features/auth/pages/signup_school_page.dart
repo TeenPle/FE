@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_school_provider.dart';
 
@@ -26,6 +27,8 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+
     /// 학교 검색 전용 상태
     final searchState = ref.watch(signupSchoolProvider);
 
@@ -39,7 +42,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
     final isNextEnabled = selectedSchool != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
       bottomNavigationBar: SafeArea(
@@ -64,7 +67,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
+            child: Text(
               '다음',
               style: TextStyle(
                 fontSize: 13,
@@ -88,28 +91,28 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     context.pop();
                   }
                 },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
                 splashRadius: 22,
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 단계 표시
-              const Text(
+              Text(
                 '1/8',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: context.colors.textTertiary,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               /// 페이지 성격 안내
-              const Text(
+              Text(
                 '학교 정보',
                 style: TextStyle(
                   fontSize: 11,
@@ -118,45 +121,45 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 제목
-              const Text(
+              Text(
                 '학교를 알려주세요',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.6,
                   height: 1.22,
-                  color: Color(0xFF111111),
+                  color: context.colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               /// 보조 문구
-              const Text(
+              Text(
                 '재학 중인 학교를 검색하고 선택해주세요.',
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Color(0xFF555555),
+                  color: context.colors.textBody,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               /// 학교 라벨
-              const Text(
+              Text(
                 '학교 검색',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF666666),
+                  color: context.colors.textMuted,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               /// 학교 검색 입력창
               TextField(
@@ -176,19 +179,18 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                 },
                 decoration: InputDecoration(
                   hintText: '학교명을 검색해주세요',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFB0B0B0),
+                  hintStyle: TextStyle(color: c.textHint,
                     fontSize: 12,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: c.inputBg,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 18,
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Color(0xFF7A7A7A),
+                    color: context.colors.iconSecondary,
                   ),
                   suffixIcon: _schoolController.text.isNotEmpty
                       ? IconButton(
@@ -206,27 +208,25 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
 
                       setState(() {});
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close_rounded,
-                      color: Color(0xFF9E9E9E),
+                      color: context.colors.iconSecondary,
                     ),
                   )
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE3E7EF),
+                    borderSide: BorderSide(color: context.colors.border,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE3E7EF),
+                    borderSide: BorderSide(color: context.colors.border,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                       color: Color(0xFF4A67F2),
                       width: 1.4,
                     ),
@@ -234,7 +234,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                 ),
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               /// 에러 메시지
               if (searchState.errorMessage != null)
@@ -242,7 +242,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     searchState.errorMessage!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: Colors.red,
                     ),
@@ -262,18 +262,18 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                           vertical: 20,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.colors.cardBg,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: const Color(0xFFE9EDF4),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           '학교명을 입력하면\n검색 결과가 여기에 표시돼요.',
                           style: TextStyle(
                             fontSize: 12,
                             height: 1.6,
-                            color: Color(0xFF7A7A7A),
+                            color: context.colors.iconSecondary,
                           ),
                         ),
                       );
@@ -284,13 +284,13 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                       return Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.colors.cardBg,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: const Color(0xFFE9EDF4),
                           ),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: CircularProgressIndicator(),
                         ),
                       );
@@ -305,19 +305,19 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                           vertical: 24,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.colors.cardBg,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: const Color(0xFFE9EDF4),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           '검색 결과가 없어요.\n학교명을 다시 확인해주세요.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,
                             height: 1.6,
-                            color: Color(0xFF777777),
+                            color: context.colors.textMuted,
                           ),
                         ),
                       );
@@ -326,7 +326,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     /// 검색 결과 목록 표시
                     return Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.colors.cardBg,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
                           color: const Color(0xFFE9EDF4),
@@ -345,18 +345,18 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                             padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
                             child: Row(
                               children: [
-                                const Text(
+                                Text(
                                   '검색 결과',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF222222),
+                                    color: context.colors.textPrimary,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                                 Text(
                                   '${searchState.schools.length}개',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF4A67F2),
@@ -423,7 +423,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? const Color(0xFFF2F5FF)
-                                          : Colors.white,
+                                          : context.colors.cardBg,
                                       borderRadius: BorderRadius.circular(14),
                                       border: Border.all(
                                         color: isSelected
@@ -442,12 +442,12 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                               fontWeight: isSelected
                                                   ? FontWeight.w700
                                                   : FontWeight.w500,
-                                              color: const Color(0xFF111111),
+                                              color: context.colors.textPrimary,
                                             ),
                                           ),
                                         ),
                                         if (isSelected)
-                                          const Icon(
+                                          Icon(
                                             Icons.check_circle_rounded,
                                             size: 20,
                                             color: Color(0xFF4A67F2),

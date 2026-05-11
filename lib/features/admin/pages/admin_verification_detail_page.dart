@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../models/verification_status_model.dart';
 import '../provider/admin_verification_detail_provider.dart';
 
@@ -152,12 +153,13 @@ class _AdminVerificationDetailPageState
     final isPending = status == VerificationStatusModel.pending;
     final imageUrl = detail == null ? '' : _buildImageUrl(detail.requestImageUrl);
 
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFD),
+      backgroundColor: c.pageBg,
       appBar: AppBar(
         title: const Text('인증 요청 상세'),
-        backgroundColor: const Color(0xFFF8FAFD),
-        foregroundColor: const Color(0xFF111111),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
       ),
       bottomNavigationBar: isPending
@@ -269,10 +271,10 @@ class _AdminVerificationDetailPageState
                 width: double.infinity,
                 height: 320,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: c.cardBg,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: const Color(0xFFE3E7EF),
+                    color: c.border,
                   ),
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -348,10 +350,10 @@ class _AdminVerificationDetailPageState
               width: double.infinity,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: c.cardBg,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: const Color(0xFFE3E7EF),
+                  color: c.border,
                 ),
               ),
               child: Column(
@@ -359,10 +361,10 @@ class _AdminVerificationDetailPageState
                 children: [
                   Text(
                     detail.schoolName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111111),
+                      color: c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -434,23 +436,23 @@ class _AdminVerificationDetailPageState
                 },
                 decoration: InputDecoration(
                   hintText: '승인 코멘트 또는 거절 사유를 입력해주세요.',
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFFB0B0B0),
+                    color: c.textHint,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: c.inputBg,
                   contentPadding: const EdgeInsets.all(16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE3E7EF),
+                    borderSide: BorderSide(
+                      color: c.border,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE3E7EF),
+                    borderSide: BorderSide(
+                      color: c.border,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -491,8 +493,9 @@ class _ImagePlaceholderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
-      color: const Color(0xFFF8FAFD),
+      color: c.pageBg,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/tap_scale.dart';
@@ -33,10 +34,8 @@ class PostSummaryCard extends StatelessWidget {
 
   String get _viewText =>
       post.viewCount >= 9999 ? '9999+' : '${post.viewCount}';
-
   String get _likeText =>
       post.likeCount >= 100 ? '100+' : '${post.likeCount}';
-
   String get _commentText =>
       post.commentCount >= 50 ? '50+' : '${post.commentCount}';
 
@@ -48,6 +47,7 @@ class PostSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final thumbnailUrl = _thumbnailUrl;
 
     return TapScale(
@@ -62,117 +62,116 @@ class PostSummaryCard extends StatelessWidget {
                   onTap!();
                 },
           borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 15, 18, 12),
-          child: Column(
-            children: [
-              // 이미지가 있을 경우 텍스트 영역 전체 높이에 맞춰 늘어나도록 IntrinsicHeight 사용
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 1줄: 제목
-                          _TitleLine(
-                            title: post.title,
-                            hot: hot,
-                            hasPoll: post.hasPoll,
-                          ),
-                          const SizedBox(height: 5),
-                          // 2줄: 본문 내용
-                          Text(
-                            post.content,
-                            maxLines: thumbnailUrl == null ? 3 : 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              height: 1.35,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF59616C),
-                              letterSpacing: 0,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 15, 18, 12),
+            child: Column(
+              children: [
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _TitleLine(
+                              title: post.title,
+                              hot: hot,
+                              hasPoll: post.hasPoll,
+                              textPrimary: c.textPrimary,
                             ),
-                          ),
-                          const SizedBox(height: 7),
-                          // 3줄: 게시판 이름 · 작성 시간 (일반 텍스트)
-                          _BoardMetaRow(
-                            categoryLabel: categoryLabel,
-                            timeLabel: _timeLabel,
-                          ),
-                          const SizedBox(height: 6),
-                          // 4줄: 조회수 · 공감수 · 댓글 수 (왼쪽 정렬)
-                          Row(
-                            children: [
-                              _StatChip(
-                                icon: Icons.remove_red_eye_outlined,
-                                text: _viewText,
+                            const SizedBox(height: 5),
+                            Text(
+                              post.content,
+                              maxLines: thumbnailUrl == null ? 3 : 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                height: 1.35,
+                                fontWeight: FontWeight.w400,
+                                color: c.textSecondary,
+                                letterSpacing: 0,
                               ),
-                              const SizedBox(width: 10),
-                              _StatChip(
-                                icon: Icons.favorite_border_rounded,
-                                text: _likeText,
-                              ),
-                              const SizedBox(width: 10),
-                              _StatChip(
-                                icon: Icons.chat_bubble_outline_rounded,
-                                text: _commentText,
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            const SizedBox(height: 7),
+                            _BoardMetaRow(
+                              categoryLabel: categoryLabel,
+                              timeLabel: _timeLabel,
+                              color: c.textTertiary,
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                _StatChip(
+                                  icon: Icons.remove_red_eye_outlined,
+                                  text: _viewText,
+                                  color: c.iconMuted,
+                                ),
+                                const SizedBox(width: 10),
+                                _StatChip(
+                                  icon: Icons.favorite_border_rounded,
+                                  text: _likeText,
+                                  color: c.iconMuted,
+                                ),
+                                const SizedBox(width: 10),
+                                _StatChip(
+                                  icon: Icons.chat_bubble_outline_rounded,
+                                  text: _commentText,
+                                  color: c.iconMuted,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // 이미지: 텍스트 전체 높이(4줄)에 맞춰 stretch
-                    if (thumbnailUrl != null) ...[
-                      const SizedBox(width: 14),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl: thumbnailUrl,
-                          width: 90,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
+                      if (thumbnailUrl != null) ...[
+                        const SizedBox(width: 14),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: CachedNetworkImage(
+                            imageUrl: thumbnailUrl,
                             width: 90,
-                            color: const Color(0xFFEFF4F8),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            width: 90,
-                            color: const Color(0xFFE4EAF0),
-                            child: const Icon(
-                              Icons.broken_image_rounded,
-                              color: Color(0xFF9AA7B2),
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              width: 90,
+                              color: c.subtleBg,
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              width: 90,
+                              color: c.border,
+                              child: Icon(
+                                Icons.broken_image_rounded,
+                                color: c.iconSecondary,
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (showDivider) ...[
-                const SizedBox(height: 10),
-                const Divider(height: 1, color: Color(0xFFEAF1F7)),
+                if (showDivider) ...[
+                  const SizedBox(height: 10),
+                  Divider(height: 1, color: c.divider),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 }
 
-// ─── 게시판 이름 · 작성 시간 (일반 텍스트, 컬러 없음) ─────────────
-
 class _BoardMetaRow extends StatelessWidget {
   final String? categoryLabel;
   final String timeLabel;
+  final Color color;
 
   const _BoardMetaRow({
     required this.categoryLabel,
     required this.timeLabel,
+    required this.color,
   });
 
   @override
@@ -187,26 +186,26 @@ class _BoardMetaRow extends StatelessWidget {
       parts.join('  ·  '),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w400,
-        color: Color(0xFF9AA7B2),
+        color: color,
         letterSpacing: 0,
       ),
     );
   }
 }
 
-// ─── 제목 줄 (HOT 뱃지 · 투표 뱃지 포함) ──────────────────────────
-
 class _TitleLine extends StatelessWidget {
   final String title;
   final bool hot;
   final bool hasPoll;
+  final Color textPrimary;
 
   const _TitleLine({
     required this.title,
     required this.hot,
+    required this.textPrimary,
     this.hasPoll = false,
   });
 
@@ -234,11 +233,11 @@ class _TitleLine extends StatelessWidget {
                   ),
                 TextSpan(
                   text: title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     height: 1.2,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF111111),
+                    color: textPrimary,
                     letterSpacing: 0,
                   ),
                 ),
@@ -249,7 +248,8 @@ class _TitleLine extends StatelessWidget {
         if (hasPoll) ...[
           const SizedBox(width: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: const Color(0xFFEDF5FF),
               borderRadius: BorderRadius.circular(4),
@@ -271,27 +271,30 @@ class _TitleLine extends StatelessWidget {
   }
 }
 
-// ─── 조회수 / 공감수 / 댓글 수 아이콘+텍스트 칩 ──────────────────
-
 class _StatChip extends StatelessWidget {
   final IconData icon;
   final String text;
+  final Color color;
 
-  const _StatChip({required this.icon, required this.text});
+  const _StatChip({
+    required this.icon,
+    required this.text,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 13, color: const Color(0xFFABB5BF)),
+        Icon(icon, size: 13, color: color),
         const SizedBox(width: 3),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w400,
-            color: Color(0xFFABB5BF),
+            color: color,
             letterSpacing: 0,
           ),
         ),

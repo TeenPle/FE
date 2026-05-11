@@ -149,9 +149,14 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     state = state.copyWith(commentAnonymous: value);
   }
 
-  /// 답글 작성 대상을 설정
+  /// 답글 작성 대상을 설정 (같은 댓글 재탭 시 취소)
   void startReply(int commentId, {required bool isReply}) {
     if (isReply) return;
+
+    if (state.replyingToCommentId == commentId) {
+      cancelReply();
+      return;
+    }
 
     state = state.copyWith(
       replyingToCommentId: commentId,

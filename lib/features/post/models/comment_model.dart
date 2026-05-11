@@ -2,6 +2,7 @@ class CommentModel {
   final int commentId;
   final int? authorUserId;
   final bool isMine;
+  final bool isPostAuthor;
   final bool authorDeleted;
   final bool canChatWithAuthor;
   final bool canReportAuthor;
@@ -22,6 +23,7 @@ class CommentModel {
     required this.commentId,
     this.authorUserId,
     required this.isMine,
+    this.isPostAuthor = false,
     this.authorDeleted = false,
     this.canChatWithAuthor = true,
     this.canReportAuthor = true,
@@ -44,6 +46,7 @@ class CommentModel {
       commentId: (json['commentId'] as num).toInt(),
       authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
       isMine: json['isMine'] as bool? ?? false,
+      isPostAuthor: json['isPostAuthor'] as bool? ?? false,
       authorDeleted: json['authorDeleted'] as bool? ?? false,
       canChatWithAuthor: json['canChatWithAuthor'] as bool? ?? true,
       canReportAuthor: json['canReportAuthor'] as bool? ?? true,

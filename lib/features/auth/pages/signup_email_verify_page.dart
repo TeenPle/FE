@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/signup_email_send_provider.dart';
@@ -19,8 +20,7 @@ class SignupEmailVerifyPage extends ConsumerStatefulWidget {
       _SignupEmailVerifyPageState();
 }
 
-class _SignupEmailVerifyPageState
-    extends ConsumerState<SignupEmailVerifyPage> {
+class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
   /// 인증번호 입력 컨트롤러
   final TextEditingController _codeController = TextEditingController();
 
@@ -131,39 +131,30 @@ class _SignupEmailVerifyPageState
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration(BuildContext context, {
+  InputDecoration _inputDecoration(
+    BuildContext context, {
     required String hintText,
     Widget? prefixIcon,
   }) {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint,
-        fontSize: 12,
-      ),
+      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
       filled: true,
       fillColor: c.inputBg,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 17,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       prefixIcon: prefixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(
-          color: Color(0xFF4A67F2),
-          width: 1.3,
-        ),
+        borderSide: BorderSide(color: Color(0xFF4A67F2), width: 1.3),
       ),
     );
   }
@@ -193,15 +184,16 @@ class _SignupEmailVerifyPageState
     final showVerificationSection = _hasSentCode || isVerified;
 
     /// 타이머가 끝났는지 여부
-    final isExpired = showVerificationSection && _remainingSeconds == 0 && !isVerified;
+    final isExpired =
+        showVerificationSection && _remainingSeconds == 0 && !isVerified;
 
     /// 확인 버튼 활성화 여부
     final canVerify =
         _isValidCode(_codeController.text) &&
-            !verifyState.isLoading &&
-            hasEmail &&
-            !isExpired &&
-            !isVerified;
+        !verifyState.isLoading &&
+        hasEmail &&
+        !isExpired &&
+        !isVerified;
 
     /// 하단 버튼 활성화 여부
     /// - 인증 완료 상태면 항상 다음 가능
@@ -215,139 +207,200 @@ class _SignupEmailVerifyPageState
         ? '다음'
         : (sendState.isLoading ? '전송 중...' : '인증번호 받기');
 
-    return Scaffold(
-      backgroundColor: context.colors.pageBg,
+    return AuthStepLayout(
+      bottom: SizedBox(
+        height: 54,
+        child: ElevatedButton(
+          onPressed: canPressBottomButton
+              ? () async {
+                  /// 인증 완료 상태면 다음 단계로 이동
+                  if (isVerified) {
+                    context.push(AppRoutes.signupPassword);
+                    return;
+                  }
 
-      /// 하단 고정 버튼
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: canPressBottomButton
-                ? () async {
-              /// 인증 완료 상태면 다음 단계로 이동
-              if (isVerified) {
-                context.push(AppRoutes.signupPassword);
-                return;
-              }
-
-              /// 아직 인증번호를 보내지 않은 상태라면 전송 수행
-              if (!_hasSentCode) {
-                await _sendVerificationCode(email);
-                return;
-              }
-            }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+                  /// 아직 인증번호를 보내지 않은 상태라면 전송 수행
+                  if (!_hasSentCode) {
+                    await _sendVerificationCode(email);
+                    return;
+                  }
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A67F2),
+            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white70,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              bottomButtonText,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          ),
+          child: Text(
+            bottomButtonText,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 상단 뒤로가기 버튼
+          IconButton(
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+            splashRadius: 22,
+          ),
 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// 상단 뒤로가기 버튼
-              IconButton(
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  }
-                },
-                icon: Icon(Icons.arrow_back_ios_new_rounded),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-                splashRadius: 22,
-              ),
+          SizedBox(height: 8),
 
-              SizedBox(height: 8),
+          /// 단계 표시
+          Text(
+            '5/8',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: context.colors.textTertiary,
+            ),
+          ),
 
-              /// 단계 표시
-              Text(
-                '5/8',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.textTertiary,
+          SizedBox(height: 14),
+
+          /// 페이지 성격 안내
+          Text(
+            '이메일 인증',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF4A67F2),
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 제목
+          Text(
+            '이메일을 인증해주세요',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.22,
+              letterSpacing: -0.6,
+              color: context.colors.textPrimary,
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 설명
+          Text(
+            isVerified
+                ? '이메일 인증이 완료되었어요.'
+                : (_hasSentCode
+                      ? '받은 인증번호를 입력하면 다음 단계로 이동할 수 있어요.'
+                      : '입력한 이메일로 인증번호를 보내드릴게요.'),
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: context.colors.textBody,
+            ),
+          ),
+
+          SizedBox(height: 28),
+
+          /// 이메일 라벨
+          Text(
+            '인증할 이메일',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 이메일 표시 박스
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: context.colors.cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.mail_outline_rounded,
+                  size: 18,
+                  color: context.colors.iconSecondary,
                 ),
-              ),
-
-              SizedBox(height: 14),
-
-              /// 페이지 성격 안내
-              Text(
-                '이메일 인증',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF4A67F2),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    hasEmail ? email : '이메일 정보가 없습니다.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: hasEmail ? FontWeight.w600 : FontWeight.w400,
+                      color: hasEmail
+                          ? context.colors.textPrimary
+                          : context.colors.textTertiary,
+                    ),
+                  ),
                 ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 전송 안내/에러 메시지
+          if (sendState.errorMessage != null)
+            Text(
+              sendState.errorMessage!,
+              style: TextStyle(fontSize: 11, color: Colors.red),
+            )
+          else if (isVerified)
+            Text(
+              '인증이 완료된 이메일이에요.',
+              style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+            )
+          else if (!_hasSentCode)
+            Text(
+              '인증번호는 5분 동안 유효해요.',
+              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+            )
+          else
+            Text(
+              '인증번호를 전송했어요. 아래에서 확인을 완료해주세요.',
+              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+            ),
+
+          /// 인증번호를 한 번이라도 전송했거나 이미 인증 완료된 경우 노출
+          if (showVerificationSection) ...[
+            SizedBox(height: 28),
+
+            /// 인증번호 라벨
+            Text(
+              '인증번호',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: context.colors.textMuted,
               ),
+            ),
 
-              SizedBox(height: 8),
+            SizedBox(height: 8),
 
-              /// 제목
-              Text(
-                '이메일을 인증해주세요',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  height: 1.22,
-                  letterSpacing: -0.6,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              /// 설명
-              Text(
-                isVerified
-                    ? '이메일 인증이 완료되었어요.'
-                    : (_hasSentCode
-                    ? '받은 인증번호를 입력하면 다음 단계로 이동할 수 있어요.'
-                    : '입력한 이메일로 인증번호를 보내드릴게요.'),
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: context.colors.textBody,
-                ),
-              ),
-
-              SizedBox(height: 28),
-
-              /// 이메일 라벨
-              Text(
-                '인증할 이메일',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 이메일 표시 박스
+            /// 이미 인증 완료된 경우 완료 상태 표시
+            if (isVerified)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -358,288 +411,180 @@ class _SignupEmailVerifyPageState
                   color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: context.colors.border,
+                    color: const Color(0xFF4A67F2),
+                    width: 1.2,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.mail_outline_rounded,
-                      size: 18,
-                      color: context.colors.iconSecondary,
+                      Icons.check_circle_rounded,
+                      size: 20,
+                      color: Color(0xFF4A67F2),
                     ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        hasEmail ? email : '이메일 정보가 없습니다.',
+                        '이메일 인증이 완료되었어요.',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight:
-                          hasEmail ? FontWeight.w600 : FontWeight.w400,
-                          color: hasEmail
-                              ? context.colors.textPrimary
-                              : context.colors.textTertiary,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.textPrimary,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-
-              SizedBox(height: 10),
-
-              /// 전송 안내/에러 메시지
-              if (sendState.errorMessage != null)
-                Text(
-                  sendState.errorMessage!,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.red,
-                  ),
-                )
-              else if (isVerified)
-                Text(
-                  '인증이 완료된 이메일이에요.',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF4A67F2),
-                  ),
-                )
-              else if (!_hasSentCode)
-                  Text(
-                    '인증번호는 5분 동안 유효해요.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: context.colors.textMuted,
-                    ),
-                  )
-                else
-                  Text(
-                    '인증번호를 전송했어요. 아래에서 확인을 완료해주세요.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: context.colors.textMuted,
-                    ),
-                  ),
-
-              /// 인증번호를 한 번이라도 전송했거나 이미 인증 완료된 경우 노출
-              if (showVerificationSection) ...[
-                SizedBox(height: 28),
-
-                /// 인증번호 라벨
-                Text(
-                  '인증번호',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.textMuted,
-                  ),
-                ),
-
-                SizedBox(height: 8),
-
-                /// 이미 인증 완료된 경우 완료 상태 표시
-                if (isVerified)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.colors.cardBg,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFF4A67F2),
-                        width: 1.2,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle_rounded,
-                          size: 20,
-                          color: Color(0xFF4A67F2),
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// 인증번호 입력창
+                  Expanded(
+                    child: TextField(
+                      controller: _codeController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      onChanged: (_) {
+                        /// 인증번호가 바뀌면 이전 인증 결과 초기화
+                        ref.read(signupEmailVerifyProvider.notifier).reset();
+                        setState(() {});
+                      },
+                      decoration: _inputDecoration(
+                        context,
+                        hintText: '6자리 인증번호를 입력해주세요',
+                        prefixIcon: Icon(
+                          Icons.verified_outlined,
+                          color: context.colors.iconSecondary,
                         ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '이메일 인증이 완료되었어요.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ).copyWith(counterText: ''),
                     ),
-                  )
-                else
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// 인증번호 입력창
-                      Expanded(
-                        child: TextField(
-                          controller: _codeController,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          onChanged: (_) {
-                            /// 인증번호가 바뀌면 이전 인증 결과 초기화
-                            ref.read(signupEmailVerifyProvider.notifier).reset();
-                            setState(() {});
-                          },
-                          decoration: _inputDecoration(context,
-                            hintText: '6자리 인증번호를 입력해주세요',
-                            prefixIcon: Icon(
-                              Icons.verified_outlined,
-                              color: context.colors.iconSecondary,
-                            ),
-                          ).copyWith(
-                            counterText: '',
-                          ),
-                        ),
-                      ),
+                  ),
 
-                      SizedBox(width: 12),
+                  SizedBox(width: 12),
 
-                      /// 인증번호 확인 버튼
-                      SizedBox(
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: canVerify
-                              ? () async {
-                            await ref
-                                .read(signupEmailVerifyProvider.notifier)
-                                .verify(
-                              email: email,
-                              code: _codeController.text.trim(),
-                            );
+                  /// 인증번호 확인 버튼
+                  SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: canVerify
+                          ? () async {
+                              await ref
+                                  .read(signupEmailVerifyProvider.notifier)
+                                  .verify(
+                                    email: email,
+                                    code: _codeController.text.trim(),
+                                  );
 
-                            final latestVerifyState =
-                            ref.read(signupEmailVerifyProvider);
-
-                            /// 인증 성공 시 verificationToken 저장
-                            if (latestVerifyState.isSuccess) {
-                              ref
-                                  .read(signupFormProvider.notifier)
-                                  .updateVerificationToken(
-                                latestVerifyState.verificationToken,
+                              final latestVerifyState = ref.read(
+                                signupEmailVerifyProvider,
                               );
 
-                              /// 인증 완료 시 타이머 종료
-                              _countdownTimer?.cancel();
+                              /// 인증 성공 시 verificationToken 저장
+                              if (latestVerifyState.isSuccess) {
+                                ref
+                                    .read(signupFormProvider.notifier)
+                                    .updateVerificationToken(
+                                      latestVerifyState.verificationToken,
+                                    );
+
+                                /// 인증 완료 시 타이머 종료
+                                _countdownTimer?.cancel();
+                              }
+
+                              setState(() {});
                             }
-
-                            setState(() {});
-                          }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4A67F2),
-                            disabledBackgroundColor: const Color(0xFFD7DEFF),
-                            foregroundColor: Colors.white,
-                            disabledForegroundColor: Colors.white70,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text(
-                            verifyState.isLoading ? '확인 중' : '확인',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4A67F2),
+                        disabledBackgroundColor: const Color(0xFFD7DEFF),
+                        foregroundColor: Colors.white,
+                        disabledForegroundColor: Colors.white70,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                    ],
-                  ),
-
-                SizedBox(height: 8),
-
-                /// 타이머 / 재전송 영역
-                if (!isVerified)
-                  Row(
-                    children: [
-                      Text(
-                        isExpired
-                            ? '인증 시간이 만료되었어요.'
-                            : '남은 시간 ${_formatRemainingTime(_remainingSeconds)}',
+                      child: Text(
+                        verifyState.isLoading ? '확인 중' : '확인',
                         style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: isExpired
-                              ? Colors.red
-                              : const Color(0xFF4A67F2),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: sendState.isLoading
-                            ? null
-                            : () async {
-                          await _resendVerificationCode(email);
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          '인증번호 재전송',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF4A67F2),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                ],
+              ),
 
-                SizedBox(height: 8),
+            SizedBox(height: 8),
 
-                /// 인증 상태 메시지
-                if (!isVerified && verifyState.errorMessage != null)
+            /// 타이머 / 재전송 영역
+            if (!isVerified)
+              Row(
+                children: [
                   Text(
-                    verifyState.errorMessage!,
+                    isExpired
+                        ? '인증 시간이 만료되었어요.'
+                        : '남은 시간 ${_formatRemainingTime(_remainingSeconds)}',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                      color: isExpired ? Colors.red : const Color(0xFF4A67F2),
                     ),
-                  )
-                else if (isVerified)
-                  Text(
-                    '아래 다음 버튼을 눌러 비밀번호 설정으로 이동해주세요.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF4A67F2),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: sendState.isLoading
+                        ? null
+                        : () async {
+                            await _resendVerificationCode(email);
+                          },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                  )
-                else if (_codeController.text.isNotEmpty &&
-                      !_isValidCode(_codeController.text))
-                    Text(
-                      '인증번호는 6자리 숫자로 입력해주세요.',
+                    child: Text(
+                      '인증번호 재전송',
                       style: TextStyle(
                         fontSize: 11,
-                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF4A67F2),
                       ),
-                    )
-                  else if (isExpired)
-                      Text(
-                        '인증번호를 다시 전송한 뒤 새 번호로 인증해주세요.',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.red,
-                        ),
-                      ),
-              ],
-            ],
-          ),
-        ),
+                    ),
+                  ),
+                ],
+              ),
+
+            SizedBox(height: 8),
+
+            /// 인증 상태 메시지
+            if (!isVerified && verifyState.errorMessage != null)
+              Text(
+                verifyState.errorMessage!,
+                style: TextStyle(fontSize: 11, color: Colors.red),
+              )
+            else if (isVerified)
+              Text(
+                '아래 다음 버튼을 눌러 비밀번호 설정으로 이동해주세요.',
+                style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+              )
+            else if (_codeController.text.isNotEmpty &&
+                !_isValidCode(_codeController.text))
+              Text(
+                '인증번호는 6자리 숫자로 입력해주세요.',
+                style: TextStyle(fontSize: 11, color: Colors.red),
+              )
+            else if (isExpired)
+              Text(
+                '인증번호를 다시 전송한 뒤 새 번호로 인증해주세요.',
+                style: TextStyle(fontSize: 11, color: Colors.red),
+              ),
+          ],
+        ],
       ),
     );
   }

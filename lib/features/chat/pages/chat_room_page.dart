@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -11,6 +11,8 @@ import '../models/chat_message_model.dart';
 import '../provider/chat_message_provider.dart';
 import '../provider/chat_room_list_provider.dart';
 import '../provider/muted_rooms_provider.dart';
+
+const _chatMediaChannel = MethodChannel('teenple/media');
 
 class ChatRoomPage extends ConsumerStatefulWidget {
   final int roomId;
@@ -46,7 +48,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isLoadingOlder = false;
-  PlatformFile? _pendingImage;
+  _PickedChatImage? _pendingImage;
   bool _isSearchActive = false;
   final _messageSearchController = TextEditingController();
   String _messageSearchQuery = '';
@@ -56,18 +58,23 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     super.initState();
     _scrollController.addListener(_handleScroll);
     _messageSearchController.addListener(() {
-      setState(() => _messageSearchQuery =
-          _messageSearchController.text.trim().toLowerCase());
+      setState(
+        () => _messageSearchQuery = _messageSearchController.text
+            .trim()
+            .toLowerCase(),
+      );
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 이 채팅방을 보고 있음을 알림 억제 로직에 알린다.
-      ref.read(activePageProvider.notifier).state =
-          ActivePage(chatRoomId: widget.roomId);
+      ref.read(activePageProvider.notifier).state = ActivePage(
+        chatRoomId: widget.roomId,
+      );
     });
     Future.microtask(() async {
-      final notifier =
-          ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier);
+      final notifier = ref.read(
+        chatRoomProvider((widget.roomId, widget.otherUserId)).notifier,
+      );
       // 목록/유입 경로에서 받은 차단 상태로 입력창을 먼저 잠그고, 메시지 조회 응답으로 최종 보정한다.
       notifier.setBlockState(
         blocked: widget.initialBlocked,
@@ -145,60 +152,68 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
-    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    final state = ref.read(
+      chatRoomProvider((widget.roomId, widget.otherUserId)),
+    );
     if (state.isBlocked || !state.canSendMessage || state.otherUserDeleted) {
       return;
     }
     _inputController.clear();
-    await ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier).sendMessage(text);
+    await ref
+        .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+        .sendMessage(text);
     _scrollToBottom();
   }
 
   Future<void> _pickImage() async {
-    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
-
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png'],
-      withData: true,
+    final state = ref.read(
+      chatRoomProvider((widget.roomId, widget.otherUserId)),
     );
-    if (result == null || result.files.isEmpty) return;
+    if (state.isBlocked ||
+        state.isSending ||
+        !state.canSendMessage ||
+        state.otherUserDeleted) {
+      return;
+    }
+
+    final result = await _chatMediaChannel.invokeMapMethod<String, Object?>(
+      'pickImage',
+    );
+    if (result == null) return;
+
+    final image = _PickedChatImage.fromMap(result);
+    if (image.path.isEmpty) return;
 
     setState(() {
-      _pendingImage = result.files.single;
+      _pendingImage = image;
     });
   }
 
   Future<void> _sendPendingImage() async {
-    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
+    final state = ref.read(
+      chatRoomProvider((widget.roomId, widget.otherUserId)),
+    );
+    if (state.isBlocked ||
+        state.isSending ||
+        !state.canSendMessage ||
+        state.otherUserDeleted) {
+      return;
+    }
 
     final picked = _pendingImage;
     if (picked == null) return;
 
-    final ext = (picked.extension ?? '').toLowerCase();
+    final ext = picked.extension;
     final contentType = ext == 'png'
         ? MediaType('image', 'png')
         : MediaType('image', 'jpeg');
     final filename = picked.name.isNotEmpty ? picked.name : 'chat-image.$ext';
 
-    final MultipartFile file;
-    if (picked.bytes != null) {
-      file = MultipartFile.fromBytes(
-        picked.bytes!,
-        filename: filename,
-        contentType: contentType,
-      );
-    } else if (picked.path != null) {
-      file = await MultipartFile.fromFile(
-        picked.path!,
-        filename: filename,
-        contentType: contentType,
-      );
-    } else {
-      return;
-    }
+    final file = await MultipartFile.fromFile(
+      picked.path,
+      filename: filename,
+      contentType: contentType,
+    );
 
     await ref
         .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
@@ -251,7 +266,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   },
                 ),
                 _BottomSheetItem(
-                  icon: _blockedByMe ? Icons.lock_open_rounded : Icons.block_rounded,
+                  icon: _blockedByMe
+                      ? Icons.lock_open_rounded
+                      : Icons.block_rounded,
                   label: _blockedByMe ? '차단 해제' : '차단하기',
                   color: _blockedByMe
                       ? const Color(0xFF1DA1F2)
@@ -323,7 +340,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                     onTap: () async {
                       Navigator.pop(ctx);
                       await ref
-                          .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+                          .read(
+                            chatRoomProvider((
+                              widget.roomId,
+                              widget.otherUserId,
+                            )).notifier,
+                          )
                           .reportRoom(reason.$2);
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -356,19 +378,21 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             onPressed: () async {
               Navigator.pop(ctx);
               await ref
-                  .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+                  .read(
+                    chatRoomProvider((
+                      widget.roomId,
+                      widget.otherUserId,
+                    )).notifier,
+                  )
                   .blockRoom();
               if (mounted) {
                 ref.read(chatRoomListProvider.notifier).load();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('차단되었습니다.')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('차단되었습니다.')));
               }
             },
-            child: const Text(
-              '차단',
-              style: TextStyle(color: Color(0xFFF44336)),
-            ),
+            child: const Text('차단', style: TextStyle(color: Color(0xFFF44336))),
           ),
         ],
       ),
@@ -390,13 +414,18 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             onPressed: () async {
               Navigator.pop(ctx);
               await ref
-                  .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+                  .read(
+                    chatRoomProvider((
+                      widget.roomId,
+                      widget.otherUserId,
+                    )).notifier,
+                  )
                   .unblockRoom();
               ref.read(chatRoomListProvider.notifier).load();
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('차단이 해제되었습니다.')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('차단이 해제되었습니다.')));
               }
             },
             child: const Text('해제'),
@@ -421,7 +450,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             onPressed: () async {
               Navigator.pop(ctx);
               await ref
-                  .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+                  .read(
+                    chatRoomProvider((
+                      widget.roomId,
+                      widget.otherUserId,
+                    )).notifier,
+                  )
                   .leaveRoom();
               // 채팅 목록 갱신
               ref.read(chatRoomListProvider.notifier).load();
@@ -436,7 +470,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    final state = ref.watch(
+      chatRoomProvider((widget.roomId, widget.otherUserId)),
+    );
     final isBlocked = state.isBlocked;
     final isMuted = ref.watch(mutedRoomsProvider).contains(widget.roomId);
 
@@ -444,14 +480,20 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     final isSearchFiltered = _messageSearchQuery.isNotEmpty;
     final messages = isSearchFiltered
         ? state.messages
-            .where((m) =>
-                !m.isImage &&
-                (m.content?.toLowerCase().contains(_messageSearchQuery) ?? false))
-            .toList()
+              .where(
+                (m) =>
+                    !m.isImage &&
+                    (m.content?.toLowerCase().contains(_messageSearchQuery) ??
+                        false),
+              )
+              .toList()
         : state.messages;
 
     // 새 메시지 오면 스크롤
-    ref.listen(chatRoomProvider((widget.roomId, widget.otherUserId)), (prev, next) {
+    ref.listen(chatRoomProvider((widget.roomId, widget.otherUserId)), (
+      prev,
+      next,
+    ) {
       if (prev != null && next.messages.length > prev.messages.length) {
         _scrollToBottom();
       }
@@ -459,13 +501,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     final c = context.colors;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: c.pageBg,
       appBar: AppBar(
         backgroundColor: c.cardBg,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: c.iconPrimary, size: 20),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: c.iconPrimary,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         centerTitle: true,
@@ -481,13 +527,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 color: c.textPrimary,
               ),
             ),
-            Text(
-              '익명',
-              style: TextStyle(
-                fontSize: 11,
-                color: c.textMuted,
-              ),
-            ),
+            Text('익명', style: TextStyle(fontSize: 11, color: c.textMuted)),
           ],
         ),
         actions: [
@@ -524,150 +564,171 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           child: Container(height: 1, color: c.border),
         ),
       ),
-      body: Column(
-        children: [
-          if (!_isSearchActive && state.messages.isEmpty) const _ChatNoticeBar(),
-          if (_isSearchActive)
-            Container(
-              color: c.cardBg,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-              child: TextField(
-                controller: _messageSearchController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: '메시지 검색',
-                  hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: c.textMuted,
-                    size: 20,
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            if (!_isSearchActive && state.messages.isEmpty)
+              const _ChatNoticeBar(),
+            if (_isSearchActive)
+              Container(
+                color: c.cardBg,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                child: TextField(
+                  controller: _messageSearchController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: '메시지 검색',
+                    hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: c.textMuted,
+                      size: 20,
+                    ),
+                    filled: true,
+                    fillColor: c.subtleBg,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  filled: true,
-                  fillColor: c.subtleBg,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  style: TextStyle(fontSize: 13, color: c.textPrimary),
                 ),
-                style: TextStyle(fontSize: 13, color: c.textPrimary),
               ),
-            ),
-          Expanded(
-            child: state.isLoading && state.messages.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : messages.isEmpty
-                    ? Center(
-                        child: Text(
-                          isSearchFiltered
-                              ? '검색 결과가 없어요.'
-                              : '첫 메시지를 보내보세요!',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: c.textMuted,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                        // 검색 중에는 페이지네이션 스피너 숨김
-                        itemCount: messages.length +
-                            (isSearchFiltered ? 0 : (state.isLoadingMore ? 1 : 0)),
-                        itemBuilder: (context, index) {
-                          if (!isSearchFiltered && state.isLoadingMore && index == 0) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+            Expanded(
+              child: state.isLoading && state.messages.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : messages.isEmpty
+                  ? Center(
+                      child: Text(
+                        isSearchFiltered ? '검색 결과가 없어요.' : '첫 메시지를 보내보세요!',
+                        style: TextStyle(fontSize: 13, color: c.textMuted),
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                      // 검색 중에는 페이지네이션 스피너 숨김
+                      itemCount:
+                          messages.length +
+                          (isSearchFiltered
+                              ? 0
+                              : (state.isLoadingMore ? 1 : 0)),
+                      itemBuilder: (context, index) {
+                        if (!isSearchFiltered &&
+                            state.isLoadingMore &&
+                            index == 0) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
                               ),
-                            );
-                          }
-                          final messageIndex = !isSearchFiltered && state.isLoadingMore
-                              ? index - 1
-                              : index;
-                          final msg = messages[messageIndex];
-                          final isMe = msg.senderId != widget.otherUserId;
-                          final previous =
-                              messageIndex > 0
-                                  ? messages[messageIndex - 1]
-                                  : null;
-                          final next = messageIndex < messages.length - 1
-                              ? messages[messageIndex + 1]
-                              : null;
-                          final isFirstInGroup =
-                              !_isSameMinuteGroup(previous, msg);
-                          final isLastInGroup = !_isSameMinuteGroup(msg, next);
-                          // 내가 보낸 메시지 중 상대방이 아직 안 읽은 것 → "1" 표시
-                          final showUnread = isMe &&
-                              isLastInGroup &&
-                              (state.otherLastReadMessageId == null ||
-                                  msg.messageId > state.otherLastReadMessageId!);
-
-                          // 날짜가 바뀌는 첫 메시지 앞에 날짜 구분선을 표시한다.
-                          final showDateSeparator = msg.createdAt != null &&
-                              (previous == null ||
-                                  previous.createdAt == null ||
-                                  !_isSameDay(previous.createdAt!, msg.createdAt!));
-
-                          return Column(
-                            children: [
-                              if (showDateSeparator && msg.createdAt != null)
-                                _DateSeparator(date: msg.createdAt!),
-                              _MessageBubble(
-                                message: msg,
-                                isMe: isMe,
-                                showUnread: showUnread,
-                                showProfile: !isMe && isFirstInGroup,
-                                showMeta: isLastInGroup,
-                                isLastInGroup: isLastInGroup,
-                              ),
-                            ],
+                            ),
                           );
-                        },
-                      ),
-          ),
+                        }
+                        final messageIndex =
+                            !isSearchFiltered && state.isLoadingMore
+                            ? index - 1
+                            : index;
+                        final msg = messages[messageIndex];
+                        final isMe = msg.senderId != widget.otherUserId;
+                        final previous = messageIndex > 0
+                            ? messages[messageIndex - 1]
+                            : null;
+                        final next = messageIndex < messages.length - 1
+                            ? messages[messageIndex + 1]
+                            : null;
+                        final isFirstInGroup = !_isSameMinuteGroup(
+                          previous,
+                          msg,
+                        );
+                        final isLastInGroup = !_isSameMinuteGroup(msg, next);
+                        // 내가 보낸 메시지 중 상대방이 아직 안 읽은 것 → "1" 표시
+                        final showUnread =
+                            isMe &&
+                            isLastInGroup &&
+                            (state.otherLastReadMessageId == null ||
+                                msg.messageId > state.otherLastReadMessageId!);
 
-          if (state.errorMessage != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              color: const Color(0xFFFFEBEE),
-              child: Text(
-                state.errorMessage!,
-                style: const TextStyle(fontSize: 11, color: Color(0xFFF44336)),
-              ),
+                        // 날짜가 바뀌는 첫 메시지 앞에 날짜 구분선을 표시한다.
+                        final showDateSeparator =
+                            msg.createdAt != null &&
+                            (previous == null ||
+                                previous.createdAt == null ||
+                                !_isSameDay(
+                                  previous.createdAt!,
+                                  msg.createdAt!,
+                                ));
+
+                        return Column(
+                          children: [
+                            if (showDateSeparator && msg.createdAt != null)
+                              _DateSeparator(date: msg.createdAt!),
+                            _MessageBubble(
+                              message: msg,
+                              isMe: isMe,
+                              showUnread: showUnread,
+                              showProfile: !isMe && isFirstInGroup,
+                              showMeta: isLastInGroup,
+                              isLastInGroup: isLastInGroup,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
             ),
 
-          // 입력창
-          state.otherUserDeleted
-              ? const _DeletedUserInputBar()
-              : state.isPenalized
-              ? _PenaltyInputBar(expiresAt: state.penaltyExpiresAt)
-              : isBlocked
-                  ? _BlockedInputBar(
-                      blockedByMe: state.blockedByMe,
-                      blockedByOther: state.blockedByOther,
-                      onUnblock: state.blockedByMe ? _showUnblockConfirm : null,
-                    )
-              : _MessageInputBar(
-                  controller: _inputController,
-                  isSending: state.isSending,
-                  pendingImage: _pendingImage,
-                  onClearImage: _clearPendingImage,
-                  onImage: _pickImage,
-                  onSend: _sendMessage,
+            if (state.errorMessage != null)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
                 ),
-        ],
+                color: const Color(0xFFFFEBEE),
+                child: Text(
+                  state.errorMessage!,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFFF44336),
+                  ),
+                ),
+              ),
+
+            // 입력창
+            state.otherUserDeleted
+                ? const _DeletedUserInputBar()
+                : state.isPenalized
+                ? _PenaltyInputBar(expiresAt: state.penaltyExpiresAt)
+                : isBlocked
+                ? _BlockedInputBar(
+                    blockedByMe: state.blockedByMe,
+                    blockedByOther: state.blockedByOther,
+                    onUnblock: state.blockedByMe ? _showUnblockConfirm : null,
+                  )
+                : _MessageInputBar(
+                    controller: _inputController,
+                    isSending: state.isSending,
+                    pendingImage: _pendingImage,
+                    onClearImage: _clearPendingImage,
+                    onImage: _pickImage,
+                    onSend: _sendMessage,
+                  ),
+          ],
+        ),
       ),
     );
   }
 
   bool get _blockedByMe {
-    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    final state = ref.read(
+      chatRoomProvider((widget.roomId, widget.otherUserId)),
+    );
     return state.blockedByMe;
   }
 
@@ -690,6 +751,139 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         a.day == b.day &&
         a.hour == b.hour &&
         a.minute == b.minute;
+  }
+}
+
+class _PickedChatImage {
+  final String path;
+  final String name;
+  final String extension;
+  final Uint8List bytes;
+
+  const _PickedChatImage({
+    required this.path,
+    required this.name,
+    required this.extension,
+    required this.bytes,
+  });
+
+  factory _PickedChatImage.fromMap(Map<String, Object?> map) {
+    final path = map['path'] as String? ?? '';
+    final name = map['name'] as String? ?? 'chat-image.jpg';
+    final mimeType = map['mimeType'] as String? ?? '';
+    final bytes = map['bytes'] as Uint8List? ?? Uint8List(0);
+    final extension =
+        name.toLowerCase().endsWith('.png') || mimeType == 'image/png'
+        ? 'png'
+        : 'jpg';
+    return _PickedChatImage(
+      path: path,
+      name: name,
+      extension: extension,
+      bytes: bytes,
+    );
+  }
+}
+
+void _showChatImageViewer(BuildContext context, {required String imageUrl}) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => _ChatImageViewerPage(imageUrl: imageUrl),
+    ),
+  );
+}
+
+class _ChatImageViewerPage extends StatefulWidget {
+  final String imageUrl;
+
+  const _ChatImageViewerPage({required this.imageUrl});
+
+  @override
+  State<_ChatImageViewerPage> createState() => _ChatImageViewerPageState();
+}
+
+class _ChatImageViewerPageState extends State<_ChatImageViewerPage> {
+  bool _isSaving = false;
+
+  Future<void> _saveImage() async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+    try {
+      final response = await Dio().get<List<int>>(
+        widget.imageUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final bytes = Uint8List.fromList(response.data ?? const []);
+      if (bytes.isEmpty) {
+        throw Exception('empty image');
+      }
+
+      final lowerUrl = widget.imageUrl.toLowerCase();
+      final isPng = lowerUrl.contains('.png');
+      final extension = isPng ? 'png' : 'jpg';
+      final mimeType = isPng ? 'image/png' : 'image/jpeg';
+      await _chatMediaChannel.invokeMethod<void>('saveImageToGallery', {
+        'bytes': bytes,
+        'name': 'teenple_${DateTime.now().millisecondsSinceEpoch}.$extension',
+        'mimeType': mimeType,
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('이미지를 저장했습니다.')));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('이미지 저장에 실패했습니다.')));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final image = Image.network(
+      widget.imageUrl,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return const Text(
+          '이미지를 불러올 수 없습니다',
+          style: TextStyle(color: Colors.white70),
+        );
+      },
+    );
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveImage,
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.download_rounded),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Center(
+          child: InteractiveViewer(minScale: 0.8, maxScale: 4, child: image),
+        ),
+      ),
+    );
   }
 }
 
@@ -716,8 +910,9 @@ class _MessageBubble extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: isLastInGroup ? 10 : 3),
       child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe && showProfile) ...[
@@ -739,8 +934,9 @@ class _MessageBubble extends StatelessWidget {
             const SizedBox(width: 40),
           ],
           Column(
-            crossAxisAlignment:
-                isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isMe
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               if (!isMe && showProfile)
                 Padding(
@@ -789,7 +985,9 @@ class _MessageBubble extends StatelessWidget {
                       maxWidth: MediaQuery.of(context).size.width * 0.65,
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: isMe ? const Color(0xFF1DA1F2) : c.cardBg,
                       borderRadius: BorderRadius.only(
@@ -807,65 +1005,84 @@ class _MessageBubble extends StatelessWidget {
                       ],
                     ),
                     child: message.isImage && message.imageUrl != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              message.imageUrl!,
-                              width: 180,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (ctx, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  width: 180,
-                                  height: 120,
-                                  decoration: BoxDecoration(
-                                    color: isMe
-                                        ? const Color(0xFF1888D0)
-                                        : ctx.colors.subtleBg,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: isMe ? Colors.white70 : ctx.colors.textMuted,
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                              loadingProgress.expectedTotalBytes!
-                                          : null,
+                        ? GestureDetector(
+                            onTap: () => _showChatImageViewer(
+                              context,
+                              imageUrl: message.imageUrl!,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                message.imageUrl!,
+                                width: 180,
+                                height: 180,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (ctx, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    width: 180,
+                                    height: 120,
+                                    decoration: BoxDecoration(
+                                      color: isMe
+                                          ? const Color(0xFF1888D0)
+                                          : ctx.colors.subtleBg,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  ),
-                                );
-                              },
-                              errorBuilder: (ctx, error, stackTrace) {
-                                return Container(
-                                  width: 180,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: isMe
-                                        ? const Color(0xFF1888D0)
-                                        : ctx.colors.subtleBg,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.broken_image_rounded,
-                                        size: 28,
-                                        color: isMe ? Colors.white60 : ctx.colors.textMuted,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: isMe
+                                            ? Colors.white70
+                                            : ctx.colors.textMuted,
+                                        value:
+                                            loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                            : null,
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '이미지를 불러올 수 없습니다',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: isMe ? Colors.white60 : ctx.colors.textMuted,
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (ctx, error, stackTrace) {
+                                  return Container(
+                                    width: 180,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: isMe
+                                          ? const Color(0xFF1888D0)
+                                          : ctx.colors.subtleBg,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.broken_image_rounded,
+                                          size: 28,
+                                          color: isMe
+                                              ? Colors.white60
+                                              : ctx.colors.textMuted,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '이미지를 불러올 수 없습니다',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: isMe
+                                                ? Colors.white60
+                                                : ctx.colors.textMuted,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           )
                         : Text(
@@ -882,10 +1099,7 @@ class _MessageBubble extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 6, bottom: 2),
                       child: Text(
                         _formatTime(message.createdAt),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: c.textMuted,
-                        ),
+                        style: TextStyle(fontSize: 10, color: c.textMuted),
                       ),
                     ),
                 ],
@@ -910,7 +1124,7 @@ class _MessageBubble extends StatelessWidget {
 class _MessageInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool isSending;
-  final PlatformFile? pendingImage;
+  final _PickedChatImage? pendingImage;
   final VoidCallback onClearImage;
   final VoidCallback onImage;
   final VoidCallback onSend;
@@ -927,129 +1141,125 @@ class _MessageInputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Container(
-      color: c.cardBg,
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 12,
-        top: 10,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (pendingImage?.bytes != null) ...[
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.memory(
-                      pendingImage!.bytes!,
-                      width: 92,
-                      height: 92,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: isSending ? null : onClearImage,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: const BoxDecoration(
-                          color: Color(0xAA000000),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.close_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: c.cardBg,
+        padding: const EdgeInsets.fromLTRB(16, 10, 12, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (pendingImage != null) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.memory(
+                        pendingImage!.bytes,
+                        width: 92,
+                        height: 92,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-          Row(
-            children: [
-              IconButton(
-                onPressed: isSending ? null : onImage,
-                icon: const Icon(
-                  Icons.photo_camera_outlined,
-                  color: Color(0xFF1DA1F2),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: c.inputBg,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: TextField(
-                    controller: controller,
-                    enabled: pendingImage == null && !isSending,
-                    maxLines: 4,
-                    minLines: 1,
-                    maxLength: 500,
-                    textInputAction: TextInputAction.newline,
-                    decoration: InputDecoration(
-                      hintText: pendingImage == null ? '메시지 입력...' : '사진 전송 대기 중',
-                      counterText: '',
-                      hintStyle: TextStyle(
-                        fontSize: 13,
-                        color: c.textMuted,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    ),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: isSending ? null : onSend,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: isSending
-                        ? const Color(0xFFB0BEC5)
-                        : const Color(0xFF1DA1F2),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: isSending
-                      ? const Center(
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: isSending ? null : onClearImage,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            color: Color(0xAA000000),
+                            shape: BoxShape.circle,
                           ),
-                        )
-                      : const Icon(
-                          Icons.send_rounded,
-                          color: Colors.white,
-                          size: 20,
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 8),
             ],
-          ),
-        ],
+            Row(
+              children: [
+                IconButton(
+                  onPressed: isSending ? null : onImage,
+                  icon: const Icon(
+                    Icons.photo_camera_outlined,
+                    color: Color(0xFF1DA1F2),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: c.inputBg,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: TextField(
+                      controller: controller,
+                      enabled: pendingImage == null && !isSending,
+                      maxLines: 4,
+                      minLines: 1,
+                      maxLength: 500,
+                      textInputAction: TextInputAction.newline,
+                      decoration: InputDecoration(
+                        hintText: pendingImage == null
+                            ? '메시지 입력...'
+                            : '사진 전송 대기 중',
+                        counterText: '',
+                        hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                      ),
+                      style: TextStyle(fontSize: 13, color: c.textPrimary),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: isSending ? null : onSend,
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: isSending
+                          ? const Color(0xFFB0BEC5)
+                          : const Color(0xFF1DA1F2),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: isSending
+                        ? const Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1066,27 +1276,25 @@ class _PenaltyInputBar extends StatelessWidget {
         ? '현재 정지 중이라 채팅을 사용할 수 없습니다.'
         : '현재 정지 중이라 채팅을 사용할 수 없습니다.\n해제: ${_formatExpiresAt(expiresAt!)}';
 
-    return Container(
-      color: context.colors.cardBg,
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
-      ),
+    return SafeArea(
+      top: false,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 44),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF3F0),
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: Text(
-          message,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFFD1432F),
+        color: context.colors.cardBg,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF3F0),
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Text(
+            message,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFD1432F),
+            ),
           ),
         ),
       ),
@@ -1117,47 +1325,48 @@ class _BlockedInputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Container(
-      color: c.cardBg,
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 44),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-              decoration: BoxDecoration(
-                color: c.subtleBg,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Text(
-                blockedByOther && !blockedByMe
-                    ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
-                    : '차단한 사용자와는 채팅할 수 없습니다.',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: c.textMuted,
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: c.cardBg,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 44),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 11,
+                ),
+                decoration: BoxDecoration(
+                  color: c.subtleBg,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Text(
+                  blockedByOther && !blockedByMe
+                      ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
+                      : '차단한 사용자와는 채팅할 수 없습니다.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: c.textMuted,
+                  ),
                 ),
               ),
             ),
-          ),
-          if (blockedByMe) ...[
-            const SizedBox(width: 8),
-            TextButton(
-              onPressed: onUnblock,
-              child: const Text(
-                '차단 해제',
-                style: TextStyle(fontWeight: FontWeight.w800),
+            if (blockedByMe) ...[
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: onUnblock,
+                child: const Text(
+                  '차단 해제',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -1212,9 +1421,7 @@ class _DateSeparator extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
         children: [
-          Expanded(
-            child: Divider(color: c.divider, thickness: 1),
-          ),
+          Expanded(child: Divider(color: c.divider, thickness: 1)),
           const SizedBox(width: 12),
           Text(
             _formatDate(date),
@@ -1225,9 +1432,7 @@ class _DateSeparator extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Divider(color: c.divider, thickness: 1),
-          ),
+          Expanded(child: Divider(color: c.divider, thickness: 1)),
         ],
       ),
     );

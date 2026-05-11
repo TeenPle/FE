@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/find_password_provider.dart';
@@ -39,7 +40,10 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
     _countdownTimer?.cancel();
     setState(() => _remainingSeconds = 180);
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) { timer.cancel(); return; }
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_remainingSeconds <= 1) {
         timer.cancel();
         setState(() => _remainingSeconds = 0);
@@ -64,7 +68,9 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
   }
 
   Future<void> _verifyCode() async {
-    await ref.read(findPasswordProvider.notifier).verifyCode(
+    await ref
+        .read(findPasswordProvider.notifier)
+        .verifyCode(
           email: _emailController.text.trim(),
           code: _codeController.text.trim(),
         );
@@ -86,7 +92,8 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
 
   bool get _isExpired => _hasSentCode && _remainingSeconds == 0;
 
-  InputDecoration _inputDecoration(BuildContext context, {
+  InputDecoration _inputDecoration(
+    BuildContext context, {
     required String hintText,
     required IconData icon,
   }) {
@@ -96,8 +103,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
       hintStyle: TextStyle(color: c.textHint, fontSize: 12),
       filled: true,
       fillColor: c.inputBg,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       prefixIcon: Icon(icon, color: context.colors.iconSecondary),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -121,15 +127,12 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
     final isExpired = _isExpired && !isVerified;
 
     final canSend = _isValidEmail && !state.isSendLoading;
-    final canVerify = _isValidCode &&
-        !state.isVerifyLoading &&
-        !isExpired &&
-        !isVerified;
+    final canVerify =
+        _isValidCode && !state.isVerifyLoading && !isExpired && !isVerified;
 
     return Scaffold(
       backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+      bottomNavigationBar: AuthBottomActionArea(
         child: SizedBox(
           height: 54,
           child: ElevatedButton(
@@ -141,8 +144,8 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                     );
                   }
                 : (!_hasSentCode && canSend)
-                    ? _sendCode
-                    : null,
+                ? _sendCode
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4A67F2),
               disabledBackgroundColor: const Color(0xFFD7DEFF),
@@ -157,12 +160,9 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               isVerified
                   ? '다음'
                   : (state.isSendLoading
-                      ? '전송 중...'
-                      : (_hasSentCode ? '인증 완료 후 다음' : '인증번호 받기')),
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
+                        ? '전송 중...'
+                        : (_hasSentCode ? '인증 완료 후 다음' : '인증번호 받기')),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -174,7 +174,9 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                onPressed: () { if (context.canPop()) context.pop(); },
+                onPressed: () {
+                  if (context.canPop()) context.pop();
+                },
                 icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
@@ -226,7 +228,8 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                       textInputAction: TextInputAction.done,
                       enabled: !_hasSentCode,
                       onChanged: (_) => setState(() {}),
-                      decoration: _inputDecoration(context,
+                      decoration: _inputDecoration(
+                        context,
                         hintText: '가입한 이메일을 입력해주세요.',
                         icon: Icons.mail_outline_rounded,
                       ),
@@ -276,12 +279,18 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               else if (_hasSentCode)
                 Text(
                   '인증번호를 전송했어요.',
-                  style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.colors.textMuted,
+                  ),
                 )
               else
                 Text(
                   '인증번호는 3분 동안 유효해요.',
-                  style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.colors.textMuted,
+                  ),
                 ),
 
               if (_hasSentCode) ...[
@@ -301,17 +310,24 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: const Color(0xFF4A67F2), width: 1.2),
+                        color: const Color(0xFF4A67F2),
+                        width: 1.2,
+                      ),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle_rounded,
-                            size: 20, color: Color(0xFF4A67F2)),
+                        Icon(
+                          Icons.check_circle_rounded,
+                          size: 20,
+                          color: Color(0xFF4A67F2),
+                        ),
                         SizedBox(width: 10),
                         Text(
                           '이메일 인증이 완료되었어요.',
@@ -337,10 +353,13 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           onChanged: (_) {
-                            ref.read(findPasswordProvider.notifier).resetVerify();
+                            ref
+                                .read(findPasswordProvider.notifier)
+                                .resetVerify();
                             setState(() {});
                           },
-                          decoration: _inputDecoration(context,
+                          decoration: _inputDecoration(
+                            context,
                             hintText: '6자리 인증번호',
                             icon: Icons.verified_outlined,
                           ).copyWith(counterText: ''),
@@ -356,8 +375,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                             disabledBackgroundColor: const Color(0xFFD7DEFF),
                             foregroundColor: Colors.white,
                             elevation: 0,
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -384,9 +402,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: isExpired
-                          ? Colors.red
-                          : const Color(0xFF4A67F2),
+                      color: isExpired ? Colors.red : const Color(0xFF4A67F2),
                     ),
                   ),
 

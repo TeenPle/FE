@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -209,7 +209,9 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
       builder: (ctx) {
         final bc = ctx.colors;
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           title: Text(
             '시간표를 초기화할까요?',
             style: TextStyle(
@@ -220,11 +222,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           ),
           content: Text(
             '직접 입력한 과목이 모두 사라지고,\n학교에서 제공한 시간표로 되돌아가요.',
-            style: TextStyle(
-              fontSize: 12,
-              color: bc.textBody,
-              height: 1.55,
-            ),
+            style: TextStyle(fontSize: 12, color: bc.textBody, height: 1.55),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           actions: [
@@ -250,7 +248,10 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
               ),
               child: const Text(
                 '초기화',
@@ -331,10 +332,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 const SizedBox(height: 4),
                 Text(
                   'NEIS 원본: $neisSubject',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: bc.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 11, color: bc.textMuted),
                 ),
               ],
               const SizedBox(height: 16),
@@ -361,7 +359,8 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                     vertical: 13,
                   ),
                 ),
-                onSubmitted: (_) => _saveAndPop(ctx, day, period, controller.text),
+                onSubmitted: (_) =>
+                    _saveAndPop(ctx, day, period, controller.text),
               ),
               const SizedBox(height: 14),
               Row(
@@ -369,7 +368,9 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   if (hasOverride)
                     TextButton(
                       onPressed: () {
-                        ref.read(timetableProvider.notifier).clearOverride(day, period);
+                        ref
+                            .read(timetableProvider.notifier)
+                            .clearOverride(day, period);
                         Navigator.pop(ctx);
                       },
                       child: const Text(
@@ -383,14 +384,12 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   const Spacer(),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: Text(
-                      '취소',
-                      style: TextStyle(color: bc.textMuted),
-                    ),
+                    child: Text('취소', style: TextStyle(color: bc.textMuted)),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: () => _saveAndPop(ctx, day, period, controller.text),
+                    onPressed: () =>
+                        _saveAndPop(ctx, day, period, controller.text),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF14A3F7),
                       foregroundColor: Colors.white,
@@ -427,31 +426,43 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
 
   void _showClassRoomDialog(BuildContext context) {
     final initialClassRoom = ref.read(timetableProvider).classRoom ?? '';
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
         final media = MediaQuery.of(ctx);
-        final bottomInset = media.viewInsets.bottom;
-        return Padding(
-          padding: EdgeInsets.only(bottom: bottomInset),
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: media.size.height * 0.85,
-              ),
-              child: SingleChildScrollView(
-                child: _ClassRoomDialogContent(
-                  initialValue: initialClassRoom,
-                  onCancel: () => Navigator.pop(ctx),
-                  onSubmit: (val) {
-                    Navigator.pop(ctx);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (!mounted) return;
-                      ref.read(timetableProvider.notifier).setClassRoom(val);
-                    });
-                  },
+        final availableHeight =
+            media.size.height -
+            media.viewInsets.bottom -
+            media.padding.top -
+            16;
+
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
+          child: SafeArea(
+            top: false,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: availableHeight.clamp(280.0, media.size.height),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: _ClassRoomDialogContent(
+                    initialValue: initialClassRoom,
+                    onCancel: () => Navigator.pop(ctx),
+                    onSubmit: (val) {
+                      Navigator.pop(ctx);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        ref.read(timetableProvider.notifier).setClassRoom(val);
+                      });
+                    },
+                  ),
                 ),
               ),
             ),
@@ -474,7 +485,8 @@ class _ClassRoomDialogContent extends StatefulWidget {
   });
 
   @override
-  State<_ClassRoomDialogContent> createState() => _ClassRoomDialogContentState();
+  State<_ClassRoomDialogContent> createState() =>
+      _ClassRoomDialogContentState();
 }
 
 class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
@@ -502,7 +514,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
         color: c.cardBg,
         borderRadius: BorderRadius.circular(22),
@@ -611,11 +623,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 15,
-                color: c.textMuted,
-              ),
+              Icon(Icons.info_outline_rounded, size: 15, color: c.textMuted),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -675,6 +683,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
     );
   }
 }
+
 class _WeekNavigator extends ConsumerWidget {
   final TimetableState state;
 
@@ -720,10 +729,7 @@ class _WeekNavigator extends ConsumerWidget {
               if (state.classRoom != null)
                 Text(
                   '${state.week?.grade ?? '?'}학년 ${state.classRoom}반',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: c.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 11, color: c.textMuted),
                 ),
             ],
           ),
@@ -860,11 +866,7 @@ class _MemoRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(999),
             child: Padding(
               padding: const EdgeInsets.all(3),
-              child: Icon(
-                Icons.close_rounded,
-                size: 14,
-                color: c.textMuted,
-              ),
+              child: Icon(Icons.close_rounded, size: 14, color: c.textMuted),
             ),
           ),
         ],
@@ -880,10 +882,7 @@ class _TimetableGrid extends StatelessWidget {
   static const _days = ['월', '화', '수', '목', '금'];
   static const _totalPeriods = 7;
 
-  const _TimetableGrid({
-    required this.state,
-    required this.onCellLongPress,
-  });
+  const _TimetableGrid({required this.state, required this.onCellLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -946,7 +945,11 @@ class _TimetableGrid extends StatelessWidget {
     );
   }
 
-  Widget _headerCell(String text, {bool highlight = false, required AppColors c}) {
+  Widget _headerCell(
+    String text, {
+    bool highlight = false,
+    required AppColors c,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
       child: Container(
@@ -1014,9 +1017,7 @@ class _TimetableGrid extends StatelessWidget {
           decoration: BoxDecoration(
             color: isToday ? c.tintBg : c.subtleBg,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isToday ? c.borderBlue : c.border,
-            ),
+            border: Border.all(color: isToday ? c.borderBlue : c.border),
           ),
           child: Stack(
             children: [

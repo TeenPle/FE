@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
@@ -80,39 +81,30 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration(BuildContext context, {
+  InputDecoration _inputDecoration(
+    BuildContext context, {
     required String hintText,
     Widget? prefixIcon,
   }) {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint,
-        fontSize: 12,
-      ),
+      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
       filled: true,
       fillColor: c.inputBg,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 17,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       prefixIcon: prefixIcon,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(
-          color: Color(0xFF4A67F2),
-          width: 1.3,
-        ),
+        borderSide: BorderSide(color: Color(0xFF4A67F2), width: 1.3),
       ),
     );
   }
@@ -134,229 +126,197 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
     /// 다음 버튼 활성화 조건
     final canProceed =
         isValidPhoneNumber &&
-            phoneCheckState.isAvailable == true &&
-            isSameAsChecked &&
-            !phoneCheckState.isLoading;
+        phoneCheckState.isAvailable == true &&
+        isSameAsChecked &&
+        !phoneCheckState.isLoading;
 
-    return Scaffold(
-      backgroundColor: context.colors.pageBg,
+    return AuthStepLayout(
+      bottom: SizedBox(
+        height: 54,
+        child: ElevatedButton(
+          onPressed: canProceed
+              ? () {
+                  /// 최종 번호 한 번 더 저장
+                  ref
+                      .read(signupFormProvider.notifier)
+                      .updatePhoneNumber(phoneNumber);
 
-      /// 하단 고정 버튼
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: canProceed
-                ? () {
-              /// 최종 번호 한 번 더 저장
-              ref
-                  .read(signupFormProvider.notifier)
-                  .updatePhoneNumber(phoneNumber);
-
-              /// 다음 단계인 학생증 업로드 페이지로 이동
-              context.push(AppRoutes.signupStudentCard);
-            }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+                  /// 다음 단계인 학생증 업로드 페이지로 이동
+                  context.push(AppRoutes.signupStudentCard);
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A67F2),
+            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white70,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              '다음',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          ),
+          child: Text(
+            '다음',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
       ),
-
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// 상단 뒤로가기 버튼
-              IconButton(
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  }
-                },
-                icon: Icon(Icons.arrow_back_ios_new_rounded),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-                splashRadius: 22,
-              ),
-
-              SizedBox(height: 8),
-
-              /// 단계 표시
-              Text(
-                '7/8',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.textTertiary,
-                ),
-              ),
-
-              SizedBox(height: 14),
-
-              /// 페이지 성격 안내
-              Text(
-                '연락처 정보',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF4A67F2),
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 제목
-              Text(
-                '전화번호를 등록해주세요',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  height: 1.22,
-                  letterSpacing: -0.6,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              /// 보조 문구
-              Text(
-                '계정 확인과 안내에 사용할 휴대폰 번호예요.',
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: context.colors.textBody,
-                ),
-              ),
-
-              SizedBox(height: 28),
-
-              /// 전화번호 라벨
-              Text(
-                '휴대폰 번호',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 전화번호 입력창
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                onChanged: _onChanged,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(11),
-                ],
-                decoration: _inputDecoration(context,
-                  hintText: '예: 01012345678',
-                  prefixIcon: Icon(
-                    Icons.phone_iphone_rounded,
-                    color: context.colors.iconSecondary,
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              /// 상태 메시지
-              Builder(
-                builder: (context) {
-                  if (phoneNumber.isEmpty) {
-                    return Text(
-                      '예시) 01012345678',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: context.colors.textMuted,
-                      ),
-                    );
-                  }
-
-                  if (!isValidPhoneNumber) {
-                    return Text(
-                      '예시) 01012345678',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.red,
-                      ),
-                    );
-                  }
-
-                  if (phoneCheckState.isLoading) {
-                    return Text(
-                      '전화번호 사용 가능 여부를 확인하고 있어요.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF4A67F2),
-                      ),
-                    );
-                  }
-
-                  if (phoneCheckState.errorMessage != null && isSameAsChecked) {
-                    return Text(
-                      phoneCheckState.errorMessage!,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.red,
-                      ),
-                    );
-                  }
-
-                  if (phoneCheckState.isAvailable == false && isSameAsChecked) {
-                    return Text(
-                      '이미 사용 중인 전화번호예요.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.red,
-                      ),
-                    );
-                  }
-
-                  if (phoneCheckState.isAvailable == true && isSameAsChecked) {
-                    return Text(
-                      '등록 가능한 전화번호예요.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF4A67F2),
-                      ),
-                    );
-                  }
-
-                  return Text(
-                    '예시) 01012345678',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: context.colors.textMuted,
-                    ),
-                  );
-                },
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 상단 뒤로가기 버튼
+          IconButton(
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+            splashRadius: 22,
           ),
-        ),
+
+          SizedBox(height: 8),
+
+          /// 단계 표시
+          Text(
+            '7/8',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: context.colors.textTertiary,
+            ),
+          ),
+
+          SizedBox(height: 14),
+
+          /// 페이지 성격 안내
+          Text(
+            '연락처 정보',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF4A67F2),
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 제목
+          Text(
+            '전화번호를 등록해주세요',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.22,
+              letterSpacing: -0.6,
+              color: context.colors.textPrimary,
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 보조 문구
+          Text(
+            '계정 확인과 안내에 사용할 휴대폰 번호예요.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: context.colors.textBody,
+            ),
+          ),
+
+          SizedBox(height: 28),
+
+          /// 전화번호 라벨
+          Text(
+            '휴대폰 번호',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 전화번호 입력창
+          TextField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            onChanged: _onChanged,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(11),
+            ],
+            decoration: _inputDecoration(
+              context,
+              hintText: '예: 01012345678',
+              prefixIcon: Icon(
+                Icons.phone_iphone_rounded,
+                color: context.colors.iconSecondary,
+              ),
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 상태 메시지
+          Builder(
+            builder: (context) {
+              if (phoneNumber.isEmpty) {
+                return Text(
+                  '예시) 01012345678',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.colors.textMuted,
+                  ),
+                );
+              }
+
+              if (!isValidPhoneNumber) {
+                return Text(
+                  '예시) 01012345678',
+                  style: TextStyle(fontSize: 11, color: Colors.red),
+                );
+              }
+
+              if (phoneCheckState.isLoading) {
+                return Text(
+                  '전화번호 사용 가능 여부를 확인하고 있어요.',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                );
+              }
+
+              if (phoneCheckState.errorMessage != null && isSameAsChecked) {
+                return Text(
+                  phoneCheckState.errorMessage!,
+                  style: TextStyle(fontSize: 11, color: Colors.red),
+                );
+              }
+
+              if (phoneCheckState.isAvailable == false && isSameAsChecked) {
+                return Text(
+                  '이미 사용 중인 전화번호예요.',
+                  style: TextStyle(fontSize: 11, color: Colors.red),
+                );
+              }
+
+              if (phoneCheckState.isAvailable == true && isSameAsChecked) {
+                return Text(
+                  '등록 가능한 전화번호예요.',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                );
+              }
+
+              return Text(
+                '예시) 01012345678',
+                style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

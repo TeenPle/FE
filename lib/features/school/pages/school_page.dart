@@ -484,7 +484,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   List<Widget> _buildBoardSlivers(SchoolState state) {
     final notifier = ref.read(schoolProvider.notifier);
 
-    if (state.boards.isEmpty) {
+    // 지역 게시판은 아직 미지원 → 목록에서 숨김
+    final visibleBoards = state.boards.where((b) => !b.isRegion).toList();
+
+    if (visibleBoards.isEmpty) {
       return [
         const SliverFillRemaining(
           hasScrollBody: false,
@@ -500,11 +503,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       SliverPadding(
         padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
         sliver: SliverList.separated(
-          itemCount: state.boards.length,
+          itemCount: visibleBoards.length,
           separatorBuilder: (context, index) =>
               const SizedBox(height: 10),
           itemBuilder: (context, index) {
-            final board = state.boards[index];
+            final board = visibleBoards[index];
             return AnimationConfiguration.staggeredList(
               position: index,
               duration: const Duration(milliseconds: 380),
@@ -601,7 +604,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   }
 
   Future<void> _openWriteFlow(List<BoardModel> boards) async {
-    final activeBoards = boards.where((b) => b.active).toList();
+    // 활성화된 학교 게시판만 노출 (지역 게시판은 아직 미지원이므로 제외)
+    final activeBoards = boards.where((b) => b.active && !b.isRegion).toList();
     if (activeBoards.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('글을 작성할 게시판이 없어요.')));

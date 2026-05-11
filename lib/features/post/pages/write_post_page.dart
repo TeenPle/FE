@@ -15,6 +15,7 @@ import '../models/update_post_request.dart';
 import '../provider/post_detail_providers.dart';
 import 'widgets/crisis_banner.dart';
 
+
 class WritePostPage extends ConsumerStatefulWidget {
   final int? boardId;
   final String boardTitle;
@@ -137,8 +138,6 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         return MediaType('image', 'gif');
       case 'webp':
         return MediaType('image', 'webp');
-      case 'pdf':
-        return MediaType('application', 'pdf');
       default:
         return MediaType('application', 'octet-stream');
     }
@@ -158,12 +157,13 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
       return;
     }
 
+    // FileType.image → 갤러리 바로 오픈
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       withData: true,
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'],
+      type: FileType.image,
     );
+
     if (result == null || result.files.isEmpty) return;
 
     final oversized = result.files

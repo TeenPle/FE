@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/find_email_provider.dart';
@@ -32,7 +33,9 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
   }
 
   Future<void> _submit() async {
-    await ref.read(findEmailProvider.notifier).findEmail(
+    await ref
+        .read(findEmailProvider.notifier)
+        .findEmail(
           username: _nameController.text.trim(),
           phoneNumber: _phoneController.text.trim(),
         );
@@ -45,7 +48,8 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
     }
   }
 
-  InputDecoration _inputDecoration(BuildContext context, {
+  InputDecoration _inputDecoration(
+    BuildContext context, {
     required String hintText,
     required IconData icon,
   }) {
@@ -79,8 +83,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
 
     return Scaffold(
       backgroundColor: c.pageBg,
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+      bottomNavigationBar: AuthBottomActionArea(
         child: SizedBox(
           height: 54,
           child: ElevatedButton(
@@ -109,7 +112,9 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                onPressed: () { if (context.canPop()) context.pop(); },
+                onPressed: () {
+                  if (context.canPop()) context.pop();
+                },
                 icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
@@ -162,7 +167,8 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
                 controller: _nameController,
                 textInputAction: TextInputAction.next,
                 onChanged: (_) => setState(() {}),
-                decoration: _inputDecoration(context,
+                decoration: _inputDecoration(
+                  context,
                   hintText: '이름을 입력해주세요.',
                   icon: Icons.person_outline_rounded,
                 ),
@@ -191,7 +197,8 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
                 onSubmitted: (_) {
                   if (_canSubmit && !state.isLoading) _submit();
                 },
-                decoration: _inputDecoration(context,
+                decoration: _inputDecoration(
+                  context,
                   hintText: '예: 01012345678',
                   icon: Icons.phone_iphone_rounded,
                 ),

@@ -36,8 +36,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     super.didChangeDependencies();
 
     /// 회원가입 완료 후 로그인 페이지로 돌아온 경우 안내 문구 표시
-    final signupStatus =
-    GoRouterState.of(context).uri.queryParameters['signup'];
+    final signupStatus = GoRouterState.of(
+      context,
+    ).uri.queryParameters['signup'];
 
     if (!_hasShownSignupSuccessMessage && signupStatus == 'success') {
       _hasShownSignupSuccessMessage = true;
@@ -57,8 +58,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       });
     }
 
-    final resetStatus =
-        GoRouterState.of(context).uri.queryParameters['reset'];
+    final resetStatus = GoRouterState.of(context).uri.queryParameters['reset'];
 
     if (!_hasShownSignupSuccessMessage && resetStatus == 'success') {
       _hasShownSignupSuccessMessage = true;
@@ -95,11 +95,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    await ref.read(loginProvider.notifier).login(
-      email: email,
-      password: password,
-      keepLoggedIn: _keepLoggedIn,
-    );
+    await ref
+        .read(loginProvider.notifier)
+        .login(email: email, password: password, keepLoggedIn: _keepLoggedIn);
 
     final latestState = ref.read(loginProvider);
 
@@ -281,8 +279,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         color: c.textMuted,
                       ),
                       suffixIcon: IconButton(
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined
@@ -324,7 +323,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               child: Checkbox(
                                 value: _keepLoggedIn,
                                 onChanged: (value) => setState(
-                                    () => _keepLoggedIn = value ?? false),
+                                  () => _keepLoggedIn = value ?? false,
+                                ),
                                 activeColor: const Color(0xFF4A67F2),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
@@ -368,8 +368,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
                           '|',
-                          style: TextStyle(
-                              fontSize: 11, color: c.textTertiary),
+                          style: TextStyle(fontSize: 11, color: c.textTertiary),
                         ),
                       ),
                       TextButton(
@@ -399,8 +398,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       padding: const EdgeInsets.only(left: 4),
                       child: Text(
                         loginState.errorMessage!,
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.red),
+                        style: TextStyle(fontSize: 11, color: Colors.red),
                       ),
                     ),
 
@@ -438,10 +436,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       children: [
                         Text(
                           '계정이 없으신가요?',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: c.textTertiary,
-                          ),
+                          style: TextStyle(fontSize: 12, color: c.textTertiary),
                         ),
                         TextButton(
                           onPressed: () {
@@ -449,8 +444,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             context.push(AppRoutes.signupConsent);
                           },
                           style: TextButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),

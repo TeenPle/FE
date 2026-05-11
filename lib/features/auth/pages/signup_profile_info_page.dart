@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
@@ -109,37 +110,28 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
   }
 
   /// 공통 입력창 스타일
-  InputDecoration _inputDecoration(BuildContext context, {
+  InputDecoration _inputDecoration(
+    BuildContext context, {
     required String hintText,
   }) {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint,
-        fontSize: 12,
-      ),
+      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
       filled: true,
       fillColor: c.inputBg,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 17,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: context.colors.border,
-        ),
+        borderSide: BorderSide(color: context.colors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(
-          color: Color(0xFF4A67F2),
-          width: 1.3,
-        ),
+        borderSide: BorderSide(color: Color(0xFF4A67F2), width: 1.3),
       ),
     );
   }
@@ -168,355 +160,321 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
     /// 다음 버튼 활성화 조건
     final canProceed =
         isUsernameValid &&
-            isNicknameValid &&
-            isGenderSelected &&
-            nicknameCheckState.isAvailable == true &&
-            isSameAsChecked &&
-            !nicknameCheckState.isLoading;
+        isNicknameValid &&
+        isGenderSelected &&
+        nicknameCheckState.isAvailable == true &&
+        isSameAsChecked &&
+        !nicknameCheckState.isLoading;
 
-    return Scaffold(
-      backgroundColor: context.colors.pageBg,
+    return AuthStepLayout(
+      bottom: SizedBox(
+        height: 54,
+        child: ElevatedButton(
+          onPressed: canProceed
+              ? () {
+                  /// 최종 입력값 한 번 더 저장
+                  ref
+                      .read(signupFormProvider.notifier)
+                      .updateUsername(username);
+                  ref
+                      .read(signupFormProvider.notifier)
+                      .updateNickname(nickname);
 
-      /// 하단 고정 버튼
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: canProceed
-                ? () {
-              /// 최종 입력값 한 번 더 저장
-              ref.read(signupFormProvider.notifier).updateUsername(
-                username,
-              );
-              ref.read(signupFormProvider.notifier).updateNickname(
-                nickname,
-              );
-
-              /// 다음 단계인 이메일 입력 페이지로 이동
-              context.push(AppRoutes.signupId);
-            }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+                  /// 다음 단계인 이메일 입력 페이지로 이동
+                  context.push(AppRoutes.signupId);
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A67F2),
+            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white70,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              '다음',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          ),
+          child: Text(
+            '다음',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 상단 뒤로가기 버튼
+          IconButton(
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+            splashRadius: 22,
+          ),
 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(height: 8),
+
+          /// 단계 표시
+          Text(
+            '3/8',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: context.colors.textTertiary,
+            ),
+          ),
+
+          SizedBox(height: 14),
+
+          /// 페이지 성격 안내
+          Text(
+            '프로필 정보',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF4A67F2),
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 제목
+          Text(
+            '프로필을 설정해주세요',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.22,
+              letterSpacing: -0.6,
+              color: context.colors.textPrimary,
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 보조 문구
+          Text(
+            'TeenPle에서 사용할 기본 정보를 입력해주세요.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: context.colors.textBody,
+            ),
+          ),
+
+          SizedBox(height: 28),
+
+          /// 이름 라벨
+          Text(
+            '이름',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 이름 입력창
+          TextField(
+            controller: _usernameController,
+            onChanged: _onUsernameChanged,
+            decoration: _inputDecoration(context, hintText: '이름을 입력해주세요'),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 이름 안내/에러 메시지
+          if (username.isNotEmpty && !isUsernameValid)
+            Text(
+              '이름은 한글 또는 영어만 입력할 수 있으며, 최대 20자까지 가능해요.',
+              style: TextStyle(fontSize: 11, color: Colors.red),
+            ),
+
+          SizedBox(height: 16),
+
+          /// 닉네임 라벨
+          Text(
+            '닉네임',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 닉네임 입력창
+          TextField(
+            controller: _nicknameController,
+            onChanged: _onNicknameChanged,
+            decoration: _inputDecoration(context, hintText: '닉네임을 입력해주세요'),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 닉네임 상태 메시지
+          Builder(
+            builder: (context) {
+              if (nickname.isEmpty) {
+                return Text(
+                  '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.colors.textMuted,
+                  ),
+                );
+              }
+
+              if (!isNicknameValid) {
+                return Text(
+                  '닉네임은 한글 또는 영어로 3~10자 입력해주세요.',
+                  style: TextStyle(fontSize: 11, color: Colors.red),
+                );
+              }
+
+              if (nicknameCheckState.isLoading) {
+                return Text(
+                  '닉네임 중복 여부를 확인하고 있어요.',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                );
+              }
+
+              if (nicknameCheckState.errorMessage != null && isSameAsChecked) {
+                return Text(
+                  nicknameCheckState.errorMessage!,
+                  style: TextStyle(fontSize: 11, color: Colors.red),
+                );
+              }
+
+              if (nicknameCheckState.isAvailable == false && isSameAsChecked) {
+                return Text(
+                  '이미 사용 중인 닉네임이에요.',
+                  style: TextStyle(fontSize: 11, color: Colors.red),
+                );
+              }
+
+              if (nicknameCheckState.isAvailable == true && isSameAsChecked) {
+                return Text(
+                  '사용 가능한 닉네임이에요.',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                );
+              }
+
+              return Text(
+                '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
+                style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+              );
+            },
+          ),
+
+          SizedBox(height: 24),
+
+          /// 성별 라벨
+          Text(
+            '성별',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 성별 선택 설명
+          Text(
+            '프로필에 표시할 성별을 선택해주세요.',
+            style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+          ),
+
+          SizedBox(height: 12),
+
+          /// 성별 선택 버튼
+          Row(
             children: [
-              /// 상단 뒤로가기 버튼
-              IconButton(
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  }
-                },
-                icon: Icon(Icons.arrow_back_ios_new_rounded),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-                splashRadius: 22,
-              ),
-
-              SizedBox(height: 8),
-
-              /// 단계 표시
-              Text(
-                '3/8',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.textTertiary,
-                ),
-              ),
-
-              SizedBox(height: 14),
-
-              /// 페이지 성격 안내
-              Text(
-                '프로필 정보',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF4A67F2),
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 제목
-              Text(
-                '프로필을 설정해주세요',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  height: 1.22,
-                  letterSpacing: -0.6,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              /// 보조 문구
-              Text(
-                'TeenPle에서 사용할 기본 정보를 입력해주세요.',
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: context.colors.textBody,
-                ),
-              ),
-
-              SizedBox(height: 28),
-
-              /// 이름 라벨
-              Text(
-                '이름',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 이름 입력창
-              TextField(
-                controller: _usernameController,
-                onChanged: _onUsernameChanged,
-                decoration: _inputDecoration(context,
-                  hintText: '이름을 입력해주세요',
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 이름 안내/에러 메시지
-              if (username.isNotEmpty && !isUsernameValid)
-                Text(
-                  '이름은 한글 또는 영어만 입력할 수 있으며, 최대 20자까지 가능해요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
-                ),
-
-              SizedBox(height: 16),
-
-              /// 닉네임 라벨
-              Text(
-                '닉네임',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 닉네임 입력창
-              TextField(
-                controller: _nicknameController,
-                onChanged: _onNicknameChanged,
-                decoration: _inputDecoration(context,
-                  hintText: '닉네임을 입력해주세요',
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 닉네임 상태 메시지
-              Builder(
-                builder: (context) {
-                  if (nickname.isEmpty) {
-                    return Text(
-                      '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: context.colors.textMuted,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _onSelectGender('MALE'),
+                  child: Container(
+                    height: 54,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: gender == 'MALE'
+                          ? const Color(0xFFF2F5FF)
+                          : context.colors.cardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: gender == 'MALE'
+                            ? const Color(0xFF4A67F2)
+                            : context.colors.border,
+                        width: gender == 'MALE' ? 1.3 : 1.0,
                       ),
-                    );
-                  }
-
-                  if (!isNicknameValid) {
-                    return Text(
-                      '닉네임은 한글 또는 영어로 3~10자 입력해주세요.',
-                      style: TextStyle(fontSize: 11, color: Colors.red),
-                    );
-                  }
-
-                  if (nicknameCheckState.isLoading) {
-                    return Text(
-                      '닉네임 중복 여부를 확인하고 있어요.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF4A67F2),
-                      ),
-                    );
-                  }
-
-                  if (nicknameCheckState.errorMessage != null &&
-                      isSameAsChecked) {
-                    return Text(
-                      nicknameCheckState.errorMessage!,
-                      style: TextStyle(fontSize: 11, color: Colors.red),
-                    );
-                  }
-
-                  if (nicknameCheckState.isAvailable == false &&
-                      isSameAsChecked) {
-                    return Text(
-                      '이미 사용 중인 닉네임이에요.',
-                      style: TextStyle(fontSize: 11, color: Colors.red),
-                    );
-                  }
-
-                  if (nicknameCheckState.isAvailable == true &&
-                      isSameAsChecked) {
-                    return Text(
-                      '사용 가능한 닉네임이에요.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF4A67F2),
-                      ),
-                    );
-                  }
-
-                  return Text(
-                    '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: context.colors.textMuted,
                     ),
-                  );
-                },
-              ),
-
-              SizedBox(height: 24),
-
-              /// 성별 라벨
-              Text(
-                '성별',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 성별 선택 설명
-              Text(
-                '프로필에 표시할 성별을 선택해주세요.',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 12),
-
-              /// 성별 선택 버튼
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onSelectGender('MALE'),
-                      child: Container(
-                        height: 54,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: gender == 'MALE'
-                              ? const Color(0xFFF2F5FF)
-                              : context.colors.cardBg,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: gender == 'MALE'
-                                ? const Color(0xFF4A67F2)
-                                : context.colors.border,
-                            width: gender == 'MALE' ? 1.3 : 1.0,
-                          ),
-                        ),
-                        child: Text(
-                          '남성',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: gender == 'MALE'
-                                ? const Color(0xFF4A67F2)
-                                : context.colors.textPrimary,
-                          ),
-                        ),
+                    child: Text(
+                      '남성',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: gender == 'MALE'
+                            ? const Color(0xFF4A67F2)
+                            : context.colors.textPrimary,
                       ),
                     ),
                   ),
+                ),
+              ),
 
-                  SizedBox(width: 12),
+              SizedBox(width: 12),
 
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onSelectGender('FEMALE'),
-                      child: Container(
-                        height: 54,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: gender == 'FEMALE'
-                              ? const Color(0xFFF2F5FF)
-                              : context.colors.cardBg,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: gender == 'FEMALE'
-                                ? const Color(0xFF4A67F2)
-                                : context.colors.border,
-                            width: gender == 'FEMALE' ? 1.3 : 1.0,
-                          ),
-                        ),
-                        child: Text(
-                          '여성',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: gender == 'FEMALE'
-                                ? const Color(0xFF4A67F2)
-                                : context.colors.textPrimary,
-                          ),
-                        ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _onSelectGender('FEMALE'),
+                  child: Container(
+                    height: 54,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: gender == 'FEMALE'
+                          ? const Color(0xFFF2F5FF)
+                          : context.colors.cardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: gender == 'FEMALE'
+                            ? const Color(0xFF4A67F2)
+                            : context.colors.border,
+                        width: gender == 'FEMALE' ? 1.3 : 1.0,
+                      ),
+                    ),
+                    child: Text(
+                      '여성',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: gender == 'FEMALE'
+                            ? const Color(0xFF4A67F2)
+                            : context.colors.textPrimary,
                       ),
                     ),
                   ),
-                ],
-              ),
-
-              SizedBox(height: 8),
-
-              if (!isGenderSelected && (username.isNotEmpty || nickname.isNotEmpty))
-                Text(
-                  '성별을 선택해주세요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
                 ),
+              ),
             ],
           ),
-        ),
+
+          SizedBox(height: 8),
+
+          if (!isGenderSelected && (username.isNotEmpty || nickname.isNotEmpty))
+            Text(
+              '성별을 선택해주세요.',
+              style: TextStyle(fontSize: 11, color: Colors.red),
+            ),
+        ],
       ),
     );
   }

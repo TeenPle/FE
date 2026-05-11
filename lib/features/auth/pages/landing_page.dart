@@ -36,12 +36,10 @@ class _LandingPageState extends ConsumerState<LandingPage>
       curve: Curves.easeOut,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.96, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.96,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward();
 
@@ -59,14 +57,14 @@ class _LandingPageState extends ConsumerState<LandingPage>
       final refreshToken = await tokenStorage.getRefreshToken();
       final userId = await tokenStorage.getUserId();
 
-      if (accessToken != null && accessToken.isNotEmpty &&
-          refreshToken != null && refreshToken.isNotEmpty) {
+      if (accessToken != null &&
+          accessToken.isNotEmpty &&
+          refreshToken != null &&
+          refreshToken.isNotEmpty) {
         // 메모리 세션에 두 토큰 모두 복원
-        ref.read(authSessionProvider.notifier).setTokens(
-          accessToken,
-          refreshToken,
-          userId: userId,
-        );
+        ref
+            .read(authSessionProvider.notifier)
+            .setTokens(accessToken, refreshToken, userId: userId);
 
         final role = await tokenStorage.getUserRole();
         if (!mounted) return;
@@ -116,7 +114,9 @@ class _LandingPageState extends ConsumerState<LandingPage>
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF5EC8F8).withValues(alpha: 0.18),
+                            color: const Color(
+                              0xFF5EC8F8,
+                            ).withValues(alpha: 0.18),
                             blurRadius: 24,
                             offset: const Offset(0, 10),
                           ),

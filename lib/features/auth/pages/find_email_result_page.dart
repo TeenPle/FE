@@ -110,10 +110,7 @@ class FindEmailResultPage extends StatelessWidget {
                   ),
                   child: Text(
                     '로그인하기',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

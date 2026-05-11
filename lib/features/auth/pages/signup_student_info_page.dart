@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/signup_form_provider.dart';
@@ -150,232 +151,213 @@ class SignupStudentInfoPage extends ConsumerWidget {
     /// 학교와 학년이 모두 있어야 다음 버튼 활성화
     final isNextEnabled = selectedSchool != null && selectedGrade != null;
 
-    return Scaffold(
-      backgroundColor: context.colors.pageBg,
-
-      /// 하단 고정 버튼
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: isNextEnabled
-                ? () {
-              /// 다음 단계인 프로필 정보 입력 페이지로 이동
-              context.push(AppRoutes.signupProfileInfo);
-            }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+    return AuthStepLayout(
+      scrollable: false,
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+      bottom: SizedBox(
+        height: 54,
+        child: ElevatedButton(
+          onPressed: isNextEnabled
+              ? () {
+                  /// 다음 단계인 프로필 정보 입력 페이지로 이동
+                  context.push(AppRoutes.signupProfileInfo);
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A67F2),
+            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white70,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              '다음',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          ),
+          child: Text(
+            '다음',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
       ),
-
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// 상단 뒤로가기 버튼
-              IconButton(
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  }
-                },
-                icon: Icon(Icons.arrow_back_ios_new_rounded),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-                splashRadius: 22,
-              ),
-
-              SizedBox(height: 8),
-
-              /// 단계 표시
-              Text(
-                '2/8',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.textTertiary,
-                ),
-              ),
-
-              SizedBox(height: 14),
-
-              /// 페이지 성격 안내
-              Text(
-                '재학 정보',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF4A67F2),
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 제목
-              Text(
-                '몇 학년에 재학 중이신가요?',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.6,
-                  height: 1.22,
-                  color: context.colors.textPrimary,
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              /// 보조 문구
-              Text(
-                '선택한 학교를 기준으로 현재 학년을 알려주세요.',
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: context.colors.textBody,
-                ),
-              ),
-
-              SizedBox(height: 28),
-
-              /// 학년 라벨
-              Text(
-                '학년',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 학년 선택 영역
-              InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => _showGradeBottomSheet(context, ref),
-                child: Container(
-                  width: double.infinity,
-                  height: 58,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    color: context.colors.cardBg,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: selectedGrade != null
-                          ? const Color(0xFF4A67F2)
-                          : context.colors.border,
-                      width: selectedGrade != null ? 1.3 : 1.0,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x08000000),
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        selectedGrade == null
-                            ? '학년을 선택해주세요'
-                            : '$selectedGrade학년',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: selectedGrade == null
-                              ? FontWeight.w400
-                              : FontWeight.w700,
-                          color: selectedGrade == null
-                              ? context.colors.textHint : context.colors.textPrimary,
-                        ),
-                      ),
-                      Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: context.colors.textMuted,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 18),
-
-              /// 선택한 학교 라벨
-              Text(
-                '선택한 학교',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.textMuted,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              /// 이전 단계에서 선택한 학교 표시
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: context.colors.cardBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: context.colors.border,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.school_outlined,
-                      size: 18,
-                      color: context.colors.iconSecondary,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: selectedSchool != null
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: selectedSchool != null
-                              ? context.colors.textPrimary
-                              : context.colors.textTertiary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 상단 뒤로가기 버튼
+          IconButton(
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+            splashRadius: 22,
           ),
-        ),
+
+          SizedBox(height: 8),
+
+          /// 단계 표시
+          Text(
+            '2/8',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: context.colors.textTertiary,
+            ),
+          ),
+
+          SizedBox(height: 14),
+
+          /// 페이지 성격 안내
+          Text(
+            '재학 정보',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF4A67F2),
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 제목
+          Text(
+            '몇 학년에 재학 중이신가요?',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.6,
+              height: 1.22,
+              color: context.colors.textPrimary,
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 보조 문구
+          Text(
+            '선택한 학교를 기준으로 현재 학년을 알려주세요.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: context.colors.textBody,
+            ),
+          ),
+
+          SizedBox(height: 28),
+
+          /// 학년 라벨
+          Text(
+            '학년',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 학년 선택 영역
+          InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => _showGradeBottomSheet(context, ref),
+            child: Container(
+              width: double.infinity,
+              height: 58,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                color: context.colors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: selectedGrade != null
+                      ? const Color(0xFF4A67F2)
+                      : context.colors.border,
+                  width: selectedGrade != null ? 1.3 : 1.0,
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x08000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    selectedGrade == null ? '학년을 선택해주세요' : '$selectedGrade학년',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: selectedGrade == null
+                          ? FontWeight.w400
+                          : FontWeight.w700,
+                      color: selectedGrade == null
+                          ? context.colors.textHint
+                          : context.colors.textPrimary,
+                    ),
+                  ),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: context.colors.textMuted,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SizedBox(height: 18),
+
+          /// 선택한 학교 라벨
+          Text(
+            '선택한 학교',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 이전 단계에서 선택한 학교 표시
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: context.colors.cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.school_outlined,
+                  size: 18,
+                  color: context.colors.iconSecondary,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: selectedSchool != null
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                      color: selectedSchool != null
+                          ? context.colors.textPrimary
+                          : context.colors.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -26,6 +26,7 @@ class CommentInputBar extends StatefulWidget {
 
 class _CommentInputBarState extends State<CommentInputBar> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   static const int _maxLength = 500;
 
   @override
@@ -36,6 +37,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -50,6 +52,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
     if (text.isEmpty || widget.isSubmitting || _isOverLimit) return;
     widget.onSubmit(text);
     _controller.clear();
+    _focusNode.unfocus();
   }
 
   @override
@@ -71,7 +74,10 @@ class _CommentInputBarState extends State<CommentInputBar> {
             if (widget.replyingToCommentId != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: c.replyBg,
                   borderRadius: BorderRadius.circular(14),
@@ -138,10 +144,13 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
+                      focusNode: _focusNode,
                       minLines: 1,
                       maxLines: 4,
                       style: TextStyle(
-                        color: _isOverLimit ? const Color(0xFFE05C5C) : c.textBody,
+                        color: _isOverLimit
+                            ? const Color(0xFFE05C5C)
+                            : c.textBody,
                         fontSize: 13,
                         height: 1.4,
                       ),
@@ -160,7 +169,9 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   ),
                   const SizedBox(width: 8),
                   InkWell(
-                    onTap: (widget.isSubmitting || _isOverLimit) ? null : _submit,
+                    onTap: (widget.isSubmitting || _isOverLimit)
+                        ? null
+                        : _submit,
                     borderRadius: BorderRadius.circular(999),
                     child: Container(
                       width: 40,

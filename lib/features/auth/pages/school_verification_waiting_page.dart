@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/login_blocked_reason.dart';
@@ -36,8 +37,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+      bottomNavigationBar: AuthBottomActionArea(
         child: SizedBox(
           height: 54,
           child: ElevatedButton(
@@ -56,10 +56,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
             ),
             child: Text(
               '확인',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -144,9 +141,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: context.colors.border,
-                  ),
+                  border: Border.all(color: context.colors.border),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x08000000),

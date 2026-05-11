@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/haptics.dart';
 
@@ -39,114 +40,98 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Scaffold(
-      backgroundColor: c.pageBg,
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: _allAgreed
-                ? () => context.push(AppRoutes.signupSchool)
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+    return AuthStepLayout(
+      bottom: SizedBox(
+        height: 54,
+        child: ElevatedButton(
+          onPressed: _allAgreed
+              ? () => context.push(AppRoutes.signupSchool)
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A67F2),
+            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white70,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(
-              '동의하고 계속하기',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-            ),
+          ),
+          child: Text(
+            '동의하고 계속하기',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 뒤로가기
-              IconButton(
-                onPressed: () {
-                  if (context.canPop()) context.pop();
-                },
-                icon: Icon(Icons.arrow_back_ios_new_rounded),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-                splashRadius: 22,
-              ),
-
-              SizedBox(height: 24),
-
-              Text(
-                '서비스 이용에\n동의해주세요',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  height: 1.3,
-                  letterSpacing: -0.6,
-                  color: c.textPrimary,
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              Text(
-                'TeenPle는 만 15세 이상 고등학교 재학생을 위한 서비스입니다.',
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: c.textBody,
-                ),
-              ),
-
-              SizedBox(height: 32),
-
-              // 전체 동의
-              _AllAgreeCard(
-                checked: _allAgreed,
-                onChanged: _toggleAll,
-              ),
-
-              SizedBox(height: 12),
-
-              // 개별 항목
-              _ConsentItem(
-                checked: _agreeTerms,
-                label: '[필수] 이용약관',
-                onChanged: (v) => setState(() => _agreeTerms = v ?? false),
-                onViewTap: () => context.push(AppRoutes.terms),
-              ),
-
-              SizedBox(height: 8),
-
-              _ConsentItem(
-                checked: _agreePrivacy,
-                label: '[필수] 개인정보 수집·이용 동의',
-                onChanged: (v) => setState(() => _agreePrivacy = v ?? false),
-                onViewTap: () => context.push(AppRoutes.privacyPolicy),
-              ),
-
-              SizedBox(height: 8),
-
-              _AgeConsentItem(
-                checked: _agreeAge,
-                onChanged: (v) => setState(() => _agreeAge = v ?? false),
-              ),
-
-              SizedBox(height: 24),
-
-              const _PrivacyNote(),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 뒤로가기
+          IconButton(
+            onPressed: () {
+              if (context.canPop()) context.pop();
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+            splashRadius: 22,
           ),
-        ),
+
+          SizedBox(height: 24),
+
+          Text(
+            '서비스 이용에\n동의해주세요',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.3,
+              letterSpacing: -0.6,
+              color: c.textPrimary,
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          Text(
+            'TeenPle는 만 15세 이상 고등학교 재학생을 위한 서비스입니다.',
+            style: TextStyle(fontSize: 13, height: 1.5, color: c.textBody),
+          ),
+
+          SizedBox(height: 32),
+
+          // 전체 동의
+          _AllAgreeCard(checked: _allAgreed, onChanged: _toggleAll),
+
+          SizedBox(height: 12),
+
+          // 개별 항목
+          _ConsentItem(
+            checked: _agreeTerms,
+            label: '[필수] 이용약관',
+            onChanged: (v) => setState(() => _agreeTerms = v ?? false),
+            onViewTap: () => context.push(AppRoutes.terms),
+          ),
+
+          SizedBox(height: 8),
+
+          _ConsentItem(
+            checked: _agreePrivacy,
+            label: '[필수] 개인정보 수집·이용 동의',
+            onChanged: (v) => setState(() => _agreePrivacy = v ?? false),
+            onViewTap: () => context.push(AppRoutes.privacyPolicy),
+          ),
+
+          SizedBox(height: 8),
+
+          _AgeConsentItem(
+            checked: _agreeAge,
+            onChanged: (v) => setState(() => _agreeAge = v ?? false),
+          ),
+
+          SizedBox(height: 24),
+
+          const _PrivacyNote(),
+        ],
       ),
     );
   }
@@ -363,14 +348,11 @@ class _PrivacyNote extends StatelessWidget {
     final c = context.colors;
     return Text.rich(
       TextSpan(
-        style: TextStyle(
-          fontSize: 11,
-          height: 1.6,
-          color: c.textMuted,
-        ),
+        style: TextStyle(fontSize: 11, height: 1.6, color: c.textMuted),
         children: [
           const TextSpan(
-            text: '동의 후 수집된 개인정보는 서비스 제공 목적으로만 사용됩니다. '
+            text:
+                '동의 후 수집된 개인정보는 서비스 제공 목적으로만 사용됩니다. '
                 '자세한 내용은 ',
           ),
           TextSpan(

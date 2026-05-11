@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/reset_password_provider.dart';
@@ -41,7 +42,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   bool get _canSubmit => _isValidPassword && _isPasswordMatch;
 
   Future<void> _submit() async {
-    await ref.read(resetPasswordProvider.notifier).resetPassword(
+    await ref
+        .read(resetPasswordProvider.notifier)
+        .resetPassword(
           verificationToken: widget.verificationToken,
           newPassword: _newCtrl.text,
         );
@@ -53,7 +56,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     }
   }
 
-  InputDecoration _inputDecoration(BuildContext context, {
+  InputDecoration _inputDecoration(
+    BuildContext context, {
     required String hintText,
     required bool obscure,
     required VoidCallback onToggle,
@@ -65,7 +69,10 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-      prefixIcon: Icon(Icons.lock_outline_rounded, color: context.colors.iconSecondary),
+      prefixIcon: Icon(
+        Icons.lock_outline_rounded,
+        color: context.colors.iconSecondary,
+      ),
       suffixIcon: IconButton(
         onPressed: onToggle,
         icon: Icon(
@@ -95,8 +102,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
     return Scaffold(
       backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+      bottomNavigationBar: AuthBottomActionArea(
         child: SizedBox(
           height: 54,
           child: ElevatedButton(
@@ -134,7 +140,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                onPressed: () { if (context.canPop()) context.pop(); },
+                onPressed: () {
+                  if (context.canPop()) context.pop();
+                },
                 icon: Icon(Icons.arrow_back_ios_new_rounded),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerLeft,
@@ -169,7 +177,11 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               Text(
                 '영문, 숫자, 특수문자 포함 8~20자로 입력해주세요.',
-                style: TextStyle(fontSize: 13, height: 1.5, color: context.colors.textBody),
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: context.colors.textBody,
+                ),
               ),
 
               SizedBox(height: 32),
@@ -188,7 +200,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 controller: _newCtrl,
                 textInputAction: TextInputAction.next,
                 onChanged: (_) => setState(() {}),
-                decoration: _inputDecoration(context,
+                decoration: _inputDecoration(
+                  context,
                   hintText: '새 비밀번호를 입력해주세요.',
                   obscure: _obscureNew,
                   onToggle: () => setState(() => _obscureNew = !_obscureNew),
@@ -222,7 +235,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 onSubmitted: (_) {
                   if (_canSubmit && !state.isLoading) _submit();
                 },
-                decoration: _inputDecoration(context,
+                decoration: _inputDecoration(
+                  context,
                   hintText: '비밀번호를 한 번 더 입력해주세요.',
                   obscure: _obscureConfirm,
                   onToggle: () =>

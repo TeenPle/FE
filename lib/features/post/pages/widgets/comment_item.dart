@@ -224,6 +224,23 @@ class _CommentBody extends StatelessWidget {
                             color: c.textPrimary,
                           ),
                         ),
+                        if (comment.isPostAuthor)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: c.tintBg,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: c.borderBlue),
+                            ),
+                            child: const Text(
+                              '작성자',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF3A9DE0),
+                              ),
+                            ),
+                          ),
                         if (createdAtText.isNotEmpty)
                           Text(
                             createdAtText,

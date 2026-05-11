@@ -396,7 +396,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
               Expanded(
                 child: ListView(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.fromLTRB(22, 12, 22, 32),
+                  padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
                   children: [
                     _BoardSelectorLine(
                       title: _selectedBoardTitle.isEmpty ? '게시판 선택' : _selectedBoardTitle,
@@ -421,28 +421,11 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8, bottom: 14),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: _titleLength > _titleLimit
-                                  ? const Color(0xFFE14B4B)
-                                  : context.colors.divider,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            '$_titleLength/$_titleLimit',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: _titleLength > _titleLimit
-                                  ? const Color(0xFFE14B4B)
-                                  : const Color(0xFF8B95A1),
-                            ),
-                          ),
-                        ],
+                      child: Container(
+                        height: 1,
+                        color: _titleLength > _titleLimit
+                            ? const Color(0xFFE14B4B)
+                            : context.colors.divider,
                       ),
                     ),
                     TextField(
@@ -451,7 +434,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       maxLines: null,
                       maxLength: _contentLimit,
                       buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                      const SizedBox.shrink(),
+                          const SizedBox.shrink(),
                       style: TextStyle(
                         fontSize: 12,
                         height: 1.58,
@@ -460,57 +443,45 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       ),
                       decoration: _plainInputDecoration('내용을 입력해주세요'),
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        '$_contentLength/$_contentLimit',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: _contentLength > _contentLimit
-                              ? const Color(0xFFE14B4B)
-                              : const Color(0xFF8B95A1),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const _PostWritingGuidelines(),
                     if (_showCrisisBanner) ...[
                       const SizedBox(height: 14),
                       const CrisisBanner(),
                     ],
-                    if (_attachedCount > 0) ...[
-                      const SizedBox(height: 18),
-                      _AttachmentPreviewStrip(
-                        existingMedia: _existingMedia,
-                        selectedFiles: _selectedFiles,
-                        isImageExtension: _isImageExtension,
-                        onRemoveExisting: _removeExistingMedia,
-                        onRemoveSelected: _removeFile,
-                      ),
-                    ],
-                    if (_pollOptions.isNotEmpty) ...[
-                      const SizedBox(height: 14),
-                      _PollSummaryStrip(
-                        count: _pollOptions.length,
-                        onEdit: _openPollForm,
-                        onClear: () => setState(() => _pollOptions = []),
-                      ),
-                    ],
                   ],
                 ),
               ),
+              const _PostWritingGuidelines(),
+              if (_attachedCount > 0)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+                  child: SizedBox(
+                    height: 86,
+                    child: _AttachmentPreviewStrip(
+                      existingMedia: _existingMedia,
+                      selectedFiles: _selectedFiles,
+                      isImageExtension: _isImageExtension,
+                      onRemoveExisting: _removeExistingMedia,
+                      onRemoveSelected: _removeFile,
+                    ),
+                  ),
+                ),
+              if (_pollOptions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+                  child: _PollSummaryStrip(
+                    count: _pollOptions.length,
+                    onEdit: _openPollForm,
+                    onClear: () => setState(() => _pollOptions = []),
+                  ),
+                ),
               _WriteBottomToolbar(
                 anonymous: _anonymous,
                 attachedCount: _attachedCount,
                 maxFiles: _maxFiles,
                 pollCount: _pollOptions.length,
-                canSubmit: _canSubmit,
-                submitText: _isSubmitting ? '저장 중' : submitText,
                 onAnonymousChanged: (value) => setState(() => _anonymous = value),
                 onAttach: _attachedCount < _maxFiles ? _pickFiles : null,
                 onPoll: _openPollForm,
-                onSubmit: _submit,
               ),
             ],
           ),
@@ -661,7 +632,7 @@ class _PostWritingGuidelines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.fromLTRB(22, 12, 22, 12),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(color: context.colors.divider),
@@ -729,24 +700,18 @@ class _WriteBottomToolbar extends StatelessWidget {
   final int attachedCount;
   final int maxFiles;
   final int pollCount;
-  final bool canSubmit;
-  final String submitText;
   final ValueChanged<bool> onAnonymousChanged;
   final VoidCallback? onAttach;
   final VoidCallback onPoll;
-  final VoidCallback onSubmit;
 
   const _WriteBottomToolbar({
     required this.anonymous,
     required this.attachedCount,
     required this.maxFiles,
     required this.pollCount,
-    required this.canSubmit,
-    required this.submitText,
     required this.onAnonymousChanged,
     required this.onAttach,
     required this.onPoll,
-    required this.onSubmit,
   });
 
   @override
@@ -781,11 +746,9 @@ class _WriteBottomToolbar extends StatelessWidget {
                 height: 40,
                 padding: const EdgeInsets.only(left: 12, right: 8),
                 decoration: BoxDecoration(
-                  color: anonymous ? const Color(0xFFEAF5FF) : context.colors.cardBg,
+                  color: context.colors.cardBg,
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: anonymous ? const Color(0xFFB9D9FF) : context.colors.border,
-                  ),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Row(
                   children: [
@@ -809,26 +772,6 @@ class _WriteBottomToolbar extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-            const Spacer(),
-            SizedBox(
-              height: 40,
-              child: ElevatedButton(
-                onPressed: canSubmit ? onSubmit : null,
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: const Color(0xFF2F80ED),
-                  disabledBackgroundColor: const Color(0xFFD6E7F8),
-                  foregroundColor: Colors.white,
-                  disabledForegroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                ),
-                child: Text(
-                  submitText,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
                 ),
               ),
             ),

@@ -220,6 +220,10 @@ class _ChatRoomItem extends ConsumerWidget {
           'blocked': room.blocked,
           'blockedByMe': room.blockedByMe,
           'blockedByOther': room.blockedByOther,
+          'otherUserDeleted': room.otherUserDeleted,
+          'canSendMessage': room.canSendMessage,
+          'canReport': room.canReport,
+          'canBlock': room.canBlock,
         });
         onReturn();
       },

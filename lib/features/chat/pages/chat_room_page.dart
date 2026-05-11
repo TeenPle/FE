@@ -19,6 +19,10 @@ class ChatRoomPage extends ConsumerStatefulWidget {
   final bool initialBlocked;
   final bool initialBlockedByMe;
   final bool initialBlockedByOther;
+  final bool initialOtherUserDeleted;
+  final bool initialCanSendMessage;
+  final bool initialCanReport;
+  final bool initialCanBlock;
 
   const ChatRoomPage({
     super.key,
@@ -28,6 +32,10 @@ class ChatRoomPage extends ConsumerStatefulWidget {
     this.initialBlocked = false,
     this.initialBlockedByMe = false,
     this.initialBlockedByOther = false,
+    this.initialOtherUserDeleted = false,
+    this.initialCanSendMessage = true,
+    this.initialCanReport = true,
+    this.initialCanBlock = true,
   });
 
   @override
@@ -65,6 +73,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         blocked: widget.initialBlocked,
         blockedByMe: widget.initialBlockedByMe,
         blockedByOther: widget.initialBlockedByOther,
+        otherUserDeleted: widget.initialOtherUserDeleted,
+        canSendMessage: widget.initialCanSendMessage,
+        canReport: widget.initialCanReport,
+        canBlock: widget.initialCanBlock,
       );
       await notifier.init();
       _scrollToBottom();
@@ -133,7 +145,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
-    if (ref.read(chatRoomProvider((widget.roomId, widget.otherUserId))).isBlocked) {
+    final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
+    if (state.isBlocked || !state.canSendMessage || state.otherUserDeleted) {
       return;
     }
     _inputController.clear();
@@ -143,7 +156,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   Future<void> _pickImage() async {
     final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending) return;
+    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
 
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -159,7 +172,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   Future<void> _sendPendingImage() async {
     final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending) return;
+    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
 
     final picked = _pendingImage;
     if (picked == null) return;
@@ -630,7 +643,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             ),
 
           // 입력창
-          state.isPenalized
+          state.otherUserDeleted
+              ? const _DeletedUserInputBar()
+              : state.isPenalized
               ? _PenaltyInputBar(expiresAt: state.penaltyExpiresAt)
               : isBlocked
                   ? _BlockedInputBar(

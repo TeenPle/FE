@@ -37,7 +37,7 @@ class PollCard extends StatelessWidget {
               Text(
                 '투표',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: c.textPrimary,
                 ),
@@ -99,7 +99,7 @@ class _PollOptionTile extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            height: 46,
+            height: 42,
             decoration: BoxDecoration(
               color: c.tintBg,
               borderRadius: BorderRadius.circular(12),

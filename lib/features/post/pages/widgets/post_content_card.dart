@@ -304,7 +304,7 @@ class _PostMetaRow extends StatelessWidget {
                 )
               : _defaultAvatar(context),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +319,8 @@ class _PostMetaRow extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   _MetaText('조회 ${post.viewCount}', color: c.textMuted),
                   if (post.createdAtMs != null) ...[

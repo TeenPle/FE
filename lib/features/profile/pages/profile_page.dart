@@ -193,11 +193,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.school_outlined,
-                size: 14,
-                color: c.textTertiary,
-              ),
+              Icon(Icons.school_outlined, size: 14, color: c.textTertiary),
               const SizedBox(width: 4),
               Text(
                 '${profile.schoolName} · ${profile.gradeLabel}',
@@ -333,10 +329,7 @@ class _InfoRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 12, color: c.textMuted),
-              ),
+              Text(label, style: TextStyle(fontSize: 12, color: c.textMuted)),
               const Spacer(),
               Text(
                 value,
@@ -349,8 +342,7 @@ class _InfoRow extends StatelessWidget {
             ],
           ),
         ),
-        if (!isLast)
-          Divider(height: 1, thickness: 1, color: c.borderSubtle),
+        if (!isLast) Divider(height: 1, thickness: 1, color: c.borderSubtle),
       ],
     );
   }
@@ -379,26 +371,50 @@ class _ActivitySection extends ConsumerWidget {
             count: profile?.myPostCount,
             onTap: () => context.push(AppRoutes.myPosts),
           ),
-          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: c.borderSubtle,
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.chat_bubble_outline_rounded,
             label: '내가 쓴 댓글',
             count: profile?.myCommentCount,
             onTap: () => context.push(AppRoutes.myComments),
           ),
-          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: c.borderSubtle,
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.thumb_up_outlined,
             label: '내가 공감한 글',
             onTap: () => context.push(AppRoutes.myLikedPosts),
           ),
-          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: c.borderSubtle,
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.bookmark_border_rounded,
             label: '내 북마크',
             onTap: () => context.push(AppRoutes.myBookmarks),
           ),
-          Divider(height: 1, thickness: 1, color: c.borderSubtle, indent: 16, endIndent: 16),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: c.borderSubtle,
+            indent: 16,
+            endIndent: 16,
+          ),
           _ActivityTile(
             icon: Icons.warning_amber_rounded,
             label: '내 경고 이력',
@@ -453,6 +469,7 @@ class _AvatarWidget extends StatelessWidget {
       ),
     );
   }
+
   // Avatar uses fixed colors intentionally — acts as a brand accent
 }
 
@@ -504,11 +521,7 @@ class _ActivityTile extends StatelessWidget {
                 ),
               ),
             const SizedBox(width: 4),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: c.iconSecondary,
-              size: 22,
-            ),
+            Icon(Icons.chevron_right_rounded, color: c.iconSecondary, size: 22),
           ],
         ),
       ),
@@ -566,6 +579,12 @@ class _SettingsSection extends ConsumerWidget {
         const _ProfileSectionHeader(label: '기타'),
         _ProfileSettingsCard(
           children: [
+            _ProfileSettingsTile(
+              icon: Icons.support_agent_rounded,
+              label: '문의하기',
+              onTap: () => context.push(AppRoutes.inquiries),
+            ),
+            const _ProfileSettingsDivider(),
             _ProfileSettingsTile(
               icon: Icons.logout_rounded,
               label: '로그아웃',
@@ -942,10 +961,7 @@ class _ProfileInfoTile extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Text(
-            trailing,
-            style: TextStyle(fontSize: 12, color: c.textTertiary),
-          ),
+          Text(trailing, style: TextStyle(fontSize: 12, color: c.textTertiary)),
         ],
       ),
     );
@@ -1044,11 +1060,7 @@ class _ProfileSettingsTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: c.iconSecondary,
-              size: 22,
-            ),
+            Icon(Icons.chevron_right_rounded, color: c.iconSecondary, size: 22),
           ],
         ),
       ),

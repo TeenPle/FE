@@ -18,8 +18,7 @@ class AdminUserHistoryPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdminUserHistoryPage> createState() =>
-      _AdminUserHistoryPageState();
+  ConsumerState<AdminUserHistoryPage> createState() => _AdminUserHistoryPageState();
 }
 
 class _AdminUserHistoryPageState extends ConsumerState<AdminUserHistoryPage>
@@ -31,12 +30,8 @@ class _AdminUserHistoryPageState extends ConsumerState<AdminUserHistoryPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     Future.microtask(() {
-      ref
-          .read(adminUserPenaltyProvider(widget.userId).notifier)
-          .load();
-      ref
-          .read(adminUserWarningProvider(widget.userId).notifier)
-          .load();
+      ref.read(adminUserPenaltyProvider(widget.userId).notifier).load();
+      ref.read(adminUserWarningProvider(widget.userId).notifier).load();
     });
   }
 
@@ -58,13 +53,13 @@ class _AdminUserHistoryPageState extends ConsumerState<AdminUserHistoryPage>
         centerTitle: true,
         title: Text(
           '${widget.userNickname} 이력',
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary),
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: const Color(0xFF5A8EA8),
-          unselectedLabelColor: const Color(0xFF9AA7B2),
-          indicatorColor: const Color(0xFF5A8EA8),
+          labelColor: const Color(0xFF4A67F2),
+          unselectedLabelColor: c.textMuted,
+          indicatorColor: const Color(0xFF4A67F2),
           labelStyle: const TextStyle(fontWeight: FontWeight.w700),
           tabs: const [
             Tab(text: '제재 이력'),
@@ -91,27 +86,24 @@ class _PenaltyTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(adminUserPenaltyProvider(userId));
+    final c = context.colors;
 
     if (state.isLoading && state.penalties.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
     if (state.error != null && state.penalties.isEmpty) {
-      return Center(
-        child: Text(state.error!, style: const TextStyle(color: Color(0xFF9AA7B2))),
-      );
+      return Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)));
     }
     if (state.penalties.isEmpty) {
-      return const Center(
-        child: Text('제재 이력이 없어요.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2))),
+      return Center(
+        child: Text('제재 이력이 없어요.', style: TextStyle(fontSize: 13, color: c.textMuted)),
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.penalties.length,
-      itemBuilder: (context, index) =>
-          _UserPenaltyCard(penalty: state.penalties[index]),
+      itemBuilder: (context, index) => _UserPenaltyCard(penalty: state.penalties[index]),
     );
   }
 }
@@ -128,10 +120,10 @@ class _UserPenaltyCard extends StatelessWidget {
     final isActive = penalty.isActive;
 
     final (statusLabel, statusColor, statusBg) = isCancelled
-        ? ('취소됨', const Color(0xFF9AA7B2), const Color(0xFFF0F0F0))
+        ? ('취소됨', c.textTertiary, c.subtleBg)
         : isActive
             ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
-            : ('만료', const Color(0xFF9AA7B2), const Color(0xFFF0F0F0));
+            : ('만료', c.textTertiary, c.subtleBg);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -139,7 +131,7 @@ class _UserPenaltyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,54 +139,33 @@ class _UserPenaltyCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusBg,
-                  borderRadius: BorderRadius.circular(20),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(20)),
+                child: Text(
+                  statusLabel,
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor),
                 ),
-                child: Text(statusLabel,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: statusColor,
-                    )),
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F7FB),
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: c.tintBg, borderRadius: BorderRadius.circular(6)),
                 child: Text(
                   penalty.reasonLabel,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF5A8EA8),
-                  ),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: c.iconOnCard),
                 ),
               ),
               const Spacer(),
-              Text(
-                _fmt(penalty.createdAt),
-                style:
-                    const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
-              ),
+              Text(_fmt(penalty.createdAt), style: TextStyle(fontSize: 11, color: c.textTertiary)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '${_fmt(penalty.createdAt)} ~ ${_fmt(penalty.expiresAt)}',
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7C8A)),
+            style: TextStyle(fontSize: 11, color: c.textSecondary),
           ),
           const SizedBox(height: 2),
-          Text(
-            '신고 #${penalty.reportId}',
-            style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
-          ),
+          Text('신고 #${penalty.reportId}', style: TextStyle(fontSize: 11, color: c.textTertiary)),
         ],
       ),
     );
@@ -212,27 +183,24 @@ class _WarningTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(adminUserWarningProvider(userId));
+    final c = context.colors;
 
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
     if (state.error != null && state.items.isEmpty) {
-      return Center(
-        child: Text(state.error!, style: const TextStyle(color: Color(0xFF9AA7B2))),
-      );
+      return Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)));
     }
     if (state.items.isEmpty) {
-      return const Center(
-        child: Text('경고 이력이 없어요.',
-            style: TextStyle(fontSize: 13, color: Color(0xFF9AA7B2))),
+      return Center(
+        child: Text('경고 이력이 없어요.', style: TextStyle(fontSize: 13, color: c.textMuted)),
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.items.length,
-      itemBuilder: (context, index) =>
-          _UserWarningCard(warning: state.items[index]),
+      itemBuilder: (context, index) => _UserWarningCard(warning: state.items[index]),
     );
   }
 }
@@ -254,66 +222,48 @@ class _UserWarningCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: c.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE6EDF3)),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded,
-                  size: 15, color: Color(0xFFF59E0B)),
+              const Icon(Icons.warning_amber_rounded, size: 15, color: Color(0xFFF59E0B)),
               const SizedBox(width: 6),
               const Text(
                 '경고',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFFF59E0B),
-                ),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFF59E0B)),
               ),
               if (warning.reportId != null) ...[
                 const SizedBox(width: 8),
-                Text(
-                  '신고 #${warning.reportId}',
-                  style: const TextStyle(
-                      fontSize: 11, color: Color(0xFF9AA7B2)),
-                ),
+                Text('신고 #${warning.reportId}', style: TextStyle(fontSize: 11, color: c.textTertiary)),
               ],
               const Spacer(),
-              Text(
-                issuedStr,
-                style:
-                    const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
-              ),
+              Text(issuedStr, style: TextStyle(fontSize: 11, color: c.textTertiary)),
             ],
           ),
           if (warning.targetType != null && warning.targetSummary != null) ...[
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FA),
+                color: c.subtleBg,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE9ECEF)),
+                border: Border.all(color: c.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
-                    style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF9AA7B2)),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: c.textTertiary),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     warning.targetSummary!,
-                    style: const TextStyle(
-                        fontSize: 11, color: Color(0xFF444444), height: 1.4),
+                    style: TextStyle(fontSize: 11, color: c.textBody, height: 1.4),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -332,30 +282,23 @@ class _UserWarningCard extends StatelessWidget {
             ),
             child: Text(
               warning.adminComment,
-              style: const TextStyle(
-                  fontSize: 11, color: Color(0xFF78350F), height: 1.5),
+              style: const TextStyle(fontSize: 11, color: Color(0xFF78350F), height: 1.5),
             ),
           ),
           const SizedBox(height: 6),
           Row(
             children: [
               Icon(
-                warning.isRead
-                    ? Icons.check_circle_outline
-                    : Icons.circle_outlined,
+                warning.isRead ? Icons.check_circle_outline : Icons.circle_outlined,
                 size: 13,
-                color: warning.isRead
-                    ? const Color(0xFF43A047)
-                    : const Color(0xFF9AA7B2),
+                color: warning.isRead ? const Color(0xFF43A047) : c.iconSecondary,
               ),
               const SizedBox(width: 4),
               Text(
                 warning.isRead ? '읽음' : '미확인',
                 style: TextStyle(
                   fontSize: 11,
-                  color: warning.isRead
-                      ? const Color(0xFF43A047)
-                      : const Color(0xFF9AA7B2),
+                  color: warning.isRead ? const Color(0xFF43A047) : c.textTertiary,
                 ),
               ),
             ],

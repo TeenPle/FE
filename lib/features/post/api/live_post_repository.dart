@@ -16,9 +16,7 @@ import 'post_repository.dart';
 class LivePostRepository implements PostRepository {
   final PostApi api;
 
-  const LivePostRepository({
-    required this.api,
-  });
+  const LivePostRepository({required this.api});
 
   /// 게시글 상세 조회를 서버에 요청
   @override
@@ -32,10 +30,7 @@ class LivePostRepository implements PostRepository {
     required int postId,
     required CreateCommentRequest request,
   }) async {
-    await api.createComment(
-      postId: postId,
-      request: request,
-    );
+    await api.createComment(postId: postId, request: request);
   }
 
   /// 게시글 공감 요청을 서버에 전달
@@ -93,11 +88,7 @@ class LivePostRepository implements PostRepository {
     required CreatePostRequest request,
     List<MultipartFile> files = const [],
   }) {
-    return api.createPost(
-      boardId: boardId,
-      request: request,
-      files: files,
-    );
+    return api.createPost(boardId: boardId, request: request, files: files);
   }
 
   /// 게시글 수정 요청을 서버에 전달
@@ -107,11 +98,7 @@ class LivePostRepository implements PostRepository {
     required UpdatePostRequest request,
     List<MultipartFile> files = const [],
   }) {
-    return api.updatePost(
-      postId: postId,
-      request: request,
-      files: files,
-    );
+    return api.updatePost(postId: postId, request: request, files: files);
   }
 
   /// 게시글 삭제 요청을 서버에 전달
@@ -126,10 +113,7 @@ class LivePostRepository implements PostRepository {
     required int commentId,
     required UpdateCommentRequest request,
   }) {
-    return api.updateComment(
-      commentId: commentId,
-      request: request,
-    );
+    return api.updateComment(commentId: commentId, request: request);
   }
 
   /// 댓글 삭제 요청을 서버에 전달
@@ -145,10 +129,7 @@ class LivePostRepository implements PostRepository {
   }
 
   @override
-  Future<PollModel> votePoll({
-    required int postId,
-    required int optionId,
-  }) {
+  Future<PollModel> votePoll({required int postId, required int optionId}) {
     return api.votePoll(postId: postId, optionId: optionId);
   }
 }

@@ -60,8 +60,5 @@ abstract class PostRepository {
   /// 북마크 토글 — true: 추가됨, false: 해제됨
   Future<bool> toggleBookmark(int postId);
 
-  Future<PollModel> votePoll({
-    required int postId,
-    required int optionId,
-  });
+  Future<PollModel> votePoll({required int postId, required int optionId});
 }

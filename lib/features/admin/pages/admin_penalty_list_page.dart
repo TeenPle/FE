@@ -11,17 +11,14 @@ class AdminPenaltyListPage extends ConsumerStatefulWidget {
   const AdminPenaltyListPage({super.key});
 
   @override
-  ConsumerState<AdminPenaltyListPage> createState() =>
-      _AdminPenaltyListPageState();
+  ConsumerState<AdminPenaltyListPage> createState() => _AdminPenaltyListPageState();
 }
 
-class _AdminPenaltyListPageState
-    extends ConsumerState<AdminPenaltyListPage> {
+class _AdminPenaltyListPageState extends ConsumerState<AdminPenaltyListPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-        () => ref.read(adminPenaltyListProvider.notifier).load());
+    Future.microtask(() => ref.read(adminPenaltyListProvider.notifier).load());
   }
 
   @override
@@ -32,53 +29,41 @@ class _AdminPenaltyListPageState
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: c.cardBg,
+        backgroundColor: c.pageBg,
         foregroundColor: c.textPrimary,
         elevation: 0,
         centerTitle: true,
-        title: const Text('제재 내역',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('제재 내역', style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
       ),
       body: state.isLoading && state.penalties.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.penalties.isEmpty
-              ? Center(
-                  child: Text(state.error!,
-                      style: TextStyle(color: c.textMuted)))
+              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
               : state.penalties.isEmpty
-                  ? Center(
-                      child: Text('제재 내역이 없어요.',
-                          style: TextStyle(color: c.textMuted)))
+                  ? Center(child: Text('제재 내역이 없어요.', style: TextStyle(color: c.textMuted)))
                   : RefreshIndicator(
-                      onRefresh: () =>
-                          ref.read(adminPenaltyListProvider.notifier).load(),
+                      onRefresh: () => ref.read(adminPenaltyListProvider.notifier).load(),
                       child: ListView.separated(
                         padding: const EdgeInsets.all(16),
-                        itemCount: state.penalties.length +
-                            (state.hasMore ? 1 : 0),
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 10),
+                        itemCount: state.penalties.length + (state.hasMore ? 1 : 0),
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           if (index == state.penalties.length) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Center(
                                 child: state.isLoading
-                                    ? const CircularProgressIndicator(
-                                        strokeWidth: 2)
+                                    ? const CircularProgressIndicator(strokeWidth: 2)
                                     : OutlinedButton(
                                         onPressed: () => ref
-                                            .read(adminPenaltyListProvider
-                                                .notifier)
+                                            .read(adminPenaltyListProvider.notifier)
                                             .loadMore(),
                                         child: const Text('더보기'),
                                       ),
                               ),
                             );
                           }
-                          final p = state.penalties[index];
-                          return _PenaltyCard(penalty: p);
+                          return _PenaltyCard(penalty: state.penalties[index]);
                         },
                       ),
                     ),
@@ -93,21 +78,22 @@ class _PenaltyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final isCancelled = penalty.status == 'CANCELLED';
     final isActive = penalty.isActive;
 
     final (statusLabel, statusColor, statusBg) = isCancelled
-        ? ('취소됨', const Color(0xFF9AA7B2), const Color(0xFFF0F0F0))
+        ? ('취소됨', c.textTertiary, c.subtleBg)
         : isActive
             ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
-            : ('만료', const Color(0xFF9AA7B2), const Color(0xFFF0F0F0));
+            : ('만료', c.textTertiary, c.subtleBg);
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE9ECEF)),
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,74 +101,63 @@ class _PenaltyCard extends ConsumerWidget {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusBg,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   statusLabel,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: statusColor,
-                  ),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor),
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F7FB),
+                  color: c.tintBg,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   penalty.reasonLabel,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF5A8EA8),
-                  ),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: c.iconOnCard),
                 ),
               ),
               const Spacer(),
               Text(
                 _formatDate(penalty.createdAt),
-                style: const TextStyle(
-                    fontSize: 11, color: Color(0xFF9AA7B2)),
+                style: TextStyle(fontSize: 11, color: c.textTertiary),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.person_outline,
-                  size: 14, color: Color(0xFF9AA7B2)),
+              Icon(Icons.person_outline, size: 14, color: c.iconSecondary),
               const SizedBox(width: 4),
-              GestureDetector(
-                onTap: () => context.push(
-                  AppRoutes.adminUserHistory(penalty.userId),
-                  extra: {'nickname': penalty.userNickname},
-                ),
-                child: Text(
-                  penalty.userNickname,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF5A8EA8),
-                    decoration: TextDecoration.underline,
+              Flexible(
+                child: GestureDetector(
+                  onTap: () => context.push(
+                    AppRoutes.adminUserHistory(penalty.userId),
+                    extra: {'nickname': penalty.userNickname},
+                  ),
+                  child: Text(
+                    penalty.userNickname,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF426C82),
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              const Icon(Icons.access_time_rounded,
-                  size: 14, color: Color(0xFF9AA7B2)),
+              const SizedBox(width: 12),
+              Icon(Icons.access_time_rounded, size: 14, color: c.iconSecondary),
               const SizedBox(width: 4),
               Text(
                 '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
-                style: const TextStyle(
-                    fontSize: 11, color: Color(0xFF6B7C8A)),
+                style: TextStyle(fontSize: 11, color: c.textSecondary),
               ),
             ],
           ),
@@ -191,8 +166,7 @@ class _PenaltyCard extends ConsumerWidget {
             children: [
               Text(
                 '신고 #${penalty.reportId}',
-                style: const TextStyle(
-                    fontSize: 11, color: Color(0xFF9AA7B2)),
+                style: TextStyle(fontSize: 11, color: c.textTertiary),
               ),
               const Spacer(),
               if (isActive)
@@ -200,16 +174,11 @@ class _PenaltyCard extends ConsumerWidget {
                   onPressed: () => _onCancel(context, ref),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFFE05C7B),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text(
-                    '제재 취소',
-                    style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w700),
-                  ),
+                  child: const Text('제재 취소', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                 ),
             ],
           ),
@@ -227,21 +196,17 @@ class _PenaltyCard extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소',
-                style: TextStyle(color: Color(0xFF888888))),
+            child: Text('취소', style: TextStyle(color: context.colors.textMuted)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('해제',
-                style: TextStyle(color: Color(0xFFE05C7B))),
+            child: const Text('해제', style: TextStyle(color: Color(0xFFE05C7B))),
           ),
         ],
       ),
     );
     if (confirmed != true) return;
-    final success = await ref
-        .read(adminPenaltyListProvider.notifier)
-        .cancel(penalty.penaltyId);
+    final success = await ref.read(adminPenaltyListProvider.notifier).cancel(penalty.penaltyId);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -251,7 +216,5 @@ class _PenaltyCard extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.month}/${dt.day}';
-  }
+  String _formatDate(DateTime dt) => '${dt.month}/${dt.day}';
 }

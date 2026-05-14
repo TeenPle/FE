@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
-import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
 
 class AdminReportDetailPage extends ConsumerStatefulWidget {
@@ -13,7 +12,8 @@ class AdminReportDetailPage extends ConsumerStatefulWidget {
   const AdminReportDetailPage({super.key, required this.reportId});
 
   @override
-  ConsumerState<AdminReportDetailPage> createState() => _AdminReportDetailPageState();
+  ConsumerState<AdminReportDetailPage> createState() =>
+      _AdminReportDetailPageState();
 }
 
 class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
@@ -23,7 +23,10 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(adminReportDetailProvider(widget.reportId).notifier).load());
+    Future.microtask(
+      () =>
+          ref.read(adminReportDetailProvider(widget.reportId).notifier).load(),
+    );
   }
 
   @override
@@ -36,41 +39,52 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminReportDetailProvider(widget.reportId));
+    final c = context.colors;
 
     ref.listen(adminReportDetailProvider(widget.reportId), (_, next) {
       if (next.successMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.successMessage!)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.successMessage!)));
         Navigator.of(context).pop(true);
       }
       if (next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!), backgroundColor: const Color(0xFFE05C7B)),
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: const Color(0xFFE05C7B),
+          ),
         );
       }
     });
 
-    final c = context.colors;
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: c.cardBg,
-        foregroundColor: const Color(0xFF1F2933),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
-        title: const Text('신고 상세', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(
+          '신고 상세',
+          style: TextStyle(fontWeight: FontWeight.w800, color: c.textPrimary),
+        ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.detail == null
-              ? Center(child: Text(state.error!))
-              : state.detail == null
-                  ? const SizedBox()
-                  : _buildBody(context, state),
+          ? Center(
+              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+            )
+          : state.detail == null
+          ? const SizedBox()
+          : _buildBody(context, state),
     );
   }
 
   Widget _buildBody(BuildContext context, AdminReportDetailState state) {
     final detail = state.detail!;
     final isPending = detail.status == 'PENDING';
+    final c = context.colors;
 
     return Column(
       children: [
@@ -85,7 +99,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                     _StatusBadge(detail.status),
                     const SizedBox(height: 16),
                     _InfoRow('대상', detail.targetTypeLabel),
-                    _InfoRow('신고 사유', detail.reportReasonLabel),
+                    _InfoRow('신고 카테고리', detail.reportReasonLabel),
                     _InfoRow('신고자', detail.reporterNickname),
                     _TappableInfoRow(
                       label: '피신고자',
@@ -95,10 +109,13 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                         extra: {'nickname': detail.reportedUserNickname},
                       ),
                     ),
-                    if (detail.schoolName != null) _InfoRow('학교', detail.schoolName!),
-                    if (detail.boardTitle != null) _InfoRow('게시판', detail.boardTitle!),
+                    if (detail.schoolName != null)
+                      _InfoRow('학교', detail.schoolName!),
+                    if (detail.boardTitle != null)
+                      _InfoRow('게시판', detail.boardTitle!),
                     _InfoRow('신고 일시', _formatDate(detail.createdAt)),
-                    if (detail.processedAt != null) _InfoRow('처리 일시', _formatDate(detail.processedAt!)),
+                    if (detail.processedAt != null)
+                      _InfoRow('처리 일시', _formatDate(detail.processedAt!)),
                   ],
                 ),
               ),
@@ -107,12 +124,24 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('신고 대상 내용',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933))),
+                    Text(
+                      '신고 대상 내용',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: c.textPrimary,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Text(
-                      detail.targetContent.isEmpty ? '(내용 없음)' : detail.targetContent,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF334155), height: 1.55),
+                      detail.targetContent.isEmpty
+                          ? '(내용 없음)'
+                          : detail.targetContent,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: c.textBody,
+                        height: 1.55,
+                      ),
                     ),
                     if (detail.postId != null) ...[
                       const SizedBox(height: 14),
@@ -121,14 +150,22 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                         child: OutlinedButton.icon(
                           onPressed: () => context.push(
                             AppRoutes.adminPostDetail(detail.postId!),
-                            extra: detail.targetType == 'COMMENT' ? {'focusCommentId': detail.targetId} : null,
+                            extra: detail.targetType == 'COMMENT'
+                                ? {'focusCommentId': detail.targetId}
+                                : null,
                           ),
                           icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                          label: Text(detail.targetType == 'COMMENT' ? '게시글에서 댓글 확인' : '관리자 게시글 상세 보기'),
+                          label: Text(
+                            detail.targetType == 'COMMENT'
+                                ? '게시글에서 댓글 확인'
+                                : '관리자 게시글 상세 보기',
+                          ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: const Color(0xFF426C82),
-                            side: const BorderSide(color: Color(0xFFBBD3DF)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: const BorderSide(color: Color(0xFF426C82)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ),
@@ -142,8 +179,14 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('처리 사유',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933))),
+                      Text(
+                        '처리 사유',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: c.textPrimary,
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       TextField(
                         controller: _commentController,
@@ -151,7 +194,9 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                         maxLength: 500,
                         decoration: InputDecoration(
                           hintText: '승인, 거절, 경고 처리 사유를 입력하세요.',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           contentPadding: const EdgeInsets.all(12),
                         ),
                       ),
@@ -166,14 +211,21 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 labelText: '제재 일수',
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
-                          const Expanded(
-                            child: Text('신고 승인 시 입력한 기간만큼 제재가 적용됩니다.',
-                                style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                          Expanded(
+                            child: Text(
+                              '신고 승인 시 입력한 기간만큼 제재가 적용됩니다.',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: c.textMuted,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -195,7 +247,9 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFE05C7B),
                       side: const BorderSide(color: Color(0xFFE05C7B)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: Text(state.isActing ? '처리 중...' : '거절'),
                   ),
@@ -207,7 +261,9 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFF59E0B),
                       side: const BorderSide(color: Color(0xFFF59E0B)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: Text(state.isActing ? '처리 중...' : '경고'),
                   ),
@@ -215,11 +271,15 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: state.isActing ? null : () => _onApprove(context),
+                    onPressed: state.isActing
+                        ? null
+                        : () => _onApprove(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF426C82),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     child: Text(state.isActing ? '처리 중...' : '승인'),
                   ),
@@ -235,46 +295,60 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     final days = int.tryParse(_penaltyController.text.trim());
     final comment = _commentController.text.trim();
     if (days == null || days < 1) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('제재 기간을 1일 이상 입력해주세요.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('제재 기간을 1일 이상 입력해주세요.')));
       return;
     }
     if (comment.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
       return;
     }
     _confirm(
       context,
       title: '신고 승인',
       message: '$days일 제재를 적용할까요?',
-      onConfirmed: () => ref.read(adminReportDetailProvider(widget.reportId).notifier).approve(days, comment),
+      onConfirmed: () => ref
+          .read(adminReportDetailProvider(widget.reportId).notifier)
+          .approve(days, comment),
     );
   }
 
   void _onReject(BuildContext context) {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
       return;
     }
     _confirm(
       context,
       title: '신고 거절',
       message: '이 신고를 거절할까요?',
-      onConfirmed: () => ref.read(adminReportDetailProvider(widget.reportId).notifier).reject(comment),
+      onConfirmed: () => ref
+          .read(adminReportDetailProvider(widget.reportId).notifier)
+          .reject(comment),
     );
   }
 
   void _onWarn(BuildContext context) {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
       return;
     }
     _confirm(
       context,
       title: '경고 발령',
       message: '피신고자에게 경고를 발령할까요?',
-      onConfirmed: () => ref.read(adminReportDetailProvider(widget.reportId).notifier).warn(comment),
+      onConfirmed: () => ref
+          .read(adminReportDetailProvider(widget.reportId).notifier)
+          .warn(comment),
     );
   }
 
@@ -290,8 +364,14 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('취소')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('확인')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('취소', style: TextStyle(color: ctx.colors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('확인'),
+          ),
         ],
       ),
     ).then((confirmed) {
@@ -299,10 +379,9 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     });
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
-        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) =>
+      '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
+      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
 class _Panel extends StatelessWidget {
@@ -317,8 +396,8 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: c.border),
       ),
       child: child,
     );
@@ -333,13 +412,25 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 78, child: Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)))),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 12, color: Color(0xFF334155)))),
+          SizedBox(
+            width: 78,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 11, color: c.textTertiary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 12, color: c.textBody),
+            ),
+          ),
         ],
       ),
     );
@@ -351,16 +442,27 @@ class _TappableInfoRow extends StatelessWidget {
   final String value;
   final VoidCallback onTap;
 
-  const _TappableInfoRow({required this.label, required this.value, required this.onTap});
+  const _TappableInfoRow({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 78, child: Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)))),
+          SizedBox(
+            width: 78,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 11, color: c.textTertiary),
+            ),
+          ),
           Expanded(
             child: GestureDetector(
               onTap: onTap,
@@ -392,14 +494,24 @@ class _StatusBadge extends StatelessWidget {
     final (label, color, bg) = switch (status) {
       'PENDING' => ('대기 중', const Color(0xFF426C82), const Color(0xFFEAF3FB)),
       'RESOLVED' => ('승인 완료', const Color(0xFF2F7D46), const Color(0xFFE8F5E9)),
-      'REJECTED' => ('거절됨', const Color(0xFF64748B), const Color(0xFFF1F5F9)),
+      'REJECTED' => ('거절됨', c.textMuted, c.subtleBg),
       'WARNED' => ('경고 발령', const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
-      _ => (status, c.textMuted, const Color(0xFFF1F5F9)),
+      _ => (status, c.textMuted, c.subtleBg),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          color: color,
+        ),
+      ),
     );
   }
 }

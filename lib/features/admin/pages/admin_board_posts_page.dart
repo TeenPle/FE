@@ -29,7 +29,9 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(adminPostListProvider(widget.boardId).notifier).load());
+    Future.microtask(
+      () => ref.read(adminPostListProvider(widget.boardId).notifier).load(),
+    );
     _scrollController.addListener(_onScroll);
   }
 
@@ -54,17 +56,18 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: c.cardBg,
-        foregroundColor: const Color(0xFF1F2933),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
-        title: Text(widget.boardTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(widget.boardTitle, style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.posts.isEmpty
-              ? Center(child: Text(state.error!))
+              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
               : RefreshIndicator(
-                  onRefresh: () => ref.read(adminPostListProvider(widget.boardId).notifier).load(),
+                  onRefresh: () =>
+                      ref.read(adminPostListProvider(widget.boardId).notifier).load(),
                   child: ListView.separated(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(16),
@@ -100,15 +103,15 @@ class _PostTile extends StatelessWidget {
     final c = context.colors;
     return Material(
       color: c.cardBg,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: c.border),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,12 +124,12 @@ class _PostTile extends StatelessWidget {
                     child: Text(
                       post.authorLabel,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 11, color: c.textMuted),
                     ),
                   ),
                   Text(
                     _formatDate(post.createdAt),
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 11, color: c.textTertiary),
                   ),
                 ],
               ),
@@ -135,11 +138,7 @@ class _PostTile extends StatelessWidget {
                 post.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2933),
-                ),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: c.textPrimary),
               ),
               if (post.contentPreview.isNotEmpty) ...[
                 const SizedBox(height: 6),
@@ -147,7 +146,7 @@ class _PostTile extends StatelessWidget {
                   post.contentPreview,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, height: 1.4, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 11, height: 1.4, color: c.textMuted),
                 ),
               ],
               const SizedBox(height: 12),
@@ -155,10 +154,10 @@ class _PostTile extends StatelessWidget {
                 spacing: 12,
                 runSpacing: 6,
                 children: [
-                  _Metric(icon: Icons.visibility_outlined, value: '${post.viewCount}'),
-                  _Metric(icon: Icons.thumb_up_alt_outlined, value: '${post.likeCount}'),
-                  _Metric(icon: Icons.thumb_down_alt_outlined, value: '${post.dislikeCount}'),
-                  _Metric(icon: Icons.mode_comment_outlined, value: '${post.commentCount}'),
+                  _Metric(icon: Icons.visibility_outlined, value: '${post.viewCount}', c: c),
+                  _Metric(icon: Icons.thumb_up_alt_outlined, value: '${post.likeCount}', c: c),
+                  _Metric(icon: Icons.thumb_down_alt_outlined, value: '${post.dislikeCount}', c: c),
+                  _Metric(icon: Icons.mode_comment_outlined, value: '${post.commentCount}', c: c),
                 ],
               ),
             ],
@@ -168,9 +167,8 @@ class _PostTile extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) =>
+      '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
 class _StatusBadge extends StatelessWidget {
@@ -183,12 +181,12 @@ class _StatusBadge extends StatelessWidget {
     final color = switch (status) {
       'ACTIVE' => const Color(0xFF2F7D46),
       'HIDDEN' => const Color(0xFFF59E0B),
-      _ => const Color(0xFF64748B),
+      _ => context.colors.textMuted,
     };
     final bg = switch (status) {
       'ACTIVE' => const Color(0xFFE8F5E9),
       'HIDDEN' => const Color(0xFFFFFBEB),
-      _ => const Color(0xFFF1F5F9),
+      _ => context.colors.subtleBg,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -204,17 +202,18 @@ class _StatusBadge extends StatelessWidget {
 class _Metric extends StatelessWidget {
   final IconData icon;
   final String value;
+  final AppColors c;
 
-  const _Metric({required this.icon, required this.value});
+  const _Metric({required this.icon, required this.value, required this.c});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
+        Icon(icon, size: 14, color: c.iconSecondary),
         const SizedBox(width: 4),
-        Text(value, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+        Text(value, style: TextStyle(fontSize: 11, color: c.textMuted)),
       ],
     );
   }

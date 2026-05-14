@@ -25,26 +25,28 @@ class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(adminBoardListProvider(widget.schoolId).notifier).load());
+    Future.microtask(
+      () => ref.read(adminBoardListProvider(widget.schoolId).notifier).load(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminBoardListProvider(widget.schoolId));
-
     final c = context.colors;
+
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: c.cardBg,
-        foregroundColor: const Color(0xFF1F2933),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
-        title: Text(widget.schoolName, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(widget.schoolName, style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null
-              ? Center(child: Text(state.error!))
+              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
               : RefreshIndicator(
                   onRefresh: () => ref
                       .read(adminBoardListProvider(widget.schoolId).notifier)
@@ -80,22 +82,22 @@ class _BoardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final isRegion = board.scope == 'REGION';
     final color = isRegion ? const Color(0xFF7C6A46) : const Color(0xFF426C82);
-    final bg = isRegion ? const Color(0xFFFFF7E8) : const Color(0xFFEAF3FB);
+    final bg = isRegion ? const Color(0xFFFFF7E8) : c.tintBg;
 
-    final c = context.colors;
     return Material(
       color: c.cardBg,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: c.border),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +106,10 @@ class _BoardTile extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                     child: Text(
                       board.scopeLabel,
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
@@ -113,24 +118,20 @@ class _BoardTile extends StatelessWidget {
                   const Spacer(),
                   Text(
                     '${board.postCount}개',
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 11, color: c.textMuted),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Text(
                 board.title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2933),
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c.textPrimary),
               ),
               if ((board.description ?? '').isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Text(
                   board.description!,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280), height: 1.4),
+                  style: TextStyle(fontSize: 11, color: c.textMuted, height: 1.4),
                 ),
               ],
             ],

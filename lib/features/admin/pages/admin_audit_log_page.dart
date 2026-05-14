@@ -27,7 +27,8 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
     super.initState();
     Future.microtask(() => ref.read(adminAuditLogProvider.notifier).load());
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels > _scrollController.position.maxScrollExtent - 240) {
+      if (_scrollController.position.pixels >
+          _scrollController.position.maxScrollExtent - 240) {
         ref.read(adminAuditLogProvider.notifier).loadMore();
       }
     });
@@ -48,9 +49,9 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        title: const Text('감사 로그', style: TextStyle(fontWeight: FontWeight.w800)),
-        backgroundColor: c.cardBg,
-        foregroundColor: const Color(0xFF1F2933),
+        title: Text('감사 로그', style: TextStyle(fontWeight: FontWeight.w800, color: c.textPrimary)),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
       ),
       body: RefreshIndicator(
@@ -58,7 +59,8 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
         child: ListView.separated(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: (state.isLoading ? 1 : state.logs.length) + 1 + (state.isLoadingMore ? 1 : 0),
+          // 로그 없을 때도 빈 상태 아이템 1개를 포함시켜 안내 문구를 표시한다.
+          itemCount: (state.isLoading ? 1 : (state.logs.isEmpty ? 1 : state.logs.length)) + 1 + (state.isLoadingMore ? 1 : 0),
           separatorBuilder: (_, __) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             if (index == 0) return _FilterPanel(state: state, parent: this);
@@ -66,6 +68,15 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
               return const Padding(
                 padding: EdgeInsets.only(top: 120),
                 child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            // 로그 없음 안내
+            if (state.logs.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: Center(
+                  child: Text('로그가 없습니다.', style: TextStyle(color: c.textMuted)),
+                ),
               );
             }
             final logIndex = index - 1;
@@ -134,59 +145,66 @@ class _FilterPanel extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: parent._action,
-                  decoration: const InputDecoration(labelText: '액션'),
-                  items: const [
-                    DropdownMenuItem(value: 'VIEW_POST_DETAIL', child: Text('상세 열람')),
-                    DropdownMenuItem(value: 'HIDE_POST', child: Text('게시글 숨김')),
-                    DropdownMenuItem(value: 'RESTORE_POST', child: Text('게시글 복구')),
-                    DropdownMenuItem(value: 'HIDE_COMMENT', child: Text('댓글 숨김')),
-                    DropdownMenuItem(value: 'RESTORE_COMMENT', child: Text('댓글 복구')),
-                    DropdownMenuItem(value: 'APPROVE_REPORT', child: Text('신고 승인')),
-                    DropdownMenuItem(value: 'REJECT_REPORT', child: Text('신고 거절')),
-                    DropdownMenuItem(value: 'WARN_REPORT', child: Text('경고')),
-                    DropdownMenuItem(value: 'CANCEL_PENALTY', child: Text('제재 취소')),
-                  ],
-                  onChanged: (value) => parent.setState(() => parent._action = value),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: parent._targetType,
-                  decoration: const InputDecoration(labelText: '대상'),
-                  items: const [
-                    DropdownMenuItem(value: 'POST', child: Text('게시글')),
-                    DropdownMenuItem(value: 'COMMENT', child: Text('댓글')),
-                    DropdownMenuItem(value: 'REPORT', child: Text('신고')),
-                    DropdownMenuItem(value: 'PENALTY', child: Text('제재')),
-                  ],
-                  onChanged: (value) => parent.setState(() => parent._targetType = value),
-                ),
-              ),
+          DropdownButtonFormField<String>(
+            value: parent._action,
+            decoration: const InputDecoration(labelText: '액션'),
+            items: const [
+              DropdownMenuItem(value: 'VIEW_POST_DETAIL', child: Text('상세 열람')),
+              DropdownMenuItem(value: 'HIDE_POST', child: Text('게시글 숨김')),
+              DropdownMenuItem(value: 'RESTORE_POST', child: Text('게시글 복구')),
+              DropdownMenuItem(value: 'HIDE_COMMENT', child: Text('댓글 숨김')),
+              DropdownMenuItem(value: 'RESTORE_COMMENT', child: Text('댓글 복구')),
+              DropdownMenuItem(value: 'APPROVE_REPORT', child: Text('신고 승인')),
+              DropdownMenuItem(value: 'REJECT_REPORT', child: Text('신고 거절')),
+              DropdownMenuItem(value: 'WARN_REPORT', child: Text('경고')),
+              DropdownMenuItem(value: 'CANCEL_PENALTY', child: Text('제재 취소')),
             ],
+            onChanged: (value) => parent.setState(() => parent._action = value),
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            value: parent._targetType,
+            decoration: const InputDecoration(labelText: '대상'),
+            items: const [
+              DropdownMenuItem(value: 'POST', child: Text('게시글')),
+              DropdownMenuItem(value: 'COMMENT', child: Text('댓글')),
+              DropdownMenuItem(value: 'REPORT', child: Text('신고')),
+              DropdownMenuItem(value: 'PENALTY', child: Text('제재')),
+            ],
+            onChanged: (value) => parent.setState(() => parent._targetType = value),
           ),
           const SizedBox(height: 10),
           TextField(
             controller: parent._adminIdController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: '관리자 ID', prefixIcon: Icon(Icons.person_search_outlined)),
+            decoration: const InputDecoration(
+              labelText: '관리자 ID',
+              prefixIcon: Icon(Icons.person_search_outlined),
+            ),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(child: _DateButton(label: '시작일', date: parent._from, onTap: () => parent._pickDate(isFrom: true))),
+              Expanded(
+                child: _DateButton(
+                  label: '시작일',
+                  date: parent._from,
+                  onTap: () => parent._pickDate(isFrom: true),
+                ),
+              ),
               const SizedBox(width: 10),
-              Expanded(child: _DateButton(label: '종료일', date: parent._to, onTap: () => parent._pickDate(isFrom: false))),
+              Expanded(
+                child: _DateButton(
+                  label: '종료일',
+                  date: parent._to,
+                  onTap: () => parent._pickDate(isFrom: false),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -202,7 +220,10 @@ class _FilterPanel extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: parent._applyFilters,
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF426C82), foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4A67F2),
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text('필터 적용'),
                 ),
               ),
@@ -244,8 +265,8 @@ class _AuditLogTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,12 +275,20 @@ class _AuditLogTile extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
-                child: Text(_actionLabel(log.action),
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color)),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  _actionLabel(log.action),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: color),
+                ),
               ),
               const Spacer(),
-              Text(_formatDate(log.createdAt), style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+              Text(
+                _formatDate(log.createdAt),
+                style: TextStyle(fontSize: 11, color: c.textTertiary),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -268,7 +297,7 @@ class _AuditLogTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${_targetLabel(log.targetType)} #${log.targetId}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: c.textPrimary),
                 ),
               ),
               if (_canOpenTarget(log))
@@ -280,24 +309,28 @@ class _AuditLogTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text('처리자: ${log.adminNickname} (${log.adminId})',
-              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+          Text(
+            '처리자: ${log.adminNickname} (${log.adminId})',
+            style: TextStyle(fontSize: 11, color: c.textMuted),
+          ),
           if (log.reason != null && log.reason!.trim().isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(log.reason!, style: const TextStyle(fontSize: 12, color: Color(0xFF334155), height: 1.45)),
+            Text(log.reason!, style: TextStyle(fontSize: 12, color: c.textBody, height: 1.45)),
           ],
           if (log.metadata != null && log.metadata!.trim().isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(log.metadata!, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+            Text(log.metadata!, style: TextStyle(fontSize: 11, color: c.textTertiary)),
           ],
         ],
       ),
     );
   }
 
-  bool _canOpenTarget(AdminAuditLogModel log) {
-    return log.targetType == 'POST' || log.targetType == 'REPORT' || log.targetType == 'PENALTY' || _commentPostId(log) != null;
-  }
+  bool _canOpenTarget(AdminAuditLogModel log) =>
+      log.targetType == 'POST' ||
+      log.targetType == 'REPORT' ||
+      log.targetType == 'PENALTY' ||
+      _commentPostId(log) != null;
 
   void _openTarget(BuildContext context, AdminAuditLogModel log) {
     if (log.targetType == 'POST') {
@@ -328,33 +361,28 @@ class _AuditLogTile extends StatelessWidget {
     return const Color(0xFF426C82);
   }
 
-  String _actionLabel(String action) {
-    return switch (action) {
-      'VIEW_POST_DETAIL' => '상세 열람',
-      'HIDE_POST' => '게시글 숨김',
-      'RESTORE_POST' => '게시글 복구',
-      'HIDE_COMMENT' => '댓글 숨김',
-      'RESTORE_COMMENT' => '댓글 복구',
-      'APPROVE_REPORT' => '신고 승인',
-      'REJECT_REPORT' => '신고 거절',
-      'WARN_REPORT' => '경고 처리',
-      'CANCEL_PENALTY' => '제재 취소',
-      _ => action,
-    };
-  }
+  String _actionLabel(String action) => switch (action) {
+        'VIEW_POST_DETAIL' => '상세 열람',
+        'HIDE_POST' => '게시글 숨김',
+        'RESTORE_POST' => '게시글 복구',
+        'HIDE_COMMENT' => '댓글 숨김',
+        'RESTORE_COMMENT' => '댓글 복구',
+        'APPROVE_REPORT' => '신고 승인',
+        'REJECT_REPORT' => '신고 거절',
+        'WARN_REPORT' => '경고 처리',
+        'CANCEL_PENALTY' => '제재 취소',
+        _ => action,
+      };
 
-  String _targetLabel(String targetType) {
-    return switch (targetType) {
-      'POST' => '게시글',
-      'COMMENT' => '댓글',
-      'REPORT' => '신고',
-      'PENALTY' => '제재',
-      _ => targetType,
-    };
-  }
+  String _targetLabel(String targetType) => switch (targetType) {
+        'POST' => '게시글',
+        'COMMENT' => '댓글',
+        'REPORT' => '신고',
+        'PENALTY' => '제재',
+        _ => targetType,
+      };
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
-        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) =>
+      '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
+      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }

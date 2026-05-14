@@ -42,15 +42,15 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminSchoolListProvider);
-
     final c = context.colors;
+
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: c.cardBg,
-        foregroundColor: const Color(0xFF1F2933),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
-        title: const Text('학교 모니터링', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('학교 모니터링', style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
       ),
       body: Column(
         children: [
@@ -69,12 +69,14 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
                   onPressed: () {
                     _searchController.clear();
                     ref.read(adminSchoolListProvider.notifier).load();
+                    // 검색 초기화 시 목록 상단으로 복귀
+                    if (_scrollController.hasClients) _scrollController.jumpTo(0);
                   },
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF3F6F8),
+                fillColor: c.subtleBg,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -84,32 +86,47 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
             child: state.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : state.error != null && state.schools.isEmpty
-                    ? Center(child: Text(state.error!))
+                    ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
                     : RefreshIndicator(
                         onRefresh: () => ref
                             .read(adminSchoolListProvider.notifier)
                             .load(keyword: state.keyword),
-                        child: ListView.separated(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(16),
-                          itemCount: state.schools.length + (state.isLoadingMore ? 1 : 0),
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            if (index >= state.schools.length) {
-                              return const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(child: CircularProgressIndicator()),
-                              );
-                            }
-                            return _SchoolTile(
-                              school: state.schools[index],
-                              onTap: () => context.push(
-                                AppRoutes.adminSchoolBoards(state.schools[index].id),
-                                extra: {'schoolName': state.schools[index].name},
+                        child: state.schools.isEmpty
+                            // 검색 결과 없음 안내 (pull-to-refresh 작동을 위해 ListView 사용)
+                            ? ListView(
+                                children: [
+                                  SizedBox(
+                                    height: 200,
+                                    child: Center(
+                                      child: Text(
+                                        '검색 결과가 없습니다.',
+                                        style: TextStyle(color: c.textMuted),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : ListView.separated(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.all(16),
+                                itemCount: state.schools.length + (state.isLoadingMore ? 1 : 0),
+                                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                                itemBuilder: (context, index) {
+                                  if (index >= state.schools.length) {
+                                    return const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Center(child: CircularProgressIndicator()),
+                                    );
+                                  }
+                                  return _SchoolTile(
+                                    school: state.schools[index],
+                                    onTap: () => context.push(
+                                      AppRoutes.adminSchoolBoards(state.schools[index].id),
+                                      extra: {'schoolName': state.schools[index].name},
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
           ),
         ],
@@ -119,6 +136,8 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
 
   void _search(String keyword) {
     ref.read(adminSchoolListProvider.notifier).load(keyword: keyword.trim());
+    // 검색 결과가 바뀌면 목록 상단으로 이동해야 빈 화면처럼 보이지 않는다.
+    if (_scrollController.hasClients) _scrollController.jumpTo(0);
   }
 }
 
@@ -133,15 +152,15 @@ class _SchoolTile extends StatelessWidget {
     final c = context.colors;
     return Material(
       color: c.cardBg,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: c.border),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
             children: [
@@ -149,10 +168,10 @@ class _SchoolTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF3FB),
-                  borderRadius: BorderRadius.circular(8),
+                  color: c.tintBg,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.school_rounded, color: Color(0xFF426C82)),
+                child: Icon(Icons.school_rounded, color: c.iconOnCard),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -161,21 +180,21 @@ class _SchoolTile extends StatelessWidget {
                   children: [
                     Text(
                       school.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2933),
+                        color: c.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       school.regionName ?? '지역 정보 없음',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                      style: TextStyle(fontSize: 11, color: c.textMuted),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+              Icon(Icons.chevron_right_rounded, color: c.iconSecondary),
             ],
           ),
         ),

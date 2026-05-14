@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/storage/token_storage.dart';
@@ -14,6 +14,11 @@ import '../features/admin/pages/admin_school_list_page.dart';
 import '../features/admin/pages/admin_user_history_page.dart';
 import '../features/admin/pages/admin_verification_detail_page.dart';
 import '../features/admin/pages/admin_verification_list_page.dart';
+import '../features/inquiry/pages/admin_inquiry_detail_page.dart';
+import '../features/inquiry/pages/admin_inquiry_list_page.dart';
+import '../features/inquiry/pages/inquiry_detail_page.dart';
+import '../features/inquiry/pages/inquiry_page.dart';
+import '../features/inquiry/pages/inquiry_write_page.dart';
 import '../features/warning/pages/my_warning_history_page.dart';
 import '../features/auth/pages/find_email_page.dart';
 import '../features/auth/pages/find_email_result_page.dart';
@@ -106,7 +111,8 @@ class AppRoutes {
   static const adminSchools = '/admin/schools';
 
   /// 관리자 학교별 게시판
-  static String adminSchoolBoards(int schoolId) => '/admin/schools/$schoolId/boards';
+  static String adminSchoolBoards(int schoolId) =>
+      '/admin/schools/$schoolId/boards';
 
   /// 愿由ъ옄 寃뚯떆?먮퀎 寃뚯떆湲
   static String adminBoardPosts(int boardId) => '/admin/boards/$boardId/posts';
@@ -126,8 +132,12 @@ class AppRoutes {
   /// 愿由ъ옄 媛먯궗 濡쒓렇 ?섏씠吏
   static const adminAuditLogs = '/admin/audit-logs';
 
+  static const adminInquiries = '/admin/inquiries';
+
   /// 愿由ъ옄 ?좉퀬 ?곸꽭 ?섏씠吏
   static String adminReportDetail(int id) => '/admin/reports/$id';
+
+  static String adminInquiryDetail(int id) => '/admin/inquiries/$id';
 
   /// 濡쒓렇???꾨즺 ??吏꾩엯???쇰컲 ?좎? 硫붿씤 ?섏씠吏
   static const school = '/school';
@@ -209,6 +219,10 @@ class AppRoutes {
 
   /// ??寃쎄퀬 ?대젰 ?섏씠吏
   static const myWarnings = '/profile/warnings';
+
+  static const inquiries = '/profile/inquiries';
+  static const inquiryWrite = '/profile/inquiries/write';
+  static String inquiryDetail(int id) => '/profile/inquiries/$id';
 
   /// 愿由ъ옄 ?좎?蹂??쒖옱쨌寃쎄퀬 ?대젰 ?섏씠吏
   static String adminUserHistory(int userId) => '/admin/users/$userId/history';
@@ -318,7 +332,7 @@ final GoRouter router = GoRouter(
         final extra = state.extra as Map<String, dynamic>?;
         return AdminBoardPostsPage(
           boardId: boardId,
-          boardTitle: extra?['boardTitle'] as String? ?? '寃뚯떆湲 紐⑸줉',
+          boardTitle: extra?['boardTitle'] as String? ?? '게시글 목록',
           schoolName: extra?['schoolName'] as String?,
         );
       },
@@ -368,6 +382,19 @@ final GoRouter router = GoRouter(
       path: AppRoutes.adminAuditLogs,
       redirect: _adminOnly,
       builder: (context, state) => const AdminAuditLogPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminInquiries,
+      redirect: _adminOnly,
+      builder: (context, state) => const AdminInquiryListPage(),
+    ),
+    GoRoute(
+      path: '/admin/inquiries/:inquiryId',
+      redirect: _adminOnly,
+      builder: (context, state) {
+        final inquiryId = int.parse(state.pathParameters['inquiryId']!);
+        return AdminInquiryDetailPage(inquiryId: inquiryId);
+      },
     ),
 
     GoRoute(
@@ -569,6 +596,21 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.myWarnings,
       builder: (context, state) => const MyWarningHistoryPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.inquiries,
+      builder: (context, state) => const InquiryPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.inquiryWrite,
+      builder: (context, state) => const InquiryWritePage(),
+    ),
+    GoRoute(
+      path: '/profile/inquiries/:inquiryId',
+      builder: (context, state) {
+        final inquiryId = int.parse(state.pathParameters['inquiryId']!);
+        return InquiryDetailPage(inquiryId: inquiryId);
+      },
     ),
 
     GoRoute(

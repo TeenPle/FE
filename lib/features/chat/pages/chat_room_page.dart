@@ -14,6 +14,8 @@ import '../provider/muted_rooms_provider.dart';
 
 const _chatMediaChannel = MethodChannel('teenple/media');
 
+enum _ChatRoomMenuAction { blockToggle, leave }
+
 class ChatRoomPage extends ConsumerStatefulWidget {
   final int roomId;
   final int otherUserId;
@@ -47,6 +49,7 @@ class ChatRoomPage extends ConsumerStatefulWidget {
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
+  late final StateController<ActivePage> _activePageController;
   bool _isLoadingOlder = false;
   _PickedChatImage? _pendingImage;
   bool _isSearchActive = false;
@@ -56,22 +59,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   @override
   void initState() {
     super.initState();
+    _activePageController = ref.read(activePageProvider.notifier);
     _scrollController.addListener(_handleScroll);
-    _messageSearchController.addListener(() {
-      setState(
-        () => _messageSearchQuery = _messageSearchController.text
-            .trim()
-            .toLowerCase(),
-      );
-    });
+    _messageSearchController.addListener(_handleSearchChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 이 채팅방을 보고 있음을 알림 억제 로직에 알린다.
-      ref.read(activePageProvider.notifier).state = ActivePage(
-        chatRoomId: widget.roomId,
-      );
+      _activePageController.state = ActivePage(chatRoomId: widget.roomId);
     });
     Future.microtask(() async {
+      if (!mounted) return;
       final notifier = ref.read(
         chatRoomProvider((widget.roomId, widget.otherUserId)).notifier,
       );
@@ -86,28 +83,38 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         canBlock: widget.initialCanBlock,
       );
       await notifier.init();
+      if (!mounted) return;
       _scrollToBottom();
     });
   }
 
   @override
   void dispose() {
-    Future.microtask(() {
-      ref.read(activePageProvider.notifier).state = const ActivePage();
-    });
+    // dispose() 중에 Riverpod provider를 직접 수정하면 위젯 트리 언마운트 도중
+    // 상태 변경이 금지되어 에러가 발생한다. 언마운트 완료 후 실행되도록 지연한다.
+    Future.microtask(() => _activePageController.state = ActivePage.none);
     _scrollController.removeListener(_handleScroll);
+    _messageSearchController.removeListener(_handleSearchChanged);
     _inputController.dispose();
     _scrollController.dispose();
     _messageSearchController.dispose();
     super.dispose();
   }
 
+  void _handleSearchChanged() {
+    if (!mounted) return;
+    setState(() {
+      _messageSearchQuery = _messageSearchController.text.trim().toLowerCase();
+    });
+  }
+
   void _handleScroll() {
+    if (!mounted) return;
     _loadOlderIfNeeded();
   }
 
   Future<void> _loadOlderIfNeeded() async {
-    if (_isLoadingOlder || !_scrollController.hasClients) return;
+    if (!mounted || _isLoadingOlder || !_scrollController.hasClients) return;
     if (_scrollController.position.pixels > 80) return;
 
     final providerKey = (widget.roomId, widget.otherUserId);
@@ -123,6 +130,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       if (_scrollController.hasClients) {
         final delta =
             _scrollController.position.maxScrollExtent - beforeMaxExtent;
@@ -134,6 +142,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -162,6 +171,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     await ref
         .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
         .sendMessage(text);
+    if (!mounted) return;
     _scrollToBottom();
   }
 
@@ -180,6 +190,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       'pickImage',
     );
     if (result == null) return;
+    if (!mounted) return;
 
     final image = _PickedChatImage.fromMap(result);
     if (image.path.isEmpty) return;
@@ -226,141 +237,261 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   void _clearPendingImage() {
+    if (!mounted) return;
     setState(() {
       _pendingImage = null;
     });
   }
 
-  void _showMoreMenu() {
-    final sheetBg = context.colors.cardBg;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: sheetBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        final bc = ctx.colors;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: bc.border,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _BottomSheetItem(
-                  icon: Icons.report_outlined,
-                  label: '신고하기',
-                  color: const Color(0xFFF44336),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showReportSheet();
-                  },
-                ),
-                _BottomSheetItem(
-                  icon: _blockedByMe
-                      ? Icons.lock_open_rounded
-                      : Icons.block_rounded,
-                  label: _blockedByMe ? '차단 해제' : '차단하기',
-                  color: _blockedByMe
-                      ? const Color(0xFF1DA1F2)
-                      : const Color(0xFFF44336),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    if (_blockedByMe) {
-                      _showUnblockConfirm();
-                    } else {
-                      _showBlockConfirm();
-                    }
-                  },
-                ),
-                _BottomSheetItem(
-                  icon: Icons.exit_to_app_rounded,
-                  label: '채팅방 나가기',
-                  color: const Color(0xFF7D8790),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showLeaveConfirm();
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showReportSheet() {
-    // (표시 라벨, BE enum 값) 쌍 — ReportReason enum: SPAM, ABUSE, OBSCENE, ILLEGAL, HARASSMENT, ETC
+  Future<void> _showMoreMenu() async {
     const reasons = [
-      ('스팸', 'SPAM'),
+      ('광고·도배', 'SPAM'),
       ('욕설·비방', 'ABUSE'),
-      ('음란물', 'OBSCENE'),
-      ('불법 정보', 'ILLEGAL'),
       ('괴롭힘·위협', 'HARASSMENT'),
-      ('기타', 'ETC'),
+      ('성적·음란 콘텐츠', 'OBSCENE'),
+      ('불법·위험 행위', 'ILLEGAL'),
+      ('기타 운영정책 위반', 'ETC'),
     ];
-    final sheetBg = context.colors.cardBg;
-    showModalBottomSheet(
+    var selectedReason = reasons.first.$2;
+    var showingReportForm = false;
+
+    final action = await showModalBottomSheet<_ChatRoomMenuAction>(
       context: context,
-      backgroundColor: sheetBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
-        final bc = ctx.colors;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '신고 사유 선택',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: bc.textPrimary,
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            final media = MediaQuery.of(ctx);
+            final bottomInset = media.viewInsets.bottom;
+            final availableHeight =
+                media.size.height - bottomInset - media.padding.top - 24;
+            final c = ctx.colors;
+            final height = showingReportForm
+                ? availableHeight.clamp(360.0, 520.0)
+                : null;
+
+            return SafeArea(
+              top: false,
+              child: AnimatedPadding(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.only(bottom: bottomInset),
+                child: Container(
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: c.cardBg,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                    border: Border(top: BorderSide(color: c.border)),
                   ),
+                  child: showingReportForm
+                      ? Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: Container(
+                                      width: 36,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: c.border,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        visualDensity: VisualDensity.compact,
+                                        onPressed: () => setModalState(() {
+                                          showingReportForm = false;
+                                        }),
+                                        icon: const Icon(
+                                          Icons.arrow_back_ios_new_rounded,
+                                          size: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '신고하기',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
+                                                color: c.textPrimary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              '신고 카테고리를 선택해주세요.',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: c.textMuted,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: ListView(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  16,
+                                  20,
+                                  12,
+                                ),
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                children: [
+                                  Column(
+                                    children: reasons.map((reason) {
+                                      final selected =
+                                          selectedReason == reason.$2;
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 8,
+                                        ),
+                                        child: _ReportReasonTile(
+                                          label: reason.$1,
+                                          selected: selected,
+                                          onTap: () => setModalState(() {
+                                            selectedReason = reason.$2;
+                                          }),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 46,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    FocusScope.of(ctx).unfocus();
+                                    Navigator.pop(ctx);
+                                    await ref
+                                        .read(
+                                          chatRoomProvider((
+                                            widget.roomId,
+                                            widget.otherUserId,
+                                          )).notifier,
+                                        )
+                                        .reportRoom(selectedReason);
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('신고가 접수되었습니다.'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF14A3F7),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    '신고 접수',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: c.border,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              _BottomSheetItem(
+                                icon: Icons.report_outlined,
+                                label: '신고하기',
+                                color: const Color(0xFFF44336),
+                                onTap: () => setModalState(() {
+                                  showingReportForm = true;
+                                }),
+                              ),
+                              _BottomSheetItem(
+                                icon: _blockedByMe
+                                    ? Icons.lock_open_rounded
+                                    : Icons.block_rounded,
+                                label: _blockedByMe ? '차단 해제' : '차단하기',
+                                color: _blockedByMe
+                                    ? const Color(0xFF1DA1F2)
+                                    : const Color(0xFFF44336),
+                                onTap: () => Navigator.pop(
+                                  ctx,
+                                  _ChatRoomMenuAction.blockToggle,
+                                ),
+                              ),
+                              _BottomSheetItem(
+                                icon: Icons.exit_to_app_rounded,
+                                label: '채팅방 나가기',
+                                color: const Color(0xFF7D8790),
+                                onTap: () => Navigator.pop(
+                                  ctx,
+                                  _ChatRoomMenuAction.leave,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
-                const SizedBox(height: 16),
-                ...reasons.map(
-                  ((String label, String value) reason) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(reason.$1),
-                    onTap: () async {
-                      Navigator.pop(ctx);
-                      await ref
-                          .read(
-                            chatRoomProvider((
-                              widget.roomId,
-                              widget.otherUserId,
-                            )).notifier,
-                          )
-                          .reportRoom(reason.$2);
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('신고가 접수되었습니다.')),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
+
+    if (!mounted || action == null) return;
+
+    switch (action) {
+      case _ChatRoomMenuAction.blockToggle:
+        if (_blockedByMe) {
+          _showUnblockConfirm();
+        } else {
+          _showBlockConfirm();
+        }
+      case _ChatRoomMenuAction.leave:
+        _showLeaveConfirm();
+    }
   }
 
   void _showBlockConfirm() {
@@ -1280,21 +1411,36 @@ class _PenaltyInputBar extends StatelessWidget {
       top: false,
       child: Container(
         color: context.colors.cardBg,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 44),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: const Color(0xFFFFF3F0),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFFFD7CE)),
           ),
-          child: Text(
-            message,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFFD1432F),
-            ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.lock_clock_rounded,
+                size: 20,
+                color: Color(0xFFD1432F),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFD1432F),
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1472,6 +1618,68 @@ class _BottomSheetItem extends StatelessWidget {
         ),
       ),
       onTap: onTap,
+    );
+  }
+}
+
+class _ReportReasonTile extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ReportReasonTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final accent = const Color(0xFF14A3F7);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOut,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          decoration: BoxDecoration(
+            color: selected ? c.tintBg : c.subtleBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: selected ? c.borderBlue : c.border),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                selected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded,
+                size: 19,
+                color: selected ? accent : c.iconSecondary,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.25,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    color: selected ? c.textPrimary : c.textBody,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

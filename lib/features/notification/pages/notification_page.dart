@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/time_format.dart';
 import '../models/notification_model.dart';
@@ -68,24 +69,24 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
       body: state.isLoading && state.notifications.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : state.notifications.isEmpty
-              ? const _EmptyState()
-              : ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: state.notifications.length + (state.hasMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == state.notifications.length) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-                    return _NotificationItem(
-                      notification: state.notifications[index],
-                      onTap: () => _handleTap(state.notifications[index]),
-                    );
-                  },
-                ),
+          ? const _EmptyState()
+          : ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: state.notifications.length + (state.hasMore ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == state.notifications.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return _NotificationItem(
+                  notification: state.notifications[index],
+                  onTap: () => _handleTap(state.notifications[index]),
+                );
+              },
+            ),
     );
   }
 
@@ -95,6 +96,8 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     }
     if (notification.targetType == 'POST') {
       context.push('/post/${notification.targetId}');
+    } else if (notification.targetType == 'INQUIRY') {
+      context.push(AppRoutes.inquiryDetail(notification.targetId));
     }
   }
 }
@@ -190,10 +193,7 @@ class _CommentNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: TextStyle(
-            fontSize: 11,
-            color: c.textTertiary,
-          ),
+          style: TextStyle(fontSize: 11, color: c.textTertiary),
         ),
       ],
     );
@@ -227,10 +227,7 @@ class _DefaultNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: TextStyle(
-            fontSize: 11,
-            color: c.textTertiary,
-          ),
+          style: TextStyle(fontSize: 11, color: c.textTertiary),
         ),
       ],
     );
@@ -289,7 +286,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none_rounded, size: 52, color: c.iconSecondary),
+          Icon(
+            Icons.notifications_none_rounded,
+            size: 52,
+            color: c.iconSecondary,
+          ),
           const SizedBox(height: 16),
           Text(
             '아직 알림이 없어요',

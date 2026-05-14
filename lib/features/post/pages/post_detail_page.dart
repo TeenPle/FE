@@ -51,9 +51,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
   @override
   void dispose() {
-    Future.microtask(() {
-      ref.read(activePageProvider.notifier).state = const ActivePage();
-    });
+    ref.read(activePageProvider.notifier).state = const ActivePage();
     _scrollController.dispose();
     super.dispose();
   }
@@ -242,30 +240,28 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               } else if (value == 'report' &&
                   post != null &&
                   post.canReportAuthor) {
-                _showReportSheet(
-                  context,
-                  onSubmit: (reason) {
-                    notifier.reportPost(reason);
-                  },
-                );
+                final report = await _showReportSheet(context);
+                if (report != null) {
+                  await notifier.reportPost(report.reason);
+                }
               } else if (value == 'block' &&
                   post != null &&
                   post.canBlockAuthor &&
                   post.authorUserId != null) {
                 final confirmed = await _showBlockConfirmDialog(context);
-                if (confirmed == true && mounted) {
+                if (confirmed == true && context.mounted) {
                   try {
                     await ref
                         .read(blockActionProvider)
                         .block(post.authorUserId!);
-                    if (mounted) {
+                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
                       );
                       context.pop(true);
                     }
                   } catch (_) {
-                    if (mounted) {
+                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('차단 처리에 실패했습니다.')),
                       );
@@ -420,12 +416,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                           );
                         },
                         onCommentReportTap: (commentId) {
-                          _showReportSheet(
-                            context,
-                            onSubmit: (reason) {
-                              notifier.reportComment(commentId, reason);
-                            },
-                          );
+                          _showReportSheet(context).then((report) {
+                            if (report == null) return;
+                            notifier.reportComment(commentId, report.reason);
+                          });
                         },
                         onCommentEditTap: (comment) {
                           _showEditCommentDialog(
@@ -456,12 +450,12 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                           final confirmed = await _showBlockConfirmDialog(
                             context,
                           );
-                          if (confirmed == true && mounted) {
+                          if (confirmed == true && context.mounted) {
                             try {
                               await ref
                                   .read(blockActionProvider)
                                   .block(authorUserId);
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('해당 사용자를 차단했습니다.'),
@@ -470,7 +464,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                 await notifier.loadPostDetail();
                               }
                             } catch (_) {
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('차단 처리에 실패했습니다.'),
@@ -671,58 +665,223 @@ Future<bool?> _showBlockConfirmDialog(BuildContext context) {
   );
 }
 
-/// 신고 사유 선택 바텀시트
-void _showReportSheet(
-  BuildContext context, {
-  required ValueChanged<String> onSubmit,
-}) {
-  showModalBottomSheet(
+/// 신고 카테고리 선택 바텀시트
+Future<_ReportSubmission?> _showReportSheet(BuildContext context) {
+  String selectedReason = 'SPAM';
+  return showModalBottomSheet<_ReportSubmission>(
     context: context,
-    backgroundColor: context.colors.cardBg,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     builder: (context) {
       const reasons = [
-        ('SPAM', '스팸'),
-        ('ABUSE', '욕설/모욕'),
-        ('OBSCENE', '음란물/선정적 내용'),
-        ('ILLEGAL', '불법 콘텐츠'),
-        ('HARASSMENT', '괴롭힘'),
-        ('ETC', '기타'),
+        ('SPAM', '광고·도배'),
+        ('ABUSE', '욕설·비방'),
+        ('HARASSMENT', '괴롭힘·위협'),
+        ('OBSCENE', '성적·음란 콘텐츠'),
+        ('ILLEGAL', '불법·위험 행위'),
+        ('ETC', '기타 운영정책 위반'),
       ];
 
-      return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '신고 사유 선택',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: context.colors.textPrimary,
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          final media = MediaQuery.of(context);
+          final bottomInset = media.viewInsets.bottom;
+          final maxHeight = (media.size.height - bottomInset) * 0.9;
+          final c = context.colors;
+          return SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Container(
+                constraints: BoxConstraints(maxHeight: maxHeight),
+                decoration: BoxDecoration(
+                  color: c.cardBg,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                  border: Border(top: BorderSide(color: c.border)),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: c.border,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: c.tintBg,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.flag_outlined,
+                              size: 20,
+                              color: Color(0xFF426C82),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '신고하기',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: c.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '신고 카테고리를 선택해주세요.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: c.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        children: reasons.map((reason) {
+                          final selected = selectedReason == reason.$1;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: _ReportReasonTile(
+                              label: reason.$2,
+                              selected: selected,
+                              onTap: () => setModalState(() {
+                                selectedReason = reason.$1;
+                              }),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 46,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            Navigator.pop(
+                              context,
+                              _ReportSubmission(reason: selectedReason),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF14A3F7),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            '신고 접수',
+                            style: TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              ...reasons.map(
-                (r) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(r.$2),
-                  onTap: () {
-                    Navigator.pop(context);
-                    onSubmit(r.$1);
-                  },
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+class _ReportSubmission {
+  final String reason;
+
+  const _ReportSubmission({required this.reason});
+}
+
+class _ReportReasonTile extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ReportReasonTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final accent = const Color(0xFF14A3F7);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOut,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          decoration: BoxDecoration(
+            color: selected ? c.tintBg : c.subtleBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: selected ? c.borderBlue : c.border),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                selected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded,
+                size: 19,
+                color: selected ? accent : c.iconSecondary,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.25,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    color: selected ? c.textPrimary : c.textBody,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
 }
 
 /// 삭제 확인 다이얼로그

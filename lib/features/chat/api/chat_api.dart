@@ -36,7 +36,10 @@ class ChatApi {
   const ChatApi(this._client);
 
   Future<ChatImageUploadResult> uploadImage(MultipartFile file) async {
-    final json = await _client.postMultipartFile('/api/chat/images', file: file);
+    final json = await _client.postMultipartFile(
+      '/api/chat/images',
+      file: file,
+    );
     final resp = ApiResponse.fromJson(
       json,
       (data) => ChatImageUploadResult.fromJson(data as Map<String, dynamic>),
@@ -51,13 +54,19 @@ class ChatApi {
     required int sourcePostId,
     required String roomTitle,
   }) async {
-    final json = await _client.post('/api/chat/rooms/dm', body: {
-      'otherUserId': otherUserId,
-      'sourcePostId': sourcePostId,
-      'roomTitle': roomTitle,
-    });
+    final json = await _client.post(
+      '/api/chat/rooms/dm',
+      body: {
+        'otherUserId': otherUserId,
+        'sourcePostId': sourcePostId,
+        'roomTitle': roomTitle,
+      },
+    );
 
-    final resp = ApiResponse.fromJson(json, (data) => data as Map<String, dynamic>);
+    final resp = ApiResponse.fromJson(
+      json,
+      (data) => data as Map<String, dynamic>,
+    );
     if (!resp.isSuccess || resp.result == null) throw Exception(resp.message);
     return resp.result!;
   }
@@ -107,11 +116,10 @@ class ChatApi {
 
   // 메시지 전송 (HTTP fallback)
   Future<ChatMessageModel> sendMessage(int roomId, String content) async {
-    final json = await _client.post('/api/chat/rooms/$roomId/messages', body: {
-      'roomId': roomId,
-      'type': 'TEXT',
-      'content': content,
-    });
+    final json = await _client.post(
+      '/api/chat/rooms/$roomId/messages',
+      body: {'roomId': roomId, 'type': 'TEXT', 'content': content},
+    );
     final resp = ApiResponse.fromJson(
       json,
       (data) => ChatMessageModel.fromJson(data as Map<String, dynamic>),
@@ -121,11 +129,10 @@ class ChatApi {
   }
 
   Future<ChatMessageModel> sendImageMessage(int roomId, int mediaId) async {
-    final json = await _client.post('/api/chat/rooms/$roomId/messages', body: {
-      'roomId': roomId,
-      'type': 'IMAGE',
-      'mediaId': mediaId,
-    });
+    final json = await _client.post(
+      '/api/chat/rooms/$roomId/messages',
+      body: {'roomId': roomId, 'type': 'IMAGE', 'mediaId': mediaId},
+    );
     final resp = ApiResponse.fromJson(
       json,
       (data) => ChatMessageModel.fromJson(data as Map<String, dynamic>),
@@ -136,7 +143,10 @@ class ChatApi {
 
   // 읽음 처리
   Future<void> markRead(int roomId, int messageId) async {
-    await _client.post('/api/chat/rooms/$roomId/read', body: {'messageId': messageId});
+    await _client.post(
+      '/api/chat/rooms/$roomId/read',
+      body: {'messageId': messageId},
+    );
   }
 
   // 채팅방 차단
@@ -151,7 +161,10 @@ class ChatApi {
 
   // 채팅방 신고
   Future<void> report(int roomId, String reason) async {
-    await _client.post('/api/chat/rooms/$roomId/report', body: {'reason': reason});
+    await _client.post(
+      '/api/chat/rooms/$roomId/report',
+      body: {'reason': reason},
+    );
   }
 
   // 채팅방 나가기
@@ -164,10 +177,7 @@ class ChatImageUploadResult {
   final int mediaId;
   final String imageUrl;
 
-  const ChatImageUploadResult({
-    required this.mediaId,
-    required this.imageUrl,
-  });
+  const ChatImageUploadResult({required this.mediaId, required this.imageUrl});
 
   factory ChatImageUploadResult.fromJson(Map<String, dynamic> json) {
     return ChatImageUploadResult(

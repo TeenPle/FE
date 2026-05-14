@@ -111,6 +111,12 @@ class SettingsPage extends ConsumerWidget {
           _SettingsCard(
             children: [
               _SettingsTile(
+                icon: Icons.support_agent_rounded,
+                label: '문의하기',
+                onTap: () => context.push(AppRoutes.inquiries),
+              ),
+              const _Divider(),
+              _SettingsTile(
                 icon: Icons.logout_rounded,
                 label: '로그아웃',
                 onTap: () => _confirmLogout(context, ref),
@@ -155,7 +161,10 @@ class SettingsPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
+  Future<void> _confirmDeleteAccount(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -168,7 +177,9 @@ class SettingsPage extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFFE05C5C)),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFE05C5C),
+            ),
             child: const Text('탈퇴하기'),
           ),
         ],
@@ -261,9 +272,7 @@ class _ThemeSegment extends StatelessWidget {
           color: selected ? const Color(0xFF14A3F7) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected
-                ? const Color(0xFF14A3F7)
-                : context.colors.border,
+            color: selected ? const Color(0xFF14A3F7) : context.colors.border,
           ),
         ),
         child: Text(
@@ -321,7 +330,8 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '댓글 알림',
             value: setting.allowCommentNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(context, ref, {'allowCommentNotification': v}),
+            onChanged: (v) =>
+                _update(context, ref, {'allowCommentNotification': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -329,7 +339,8 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '답글 알림',
             value: setting.allowReplyNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(context, ref, {'allowReplyNotification': v}),
+            onChanged: (v) =>
+                _update(context, ref, {'allowReplyNotification': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -337,7 +348,8 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '좋아요 알림',
             value: setting.allowLikeNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(context, ref, {'allowLikeNotification': v}),
+            onChanged: (v) =>
+                _update(context, ref, {'allowLikeNotification': v}),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -345,21 +357,29 @@ class _NotificationSettingsCard extends ConsumerWidget {
             label: '채팅 알림',
             value: setting.allowChatNotification,
             enabled: setting.allowPush,
-            onChanged: (v) => _update(context, ref, {'allowChatNotification': v}),
+            onChanged: (v) =>
+                _update(context, ref, {'allowChatNotification': v}),
           ),
         ],
       ),
     );
   }
 
-  void _update(BuildContext context, WidgetRef ref, Map<String, dynamic> patch) {
-    ref.read(notificationSettingProvider.notifier).updateSetting(patch).catchError((_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('설정 저장에 실패했습니다.')),
-        );
-      }
-    });
+  void _update(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> patch,
+  ) {
+    ref
+        .read(notificationSettingProvider.notifier)
+        .updateSetting(patch)
+        .catchError((_) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('설정 저장에 실패했습니다.')));
+          }
+        });
   }
 }
 
@@ -467,7 +487,11 @@ class _InfoTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, size: 20, color: Color(0xFF14A3F7)),
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 20,
+            color: Color(0xFF14A3F7),
+          ),
           const SizedBox(width: 14),
           Text(
             label,
@@ -480,10 +504,7 @@ class _InfoTile extends StatelessWidget {
           const Spacer(),
           Text(
             trailing,
-            style: TextStyle(
-              fontSize: 12,
-              color: context.colors.textTertiary,
-            ),
+            style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
           ),
         ],
       ),
@@ -539,7 +560,12 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(height: 1, thickness: 1, color: context.colors.borderSubtle, indent: 52);
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: context.colors.borderSubtle,
+      indent: 52,
+    );
   }
 }
 
@@ -581,7 +607,11 @@ class _SettingsTile extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Icon(Icons.chevron_right_rounded, color: context.colors.iconSecondary, size: 22),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: context.colors.iconSecondary,
+              size: 22,
+            ),
           ],
         ),
       ),

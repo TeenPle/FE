@@ -25,13 +25,16 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(adminPostDetailProvider(widget.postId).notifier).load());
+    Future.microtask(
+      () => ref.read(adminPostDetailProvider(widget.postId).notifier).load(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminPostDetailProvider(widget.postId));
     final notifier = ref.read(adminPostDetailProvider(widget.postId).notifier);
+    final c = context.colors;
 
     ref.listen(adminPostDetailProvider(widget.postId), (_, next) {
       if (next.successMessage != null) {
@@ -41,27 +44,23 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
       }
       if (next.error != null && next.post != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: const Color(0xFFE05C7B),
-          ),
+          SnackBar(content: Text(next.error!), backgroundColor: const Color(0xFFE05C7B)),
         );
       }
     });
 
-    final c = context.colors;
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        backgroundColor: c.cardBg,
-        foregroundColor: const Color(0xFF1F2933),
+        backgroundColor: c.pageBg,
+        foregroundColor: c.textPrimary,
         elevation: 0,
-        title: const Text('게시글 모더레이션', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('게시글 모더레이션', style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.post == null
-              ? Center(child: Text(state.error!))
+              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
               : state.post == null
                   ? const SizedBox()
                   : _PostDetailBody(
@@ -98,6 +97,7 @@ class _PostDetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -109,19 +109,16 @@ class _PostDetailBody extends StatelessWidget {
                 children: [
                   _StatusBadge(post.postStatus),
                   const Spacer(),
-                  Text(_formatDate(post.createdAt), style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                  Text(_formatDate(post.createdAt), style: TextStyle(fontSize: 11, color: c.textTertiary)),
                 ],
               ),
               const SizedBox(height: 14),
               Text(
                 post.title,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF111827), height: 1.25),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: c.textPrimary, height: 1.25),
               ),
               const SizedBox(height: 12),
-              Text(
-                post.content,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF334155), height: 1.6),
-              ),
+              Text(post.content, style: TextStyle(fontSize: 13, color: c.textBody, height: 1.6)),
               if (post.mediaList.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 _MediaGrid(mediaList: post.mediaList),
@@ -131,19 +128,19 @@ class _PostDetailBody extends StatelessWidget {
                 spacing: 10,
                 runSpacing: 8,
                 children: [
-                  _InfoChip(Icons.school_outlined, post.schoolName ?? post.regionName ?? '학교/지역 없음'),
-                  _InfoChip(Icons.dashboard_outlined, post.boardTitle),
-                  _InfoChip(Icons.person_outline, post.authorLabel),
+                  _InfoChip(Icons.school_outlined, post.schoolName ?? post.regionName ?? '학교/지역 없음', c: c),
+                  _InfoChip(Icons.dashboard_outlined, post.boardTitle, c: c),
+                  _InfoChip(Icons.person_outline, post.authorLabel, c: c),
                 ],
               ),
               const SizedBox(height: 14),
               Wrap(
                 spacing: 14,
                 children: [
-                  _Metric(icon: Icons.visibility_outlined, value: '조회 ${post.viewCount}'),
-                  _Metric(icon: Icons.thumb_up_alt_outlined, value: '공감 ${post.likeCount}'),
-                  _Metric(icon: Icons.thumb_down_alt_outlined, value: '비공감 ${post.dislikeCount}'),
-                  _Metric(icon: Icons.mode_comment_outlined, value: '댓글 ${post.commentCount}'),
+                  _Metric(icon: Icons.visibility_outlined, value: '조회 ${post.viewCount}', c: c),
+                  _Metric(icon: Icons.thumb_up_alt_outlined, value: '공감 ${post.likeCount}', c: c),
+                  _Metric(icon: Icons.thumb_down_alt_outlined, value: '비공감 ${post.dislikeCount}', c: c),
+                  _Metric(icon: Icons.mode_comment_outlined, value: '댓글 ${post.commentCount}', c: c),
                 ],
               ),
             ],
@@ -154,73 +151,64 @@ class _PostDetailBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '운영 액션',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
-              ),
+              Text('운영 액션', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: c.textPrimary)),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push(
-                        AppRoutes.adminUserHistory(post.authorUserId),
-                        extra: {'nickname': post.authorLabel},
-                      ),
-                      icon: const Icon(Icons.history_rounded, size: 18),
-                      label: const Text('작성자 이력'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF426C82),
-                        side: const BorderSide(color: Color(0xFFBBD3DF)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(
+                    AppRoutes.adminUserHistory(post.authorUserId),
+                    extra: {'nickname': post.authorLabel},
                   ),
-                ],
+                  icon: const Icon(Icons.history_rounded, size: 18),
+                  label: const Text('작성자 이력'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF426C82),
+                    side: const BorderSide(color: Color(0xFF426C82)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: post.postStatus == 'HIDDEN'
-                        ? ElevatedButton.icon(
-                            onPressed: isActing
-                                ? null
-                                : () => _confirmAction(
-                                      context,
-                                      title: '게시글 복구',
-                                      message: '숨김 처리된 게시글을 다시 노출할까요?',
-                                      confirmText: '복구',
-                                      onConfirm: onRestorePost,
-                                    ),
-                            icon: const Icon(Icons.undo_rounded, size: 18),
-                            label: const Text('게시글 복구'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2F7D46),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          )
-                        : OutlinedButton.icon(
-                            onPressed: isActing
-                                ? null
-                                : () => _confirmAction(
-                                      context,
-                                      title: '게시글 숨김',
-                                      message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
-                                      confirmText: '숨김 처리',
-                                      onConfirm: onHidePost,
-                                    ),
-                            icon: const Icon(Icons.visibility_off_outlined, size: 18),
-                            label: const Text('게시글 숨김'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFFE05C7B),
-                              side: const BorderSide(color: Color(0xFFE05C7B)),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          ),
-                  ),
-                ],
+              SizedBox(
+                width: double.infinity,
+                child: post.postStatus == 'HIDDEN'
+                    ? ElevatedButton.icon(
+                        onPressed: isActing
+                            ? null
+                            : () => _confirmAction(
+                                  context,
+                                  title: '게시글 복구',
+                                  message: '숨김 처리된 게시글을 다시 노출할까요?',
+                                  confirmText: '복구',
+                                  onConfirm: onRestorePost,
+                                ),
+                        icon: const Icon(Icons.undo_rounded, size: 18),
+                        label: const Text('게시글 복구'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2F7D46),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      )
+                    : OutlinedButton.icon(
+                        onPressed: isActing
+                            ? null
+                            : () => _confirmAction(
+                                  context,
+                                  title: '게시글 숨김',
+                                  message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
+                                  confirmText: '숨김 처리',
+                                  onConfirm: onHidePost,
+                                ),
+                        icon: const Icon(Icons.visibility_off_outlined, size: 18),
+                        label: const Text('게시글 숨김'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFE05C7B),
+                          side: const BorderSide(color: Color(0xFFE05C7B)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
               ),
             ],
           ),
@@ -232,13 +220,13 @@ class _PostDetailBody extends StatelessWidget {
             children: [
               Text(
                 '댓글 ${post.comments.length}',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1F2933)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: c.textPrimary),
               ),
               const SizedBox(height: 12),
               if (post.comments.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text('댓글이 없습니다.', style: TextStyle(color: Color(0xFF94A3B8))),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text('댓글이 없습니다.', style: TextStyle(color: c.iconSecondary)),
                 )
               else
                 ...post.comments.map(
@@ -269,10 +257,9 @@ class _PostDetailBody extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
-        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) =>
+      '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
+      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
   void _confirmAction(
     BuildContext context, {
@@ -284,55 +271,51 @@ class _PostDetailBody extends StatelessWidget {
     final reasonController = TextEditingController();
     showDialog<bool>(
       context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: Text(title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(message),
-              const SizedBox(height: 12),
-              TextField(
-                controller: reasonController,
-                maxLines: 3,
-                maxLength: 500,
-                decoration: InputDecoration(
-                  hintText: '처리 사유를 입력하세요.',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.all(12),
-                ),
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(message),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonController,
+              maxLines: 3,
+              maxLength: 500,
+              decoration: InputDecoration(
+                hintText: '처리 사유를 입력하세요.',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.all(12),
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('취소', style: TextStyle(color: Color(0xFF64748B))),
-            ),
-            TextButton(
-              onPressed: () {
-                final reason = reasonController.text.trim();
-                if (reason.isEmpty) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('처리 사유를 입력해주세요.')),
-                  );
-                  return;
-                }
-                Navigator.of(ctx).pop(true);
-              },
-              child: Text(confirmText, style: const TextStyle(color: Color(0xFFE05C7B))),
             ),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text('취소', style: TextStyle(color: ctx.colors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (reasonController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('처리 사유를 입력해주세요.')),
+                );
+                return;
+              }
+              Navigator.of(ctx).pop(true);
+            },
+            child: Text(confirmText, style: const TextStyle(color: Color(0xFFE05C7B))),
+          ),
+        ],
+      ),
     ).then((confirmed) {
-      if (confirmed == true) {
-        onConfirm(reasonController.text.trim());
-      }
+      // 텍스트를 먼저 추출하고 controller를 dispose한 뒤 API를 호출한다.
+      // onConfirm 호출 전에 dispose해야 메모리 누수 없이 안전하게 처리된다.
+      final reason = reasonController.text.trim();
       reasonController.dispose();
+      if (confirmed == true) onConfirm(reason);
     });
   }
 }
@@ -349,8 +332,8 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: c.border),
       ),
       child: child,
     );
@@ -364,6 +347,7 @@ class _MediaGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -378,15 +362,23 @@ class _MediaGrid extends StatelessWidget {
         if (!media.isImage) {
           return Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: c.subtleBg,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.insert_drive_file_outlined, color: Color(0xFF64748B)),
+            child: Icon(Icons.insert_drive_file_outlined, color: c.iconSecondary),
           );
         }
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.network(media.url, fit: BoxFit.cover),
+          child: Image.network(
+            media.url,
+            fit: BoxFit.cover,
+            // 이미지 로드 실패 시 깨진 이미지 아이콘으로 대체한다.
+            errorBuilder: (_, __, ___) => Container(
+              color: c.subtleBg,
+              child: Icon(Icons.broken_image_outlined, color: c.iconSecondary),
+            ),
+          ),
         );
       },
     );
@@ -410,6 +402,7 @@ class _CommentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       margin: EdgeInsets.only(left: comment.depth > 0 ? 18 : 0, bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -417,11 +410,11 @@ class _CommentTile extends StatelessWidget {
         color: highlighted
             ? const Color(0xFFFFFBEB)
             : comment.depth > 0
-                ? const Color(0xFFF8FAFC)
-                : const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(8),
+                ? c.replyBg
+                : c.cardBg,
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: highlighted ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
+          color: highlighted ? const Color(0xFFF59E0B) : c.border,
           width: highlighted ? 1.5 : 1,
         ),
       ),
@@ -434,20 +427,20 @@ class _CommentTile extends StatelessWidget {
                 child: Text(
                   comment.authorLabel,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: c.textBody),
                 ),
               ),
               _StatusBadge(comment.commentStatus),
             ],
           ),
           const SizedBox(height: 8),
-          Text(comment.content, style: const TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.45)),
+          Text(comment.content, style: TextStyle(fontSize: 12, color: c.textBody, height: 1.45)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 12,
             children: [
-              _Metric(icon: Icons.thumb_up_alt_outlined, value: '${comment.likeCount}'),
-              _Metric(icon: Icons.thumb_down_alt_outlined, value: '${comment.dislikeCount}'),
+              _Metric(icon: Icons.thumb_up_alt_outlined, value: '${comment.likeCount}', c: c),
+              _Metric(icon: Icons.thumb_down_alt_outlined, value: '${comment.dislikeCount}', c: c),
             ],
           ),
           if (comment.commentStatus != 'DELETED') ...[
@@ -459,17 +452,13 @@ class _CommentTile extends StatelessWidget {
                       onPressed: isActing ? null : onRestore,
                       icon: const Icon(Icons.undo_rounded, size: 16),
                       label: const Text('복구'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF2F7D46),
-                      ),
+                      style: TextButton.styleFrom(foregroundColor: const Color(0xFF2F7D46)),
                     )
                   : TextButton.icon(
                       onPressed: isActing ? null : onHide,
                       icon: const Icon(Icons.visibility_off_outlined, size: 16),
                       label: const Text('숨김'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFE05C7B),
-                      ),
+                      style: TextButton.styleFrom(foregroundColor: const Color(0xFFE05C7B)),
                     ),
             ),
           ],
@@ -486,17 +475,17 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final color = switch (status) {
       'ACTIVE' => const Color(0xFF2F7D46),
       'HIDDEN' => const Color(0xFFF59E0B),
-      'DELETED' => const Color(0xFF64748B),
-      _ => const Color(0xFF64748B),
+      'DELETED' => c.textMuted,
+      _ => c.textMuted,
     };
     final bg = switch (status) {
       'ACTIVE' => const Color(0xFFE8F5E9),
       'HIDDEN' => const Color(0xFFFFFBEB),
-      'DELETED' => const Color(0xFFF1F5F9),
-      _ => const Color(0xFFF1F5F9),
+      _ => c.subtleBg,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -509,23 +498,24 @@ class _StatusBadge extends StatelessWidget {
 class _InfoChip extends StatelessWidget {
   final IconData icon;
   final String label;
+  final AppColors c;
 
-  const _InfoChip(this.icon, this.label);
+  const _InfoChip(this.icon, this.label, {required this.c});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: c.subtleBg,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF64748B)),
+          Icon(icon, size: 14, color: c.iconOnCard),
           const SizedBox(width: 5),
-          Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF475569))),
+          Text(label, style: TextStyle(fontSize: 11, color: c.textSecondary)),
         ],
       ),
     );
@@ -535,17 +525,18 @@ class _InfoChip extends StatelessWidget {
 class _Metric extends StatelessWidget {
   final IconData icon;
   final String value;
+  final AppColors c;
 
-  const _Metric({required this.icon, required this.value});
+  const _Metric({required this.icon, required this.value, required this.c});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
+        Icon(icon, size: 14, color: c.iconSecondary),
         const SizedBox(width: 4),
-        Text(value, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+        Text(value, style: TextStyle(fontSize: 11, color: c.textMuted)),
       ],
     );
   }

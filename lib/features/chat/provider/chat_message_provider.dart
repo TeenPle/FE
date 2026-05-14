@@ -126,11 +126,11 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     required this.roomId,
     required this.otherUserId,
     required int? currentUserId,
-  })  : _api = api,
-        _tokenStorage = tokenStorage,
-        _ref = ref,
-        _currentUserId = currentUserId,
-        super(const ChatRoomState());
+  }) : _api = api,
+       _tokenStorage = tokenStorage,
+       _ref = ref,
+       _currentUserId = currentUserId,
+       super(const ChatRoomState());
 
   // 최초 입장: 히스토리 로드 + WebSocket 연결
   Future<void> init() async {
@@ -227,8 +227,9 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
       final older = result.messages.reversed.toList();
       final existingIds = state.messages.map((m) => m.messageId).toSet();
-      final mergedOlder =
-          older.where((m) => !existingIds.contains(m.messageId)).toList();
+      final mergedOlder = older
+          .where((m) => !existingIds.contains(m.messageId))
+          .toList();
 
       state = state.copyWith(
         messages: [...mergedOlder, ...state.messages],
@@ -294,8 +295,9 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   Future<String?> _getFreshAccessToken({bool refreshTokenFirst = false}) async {
     if (refreshTokenFirst) {
       try {
-        final latestMessageId =
-            state.messages.isNotEmpty ? state.messages.last.messageId : null;
+        final latestMessageId = state.messages.isNotEmpty
+            ? state.messages.last.messageId
+            : null;
         if (latestMessageId != null) {
           await _api.markRead(roomId, latestMessageId);
         } else {
@@ -325,8 +327,9 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       _stompClient?.deactivate();
       _stompClient = null;
       if (_isDisposed || !mounted) return;
-      final token =
-          await _getFreshAccessToken(refreshTokenFirst: refreshTokenFirst);
+      final token = await _getFreshAccessToken(
+        refreshTokenFirst: refreshTokenFirst,
+      );
       if (token == null || token.isEmpty) return;
       await _connectStomp();
     });
@@ -353,6 +356,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   }
 
   void _onRoomUpdated(StompFrame frame) {
+    if (_isDisposed || !mounted) return;
     if (frame.body == null) return;
     try {
       final json = jsonDecode(frame.body!) as Map<String, dynamic>;
@@ -365,6 +369,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       if (updatedRoomId != roomId) return;
 
       if (eventType == 'ROOM_STATE_UPDATED' || eventType == 'ROOM_UPDATED') {
+        if (_isDisposed || !mounted) return;
         loadMessages(markAsRead: false);
       }
     } catch (e) {
@@ -374,6 +379,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
   // 실시간 메시지 수신
   void _onMessage(StompFrame frame) {
+    if (_isDisposed || !mounted) return;
     if (frame.body == null) return;
     try {
       final json = jsonDecode(frame.body!) as Map<String, dynamic>;
@@ -382,13 +388,15 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
       final resultMap = result as Map<String, dynamic>;
 
-      final eventType = (resultMap['eventType'] ?? resultMap['type']) as String?;
+      final eventType =
+          (resultMap['eventType'] ?? resultMap['type']) as String?;
 
       // SEND_ERROR: 내가 보낸 STOMP 메시지가 서버에서 거절된 경우 전송 상태를 종료한다.
       // 예: 상대방 또는 내가 차단한 채팅방에서 메시지를 보낸 경우.
       if (eventType == 'SEND_ERROR') {
         final senderId = (resultMap['senderId'] as num?)?.toInt();
         if (senderId != null && senderId != otherUserId) {
+          if (_isDisposed || !mounted) return;
           state = state.copyWith(
             isSending: false,
             errorMessage: resultMap['message'] as String? ?? '메시지를 보낼 수 없습니다.',
@@ -405,6 +413,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         final lastReadId = (resultMap['lastReadMessageId'] as num?)?.toInt();
         // 상대방이 읽은 경우에만 업데이트 (내 read 이벤트는 무시)
         if (readerId == otherUserId && lastReadId != null) {
+          if (_isDisposed || !mounted) return;
           state = state.copyWith(otherLastReadMessageId: lastReadId);
         }
         return;
@@ -421,6 +430,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       // 이미 같은 ID가 있으면 중복 추가 방지
       if (state.messages.any((m) => m.messageId == msg.messageId)) return;
 
+      if (_isDisposed || !mounted) return;
       _appendMessageIfAbsent(msg);
 
       // 내가 채팅방 안에 있을 때 받은 상대방 메시지만 읽음 처리한다.
@@ -436,6 +446,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   // 메시지 전송은 HTTP 저장 응답으로 완료 처리하고, WebSocket은 수신/갱신 전용으로 사용한다.
   // STOMP SEND echo에 전송 상태를 의존하면 Redis pub/sub 지연이나 연결 문제에서 로딩이 풀리지 않는다.
   void _appendMessageIfAbsent(ChatMessageModel msg) {
+    if (_isDisposed || !mounted) return;
     if (state.messages.any((m) => m.messageId == msg.messageId)) {
       state = state.copyWith(isSending: false);
       return;
@@ -469,8 +480,10 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   Future<void> _sendTextByHttp(String content) async {
     try {
       final msg = await _api.sendMessage(roomId, content);
+      if (_isDisposed || !mounted) return;
       _appendMessageIfAbsent(msg);
     } catch (e) {
+      if (_isDisposed || !mounted) return;
       state = state.copyWith(
         isSending: false,
         errorMessage: e is ApiException
@@ -493,9 +506,12 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
     try {
       final uploaded = await _api.uploadImage(file);
+      if (_isDisposed || !mounted) return;
       final msg = await _api.sendImageMessage(roomId, uploaded.mediaId);
+      if (_isDisposed || !mounted) return;
       _appendMessageIfAbsent(msg);
     } catch (e) {
+      if (_isDisposed || !mounted) return;
       state = state.copyWith(
         isSending: false,
         errorMessage: e is ApiException
@@ -521,6 +537,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   Future<void> blockRoom() async {
     if (!state.canBlock || state.otherUserDeleted) return;
     await _api.block(roomId);
+    if (_isDisposed || !mounted) return;
     state = state.copyWith(
       isBlocked: true,
       blockedByMe: true,
@@ -531,6 +548,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
   Future<void> unblockRoom() async {
     await _api.unblock(roomId);
+    if (_isDisposed || !mounted) return;
     state = state.copyWith(
       isBlocked: state.blockedByOther,
       blockedByMe: false,
@@ -560,18 +578,18 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 }
 
 // family 키: (roomId, otherUserId) — otherUserId로 READ_RECEIPT 발신자 구분
-final chatRoomProvider = StateNotifierProvider.autoDispose.family<
-    ChatRoomNotifier, ChatRoomState, (int, int)>((ref, key) {
-  final (roomId, otherUserId) = key;
-  final api = ref.read(chatApiProvider);
-  final tokenStorage = ref.read(tokenStorageProvider);
-  final session = ref.read(authSessionProvider);
-  return ChatRoomNotifier(
-    api: api,
-    tokenStorage: tokenStorage,
-    ref: ref,
-    roomId: roomId,
-    otherUserId: otherUserId,
-    currentUserId: session.userId,
-  );
-});
+final chatRoomProvider = StateNotifierProvider.autoDispose
+    .family<ChatRoomNotifier, ChatRoomState, (int, int)>((ref, key) {
+      final (roomId, otherUserId) = key;
+      final api = ref.read(chatApiProvider);
+      final tokenStorage = ref.read(tokenStorageProvider);
+      final session = ref.read(authSessionProvider);
+      return ChatRoomNotifier(
+        api: api,
+        tokenStorage: tokenStorage,
+        ref: ref,
+        roomId: roomId,
+        otherUserId: otherUserId,
+        currentUserId: session.userId,
+      );
+    });

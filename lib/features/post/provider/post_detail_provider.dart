@@ -4,7 +4,6 @@ import '../../../core/network/api_exception.dart';
 import '../api/post_repository.dart';
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
-import '../models/post_detail.dart';
 import '../models/update_comment_request.dart';
 import '../models/update_post_request.dart';
 import 'post_detail_state.dart';
@@ -13,10 +12,8 @@ import 'post_detail_state.dart';
 class PostDetailNotifier extends StateNotifier<PostDetailState> {
   final PostRepository repository;
 
-  PostDetailNotifier({
-    required int postId,
-    required this.repository,
-  }) : super(PostDetailState.initial(postId));
+  PostDetailNotifier({required int postId, required this.repository})
+    : super(PostDetailState.initial(postId));
 
   /// 게시글 상세 데이터를 조회
   Future<void> loadPostDetail({bool isRefresh = false}) async {
@@ -185,11 +182,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         parentId: state.replyingToCommentId,
       );
 
-
-      await repository.createComment(
-        postId: state.postId,
-        request: request,
-      );
+      await repository.createComment(postId: state.postId, request: request);
 
       await loadPostDetail();
 
@@ -226,10 +219,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     } catch (e, st) {
       debugPrint('reportPost error: $e\n$st');
       final message = e is ApiException ? e.message : '게시글 신고에 실패했습니다.';
-      state = state.copyWith(
-        isReporting: false,
-        errorMessage: message,
-      );
+      state = state.copyWith(isReporting: false, errorMessage: message);
     }
   }
 
@@ -246,17 +236,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.reportComment(commentId, reportReason);
 
-      state = state.copyWith(
-        isReporting: false,
-        successMessage: '댓글을 신고했습니다.',
-      );
+      state = state.copyWith(isReporting: false, successMessage: '댓글을 신고했습니다.');
     } catch (e, st) {
       debugPrint('reportComment error: $e\n$st');
       final message = e is ApiException ? e.message : '댓글 신고에 실패했습니다.';
-      state = state.copyWith(
-        isReporting: false,
-        errorMessage: message,
-      );
+      state = state.copyWith(isReporting: false, errorMessage: message);
     }
   }
 
@@ -341,23 +325,14 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.updateComment(
         commentId: commentId,
-        request: UpdateCommentRequest(
-          content: content,
-          anonymous: anonymous,
-        ),
+        request: UpdateCommentRequest(content: content, anonymous: anonymous),
       );
 
       await loadPostDetail();
 
-      state = state.copyWith(
-        isUpdating: false,
-        successMessage: '댓글이 수정되었습니다.',
-      );
+      state = state.copyWith(isUpdating: false, successMessage: '댓글이 수정되었습니다.');
     } catch (_) {
-      state = state.copyWith(
-        isUpdating: false,
-        errorMessage: '댓글 수정에 실패했습니다.',
-      );
+      state = state.copyWith(isUpdating: false, errorMessage: '댓글 수정에 실패했습니다.');
     }
   }
 
@@ -375,24 +350,15 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       await repository.deleteComment(commentId);
       await loadPostDetail();
 
-      state = state.copyWith(
-        isDeleting: false,
-        successMessage: '댓글이 삭제되었습니다.',
-      );
+      state = state.copyWith(isDeleting: false, successMessage: '댓글이 삭제되었습니다.');
     } catch (_) {
-      state = state.copyWith(
-        isDeleting: false,
-        errorMessage: '댓글 삭제에 실패했습니다.',
-      );
+      state = state.copyWith(isDeleting: false, errorMessage: '댓글 삭제에 실패했습니다.');
     }
   }
 
   /// 에러/성공 메시지를 초기화
   void clearMessages() {
-    state = state.copyWith(
-      clearError: true,
-      clearSuccess: true,
-    );
+    state = state.copyWith(clearError: true, clearSuccess: true);
   }
 
   /// 페이지 종료 플래그를 해제
@@ -404,7 +370,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
   Future<void> toggleBookmark() async {
     if (state.post == null || state.isBookmarking) return;
 
-    state = state.copyWith(isBookmarking: true, clearError: true, clearSuccess: true);
+    state = state.copyWith(
+      isBookmarking: true,
+      clearError: true,
+      clearSuccess: true,
+    );
 
     try {
       final bookmarked = await repository.toggleBookmark(state.postId);

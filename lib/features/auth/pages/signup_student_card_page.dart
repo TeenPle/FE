@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,26 +21,13 @@ class SignupStudentCardPage extends ConsumerStatefulWidget {
 }
 
 class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
-  /// 학생증 이미지 선택
   Future<void> _pickStudentCard() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowMultiple: false,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
-    );
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (result == null) {
-      return;
-    }
+    if (image == null) return;
 
-    final path = result.files.single.path;
-
-    if (path == null || path.isEmpty) {
-      return;
-    }
-
-    /// 선택한 파일 경로 저장
-    ref.read(signupFormProvider.notifier).updateStudentCardFilePath(path);
+    ref.read(signupFormProvider.notifier).updateStudentCardFilePath(image.path);
 
     /// 이전 회원가입 에러 상태 초기화
     ref.read(signupSubmitProvider.notifier).reset();

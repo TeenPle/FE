@@ -44,20 +44,21 @@ class ReportSummaryModel {
   }
 
   String get targetTypeLabel => switch (targetType) {
-        'POST' => '게시글',
-        'COMMENT' => '댓글',
-        _ => targetType,
-      };
+    'POST' => '게시글',
+    'COMMENT' => '댓글',
+    'USER' => '채팅',
+    _ => targetType,
+  };
 
   String get reportReasonLabel => switch (reportReason) {
-        'SPAM' => '스팸',
-        'ABUSE' => '욕설/모욕',
-        'OBSCENE' => '음란물/선정적 내용',
-        'ILLEGAL' => '불법 콘텐츠',
-        'HARASSMENT' => '괴롭힘',
-        'ETC' => '기타',
-        _ => reportReason,
-      };
+    'SPAM' => '광고·도배',
+    'ABUSE' => '욕설·비방',
+    'HARASSMENT' => '괴롭힘·위협',
+    'OBSCENE' => '성적·음란 콘텐츠',
+    'ILLEGAL' => '불법·위험 행위',
+    'ETC' => '기타 운영정책 위반',
+    _ => reportReason,
+  };
 }
 
 class ReportDetailModel extends ReportSummaryModel {

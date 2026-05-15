@@ -89,15 +89,9 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Container(
               decoration: BoxDecoration(
-                color: c.cardBg,
+                color: c.inputBg,
                 borderRadius: BorderRadius.circular(14),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x0A000000),
-                    blurRadius: 6,
-                    offset: Offset(0, 1),
-                  ),
-                ],
+                border: Border.all(color: c.border),
               ),
               child: TextField(
                 controller: _searchController,
@@ -216,7 +210,7 @@ class _EmptyView extends StatelessWidget {
               Text(
                 isSearch
                     ? '다른 검색어를 입력해보세요.'
-                    : '게시글이나 댓글에서 채팅을 시작해보세요!',
+                    : '게시글이나 댓글에서 채팅을 시작해보세요',
                 style: TextStyle(
                   fontSize: 12,
                   color: c.textMuted,

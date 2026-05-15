@@ -28,6 +28,18 @@ class TeenpleApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      builder: (context, child) {
+        return ColoredBox(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: SafeArea(
+            top: false,
+            left: false,
+            right: false,
+            bottom: true,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
+      },
       routerConfig: router,
     );
   }

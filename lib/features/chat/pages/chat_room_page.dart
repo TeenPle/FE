@@ -140,7 +140,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   Future<void> _sendMessage() async {
     if (_pendingImage != null) {
-      await _sendPendingImage();
+      final text = _inputController.text.trim();
+      final imageSent = await _sendPendingImage();
+      if (imageSent && text.isNotEmpty && mounted) {
+        _inputController.clear();
+        await ref
+            .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
+            .sendMessage(text);
+        _scrollToBottom();
+      } else if (imageSent) {
+        _inputController.clear();
+      }
       return;
     }
 
@@ -171,12 +181,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     });
   }
 
-  Future<void> _sendPendingImage() async {
+  Future<bool> _sendPendingImage() async {
     final state = ref.read(chatRoomProvider((widget.roomId, widget.otherUserId)));
-    if (state.isBlocked || state.isSending || !state.canSendMessage || state.otherUserDeleted) return;
+    if (state.isBlocked ||
+        state.isSending ||
+        !state.canSendMessage ||
+        state.otherUserDeleted) {
+      return false;
+    }
 
     final picked = _pendingImage;
-    if (picked == null) return;
+    if (picked == null) return false;
 
     final ext = (picked.extension ?? '').toLowerCase();
     final contentType = ext == 'png'
@@ -198,17 +213,20 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         contentType: contentType,
       );
     } else {
-      return;
+      return false;
     }
 
-    await ref
+    final sent = await ref
         .read(chatRoomProvider((widget.roomId, widget.otherUserId)).notifier)
         .sendImage(file);
-    if (!mounted) return;
-    setState(() {
-      _pendingImage = null;
-    });
-    _scrollToBottom();
+    if (!mounted) return false;
+    if (sent) {
+      setState(() {
+        _pendingImage = null;
+      });
+      _scrollToBottom();
+    }
+    return sent;
   }
 
   void _clearPendingImage() {
@@ -1000,13 +1018,15 @@ class _MessageInputBar extends StatelessWidget {
                   ),
                   child: TextField(
                     controller: controller,
-                    enabled: pendingImage == null && !isSending,
+                    enabled: !isSending,
                     maxLines: 4,
                     minLines: 1,
                     maxLength: 500,
                     textInputAction: TextInputAction.newline,
                     decoration: InputDecoration(
-                      hintText: pendingImage == null ? '메시지 입력...' : '사진 전송 대기 중',
+                      hintText: pendingImage == null
+                          ? '메시지 입력...'
+                          : '사진과 함께 보낼 메시지',
                       counterText: '',
                       hintStyle: TextStyle(
                         fontSize: 13,

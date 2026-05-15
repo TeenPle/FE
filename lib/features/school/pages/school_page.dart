@@ -10,6 +10,7 @@ import '../../../core/utils/haptics.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../core/widgets/post_summary_skeleton.dart';
+import '../../../core/widgets/school_main_ad_card.dart';
 import '../../../core/widgets/tap_scale.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/chat/provider/chat_room_list_provider.dart';
@@ -349,7 +350,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                 isLoading: state.isLoadingMore,
               );
             } else if (showAdSlot && index == adInsertIndex) {
-              item = const _SchoolMainAdCard();
+              item = const SchoolMainAdCard();
             } else {
               final postIndex =
                   showAdSlot && index > adInsertIndex ? index - 1 : index;

@@ -279,6 +279,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 },
               ),
             ),
+<<<<<<< Updated upstream
+=======
+            const SizedBox(height: 4),
+            const SchoolMainAdCard(fullBleed: true),
+>>>>>>> Stashed changes
             const SizedBox(height: 8),
             Container(
               height: 1,

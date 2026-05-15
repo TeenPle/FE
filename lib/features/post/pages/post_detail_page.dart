@@ -281,7 +281,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               ),
             ),
             const SizedBox(height: 4),
-            const SchoolMainAdCard(),
+            const SchoolMainAdCard(fullBleed: true),
             const SizedBox(height: 8),
             Container(
               height: 1,

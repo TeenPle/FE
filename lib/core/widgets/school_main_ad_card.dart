@@ -3,24 +3,33 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 class SchoolMainAdCard extends StatelessWidget {
-  const SchoolMainAdCard({super.key});
+  final bool fullBleed;
+
+  const SchoolMainAdCard({
+    super.key,
+    this.fullBleed = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final radius = BorderRadius.circular(fullBleed ? 0 : 16);
+
     return Container(
       color: c.pageBg,
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
+      padding: fullBleed
+          ? const EdgeInsets.fromLTRB(0, 14, 0, 12)
+          : const EdgeInsets.fromLTRB(18, 14, 18, 12),
       child: Material(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
         child: InkWell(
           onTap: () {},
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: radius,
           child: Container(
             padding: const EdgeInsets.fromLTRB(15, 13, 15, 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: radius,
               border: Border.all(color: c.border),
               boxShadow: const [
                 BoxShadow(

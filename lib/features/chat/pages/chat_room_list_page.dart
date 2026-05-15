@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../models/chat_room_model.dart';
 import '../provider/chat_room_list_provider.dart';
 import '../provider/muted_rooms_provider.dart';
@@ -53,10 +55,17 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatRoomListProvider);
     final filtered = _filtered(state.rooms);
+    final chatUnreadCount =
+        state.rooms.fold(0, (sum, room) => sum + room.unreadCount);
 
     final c = context.colors;
     return Scaffold(
       backgroundColor: c.pageBg,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 1,
+        chatUnreadCount: chatUnreadCount,
+        onTap: (index) => _goMainTab(context, index),
+      ),
       appBar: AppBar(
         backgroundColor: c.cardBg,
         elevation: 0,
@@ -140,6 +149,25 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
         ],
       ),
     );
+  }
+}
+
+void _goMainTab(BuildContext context, int index) {
+  switch (index) {
+    case 0:
+      context.go(AppRoutes.school);
+      return;
+    case 1:
+      return;
+    case 2:
+      context.go(AppRoutes.meal);
+      return;
+    case 3:
+      context.go(AppRoutes.timetable);
+      return;
+    case 4:
+      context.go(AppRoutes.profile);
+      return;
   }
 }
 

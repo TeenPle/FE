@@ -26,6 +26,7 @@ class CommentInputBar extends StatefulWidget {
 
 class _CommentInputBarState extends State<CommentInputBar> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   static const int _maxLength = 500;
 
   @override
@@ -37,7 +38,28 @@ class _CommentInputBarState extends State<CommentInputBar> {
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant CommentInputBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final previousReplyId = oldWidget.replyingToCommentId;
+    final currentReplyId = widget.replyingToCommentId;
+
+    if (currentReplyId != null && currentReplyId != previousReplyId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _focusNode.requestFocus();
+      });
+      return;
+    }
+
+    if (previousReplyId != null && currentReplyId == null) {
+      _focusNode.unfocus();
+    }
   }
 
   int get _length => _controller.text.length;
@@ -59,7 +81,12 @@ class _CommentInputBarState extends State<CommentInputBar> {
       top: false,
       child: Container(
         color: c.pageBg,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          MediaQuery.of(context).viewInsets.bottom + 14,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -138,6 +165,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
+                      focusNode: _focusNode,
                       minLines: 1,
                       maxLines: 4,
                       style: TextStyle(

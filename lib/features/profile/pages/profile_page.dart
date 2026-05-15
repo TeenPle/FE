@@ -12,7 +12,9 @@ import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
+import '../../../features/chat/provider/chat_room_list_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
 import '../models/profile_model.dart';
 import '../provider/profile_provider.dart';
@@ -29,12 +31,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(profileProvider.notifier).loadProfile());
+    Future.microtask(() {
+      ref.read(profileProvider.notifier).loadProfile();
+      ref.read(chatRoomListProvider.notifier).load();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
+    final chatUnreadCount = ref
+        .watch(chatRoomListProvider)
+        .rooms
+        .fold(0, (sum, room) => sum + room.unreadCount);
 
     ref.listen(profileProvider, (prev, next) {
       if (next.errorMessage != null &&
@@ -61,6 +70,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final c = context.colors;
     return Scaffold(
       backgroundColor: c.pageBg,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 4,
+        chatUnreadCount: chatUnreadCount,
+        onTap: (index) => _goMainTab(context, index),
+      ),
       appBar: AppBar(
         backgroundColor: c.pageBg,
         elevation: 0,
@@ -110,6 +124,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
     );
+  }
+}
+
+void _goMainTab(BuildContext context, int index) {
+  switch (index) {
+    case 0:
+      context.go(AppRoutes.school);
+      return;
+    case 1:
+      context.go(AppRoutes.chat);
+      return;
+    case 2:
+      context.go(AppRoutes.meal);
+      return;
+    case 3:
+      context.go(AppRoutes.timetable);
+      return;
+    case 4:
+      return;
   }
 }
 
@@ -765,7 +798,7 @@ class _ProfileNotificationSettingsCard extends ConsumerWidget {
             icon: Icons.notifications_outlined,
             label: '전체 알림',
             value: setting.allowPush,
-            onChanged: (v) => _update(context, ref, {'allowPush': v}),
+            onChanged: (v) => _update(context, ref, _pushPatch(v)),
           ),
           const _ProfileSettingsDivider(),
           _ProfileNotificationToggleTile(
@@ -823,6 +856,17 @@ class _ProfileNotificationSettingsCard extends ConsumerWidget {
             ).showSnackBar(const SnackBar(content: Text('설정 저장에 실패했습니다.')));
           }
         });
+  }
+
+  Map<String, dynamic> _pushPatch(bool allowPush) {
+    if (!allowPush) return {'allowPush': false};
+    return {
+      'allowPush': true,
+      'allowCommentNotification': true,
+      'allowReplyNotification': true,
+      'allowLikeNotification': true,
+      'allowChatNotification': true,
+    };
   }
 }
 

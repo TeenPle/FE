@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/keyboard_aware_bottom_bar.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_phone_check_provider.dart';
 
@@ -142,8 +143,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
       backgroundColor: context.colors.pageBg,
 
       /// 하단 고정 버튼
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+      bottomNavigationBar: KeyboardAwareBottomBar(
         child: SizedBox(
           height: 54,
           child: ElevatedButton(

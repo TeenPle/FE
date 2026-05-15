@@ -13,6 +13,8 @@ class SchoolMainAdCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final radius = BorderRadius.circular(fullBleed ? 0 : 16);
+
     return Container(
       color: c.pageBg,
       padding: fullBleed
@@ -20,14 +22,14 @@ class SchoolMainAdCard extends StatelessWidget {
           : const EdgeInsets.fromLTRB(18, 14, 18, 12),
       child: Material(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(fullBleed ? 0 : 16),
+        borderRadius: radius,
         child: InkWell(
           onTap: () {},
-          borderRadius: BorderRadius.circular(fullBleed ? 0 : 16),
+          borderRadius: radius,
           child: Container(
             padding: const EdgeInsets.fromLTRB(15, 13, 15, 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(fullBleed ? 0 : 16),
+              borderRadius: radius,
               border: Border.all(color: c.border),
               boxShadow: const [
                 BoxShadow(

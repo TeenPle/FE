@@ -267,16 +267,36 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     return await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?'),
-        content: const Text('저장되지 않은 내용은 사라집니다.'),
+        title: Text(
+          widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: context.colors.textPrimary,
+          ),
+        ),
+        content: Text(
+          '저장되지 않은 내용은 사라집니다.',
+          style: TextStyle(
+            fontSize: 11,
+            height: 1.4,
+            color: context.colors.textSecondary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: const Text(
+              '취소',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('나가기'),
+            child: const Text(
+              '나가기',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),
@@ -411,7 +431,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
                       const SizedBox.shrink(),
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 17,
                         fontWeight: FontWeight.w900,
                         height: 1.28,
                         color: context.colors.textPrimary,
@@ -436,8 +456,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
                           const SizedBox.shrink(),
                       style: TextStyle(
-                        fontSize: 12,
-                        height: 1.58,
+                        fontSize: 13,
+                        height: 1.55,
                         color: context.colors.textBody,
                         letterSpacing: 0,
                       ),

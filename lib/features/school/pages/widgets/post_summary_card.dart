@@ -86,8 +86,8 @@ class PostSummaryCard extends StatelessWidget {
                               maxLines: thumbnailUrl == null ? 3 : 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 11,
-                                height: 1.35,
+                                fontSize: 12,
+                                height: 1.38,
                                 fontWeight: FontWeight.w400,
                                 color: c.textSecondary,
                                 letterSpacing: 0,
@@ -234,7 +234,7 @@ class _TitleLine extends StatelessWidget {
                 TextSpan(
                   text: title,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     height: 1.2,
                     fontWeight: FontWeight.w600,
                     color: textPrimary,

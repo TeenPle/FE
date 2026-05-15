@@ -16,6 +16,7 @@ import 'widgets/post_content_card.dart';
 import 'widgets/poll_card.dart';
 import 'write_post_page.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/school_main_ad_card.dart';
 
 /// 게시글 상세 페이지
 class PostDetailPage extends ConsumerStatefulWidget {
@@ -264,7 +265,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 ),
               ),
             ],
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: PostActionBar(
@@ -279,11 +280,8 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 },
               ),
             ),
-<<<<<<< Updated upstream
-=======
             const SizedBox(height: 4),
             const SchoolMainAdCard(fullBleed: true),
->>>>>>> Stashed changes
             const SizedBox(height: 8),
             Container(
               height: 1,

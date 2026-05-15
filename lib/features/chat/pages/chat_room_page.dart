@@ -85,8 +85,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   void dispose() {
+    final activePageNotifier = ref.read(activePageProvider.notifier);
     Future.microtask(() {
-      ref.read(activePageProvider.notifier).state = const ActivePage();
+      activePageNotifier.state = const ActivePage();
     });
     _scrollController.removeListener(_handleScroll);
     _inputController.dispose();

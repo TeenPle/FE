@@ -48,8 +48,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
   @override
   void dispose() {
+    final detailNotifier = ref.read(postDetailProvider(widget.postId).notifier);
+    final activePageNotifier = ref.read(activePageProvider.notifier);
     Future.microtask(() {
-      ref.read(activePageProvider.notifier).state = const ActivePage();
+      detailNotifier.cancelReply();
+      activePageNotifier.state = const ActivePage();
     });
     super.dispose();
   }
@@ -663,33 +666,36 @@ Future<void> _showEditCommentDialog(
         builder: (context, setLocalState) {
           return AlertDialog(
             title: const Text('댓글 수정'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: controller,
-                  maxLines: 4,
-                  minLines: 2,
-                  decoration: const InputDecoration(
-                    hintText: '댓글 내용을 입력하세요',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: anonymous,
-                      onChanged: (value) {
-                        setLocalState(() {
-                          anonymous = value ?? true;
-                        });
-                      },
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: controller,
+                    autofocus: true,
+                    maxLines: 4,
+                    minLines: 2,
+                    decoration: const InputDecoration(
+                      hintText: '댓글 내용을 입력하세요',
+                      border: OutlineInputBorder(),
                     ),
-                    const Text('익명으로 수정'),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: anonymous,
+                        onChanged: (value) {
+                          setLocalState(() {
+                            anonymous = value ?? true;
+                          });
+                        },
+                      ),
+                      const Text('익명으로 수정'),
+                    ],
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(

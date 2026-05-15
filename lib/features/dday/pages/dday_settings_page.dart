@@ -194,17 +194,63 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
               onTap: () async {
                 final picked = await showDatePicker(
                   context: context,
+                  locale: const Locale('ko', 'KR'),
                   initialDate: _selectedDate,
                   firstDate: DateTime(2020),
                   lastDate: DateTime(2035),
-                  builder: (context, child) => Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: const ColorScheme.light(
-                        primary: Color(0xFF229BF3),
+                  initialEntryMode: DatePickerEntryMode.calendarOnly,
+                  helpText: '날짜 선택',
+                  cancelText: '취소',
+                  confirmText: '선택',
+                  builder: (dialogContext, child) {
+                    final baseTheme = Theme.of(dialogContext);
+                    final isDark = baseTheme.brightness == Brightness.dark;
+                    return Theme(
+                      data: baseTheme.copyWith(
+                        colorScheme: baseTheme.colorScheme.copyWith(
+                          primary: const Color(0xFF229BF3),
+                          onPrimary: Colors.white,
+                          surface: c.cardBg,
+                          onSurface: c.textPrimary,
+                        ),
+                        datePickerTheme: DatePickerThemeData(
+                          backgroundColor: c.cardBg,
+                          surfaceTintColor: Colors.transparent,
+                          headerBackgroundColor: const Color(0xFF229BF3),
+                          headerForegroundColor: Colors.white,
+                          headerHeadlineStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                          ),
+                          headerHelpStyle: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            height: 1.1,
+                          ),
+                          dividerColor: c.border,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                        ),
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(
+                            foregroundColor: isDark
+                                ? const Color(0xFF6EC5FF)
+                                : const Color(0xFF229BF3),
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: child!,
-                  ),
+                      child: Transform.scale(
+                        scale: 0.92,
+                        child: child!,
+                      ),
+                    );
+                  },
                 );
                 if (picked != null) setState(() => _selectedDate = picked);
               },

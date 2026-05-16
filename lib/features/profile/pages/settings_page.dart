@@ -8,6 +8,7 @@ import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/notification/provider/notification_setting_provider.dart';
 import '../provider/profile_provider.dart';
@@ -374,11 +375,10 @@ class _NotificationSettingsCard extends ConsumerWidget {
         .read(notificationSettingProvider.notifier)
         .updateSetting(patch)
         .catchError((_) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('설정 저장에 실패했습니다.')));
-          }
+          showAppSnackBar(
+            '설정 저장에 실패했습니다.',
+            backgroundColor: const Color(0xFFE05C7B),
+          );
         });
   }
 

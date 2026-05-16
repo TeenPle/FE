@@ -506,13 +506,13 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
 
     try {
       final uploaded = await _api.uploadImage(file);
-      if (_isDisposed || !mounted) return;
+      if (_isDisposed || !mounted) return false;
       final msg = await _api.sendImageMessage(roomId, uploaded.mediaId);
-      if (_isDisposed || !mounted) return;
+      if (_isDisposed || !mounted) return false;
       _appendMessageIfAbsent(msg);
       return true;
     } catch (e) {
-      if (_isDisposed || !mounted) return;
+      if (_isDisposed || !mounted) return false;
       state = state.copyWith(
         isSending: false,
         errorMessage: e is ApiException

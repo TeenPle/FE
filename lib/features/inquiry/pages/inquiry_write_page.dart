@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/inquiry_provider.dart';
 
 class InquiryWritePage extends ConsumerStatefulWidget {
@@ -30,18 +31,10 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
     ref.listen(inquiryCreateProvider, (_, next) {
       if (next.submitted) {
         ref.read(inquiryCreateProvider.notifier).clearResult();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('문의가 접수되었습니다.')));
         Navigator.of(context).pop(true);
       }
       if (next.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: const Color(0xFFE05C7B),
-          ),
-        );
+        showAppSnackBar(next.error!, backgroundColor: const Color(0xFFE05C7B));
       }
     });
 
@@ -120,9 +113,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
     if (title.isEmpty || content.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('제목과 내용을 모두 입력해주세요.')));
+      showAppSnackBar('제목과 내용을 모두 입력해주세요.');
       return;
     }
     FocusScope.of(context).unfocus();

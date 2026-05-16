@@ -8,13 +8,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../../school/models/board_model.dart';
 import '../models/create_post_request.dart';
 import '../models/post_media_item.dart';
 import '../models/update_post_request.dart';
 import '../provider/post_detail_providers.dart';
 import 'widgets/crisis_banner.dart';
-
 
 class WritePostPage extends ConsumerStatefulWidget {
   final int? boardId;
@@ -70,7 +70,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   int get _attachedCount => _existingMedia.length + _selectedFiles.length;
   bool get _showCrisisBanner =>
       CrisisBanner.containsCrisisKeyword(_titleController.text) ||
-          CrisisBanner.containsCrisisKeyword(_contentController.text);
+      CrisisBanner.containsCrisisKeyword(_contentController.text);
 
   bool get _canSubmit {
     return (widget.isEditMode || _selectedBoardId != null) &&
@@ -85,7 +85,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.initialTitle ?? '');
-    _contentController = TextEditingController(text: widget.initialContent ?? '');
+    _contentController = TextEditingController(
+      text: widget.initialContent ?? '',
+    );
     _anonymous = widget.isEditMode ? (widget.initialAnonymous ?? true) : true;
     _selectedBoardId = widget.boardId;
     _selectedBoardTitle = widget.boardTitle;
@@ -151,9 +153,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   Future<void> _pickFiles() async {
     final remaining = _maxFiles - _attachedCount;
     if (remaining <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('첨부파일은 최대 5개까지 가능합니다.')),
-      );
+      showAppSnackBar('첨부파일은 최대 5개까지 가능합니다.');
       return;
     }
 
@@ -171,9 +171,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         .map((f) => f.name)
         .toList();
     if (oversized.isNotEmpty && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('10MB를 초과한 파일은 제외됩니다.\n${oversized.join(', ')}')),
-      );
+      showAppSnackBar('10MB를 초과한 파일은 제외됩니다.\n${oversized.join(', ')}');
     }
 
     final valid = result.files
@@ -215,7 +213,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
     final repository = ref.read(postRepositoryProvider);
     try {
-      final multipartFiles = await Future.wait(_selectedFiles.map(_toMultipartFile));
+      final multipartFiles = await Future.wait(
+        _selectedFiles.map(_toMultipartFile),
+      );
 
       if (widget.isEditMode) {
         await repository.updatePost(
@@ -247,8 +247,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.isEditMode ? '게시글 수정에 실패했습니다.' : '게시글 등록에 실패했습니다.')),
+      showAppSnackBar(
+        widget.isEditMode ? '게시글 수정에 실패했습니다.' : '게시글 등록에 실패했습니다.',
+        backgroundColor: const Color(0xFFE05C7B),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -256,8 +257,10 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   }
 
   Future<bool> _onWillPop() async {
-    final existingMediaChanged = widget.isEditMode && _deletedMediaIds.isNotEmpty;
-    final hasInput = _titleController.text.trim().isNotEmpty ||
+    final existingMediaChanged =
+        widget.isEditMode && _deletedMediaIds.isNotEmpty;
+    final hasInput =
+        _titleController.text.trim().isNotEmpty ||
         _contentController.text.trim().isNotEmpty ||
         _selectedFiles.isNotEmpty ||
         _pollOptions.isNotEmpty ||
@@ -265,42 +268,42 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     if (!hasInput) return true;
 
     return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: context.colors.textPrimary,
-          ),
-        ),
-        content: Text(
-          '저장되지 않은 내용은 사라집니다.',
-          style: TextStyle(
-            fontSize: 11,
-            height: 1.4,
-            color: context.colors.textSecondary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              '취소',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: context.colors.textPrimary,
+              ),
             ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              '나가기',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+            content: Text(
+              '저장되지 않은 내용은 사라집니다.',
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.4,
+                color: context.colors.textSecondary,
+              ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text(
+                  '취소',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  '나가기',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ) ??
+        ) ??
         false;
   }
 
@@ -346,7 +349,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: widget.availableBoards.length,
-                  separatorBuilder: (_, __) => Divider(height: 1, color: context.colors.borderSubtle),
+                  separatorBuilder: (_, __) =>
+                      Divider(height: 1, color: context.colors.borderSubtle),
                   itemBuilder: (context, index) {
                     final board = widget.availableBoards[index];
                     final selected = board.id == _selectedBoardId;
@@ -356,18 +360,27 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                         board.title,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
-                          color: selected ? const Color(0xFF2F80ED) : context.colors.textBody,
+                          fontWeight: selected
+                              ? FontWeight.w900
+                              : FontWeight.w700,
+                          color: selected
+                              ? const Color(0xFF2F80ED)
+                              : context.colors.textBody,
                         ),
                       ),
                       subtitle: board.description.isEmpty
                           ? null
                           : Text(
-                        board.description,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: selected ? const Icon(Icons.check_rounded, color: Color(0xFF2F80ED)) : null,
+                              board.description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                      trailing: selected
+                          ? const Icon(
+                              Icons.check_rounded,
+                              color: Color(0xFF2F80ED),
+                            )
+                          : null,
                       onTap: () => Navigator.pop(context, board),
                     );
                   },
@@ -415,21 +428,31 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
               ),
               Expanded(
                 child: ListView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
                   children: [
                     _BoardSelectorLine(
-                      title: _selectedBoardTitle.isEmpty ? '게시판 선택' : _selectedBoardTitle,
+                      title: _selectedBoardTitle.isEmpty
+                          ? '게시판 선택'
+                          : _selectedBoardTitle,
                       selected: _selectedBoardId != null,
-                      enabled: !widget.isEditMode && widget.availableBoards.isNotEmpty,
+                      enabled:
+                          !widget.isEditMode &&
+                          widget.availableBoards.isNotEmpty,
                       onTap: _showBoardPicker,
                     ),
                     const SizedBox(height: 14),
                     TextField(
                       controller: _titleController,
                       maxLength: _titleLimit,
-                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                      const SizedBox.shrink(),
+                      buildCounter:
+                          (
+                            _, {
+                            required currentLength,
+                            required isFocused,
+                            maxLength,
+                          }) => const SizedBox.shrink(),
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
@@ -453,8 +476,13 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       minLines: 14,
                       maxLines: null,
                       maxLength: _contentLimit,
-                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                          const SizedBox.shrink(),
+                      buildCounter:
+                          (
+                            _, {
+                            required currentLength,
+                            required isFocused,
+                            maxLength,
+                          }) => const SizedBox.shrink(),
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.55,
@@ -499,7 +527,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 attachedCount: _attachedCount,
                 maxFiles: _maxFiles,
                 pollCount: _pollOptions.length,
-                onAnonymousChanged: (value) => setState(() => _anonymous = value),
+                onAnonymousChanged: (value) =>
+                    setState(() => _anonymous = value),
                 onAttach: _attachedCount < _maxFiles ? _pickFiles : null,
                 onPoll: _openPollForm,
               ),
@@ -615,7 +644,9 @@ class _BoardSelectorLine extends StatelessWidget {
             Icon(
               Icons.article_outlined,
               size: 18,
-              color: selected ? const Color(0xFF2F80ED) : const Color(0xFF8B95A1),
+              color: selected
+                  ? const Color(0xFF2F80ED)
+                  : const Color(0xFF8B95A1),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -626,12 +657,18 @@ class _BoardSelectorLine extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: selected ? const Color(0xFF2F80ED) : const Color(0xFF8B95A1),
+                  color: selected
+                      ? const Color(0xFF2F80ED)
+                      : const Color(0xFF8B95A1),
                 ),
               ),
             ),
             if (enabled)
-              const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF2F80ED), size: 22),
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Color(0xFF2F80ED),
+                size: 22,
+              ),
           ],
         ),
       ),
@@ -679,7 +716,7 @@ class _PostWritingGuidelines extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ..._rules.map(
-                (rule) => Padding(
+            (rule) => Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -828,18 +865,27 @@ class _ToolIconButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? const Color(0xFFEAF5FF) : c.cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? const Color(0xFFB9D9FF) : c.border),
+          border: Border.all(
+            color: selected ? const Color(0xFFB9D9FF) : c.border,
+          ),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(icon, size: 22, color: onTap == null ? const Color(0xFFB8C6D2) : color),
+            Icon(
+              icon,
+              size: 22,
+              color: onTap == null ? const Color(0xFFB8C6D2) : color,
+            ),
             if (label != null)
               Positioned(
                 right: 5,
                 top: 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2F80ED),
                     borderRadius: BorderRadius.circular(999),
@@ -951,13 +997,21 @@ class _PollSummaryStrip extends StatelessWidget {
             tooltip: '수정',
             visualDensity: VisualDensity.compact,
             onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined, size: 19, color: Color(0xFF2F80ED)),
+            icon: const Icon(
+              Icons.edit_outlined,
+              size: 19,
+              color: Color(0xFF2F80ED),
+            ),
           ),
           IconButton(
             tooltip: '삭제',
             visualDensity: VisualDensity.compact,
             onPressed: onClear,
-            icon: const Icon(Icons.close_rounded, size: 20, color: Color(0xFFE05C5C)),
+            icon: const Icon(
+              Icons.close_rounded,
+              size: 20,
+              color: Color(0xFFE05C5C),
+            ),
           ),
         ],
       ),
@@ -969,10 +1023,7 @@ class _PollFormPage extends StatefulWidget {
   final List<String> initialOptions;
   final int maxOptions;
 
-  const _PollFormPage({
-    required this.initialOptions,
-    required this.maxOptions,
-  });
+  const _PollFormPage({required this.initialOptions, required this.maxOptions});
 
   @override
   State<_PollFormPage> createState() => _PollFormPageState();
@@ -991,7 +1042,9 @@ class _PollFormPageState extends State<_PollFormPage> {
   @override
   void initState() {
     super.initState();
-    final seed = widget.initialOptions.isEmpty ? ['', ''] : widget.initialOptions;
+    final seed = widget.initialOptions.isEmpty
+        ? ['', '']
+        : widget.initialOptions;
     _controllers = seed
         .take(widget.maxOptions)
         .map((text) => TextEditingController(text: text)..addListener(_refresh))
@@ -1039,7 +1092,10 @@ class _PollFormPageState extends State<_PollFormPage> {
               submitText: '완료',
               canSubmit: _canSave,
               onClose: () => Navigator.pop(context),
-              onSubmit: () => Navigator.pop(context, _options.take(widget.maxOptions).toList()),
+              onSubmit: () => Navigator.pop(
+                context,
+                _options.take(widget.maxOptions).toList(),
+              ),
             ),
             Expanded(
               child: ListView(
@@ -1066,8 +1122,13 @@ class _PollFormPageState extends State<_PollFormPage> {
                             child: TextField(
                               controller: controller,
                               maxLength: 100,
-                              buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                              const SizedBox.shrink(),
+                              buildCounter:
+                                  (
+                                    _, {
+                                    required currentLength,
+                                    required isFocused,
+                                    maxLength,
+                                  }) => const SizedBox.shrink(),
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -1082,18 +1143,28 @@ class _PollFormPageState extends State<_PollFormPage> {
                                 ),
                                 filled: true,
                                 fillColor: context.colors.inputBg,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 11,
+                                ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: context.colors.border),
+                                  borderSide: BorderSide(
+                                    color: context.colors.border,
+                                  ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: context.colors.border),
+                                  borderSide: BorderSide(
+                                    color: context.colors.border,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFF2F80ED), width: 1.4),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF2F80ED),
+                                    width: 1.4,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1101,8 +1172,12 @@ class _PollFormPageState extends State<_PollFormPage> {
                           const SizedBox(width: 6),
                           IconButton(
                             tooltip: '항목 삭제',
-                            onPressed: _controllers.length > 2 ? () => _removeOption(index) : null,
-                            icon: const Icon(Icons.remove_circle_outline_rounded),
+                            onPressed: _controllers.length > 2
+                                ? () => _removeOption(index)
+                                : null,
+                            icon: const Icon(
+                              Icons.remove_circle_outline_rounded,
+                            ),
                             color: const Color(0xFFE05C5C),
                           ),
                         ],
@@ -1111,18 +1186,28 @@ class _PollFormPageState extends State<_PollFormPage> {
                   }),
                   const SizedBox(height: 4),
                   OutlinedButton.icon(
-                    onPressed: _controllers.length < widget.maxOptions ? _addOption : null,
+                    onPressed: _controllers.length < widget.maxOptions
+                        ? _addOption
+                        : null,
                     icon: const Icon(Icons.add_rounded, size: 16),
-                    label: Text('항목 추가 (${_controllers.length}/${widget.maxOptions})'),
+                    label: Text(
+                      '항목 추가 (${_controllers.length}/${widget.maxOptions})',
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF2F80ED),
                       side: const BorderSide(color: Color(0xFFCBE4FF)),
-                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                  if (widget.initialOptions.isNotEmpty || _options.isNotEmpty) ...[
+                  if (widget.initialOptions.isNotEmpty ||
+                      _options.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     TextButton.icon(
                       onPressed: () => Navigator.pop(context, <String>[]),
@@ -1130,7 +1215,10 @@ class _PollFormPageState extends State<_PollFormPage> {
                       label: const Text('투표 제거'),
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFFE05C5C),
-                        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                        textStyle: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
@@ -1168,14 +1256,15 @@ class _ExistingMediaThumb extends StatelessWidget {
       label: isImage ? null : _filename,
       child: isImage
           ? CachedNetworkImage(
-        imageUrl: url,
-        fit: BoxFit.cover,
-        placeholder: (_, __) => Container(color: context.colors.borderSubtle),
-        errorWidget: (_, __, ___) => const Icon(
-          Icons.broken_image_rounded,
-          color: Color(0xFF9AA7B2),
-        ),
-      )
+              imageUrl: url,
+              fit: BoxFit.cover,
+              placeholder: (_, __) =>
+                  Container(color: context.colors.borderSubtle),
+              errorWidget: (_, __, ___) => const Icon(
+                Icons.broken_image_rounded,
+                color: Color(0xFF9AA7B2),
+              ),
+            )
           : const _FilePlaceholder(),
     );
   }
@@ -1269,7 +1358,11 @@ class _ThumbFrame extends StatelessWidget {
                 color: Colors.black.withOpacity(0.55),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.close_rounded, color: Colors.white, size: 15),
+              child: const Icon(
+                Icons.close_rounded,
+                color: Colors.white,
+                size: 15,
+              ),
             ),
           ),
         ),
@@ -1288,7 +1381,11 @@ class _FilePlaceholder extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.insert_drive_file_rounded, color: Color(0xFF7D8790), size: 28),
+        const Icon(
+          Icons.insert_drive_file_rounded,
+          color: Color(0xFF7D8790),
+          size: 28,
+        ),
         if (name != null) ...[
           const SizedBox(height: 4),
           Padding(

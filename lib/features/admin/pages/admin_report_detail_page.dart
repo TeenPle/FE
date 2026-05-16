@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
 
@@ -44,18 +45,11 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
 
     ref.listen(adminReportDetailProvider(widget.reportId), (_, next) {
       if (next.successMessage != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.successMessage!)));
+        showAppSnackBar(next.successMessage!);
         Navigator.of(context).pop(true);
       }
       if (next.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: const Color(0xFFE05C7B),
-          ),
-        );
+        showAppSnackBar(next.error!, backgroundColor: const Color(0xFFE05C7B));
       }
     });
 
@@ -304,15 +298,11 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     final days = int.tryParse(_penaltyController.text.trim());
     final comment = _commentController.text.trim();
     if (days == null || days < 1) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('제재 기간을 1일 이상 입력해주세요.')));
+      showAppSnackBar('제재 기간을 1일 이상 입력해주세요.');
       return;
     }
     if (comment.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+      showAppSnackBar('처리 사유를 입력해주세요.');
       return;
     }
     _confirm(
@@ -328,9 +318,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   void _onReject(BuildContext context) {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+      showAppSnackBar('처리 사유를 입력해주세요.');
       return;
     }
     _confirm(
@@ -346,9 +334,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   void _onWarn(BuildContext context) {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+      showAppSnackBar('처리 사유를 입력해주세요.');
       return;
     }
     _confirm(

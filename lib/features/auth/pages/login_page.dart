@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../models/login_blocked_reason.dart';
 import '../provider/login_provider.dart';
 
@@ -46,15 +47,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            const SnackBar(
-              content: Text('회원가입을 완료했습니다.'),
-              behavior: SnackBarBehavior.floating,
-              duration: Duration(seconds: 2),
-            ),
-          );
+        showAppSnackBar('회원가입을 완료했습니다.');
       });
     }
 
@@ -66,29 +59,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            const SnackBar(
-              content: Text('비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.'),
-              behavior: SnackBarBehavior.floating,
-              duration: Duration(seconds: 3),
-            ),
-          );
+        showAppSnackBar('비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.');
       });
     }
   }
 
   void _showComingSoonSnackBar(String label) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('$label 기능은 준비 중입니다.'),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    showAppSnackBar('$label 기능은 준비 중입니다.');
   }
 
   Future<void> _submit() async {

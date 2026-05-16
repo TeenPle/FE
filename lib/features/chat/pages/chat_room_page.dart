@@ -7,6 +7,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../../../core/active_page_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../models/chat_message_model.dart';
 import '../provider/chat_message_provider.dart';
 import '../provider/chat_room_list_provider.dart';
@@ -399,15 +400,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                           )).notifier,
                                         )
                                         .reportRoom(selectedReason);
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('신고가 접수되었습니다.'),
-                                        ),
-                                      );
-                                    }
+                                    showAppSnackBar('신고가 접수되었습니다.');
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF14A3F7),
@@ -521,9 +514,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   .blockRoom();
               if (mounted) {
                 ref.read(chatRoomListProvider.notifier).load();
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('차단되었습니다.')));
+                showAppSnackBar('차단되었습니다.');
               }
             },
             child: const Text('차단', style: TextStyle(color: Color(0xFFF44336))),
@@ -556,11 +547,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   )
                   .unblockRoom();
               ref.read(chatRoomListProvider.notifier).load();
-              if (mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('차단이 해제되었습니다.')));
-              }
+              showAppSnackBar('차단이 해제되었습니다.');
             },
             child: const Text('해제'),
           ),
@@ -593,6 +580,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   .leaveRoom();
               // 채팅 목록 갱신
               ref.read(chatRoomListProvider.notifier).load();
+              showAppSnackBar('채팅방을 나갔습니다.');
               if (mounted) context.pop();
             },
             child: const Text('나가기'),
@@ -964,15 +952,12 @@ class _ChatImageViewerPageState extends State<_ChatImageViewerPage> {
         'mimeType': mimeType,
       });
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('이미지를 저장했습니다.')));
+      showAppSnackBar('이미지를 저장했습니다.');
     } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('이미지 저장에 실패했습니다.')));
+      showAppSnackBar(
+        '이미지 저장에 실패했습니다.',
+        backgroundColor: const Color(0xFFE05C7B),
+      );
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }

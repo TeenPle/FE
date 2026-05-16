@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/profile_provider.dart';
 
 class EditPasswordPage extends ConsumerStatefulWidget {
@@ -35,35 +36,26 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
     final confirm = _confirmCtrl.text.trim();
 
     if (current.isEmpty || newPw.isEmpty || confirm.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('모든 항목을 입력해주세요.')),
-      );
+      showAppSnackBar('모든 항목을 입력해주세요.');
       return;
     }
 
     if (newPw != confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('새 비밀번호가 일치하지 않습니다.')),
-      );
+      showAppSnackBar('새 비밀번호가 일치하지 않습니다.');
       return;
     }
 
     if (newPw.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('비밀번호는 8자 이상이어야 합니다.')),
-      );
+      showAppSnackBar('비밀번호는 8자 이상이어야 합니다.');
       return;
     }
 
-    final ok = await ref.read(profileProvider.notifier).updatePassword(
-          currentPassword: current,
-          newPassword: newPw,
-        );
+    final ok = await ref
+        .read(profileProvider.notifier)
+        .updatePassword(currentPassword: current, newPassword: newPw);
 
     if (ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('비밀번호가 변경되었습니다.')),
-      );
+      showAppSnackBar('비밀번호가 변경되었습니다.');
       context.pop();
     }
   }
@@ -75,8 +67,9 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
     ref.listen(profileProvider, (prev, next) {
       if (next.errorMessage != null &&
           next.errorMessage != prev?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
+        showAppSnackBar(
+          next.errorMessage!,
+          backgroundColor: const Color(0xFFE05C7B),
         );
         ref.read(profileProvider.notifier).clearMessages();
       }
@@ -204,8 +197,10 @@ class _PwField extends StatelessWidget {
             hintStyle: TextStyle(color: c.textHint),
             filled: true,
             fillColor: c.cardBg,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: c.borderStrong),
@@ -220,7 +215,9 @@ class _PwField extends StatelessWidget {
             ),
             suffixIcon: IconButton(
               icon: Icon(
-                obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
                 color: c.iconSecondary,
                 size: 20,
               ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/penalty/provider/penalty_provider.dart';
 import '../form/board_tab_bar.dart';
@@ -58,9 +59,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
 
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+        showAppSnackBar(next.errorMessage!);
       }
     });
 
@@ -179,7 +178,10 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
             onPostTap: (postId) async {
               final refreshed = await context.push<bool>('/post/$postId');
               final detailState = ref.read(postDetailProvider(postId));
-              notifier.updatePostCommentCount(postId, detailState.comments.length);
+              notifier.updatePostCommentCount(
+                postId,
+                detailState.comments.length,
+              );
               if (refreshed == true && mounted) {
                 await notifier.reloadCurrentBoard();
               }
@@ -224,9 +226,16 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                               showDivider: false,
                               onTap: () async {
                                 final postId = state.posts[index].id;
-                                final refreshed = await context.push<bool>('/post/$postId');
-                                final detailState = ref.read(postDetailProvider(postId));
-                                notifier.updatePostCommentCount(postId, detailState.comments.length);
+                                final refreshed = await context.push<bool>(
+                                  '/post/$postId',
+                                );
+                                final detailState = ref.read(
+                                  postDetailProvider(postId),
+                                );
+                                notifier.updatePostCommentCount(
+                                  postId,
+                                  detailState.comments.length,
+                                );
                                 if (refreshed == true) {
                                   await notifier.reloadCurrentBoard();
                                 }
@@ -515,7 +524,10 @@ class _ModernPostList extends ConsumerWidget {
                 final postId = posts[i].id;
                 final refreshed = await context.push<bool>('/post/$postId');
                 final detailState = ref.read(postDetailProvider(postId));
-                notifier.updatePostCommentCount(postId, detailState.comments.length);
+                notifier.updatePostCommentCount(
+                  postId,
+                  detailState.comments.length,
+                );
                 if (refreshed == true && context.mounted) {
                   await notifier.reloadCurrentBoard();
                 }
@@ -829,11 +841,7 @@ class _BoardNotificationButton extends ConsumerWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Icon(
-              Icons.notifications_none,
-              size: 26,
-              color: c.iconPrimary,
-            ),
+            Icon(Icons.notifications_none, size: 26, color: c.iconPrimary),
             if (unreadCount > 0)
               Positioned(
                 top: -4,
@@ -1085,9 +1093,7 @@ class _WriteFab extends ConsumerWidget {
 
           if (!context.mounted) return;
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('새 게시글이 등록되었어요.')));
+          showAppSnackBar('게시글이 등록되었습니다.');
         }
       },
       backgroundColor: const Color(0xFF12A8FF),

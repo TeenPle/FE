@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/time_format.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/admin_inquiry_provider.dart';
 
 class AdminInquiryDetailPage extends ConsumerStatefulWidget {
@@ -43,18 +44,11 @@ class _AdminInquiryDetailPageState
 
     ref.listen(adminInquiryDetailProvider(widget.inquiryId), (_, next) {
       if (next.answered) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('답변을 등록했습니다.')));
+        showAppSnackBar('답변을 등록했습니다.');
         Navigator.of(context).pop(true);
       }
       if (next.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: const Color(0xFFE05C7B),
-          ),
-        );
+        showAppSnackBar(next.error!, backgroundColor: const Color(0xFFE05C7B));
       }
     });
 
@@ -244,9 +238,7 @@ class _AdminInquiryDetailPageState
   void _submit() {
     final answer = _answerController.text.trim();
     if (answer.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('답변 내용을 입력해주세요.')));
+      showAppSnackBar('답변 내용을 입력해주세요.');
       return;
     }
     ref

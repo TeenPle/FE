@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
 
@@ -38,18 +39,12 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
     final c = context.colors;
 
     ref.listen(adminPostDetailProvider(widget.postId), (_, next) {
+      if (!mounted) return;
       if (next.successMessage != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.successMessage!)));
+        showAppSnackBar(next.successMessage!);
       }
       if (next.error != null && next.post != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: const Color(0xFFE05C7B),
-          ),
-        );
+        showAppSnackBar(next.error!, backgroundColor: const Color(0xFFE05C7B));
       }
     });
 
@@ -338,25 +333,27 @@ class _PostDetailBody extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(message),
-            const SizedBox(height: 12),
-            TextField(
-              controller: reasonController,
-              maxLines: 3,
-              maxLength: 500,
-              decoration: InputDecoration(
-                hintText: '처리 사유를 입력하세요.',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              const SizedBox(height: 12),
+              TextField(
+                controller: reasonController,
+                maxLines: 3,
+                maxLength: 500,
+                decoration: InputDecoration(
+                  hintText: '처리 사유를 입력하세요.',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: const EdgeInsets.all(12),
                 ),
-                contentPadding: const EdgeInsets.all(12),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -366,9 +363,7 @@ class _PostDetailBody extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (reasonController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(
-                  ctx,
-                ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
+                showAppSnackBar('처리 사유를 입력해주세요.');
                 return;
               }
               Navigator.of(ctx).pop(true);

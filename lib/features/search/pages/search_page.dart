@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../../school/models/post_summary.dart';
 import '../provider/search_provider.dart';
 
@@ -83,9 +84,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+        showAppSnackBar(next.errorMessage!);
       }
     });
 
@@ -139,10 +138,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                             color: c.textTertiary,
                             fontSize: 12,
                           ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: c.textMuted,
-                          ),
+                          prefixIcon: Icon(Icons.search, color: c.textMuted),
                           suffixIcon: _controller.text.isNotEmpty
                               ? IconButton(
                                   onPressed: _clearSearchInput,
@@ -387,10 +383,7 @@ class _SearchResultCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         '|',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: c.borderSubtle,
-                        ),
+                        style: TextStyle(fontSize: 11, color: c.borderSubtle),
                       ),
                       const SizedBox(width: 8),
                       Text(

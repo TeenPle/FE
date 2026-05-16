@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../models/penalty_summary_model.dart';
 import '../provider/admin_penalty_provider.dart';
 
@@ -11,7 +12,8 @@ class AdminPenaltyListPage extends ConsumerStatefulWidget {
   const AdminPenaltyListPage({super.key});
 
   @override
-  ConsumerState<AdminPenaltyListPage> createState() => _AdminPenaltyListPageState();
+  ConsumerState<AdminPenaltyListPage> createState() =>
+      _AdminPenaltyListPageState();
 }
 
 class _AdminPenaltyListPageState extends ConsumerState<AdminPenaltyListPage> {
@@ -33,40 +35,49 @@ class _AdminPenaltyListPageState extends ConsumerState<AdminPenaltyListPage> {
         foregroundColor: c.textPrimary,
         elevation: 0,
         centerTitle: true,
-        title: Text('제재 내역', style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
+        title: Text(
+          '제재 내역',
+          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+        ),
       ),
       body: state.isLoading && state.penalties.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.penalties.isEmpty
-              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
-              : state.penalties.isEmpty
-                  ? Center(child: Text('제재 내역이 없어요.', style: TextStyle(color: c.textMuted)))
-                  : RefreshIndicator(
-                      onRefresh: () => ref.read(adminPenaltyListProvider.notifier).load(),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: state.penalties.length + (state.hasMore ? 1 : 0),
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
-                        itemBuilder: (context, index) {
-                          if (index == state.penalties.length) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Center(
-                                child: state.isLoading
-                                    ? const CircularProgressIndicator(strokeWidth: 2)
-                                    : OutlinedButton(
-                                        onPressed: () => ref
-                                            .read(adminPenaltyListProvider.notifier)
-                                            .loadMore(),
-                                        child: const Text('더보기'),
-                                      ),
+          ? Center(
+              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+            )
+          : state.penalties.isEmpty
+          ? Center(
+              child: Text('제재 내역이 없어요.', style: TextStyle(color: c.textMuted)),
+            )
+          : RefreshIndicator(
+              onRefresh: () =>
+                  ref.read(adminPenaltyListProvider.notifier).load(),
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: state.penalties.length + (state.hasMore ? 1 : 0),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  if (index == state.penalties.length) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Center(
+                        child: state.isLoading
+                            ? const CircularProgressIndicator(strokeWidth: 2)
+                            : OutlinedButton(
+                                onPressed: () => ref
+                                    .read(adminPenaltyListProvider.notifier)
+                                    .loadMore(),
+                                child: const Text('더보기'),
                               ),
-                            );
-                          }
-                          return _PenaltyCard(penalty: state.penalties[index]);
-                        },
                       ),
-                    ),
+                    );
+                  }
+                  return _PenaltyCard(penalty: state.penalties[index]);
+                },
+              ),
+            ),
     );
   }
 }
@@ -85,8 +96,8 @@ class _PenaltyCard extends ConsumerWidget {
     final (statusLabel, statusColor, statusBg) = isCancelled
         ? ('취소됨', c.textTertiary, c.subtleBg)
         : isActive
-            ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
-            : ('만료', c.textTertiary, c.subtleBg);
+        ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
+        : ('만료', c.textTertiary, c.subtleBg);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -101,14 +112,21 @@ class _PenaltyCard extends ConsumerWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: statusBg,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   statusLabel,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: statusColor,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -120,7 +138,11 @@ class _PenaltyCard extends ConsumerWidget {
                 ),
                 child: Text(
                   penalty.reasonLabel,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: c.iconOnCard),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: c.iconOnCard,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -174,11 +196,17 @@ class _PenaltyCard extends ConsumerWidget {
                   onPressed: () => _onCancel(context, ref),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFFE05C7B),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text('제재 취소', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                  child: const Text(
+                    '제재 취소',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                  ),
                 ),
             ],
           ),
@@ -196,7 +224,10 @@ class _PenaltyCard extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('취소', style: TextStyle(color: context.colors.textMuted)),
+            child: Text(
+              '취소',
+              style: TextStyle(color: context.colors.textMuted),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -206,13 +237,12 @@ class _PenaltyCard extends ConsumerWidget {
       ),
     );
     if (confirmed != true) return;
-    final success = await ref.read(adminPenaltyListProvider.notifier).cancel(penalty.penaltyId);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(success ? '제재가 취소되었어요.' : '취소에 실패했어요.'),
-        backgroundColor: success ? null : const Color(0xFFE05C7B),
-      ),
+    final success = await ref
+        .read(adminPenaltyListProvider.notifier)
+        .cancel(penalty.penaltyId);
+    showAppSnackBar(
+      success ? '제재가 취소되었습니다.' : '제재 취소에 실패했습니다.',
+      backgroundColor: success ? null : const Color(0xFFE05C7B),
     );
   }
 

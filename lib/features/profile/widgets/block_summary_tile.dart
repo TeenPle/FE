@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/block_provider.dart';
 
 class BlockSummaryTile extends ConsumerWidget {
@@ -102,17 +103,12 @@ class BlockSummaryTile extends ConsumerWidget {
 
     try {
       await ref.read(blockSummaryProvider.notifier).unblockAll();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('차단이 모두 해제되었습니다.')),
-        );
-      }
+      showAppSnackBar('차단이 모두 해제되었습니다.');
     } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('차단 해제에 실패했습니다.')),
-        );
-      }
+      showAppSnackBar(
+        '차단 해제에 실패했습니다.',
+        backgroundColor: const Color(0xFFE05C7B),
+      );
     }
   }
 }

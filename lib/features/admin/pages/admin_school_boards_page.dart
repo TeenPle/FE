@@ -18,7 +18,8 @@ class AdminSchoolBoardsPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdminSchoolBoardsPage> createState() => _AdminSchoolBoardsPageState();
+  ConsumerState<AdminSchoolBoardsPage> createState() =>
+      _AdminSchoolBoardsPageState();
 }
 
 class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
@@ -34,6 +35,9 @@ class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(adminBoardListProvider(widget.schoolId));
     final c = context.colors;
+    final visibleBoards = state.boards
+        .where((board) => board.scope != 'REGION')
+        .toList(growable: false);
 
     return Scaffold(
       backgroundColor: c.pageBg,
@@ -41,35 +45,109 @@ class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
         backgroundColor: c.pageBg,
         foregroundColor: c.textPrimary,
         elevation: 0,
-        title: Text(widget.schoolName, style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
+        title: Text(
+          widget.schoolName,
+          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+        ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null
-              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
-              : RefreshIndicator(
-                  onRefresh: () => ref
-                      .read(adminBoardListProvider(widget.schoolId).notifier)
-                      .load(),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.boards.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final board = state.boards[index];
-                      return _BoardTile(
-                        board: board,
-                        onTap: () => context.push(
-                          AppRoutes.adminBoardPosts(board.id),
-                          extra: {
-                            'boardTitle': board.title,
-                            'schoolName': widget.schoolName,
-                          },
-                        ),
-                      );
-                    },
+          ? Center(
+              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+            )
+          : RefreshIndicator(
+              onRefresh: () => ref
+                  .read(adminBoardListProvider(widget.schoolId).notifier)
+                  .load(),
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: visibleBoards.length + 1,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _SchoolBoardsHeader(
+                      schoolName: widget.schoolName,
+                      boardCount: visibleBoards.length,
+                    );
+                  }
+                  final board = visibleBoards[index - 1];
+                  return _BoardTile(
+                    board: board,
+                    onTap: () => context.push(
+                      AppRoutes.adminBoardPosts(board.id),
+                      extra: {
+                        'boardTitle': board.title,
+                        'schoolName': widget.schoolName,
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+    );
+  }
+}
+
+class _SchoolBoardsHeader extends StatelessWidget {
+  final String schoolName;
+  final int boardCount;
+
+  const _SchoolBoardsHeader({
+    required this.schoolName,
+    required this.boardCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: c.tintBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.dashboard_customize_outlined,
+              color: Color(0xFF1477F8),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '게시판 모니터링',
+                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  schoolName,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: c.textPrimary,
                   ),
                 ),
+              ],
+            ),
+          ),
+          _BoardCount(label: '전체', value: boardCount, c: c),
+        ],
+      ),
     );
   }
 }
@@ -83,9 +161,8 @@ class _BoardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final isRegion = board.scope == 'REGION';
-    final color = isRegion ? const Color(0xFF7C6A46) : const Color(0xFF426C82);
-    final bg = isRegion ? const Color(0xFFFFF7E8) : c.tintBg;
+    const color = Color(0xFF426C82);
+    final bg = c.tintBg;
 
     return Material(
       color: c.cardBg,
@@ -96,7 +173,7 @@ class _BoardTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: c.border),
+            border: Border.all(color: c.borderStrong),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -105,14 +182,21 @@ class _BoardTile extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: bg,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       board.scopeLabel,
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -125,18 +209,65 @@ class _BoardTile extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 board.title,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c.textPrimary),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: c.textPrimary,
+                ),
               ),
               if ((board.description ?? '').isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Text(
                   board.description!,
-                  style: TextStyle(fontSize: 11, color: c.textMuted, height: 1.4),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: c.textMuted,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BoardCount extends StatelessWidget {
+  final String label;
+  final int value;
+  final AppColors c;
+
+  const _BoardCount({
+    required this.label,
+    required this.value,
+    required this.c,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const accent = Color(0xFF1477F8);
+    return Container(
+      constraints: const BoxConstraints(minWidth: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.09),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Text(label, style: TextStyle(fontSize: 10, color: c.textMuted)),
+          const SizedBox(height: 2),
+          Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: accent,
+            ),
+          ),
+        ],
       ),
     );
   }

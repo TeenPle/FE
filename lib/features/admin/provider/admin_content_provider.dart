@@ -270,7 +270,8 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
   Future<void> hidePost(String reason) async {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
-      final post = await _api.hidePost(postId, reason);
+      await _api.hidePost(postId, reason);
+      final post = await _api.getPostDetail(postId);
       state = state.copyWith(
         post: post,
         isActing: false,
@@ -284,7 +285,8 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
   Future<void> restorePost(String reason) async {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
-      final post = await _api.restorePost(postId, reason);
+      await _api.restorePost(postId, reason);
+      final post = await _api.getPostDetail(postId);
       state = state.copyWith(
         post: post,
         isActing: false,
@@ -298,7 +300,8 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
   Future<void> hideComment(int commentId, String reason) async {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
-      final post = await _api.hideComment(commentId, reason);
+      await _api.hideComment(commentId, reason);
+      final post = await _api.getPostDetail(postId);
       state = state.copyWith(
         post: post,
         isActing: false,
@@ -312,7 +315,8 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
   Future<void> restoreComment(int commentId, String reason) async {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
-      final post = await _api.restoreComment(commentId, reason);
+      await _api.restoreComment(commentId, reason);
+      final post = await _api.getPostDetail(postId);
       state = state.copyWith(
         post: post,
         isActing: false,

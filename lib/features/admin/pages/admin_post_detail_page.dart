@@ -18,7 +18,8 @@ class AdminPostDetailPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdminPostDetailPage> createState() => _AdminPostDetailPageState();
+  ConsumerState<AdminPostDetailPage> createState() =>
+      _AdminPostDetailPageState();
 }
 
 class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
@@ -38,13 +39,16 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
 
     ref.listen(adminPostDetailProvider(widget.postId), (_, next) {
       if (next.successMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.successMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.successMessage!)));
       }
       if (next.error != null && next.post != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!), backgroundColor: const Color(0xFFE05C7B)),
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: const Color(0xFFE05C7B),
+          ),
         );
       }
     });
@@ -55,23 +59,28 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
         backgroundColor: c.pageBg,
         foregroundColor: c.textPrimary,
         elevation: 0,
-        title: Text('게시글 모더레이션', style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary)),
+        title: Text(
+          '게시글 모더레이션',
+          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+        ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.post == null
-              ? Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)))
-              : state.post == null
-                  ? const SizedBox()
-                  : _PostDetailBody(
-                      post: state.post!,
-                      focusCommentId: widget.focusCommentId,
-                      isActing: state.isActing,
-                      onHidePost: notifier.hidePost,
-                      onRestorePost: notifier.restorePost,
-                      onHideComment: notifier.hideComment,
-                      onRestoreComment: notifier.restoreComment,
-                    ),
+          ? Center(
+              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+            )
+          : state.post == null
+          ? const SizedBox()
+          : _PostDetailBody(
+              post: state.post!,
+              focusCommentId: widget.focusCommentId,
+              isActing: state.isActing,
+              onHidePost: notifier.hidePost,
+              onRestorePost: notifier.restorePost,
+              onHideComment: notifier.hideComment,
+              onRestoreComment: notifier.restoreComment,
+            ),
     );
   }
 }
@@ -101,24 +110,35 @@ class _PostDetailBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _PostSummaryHeader(post: post),
+        const SizedBox(height: 12),
         _Panel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _StatusBadge(post.postStatus),
-                  const Spacer(),
-                  Text(_formatDate(post.createdAt), style: TextStyle(fontSize: 11, color: c.textTertiary)),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Text(
-                post.title,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: c.textPrimary, height: 1.25),
+              _SectionHeader(
+                icon: Icons.article_outlined,
+                title: '게시글 내용',
+                trailing: Text(
+                  _formatDate(post.createdAt),
+                  style: TextStyle(fontSize: 11, color: c.textTertiary),
+                ),
               ),
               const SizedBox(height: 12),
-              Text(post.content, style: TextStyle(fontSize: 13, color: c.textBody, height: 1.6)),
+              Text(
+                post.title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: c.textPrimary,
+                  height: 1.25,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                post.content,
+                style: TextStyle(fontSize: 13, color: c.textBody, height: 1.6),
+              ),
               if (post.mediaList.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 _MediaGrid(mediaList: post.mediaList),
@@ -128,7 +148,11 @@ class _PostDetailBody extends StatelessWidget {
                 spacing: 10,
                 runSpacing: 8,
                 children: [
-                  _InfoChip(Icons.school_outlined, post.schoolName ?? post.regionName ?? '학교/지역 없음', c: c),
+                  _InfoChip(
+                    Icons.school_outlined,
+                    post.schoolName ?? post.regionName ?? '학교/지역 없음',
+                    c: c,
+                  ),
                   _InfoChip(Icons.dashboard_outlined, post.boardTitle, c: c),
                   _InfoChip(Icons.person_outline, post.authorLabel, c: c),
                 ],
@@ -137,10 +161,26 @@ class _PostDetailBody extends StatelessWidget {
               Wrap(
                 spacing: 14,
                 children: [
-                  _Metric(icon: Icons.visibility_outlined, value: '조회 ${post.viewCount}', c: c),
-                  _Metric(icon: Icons.thumb_up_alt_outlined, value: '공감 ${post.likeCount}', c: c),
-                  _Metric(icon: Icons.thumb_down_alt_outlined, value: '비공감 ${post.dislikeCount}', c: c),
-                  _Metric(icon: Icons.mode_comment_outlined, value: '댓글 ${post.commentCount}', c: c),
+                  _Metric(
+                    icon: Icons.visibility_outlined,
+                    value: '조회 ${post.viewCount}',
+                    c: c,
+                  ),
+                  _Metric(
+                    icon: Icons.thumb_up_alt_outlined,
+                    value: '공감 ${post.likeCount}',
+                    c: c,
+                  ),
+                  _Metric(
+                    icon: Icons.thumb_down_alt_outlined,
+                    value: '비공감 ${post.dislikeCount}',
+                    c: c,
+                  ),
+                  _Metric(
+                    icon: Icons.mode_comment_outlined,
+                    value: '댓글 ${post.commentCount}',
+                    c: c,
+                  ),
                 ],
               ),
             ],
@@ -151,7 +191,10 @@ class _PostDetailBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('운영 액션', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: c.textPrimary)),
+              const _SectionHeader(
+                icon: Icons.admin_panel_settings_outlined,
+                title: '운영 액션',
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -165,7 +208,9 @@ class _PostDetailBody extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF426C82),
                     side: const BorderSide(color: Color(0xFF426C82)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
               ),
@@ -177,36 +222,43 @@ class _PostDetailBody extends StatelessWidget {
                         onPressed: isActing
                             ? null
                             : () => _confirmAction(
-                                  context,
-                                  title: '게시글 복구',
-                                  message: '숨김 처리된 게시글을 다시 노출할까요?',
-                                  confirmText: '복구',
-                                  onConfirm: onRestorePost,
-                                ),
+                                context,
+                                title: '게시글 복구',
+                                message: '숨김 처리된 게시글을 다시 노출할까요?',
+                                confirmText: '복구',
+                                onConfirm: onRestorePost,
+                              ),
                         icon: const Icon(Icons.undo_rounded, size: 18),
                         label: const Text('게시글 복구'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2F7D46),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       )
                     : OutlinedButton.icon(
                         onPressed: isActing
                             ? null
                             : () => _confirmAction(
-                                  context,
-                                  title: '게시글 숨김',
-                                  message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
-                                  confirmText: '숨김 처리',
-                                  onConfirm: onHidePost,
-                                ),
-                        icon: const Icon(Icons.visibility_off_outlined, size: 18),
+                                context,
+                                title: '게시글 숨김',
+                                message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
+                                confirmText: '숨김 처리',
+                                onConfirm: onHidePost,
+                              ),
+                        icon: const Icon(
+                          Icons.visibility_off_outlined,
+                          size: 18,
+                        ),
                         label: const Text('게시글 숨김'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFFE05C7B),
                           side: const BorderSide(color: Color(0xFFE05C7B)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
               ),
@@ -218,15 +270,26 @@ class _PostDetailBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '댓글 ${post.comments.length}',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: c.textPrimary),
+              _SectionHeader(
+                icon: Icons.mode_comment_outlined,
+                title: '댓글',
+                trailing: Text(
+                  '${post.comments.length}개',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: c.textSecondary,
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               if (post.comments.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text('댓글이 없습니다.', style: TextStyle(color: c.iconSecondary)),
+                  child: Text(
+                    '댓글이 없습니다.',
+                    style: TextStyle(color: c.iconSecondary),
+                  ),
                 )
               else
                 ...post.comments.map(
@@ -239,14 +302,16 @@ class _PostDetailBody extends StatelessWidget {
                       title: '댓글 숨김',
                       message: '이 댓글을 사용자 화면에서 숨김 처리할까요?',
                       confirmText: '숨김 처리',
-                      onConfirm: (reason) => onHideComment(comment.commentId, reason),
+                      onConfirm: (reason) =>
+                          onHideComment(comment.commentId, reason),
                     ),
                     onRestore: () => _confirmAction(
                       context,
                       title: '댓글 복구',
                       message: '숨김 처리된 댓글을 다시 노출할까요?',
                       confirmText: '복구',
-                      onConfirm: (reason) => onRestoreComment(comment.commentId, reason),
+                      onConfirm: (reason) =>
+                          onRestoreComment(comment.commentId, reason),
                     ),
                   ),
                 ),
@@ -285,7 +350,9 @@ class _PostDetailBody extends StatelessWidget {
               maxLength: 500,
               decoration: InputDecoration(
                 hintText: '처리 사유를 입력하세요.',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 contentPadding: const EdgeInsets.all(12),
               ),
             ),
@@ -299,14 +366,17 @@ class _PostDetailBody extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (reasonController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  const SnackBar(content: Text('처리 사유를 입력해주세요.')),
-                );
+                ScaffoldMessenger.of(
+                  ctx,
+                ).showSnackBar(const SnackBar(content: Text('처리 사유를 입력해주세요.')));
                 return;
               }
               Navigator.of(ctx).pop(true);
             },
-            child: Text(confirmText, style: const TextStyle(color: Color(0xFFE05C7B))),
+            child: Text(
+              confirmText,
+              style: const TextStyle(color: Color(0xFFE05C7B)),
+            ),
           ),
         ],
       ),
@@ -317,6 +387,156 @@ class _PostDetailBody extends StatelessWidget {
       reasonController.dispose();
       if (confirmed == true) onConfirm(reason);
     });
+  }
+}
+
+class _PostSummaryHeader extends StatelessWidget {
+  final AdminPostDetailModel post;
+
+  const _PostSummaryHeader({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final location = post.schoolName ?? post.regionName ?? '학교/지역 없음';
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1477F8).withValues(alpha: 0.07),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: c.tintBg,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(
+                  Icons.visibility_outlined,
+                  color: Color(0xFF1477F8),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '콘텐츠 모더레이션',
+                      style: TextStyle(fontSize: 11, color: c.textMuted),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      post.boardTitle,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _StatusBadge(post.postStatus),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _InfoChip(Icons.school_outlined, location, c: c),
+              _InfoChip(Icons.person_outline, post.authorLabel, c: c),
+              _InfoChip(
+                Icons.image_outlined,
+                '첨부 ${post.mediaList.length}',
+                c: c,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _MetricBox(
+                  icon: Icons.visibility_outlined,
+                  label: '조회',
+                  value: post.viewCount,
+                  c: c,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _MetricBox(
+                  icon: Icons.thumb_up_alt_outlined,
+                  label: '공감',
+                  value: post.likeCount,
+                  c: c,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _MetricBox(
+                  icon: Icons.mode_comment_outlined,
+                  label: '댓글',
+                  value: post.commentCount,
+                  c: c,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget? trailing;
+
+  const _SectionHeader({
+    required this.icon,
+    required this.title,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Row(
+      children: [
+        Icon(icon, size: 17, color: const Color(0xFF1477F8)),
+        const SizedBox(width: 7),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: c.textPrimary,
+          ),
+        ),
+        const Spacer(),
+        ?trailing,
+      ],
+    );
   }
 }
 
@@ -332,8 +552,15 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: c.border),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.borderStrong),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: child,
     );
@@ -365,7 +592,10 @@ class _MediaGrid extends StatelessWidget {
               color: c.subtleBg,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.insert_drive_file_outlined, color: c.iconSecondary),
+            child: Icon(
+              Icons.insert_drive_file_outlined,
+              color: c.iconSecondary,
+            ),
           );
         }
         return ClipRRect(
@@ -374,7 +604,7 @@ class _MediaGrid extends StatelessWidget {
             media.url,
             fit: BoxFit.cover,
             // 이미지 로드 실패 시 깨진 이미지 아이콘으로 대체한다.
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (context, error, stackTrace) => Container(
               color: c.subtleBg,
               child: Icon(Icons.broken_image_outlined, color: c.iconSecondary),
             ),
@@ -404,14 +634,14 @@ class _CommentTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      margin: EdgeInsets.only(left: comment.depth > 0 ? 18 : 0, bottom: 10),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(left: comment.depth > 0 ? 14 : 0, bottom: 8),
+      padding: const EdgeInsets.fromLTRB(11, 9, 10, 9),
       decoration: BoxDecoration(
         color: highlighted
             ? const Color(0xFFFFFBEB)
             : comment.depth > 0
-                ? c.replyBg
-                : c.cardBg,
+            ? c.replyBg
+            : c.cardBg,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: highlighted ? const Color(0xFFF59E0B) : c.border,
@@ -427,41 +657,65 @@ class _CommentTile extends StatelessWidget {
                 child: Text(
                   comment.authorLabel,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: c.textBody),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: c.textBody,
+                  ),
                 ),
               ),
               _StatusBadge(comment.commentStatus),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(comment.content, style: TextStyle(fontSize: 12, color: c.textBody, height: 1.45)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 12,
+          const SizedBox(height: 6),
+          Text(
+            comment.content,
+            style: TextStyle(fontSize: 12, color: c.textBody, height: 1.35),
+          ),
+          const SizedBox(height: 6),
+          Row(
             children: [
-              _Metric(icon: Icons.thumb_up_alt_outlined, value: '${comment.likeCount}', c: c),
-              _Metric(icon: Icons.thumb_down_alt_outlined, value: '${comment.dislikeCount}', c: c),
+              _Metric(
+                icon: Icons.thumb_up_alt_outlined,
+                value: '${comment.likeCount}',
+                c: c,
+              ),
+              const SizedBox(width: 10),
+              _Metric(
+                icon: Icons.thumb_down_alt_outlined,
+                value: '${comment.dislikeCount}',
+                c: c,
+              ),
+              const Spacer(),
+              if (comment.commentStatus != 'DELETED')
+                comment.commentStatus == 'HIDDEN'
+                    ? TextButton.icon(
+                        onPressed: isActing ? null : onRestore,
+                        icon: const Icon(Icons.undo_rounded, size: 15),
+                        label: const Text('복구'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF2F7D46),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      )
+                    : TextButton.icon(
+                        onPressed: isActing ? null : onHide,
+                        icon: const Icon(
+                          Icons.visibility_off_outlined,
+                          size: 15,
+                        ),
+                        label: const Text('숨김'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFFE05C7B),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
             ],
           ),
-          if (comment.commentStatus != 'DELETED') ...[
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerRight,
-              child: comment.commentStatus == 'HIDDEN'
-                  ? TextButton.icon(
-                      onPressed: isActing ? null : onRestore,
-                      icon: const Icon(Icons.undo_rounded, size: 16),
-                      label: const Text('복구'),
-                      style: TextButton.styleFrom(foregroundColor: const Color(0xFF2F7D46)),
-                    )
-                  : TextButton.icon(
-                      onPressed: isActing ? null : onHide,
-                      icon: const Icon(Icons.visibility_off_outlined, size: 16),
-                      label: const Text('숨김'),
-                      style: TextButton.styleFrom(foregroundColor: const Color(0xFFE05C7B)),
-                    ),
-            ),
-          ],
         ],
       ),
     );
@@ -489,10 +743,27 @@ class _StatusBadge extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
-      child: Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        _label(status),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          color: color,
+        ),
+      ),
     );
   }
+
+  String _label(String status) => switch (status) {
+    'ACTIVE' => '노출 중',
+    'HIDDEN' => '숨김',
+    'DELETED' => '삭제됨',
+    _ => status,
+  };
 }
 
 class _InfoChip extends StatelessWidget {
@@ -516,6 +787,49 @@ class _InfoChip extends StatelessWidget {
           Icon(icon, size: 14, color: c.iconOnCard),
           const SizedBox(width: 5),
           Text(label, style: TextStyle(fontSize: 11, color: c.textSecondary)),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetricBox extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int value;
+  final AppColors c;
+
+  const _MetricBox({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.c,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: c.subtleBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 15, color: c.iconOnCard),
+          const SizedBox(height: 6),
+          Text(label, style: TextStyle(fontSize: 10, color: c.textMuted)),
+          const SizedBox(height: 2),
+          Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: c.textPrimary,
+            ),
+          ),
         ],
       ),
     );

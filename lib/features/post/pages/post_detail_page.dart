@@ -30,28 +30,36 @@ class PostDetailPage extends ConsumerStatefulWidget {
 class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   final _scrollController = ScrollController();
   final Map<int, GlobalKey> _commentKeys = {};
+  late final StateController<ActivePage> _activePageController;
+  late final int _postId;
   int? _pendingFocusParentId;
   Set<int> _commentIdsBeforeSubmit = const {};
 
   @override
   void initState() {
     super.initState();
+    _postId = widget.postId;
+    _activePageController = ref.read(activePageProvider.notifier);
 
-    debugPrint('PostDetailPage 진입 postId = ${widget.postId}');
+    debugPrint('PostDetailPage 진입 postId = $_postId');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 이 게시글을 보고 있음을 알림 억제 로직에 알린다.
-      ref.read(activePageProvider.notifier).state = ActivePage(
-        postId: widget.postId,
+      _activePageController.state = ActivePage(
+        postId: _postId,
       );
-      ref.read(postDetailProvider(widget.postId).notifier).loadPostDetail();
+      ref.read(postDetailProvider(_postId).notifier).loadPostDetail();
     });
   }
 
   @override
   void dispose() {
-    ref.read(activePageProvider.notifier).state = const ActivePage();
+    Future(() {
+      if (_activePageController.state.postId == _postId) {
+        _activePageController.state = const ActivePage();
+      }
+    });
     _scrollController.dispose();
     super.dispose();
   }

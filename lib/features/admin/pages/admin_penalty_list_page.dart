@@ -46,7 +46,7 @@ class _AdminPenaltyListPageState extends ConsumerState<AdminPenaltyListPage> {
                       child: ListView.separated(
                         padding: const EdgeInsets.all(16),
                         itemCount: state.penalties.length + (state.hasMore ? 1 : 0),
-                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        separatorBuilder: (context, index) => const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           if (index == state.penalties.length) {
                             return Padding(

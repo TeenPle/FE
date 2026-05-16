@@ -49,8 +49,9 @@ class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: c.chipContainerBg,
+                color: c.cardBg,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: c.borderBlue),
               ),
               child: Row(
                 children: _tabs.map((tab) {
@@ -66,9 +67,20 @@ class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: active
-                              ? const Color(0xFF426C82)
+                              ? const Color(0xFF1477F8)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
+                          boxShadow: active
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF1477F8,
+                                    ).withValues(alpha: 0.18),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ]
+                              : null,
                         ),
                         child: Text(
                           tab.$2,

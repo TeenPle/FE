@@ -49,6 +49,8 @@ class ChatRoomPage extends ConsumerStatefulWidget {
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
+  // 메시지 전송 후 포커스를 유지해 키보드가 내려가지 않도록 한다.
+  final _inputFocusNode = FocusNode();
   late final StateController<ActivePage> _activePageController;
   bool _isLoadingOlder = false;
   _PickedChatImage? _pendingImage;
@@ -98,6 +100,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _inputController.dispose();
     _scrollController.dispose();
     _messageSearchController.dispose();
+    _inputFocusNode.dispose();
     super.dispose();
   }
 
@@ -844,6 +847,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   )
                 : _MessageInputBar(
                     controller: _inputController,
+                    focusNode: _inputFocusNode,
                     isSending: state.isSending,
                     pendingImage: _pendingImage,
                     onClearImage: _clearPendingImage,
@@ -1254,6 +1258,7 @@ class _MessageBubble extends StatelessWidget {
 
 class _MessageInputBar extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode focusNode;
   final bool isSending;
   final _PickedChatImage? pendingImage;
   final VoidCallback onClearImage;
@@ -1262,6 +1267,7 @@ class _MessageInputBar extends StatelessWidget {
 
   const _MessageInputBar({
     required this.controller,
+    required this.focusNode,
     required this.isSending,
     required this.pendingImage,
     required this.onClearImage,
@@ -1336,7 +1342,9 @@ class _MessageInputBar extends StatelessWidget {
                     ),
                     child: TextField(
                       controller: controller,
-                      enabled: pendingImage == null && !isSending,
+                      focusNode: focusNode,
+                      // isSending 중에도 enabled를 유지해야 포커스가 빠지지 않고 키보드가 내려가지 않는다.
+                      enabled: pendingImage == null,
                       maxLines: 4,
                       minLines: 1,
                       maxLength: 500,

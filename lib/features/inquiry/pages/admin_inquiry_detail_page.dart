@@ -83,6 +83,16 @@ class _AdminInquiryDetailPageState
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               children: [
+                _InquirySummaryHeader(
+                  answered: inquiry.isAnswered,
+                  title: inquiry.title,
+                  userLine: _userLine(
+                    inquiry.userName,
+                    inquiry.userNickname,
+                    inquiry.schoolName,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 _Panel(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,22 +170,44 @@ class _AdminInquiryDetailPageState
                             const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,
-                              height: 48,
+                              height: 52,
                               child: ElevatedButton(
                                 onPressed: state.isAnswering ? null : _submit,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF14A3F7),
+                                  backgroundColor: const Color(0xFF1477F8),
+                                  disabledBackgroundColor: const Color(
+                                    0xFFBFC8FF,
+                                  ),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                child: Text(
-                                  state.isAnswering ? '등록 중...' : '답변 등록',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (state.isAnswering) ...[
+                                      const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ] else ...[
+                                      const Icon(Icons.send_rounded, size: 18),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Text(
+                                      state.isAnswering ? '등록 중...' : '답변 등록',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -220,6 +252,91 @@ class _AdminInquiryDetailPageState
     ref
         .read(adminInquiryDetailProvider(widget.inquiryId).notifier)
         .answer(answer);
+  }
+
+  String _userLine(String? name, String? nickname, String? school) {
+    final identity = [
+      if ((name ?? '').trim().isNotEmpty) name!.trim(),
+      if ((nickname ?? '').trim().isNotEmpty) nickname!.trim(),
+    ].join(' · ');
+    final schoolName = (school ?? '').trim();
+    if (schoolName.isEmpty) return identity.isEmpty ? '사용자 정보 없음' : identity;
+    if (identity.isEmpty) return schoolName;
+    return '$identity · $schoolName';
+  }
+}
+
+class _InquirySummaryHeader extends StatelessWidget {
+  final bool answered;
+  final String title;
+  final String userLine;
+
+  const _InquirySummaryHeader({
+    required this.answered,
+    required this.title,
+    required this.userLine,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1477F8).withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: c.tintBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.support_agent_rounded,
+              color: Color(0xFF1477F8),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userLine,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _StatusBadge(answered: answered),
+        ],
+      ),
+    );
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
 
 class AdminReportDetailPage extends ConsumerStatefulWidget {
@@ -92,12 +93,23 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              _ReportSummaryHeader(
+                detail: detail,
+                onOpenUserHistory: () => context.push(
+                  AppRoutes.adminUserHistory(detail.reportedUserId),
+                  extra: {'nickname': detail.reportedUserNickname},
+                ),
+              ),
+              const SizedBox(height: 12),
               _Panel(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _StatusBadge(detail.status),
-                    const SizedBox(height: 16),
+                    const _SectionHeader(
+                      icon: Icons.receipt_long_outlined,
+                      title: '신고 정보',
+                    ),
+                    const SizedBox(height: 12),
                     _InfoRow('대상', detail.targetTypeLabel),
                     _InfoRow('신고 카테고리', detail.reportReasonLabel),
                     _InfoRow('신고자', detail.reporterNickname),
@@ -124,13 +136,9 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '신고 대상 내용',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: c.textPrimary,
-                      ),
+                    const _SectionHeader(
+                      icon: Icons.flag_outlined,
+                      title: '신고 대상 내용',
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -179,13 +187,9 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '처리 사유',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: c.textPrimary,
-                        ),
+                      const _SectionHeader(
+                        icon: Icons.edit_note_rounded,
+                        title: '처리 입력',
                       ),
                       const SizedBox(height: 10),
                       TextField(
@@ -242,46 +246,51 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: state.isActing ? null : () => _onReject(context),
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    label: Text(state.isActing ? '처리 중...' : '거절'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFE05C7B),
                       side: const BorderSide(color: Color(0xFFE05C7B)),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: Text(state.isActing ? '처리 중...' : '거절'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: state.isActing ? null : () => _onWarn(context),
+                    icon: const Icon(Icons.warning_amber_rounded, size: 18),
+                    label: Text(state.isActing ? '처리 중...' : '경고'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFF59E0B),
                       side: const BorderSide(color: Color(0xFFF59E0B)),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: Text(state.isActing ? '처리 중...' : '경고'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: state.isActing
                         ? null
                         : () => _onApprove(context),
+                    icon: const Icon(Icons.check_rounded, size: 18),
+                    label: Text(state.isActing ? '처리 중...' : '승인'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF426C82),
+                      backgroundColor: const Color(0xFF1477F8),
+                      disabledBackgroundColor: const Color(0xFFBFC8FF),
                       foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: Text(state.isActing ? '처리 중...' : '승인'),
                   ),
                 ),
               ],
@@ -384,6 +393,172 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
+class _ReportSummaryHeader extends StatelessWidget {
+  final ReportDetailModel detail;
+  final VoidCallback onOpenUserHistory;
+
+  const _ReportSummaryHeader({
+    required this.detail,
+    required this.onOpenUserHistory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final processedText = detail.processedAt == null
+        ? '아직 처리되지 않은 신고입니다.'
+        : '처리 완료 ${_formatDate(detail.processedAt!)}';
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1477F8).withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: c.tintBg,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  _statusIcon(detail.status),
+                  color: _statusColor(detail.status),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${detail.targetTypeLabel} 신고',
+                      style: TextStyle(fontSize: 11, color: c.textMuted),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      detail.reportReasonLabel,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _StatusBadge(detail.status),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: c.subtleBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: c.borderSubtle),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _HeaderMeta(
+                    label: '신고자',
+                    value: detail.reporterNickname,
+                    c: c,
+                  ),
+                ),
+                Container(width: 1, height: 30, color: c.borderSubtle),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: onOpenUserHistory,
+                    child: _HeaderMeta(
+                      label: '피신고자',
+                      value: detail.reportedUserNickname,
+                      c: c,
+                      accent: const Color(0xFF1477F8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(Icons.schedule_rounded, size: 15, color: c.iconSecondary),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  processedText,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime dt) =>
+      '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
+      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+}
+
+class _HeaderMeta extends StatelessWidget {
+  final String label;
+  final String value;
+  final AppColors c;
+  final Color? accent;
+
+  const _HeaderMeta({
+    required this.label,
+    required this.value,
+    required this.c,
+    this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 10, color: c.textTertiary)),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: accent ?? c.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Panel extends StatelessWidget {
   final Widget child;
 
@@ -396,10 +571,43 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: c.border),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.borderStrong),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: child,
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  const _SectionHeader({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Row(
+      children: [
+        Icon(icon, size: 17, color: const Color(0xFF1477F8)),
+        const SizedBox(width: 7),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: c.textPrimary,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -436,6 +644,22 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
+
+Color _statusColor(String status) => switch (status) {
+  'PENDING' => const Color(0xFF1477F8),
+  'RESOLVED' => const Color(0xFF2F7D46),
+  'REJECTED' => const Color(0xFFE05C7B),
+  'WARNED' => const Color(0xFFF59E0B),
+  _ => const Color(0xFF7D8790),
+};
+
+IconData _statusIcon(String status) => switch (status) {
+  'PENDING' => Icons.hourglass_top_rounded,
+  'RESOLVED' => Icons.check_circle_rounded,
+  'REJECTED' => Icons.cancel_rounded,
+  'WARNED' => Icons.warning_amber_rounded,
+  _ => Icons.flag_outlined,
+};
 
 class _TappableInfoRow extends StatelessWidget {
   final String label;

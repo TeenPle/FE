@@ -61,9 +61,23 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
           padding: const EdgeInsets.all(16),
           // 로그 없을 때도 빈 상태 아이템 1개를 포함시켜 안내 문구를 표시한다.
           itemCount: (state.isLoading ? 1 : (state.logs.isEmpty ? 1 : state.logs.length)) + 1 + (state.isLoadingMore ? 1 : 0),
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
-            if (index == 0) return _FilterPanel(state: state, parent: this);
+            if (index == 0) {
+              return _FilterPanel(
+                action: _action,
+                targetType: _targetType,
+                adminIdController: _adminIdController,
+                from: _from,
+                to: _to,
+                onActionChanged: (value) => setState(() => _action = value),
+                onTargetTypeChanged: (value) => setState(() => _targetType = value),
+                onPickFrom: () => _pickDate(isFrom: true),
+                onPickTo: () => _pickDate(isFrom: false),
+                onClearFilters: _clearFilters,
+                onApplyFilters: _applyFilters,
+              );
+            }
             if (state.isLoading) {
               return const Padding(
                 padding: EdgeInsets.only(top: 120),
@@ -133,10 +147,31 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
 }
 
 class _FilterPanel extends StatelessWidget {
-  final AdminAuditLogState state;
-  final _AdminAuditLogPageState parent;
+  final String? action;
+  final String? targetType;
+  final TextEditingController adminIdController;
+  final DateTime? from;
+  final DateTime? to;
+  final ValueChanged<String?> onActionChanged;
+  final ValueChanged<String?> onTargetTypeChanged;
+  final VoidCallback onPickFrom;
+  final VoidCallback onPickTo;
+  final VoidCallback onClearFilters;
+  final VoidCallback onApplyFilters;
 
-  const _FilterPanel({required this.state, required this.parent});
+  const _FilterPanel({
+    required this.action,
+    required this.targetType,
+    required this.adminIdController,
+    required this.from,
+    required this.to,
+    required this.onActionChanged,
+    required this.onTargetTypeChanged,
+    required this.onPickFrom,
+    required this.onPickTo,
+    required this.onClearFilters,
+    required this.onApplyFilters,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +186,7 @@ class _FilterPanel extends StatelessWidget {
       child: Column(
         children: [
           DropdownButtonFormField<String>(
-            value: parent._action,
+            initialValue: action,
             decoration: const InputDecoration(labelText: '액션'),
             items: const [
               DropdownMenuItem(value: 'VIEW_POST_DETAIL', child: Text('상세 열람')),
@@ -163,24 +198,31 @@ class _FilterPanel extends StatelessWidget {
               DropdownMenuItem(value: 'REJECT_REPORT', child: Text('신고 거절')),
               DropdownMenuItem(value: 'WARN_REPORT', child: Text('경고')),
               DropdownMenuItem(value: 'CANCEL_PENALTY', child: Text('제재 취소')),
+              DropdownMenuItem(value: 'VIEW_VERIFICATION_REQUEST', child: Text('인증 상세 열람')),
+              DropdownMenuItem(value: 'APPROVE_VERIFICATION_REQUEST', child: Text('인증 승인')),
+              DropdownMenuItem(value: 'REJECT_VERIFICATION_REQUEST', child: Text('인증 거절')),
+              DropdownMenuItem(value: 'VIEW_INQUIRY_DETAIL', child: Text('문의 상세 열람')),
+              DropdownMenuItem(value: 'ANSWER_INQUIRY', child: Text('문의 답변')),
             ],
-            onChanged: (value) => parent.setState(() => parent._action = value),
+            onChanged: onActionChanged,
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
-            value: parent._targetType,
+            initialValue: targetType,
             decoration: const InputDecoration(labelText: '대상'),
             items: const [
               DropdownMenuItem(value: 'POST', child: Text('게시글')),
               DropdownMenuItem(value: 'COMMENT', child: Text('댓글')),
               DropdownMenuItem(value: 'REPORT', child: Text('신고')),
               DropdownMenuItem(value: 'PENALTY', child: Text('제재')),
+              DropdownMenuItem(value: 'VERIFICATION_REQUEST', child: Text('인증 요청')),
+              DropdownMenuItem(value: 'INQUIRY', child: Text('문의')),
             ],
-            onChanged: (value) => parent.setState(() => parent._targetType = value),
+            onChanged: onTargetTypeChanged,
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: parent._adminIdController,
+            controller: adminIdController,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: '관리자 ID',
@@ -193,16 +235,16 @@ class _FilterPanel extends StatelessWidget {
               Expanded(
                 child: _DateButton(
                   label: '시작일',
-                  date: parent._from,
-                  onTap: () => parent._pickDate(isFrom: true),
+                  date: from,
+                  onTap: onPickFrom,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _DateButton(
                   label: '종료일',
-                  date: parent._to,
-                  onTap: () => parent._pickDate(isFrom: false),
+                  date: to,
+                  onTap: onPickTo,
                 ),
               ),
             ],
@@ -212,14 +254,14 @@ class _FilterPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: parent._clearFilters,
+                  onPressed: onClearFilters,
                   child: const Text('초기화'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: parent._applyFilters,
+                  onPressed: onApplyFilters,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4A67F2),
                     foregroundColor: Colors.white,
@@ -313,6 +355,19 @@ class _AuditLogTile extends StatelessWidget {
             '처리자: ${log.adminNickname} (${log.adminId})',
             style: TextStyle(fontSize: 11, color: c.textMuted),
           ),
+          if (log.ipAddress != null && log.ipAddress!.trim().isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text('IP: ${log.ipAddress}', style: TextStyle(fontSize: 11, color: c.textMuted)),
+          ],
+          if (log.userAgent != null && log.userAgent!.trim().isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'User-Agent: ${log.userAgent}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11, color: c.textMuted),
+            ),
+          ],
           if (log.reason != null && log.reason!.trim().isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(log.reason!, style: TextStyle(fontSize: 12, color: c.textBody, height: 1.45)),
@@ -371,6 +426,11 @@ class _AuditLogTile extends StatelessWidget {
         'REJECT_REPORT' => '신고 거절',
         'WARN_REPORT' => '경고 처리',
         'CANCEL_PENALTY' => '제재 취소',
+        'VIEW_VERIFICATION_REQUEST' => '인증 상세 열람',
+        'APPROVE_VERIFICATION_REQUEST' => '인증 승인',
+        'REJECT_VERIFICATION_REQUEST' => '인증 거절',
+        'VIEW_INQUIRY_DETAIL' => '문의 상세 열람',
+        'ANSWER_INQUIRY' => '문의 답변',
         _ => action,
       };
 
@@ -379,6 +439,8 @@ class _AuditLogTile extends StatelessWidget {
         'COMMENT' => '댓글',
         'REPORT' => '신고',
         'PENALTY' => '제재',
+        'VERIFICATION_REQUEST' => '인증 요청',
+        'INQUIRY' => '문의',
         _ => targetType,
       };
 

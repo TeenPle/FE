@@ -150,7 +150,8 @@ class _AdminVerificationDetailPageState
                                 final latest = ref.read(
                                   adminVerificationDetailProvider(widget.requestId),
                                 );
-                                if (latest.isActionSuccess && mounted) {
+                                if (!context.mounted) return;
+                                if (latest.isActionSuccess) {
                                   Navigator.of(context).pop(true);
                                 }
                               },
@@ -182,7 +183,8 @@ class _AdminVerificationDetailPageState
                                 final latest = ref.read(
                                   adminVerificationDetailProvider(widget.requestId),
                                 );
-                                if (latest.isActionSuccess && mounted) {
+                                if (!context.mounted) return;
+                                if (latest.isActionSuccess) {
                                   Navigator.of(context).pop(true);
                                 }
                               },
@@ -237,9 +239,9 @@ class _AdminVerificationDetailPageState
                                   child: CachedNetworkImage(
                                     imageUrl: imageUrl,
                                     fit: BoxFit.contain,
-                                    placeholder: (_, __) =>
+                                    placeholder: (context, url) =>
                                         const Center(child: CircularProgressIndicator()),
-                                    errorWidget: (_, __, ___) => _ImagePlaceholder(
+                                    errorWidget: (context, url, error) => _ImagePlaceholder(
                                       c: c,
                                       message: '이미지를 불러오지 못했습니다.',
                                     ),

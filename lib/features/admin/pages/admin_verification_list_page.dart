@@ -220,7 +220,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                   itemCount: state.items.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (context, index) =>
                   const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = state.items[index];

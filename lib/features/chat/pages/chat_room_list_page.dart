@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../models/chat_room_model.dart';
 import '../provider/chat_room_list_provider.dart';
 import '../provider/muted_rooms_provider.dart';
@@ -53,10 +55,17 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatRoomListProvider);
     final filtered = _filtered(state.rooms);
+    final chatUnreadCount =
+        state.rooms.fold(0, (sum, room) => sum + room.unreadCount);
 
     final c = context.colors;
     return Scaffold(
       backgroundColor: c.pageBg,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 1,
+        chatUnreadCount: chatUnreadCount,
+        onTap: (index) => _goMainTab(context, index),
+      ),
       appBar: AppBar(
         backgroundColor: c.cardBg,
         elevation: 0,
@@ -80,15 +89,9 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Container(
               decoration: BoxDecoration(
-                color: c.cardBg,
+                color: c.inputBg,
                 borderRadius: BorderRadius.circular(14),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x0A000000),
-                    blurRadius: 6,
-                    offset: Offset(0, 1),
-                  ),
-                ],
+                border: Border.all(color: c.border),
               ),
               child: TextField(
                 controller: _searchController,
@@ -143,6 +146,25 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
   }
 }
 
+void _goMainTab(BuildContext context, int index) {
+  switch (index) {
+    case 0:
+      context.go(AppRoutes.school);
+      return;
+    case 1:
+      return;
+    case 2:
+      context.go(AppRoutes.meal);
+      return;
+    case 3:
+      context.go(AppRoutes.timetable);
+      return;
+    case 4:
+      context.go(AppRoutes.profile);
+      return;
+  }
+}
+
 class _EmptyView extends StatelessWidget {
   final String? errorMessage;
   final bool isSearch;
@@ -188,7 +210,7 @@ class _EmptyView extends StatelessWidget {
               Text(
                 isSearch
                     ? '다른 검색어를 입력해보세요.'
-                    : '게시글이나 댓글에서 채팅을 시작해보세요!',
+                    : '게시글이나 댓글에서 채팅을 시작해보세요',
                 style: TextStyle(
                   fontSize: 12,
                   color: c.textMuted,
@@ -246,12 +268,16 @@ class _ChatRoomItem extends ConsumerWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: Color(0xFFE3F2FD),
+                color: room.otherUserDeleted
+                    ? c.subtleBg
+                    : const Color(0xFFE3F2FD),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.person_rounded,
-                color: Color(0xFF1DA1F2),
+                color: room.otherUserDeleted
+                    ? c.textMuted
+                    : const Color(0xFF1DA1F2),
                 size: 28,
               ),
             ),
@@ -270,11 +296,31 @@ class _ChatRoomItem extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: c.textPrimary,
+                            color: room.otherUserDeleted
+                                ? c.textMuted
+                                : c.textPrimary,
                           ),
                         ),
                       ),
-                      if (isMuted) ...[
+                      if (room.otherUserDeleted) ...[
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: c.subtleBg,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: c.border),
+                          ),
+                          child: Text(
+                            '탈퇴',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                              color: c.textMuted,
+                            ),
+                          ),
+                        ),
+                      ] else if (isMuted) ...[
                         const SizedBox(width: 4),
                         Icon(
                           Icons.notifications_off_rounded,
@@ -287,14 +333,24 @@ class _ChatRoomItem extends ConsumerWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      const Text(
-                        '익명',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1DA1F2),
+                      if (room.otherUserDeleted)
+                        Text(
+                          '탈퇴한 사용자',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: c.textMuted,
+                          ),
+                        )
+                      else
+                        const Text(
+                          '익명',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1DA1F2),
+                          ),
                         ),
-                      ),
                       if (room.lastPreview.isNotEmpty) ...[
                         Text(
                           '  ·  ',

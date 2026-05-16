@@ -39,7 +39,28 @@ class _CommentInputBarState extends State<CommentInputBar> {
   void dispose() {
     _focusNode.dispose();
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant CommentInputBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final previousReplyId = oldWidget.replyingToCommentId;
+    final currentReplyId = widget.replyingToCommentId;
+
+    if (currentReplyId != null && currentReplyId != previousReplyId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _focusNode.requestFocus();
+      });
+      return;
+    }
+
+    if (previousReplyId != null && currentReplyId == null) {
+      _focusNode.unfocus();
+    }
   }
 
   int get _length => _controller.text.length;
@@ -62,7 +83,12 @@ class _CommentInputBarState extends State<CommentInputBar> {
       top: false,
       child: Container(
         color: c.pageBg,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          MediaQuery.of(context).viewInsets.bottom + 14,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,

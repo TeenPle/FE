@@ -69,6 +69,29 @@ class PostSummary {
     );
   }
 
+  PostSummary copyWith({int? commentCount}) {
+    return PostSummary(
+      id: id,
+      title: title,
+      content: content,
+      postStatus: postStatus,
+      viewCount: viewCount,
+      anonymous: anonymous,
+      likeCount: likeCount,
+      dislikeCount: dislikeCount,
+      boardId: boardId,
+      userId: userId,
+      username: username,
+      authorProfileImageUrl: authorProfileImageUrl,
+      authorDeleted: authorDeleted,
+      commentCount: commentCount ?? this.commentCount,
+      mediaList: mediaList,
+      createdAt: createdAt,
+      createdAtMs: createdAtMs,
+      hasPoll: hasPoll,
+    );
+  }
+
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
   String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);

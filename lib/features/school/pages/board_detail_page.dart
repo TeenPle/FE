@@ -12,6 +12,7 @@ import '../provider/school_providers.dart';
 import '../provider/school_state.dart';
 import '../provider/school_provider.dart';
 import 'widgets/post_summary_card.dart';
+import '../../post/provider/post_detail_providers.dart';
 
 const bool useModernBoardDetail = false;
 
@@ -177,6 +178,8 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
             posts: state.posts,
             onPostTap: (postId) async {
               final refreshed = await context.push<bool>('/post/$postId');
+              final detailState = ref.read(postDetailProvider(postId));
+              notifier.updatePostCommentCount(postId, detailState.comments.length);
               if (refreshed == true && mounted) {
                 await notifier.reloadCurrentBoard();
               }
@@ -220,9 +223,10 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                               compact: true,
                               showDivider: false,
                               onTap: () async {
-                                final refreshed = await context.push<bool>(
-                                  '/post/${state.posts[index].id}',
-                                );
+                                final postId = state.posts[index].id;
+                                final refreshed = await context.push<bool>('/post/$postId');
+                                final detailState = ref.read(postDetailProvider(postId));
+                                notifier.updatePostCommentCount(postId, detailState.comments.length);
                                 if (refreshed == true) {
                                   await notifier.reloadCurrentBoard();
                                 }
@@ -486,14 +490,14 @@ class _ModernBoardToolbar extends StatelessWidget {
   }
 }
 
-class _ModernPostList extends StatelessWidget {
+class _ModernPostList extends ConsumerWidget {
   final List<PostSummary> posts;
   final SchoolNotifier notifier;
 
   const _ModernPostList({required this.posts, required this.notifier});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         color: context.colors.cardBg,
@@ -508,9 +512,10 @@ class _ModernPostList extends StatelessWidget {
               compact: true,
               showDivider: false,
               onTap: () async {
-                final refreshed = await context.push<bool>(
-                  '/post/${posts[i].id}',
-                );
+                final postId = posts[i].id;
+                final refreshed = await context.push<bool>('/post/$postId');
+                final detailState = ref.read(postDetailProvider(postId));
+                notifier.updatePostCommentCount(postId, detailState.comments.length);
                 if (refreshed == true && context.mounted) {
                   await notifier.reloadCurrentBoard();
                 }

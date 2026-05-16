@@ -25,17 +25,13 @@ class PostContentCard extends StatelessWidget {
         Text(
           post.title,
           style: TextStyle(
-            fontSize: 21,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
             height: 1.3,
           ),
         ),
-        Container(
-          height: 1,
-          margin: const EdgeInsets.symmetric(vertical: 16),
-          color: c.dividerBlue,
-        ),
+        const SizedBox(height: 12),
         LinkableText(
           text: post.content,
           style: TextStyle(

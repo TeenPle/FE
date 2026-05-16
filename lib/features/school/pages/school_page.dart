@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/haptics.dart';
-import '../../../core/widgets/tap_scale.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../core/widgets/post_summary_skeleton.dart';
+import '../../../core/widgets/school_main_ad_card.dart';
+import '../../../core/widgets/tap_scale.dart';
 import '../../../features/auth/provider/login_provider.dart';
 import '../../../features/chat/provider/chat_room_list_provider.dart';
 import '../../../features/dday/widgets/dday_strip.dart';
@@ -25,6 +27,7 @@ import '../provider/school_providers.dart';
 import '../provider/school_state.dart';
 import 'widgets/post_summary_card.dart';
 import 'widgets/school_header.dart';
+import '../../post/provider/post_detail_providers.dart';
 
 enum _HomeTab { feed, popular, boards }
 
@@ -41,7 +44,6 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
 
-  int _bottomIndex = 0;
   _HomeTab _selectedTab = _HomeTab.feed;
   bool _penaltyDialogShown = false;
   bool _warningDialogShown = false;
@@ -185,32 +187,29 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                   color: Colors.white, size: 24),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: _SchoolBottomBar(
-        currentIndex: _bottomIndex,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 0,
         chatUnreadCount: chatUnreadCount,
-        onNavTap: (index) {
+        onTap: (index) {
           if (index == 1) {
             ref.read(chatRoomListProvider.notifier).load();
-            context.push(AppRoutes.chat);
+            context.go(AppRoutes.chat);
             return;
           }
           if (index == 2) {
-            context.push(AppRoutes.meal);
+            context.go(AppRoutes.meal);
             return;
           }
           if (index == 3) {
-            context.push(AppRoutes.timetable);
+            context.go(AppRoutes.timetable);
             return;
           }
           if (index == 4) {
-            context.push(AppRoutes.profile);
+            context.go(AppRoutes.profile);
             return;
           }
           // 홈(index 0): 이미 홈이면 최상단으로 스크롤 후 새로고침
-          if (_bottomIndex == 0) {
-            _scrollToTopAndRefresh();
-          }
-          setState(() => _bottomIndex = 0);
+          _scrollToTopAndRefresh();
         },
       ),
       body: SafeArea(
@@ -351,7 +350,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                 isLoading: state.isLoadingMore,
               );
             } else if (showAdSlot && index == adInsertIndex) {
-              item = const _SchoolMainAdCard();
+              item = const SchoolMainAdCard();
             } else {
               final postIndex =
                   showAdSlot && index > adInsertIndex ? index - 1 : index;
@@ -367,8 +366,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     categoryLabel: boardNames[post.boardId],
                     hot: true,
                     onTap: () async {
-                      final refreshed =
-                          await context.push<bool>('/post/${post.id}');
+                      final postId = post.id;
+                      final refreshed = await context.push<bool>('/post/$postId');
+                      final detailState = ref.read(postDetailProvider(postId));
+                      notifier.updatePostCommentCount(postId, detailState.comments.length);
                       if (refreshed == true && mounted) {
                         notifier.reloadCurrentBoard();
                       }
@@ -387,8 +388,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     showDivider: false,
                     categoryLabel: boardNames[post.boardId],
                     onTap: () async {
-                      final refreshed =
-                          await context.push<bool>('/post/${post.id}');
+                      final postId = post.id;
+                      final refreshed = await context.push<bool>('/post/$postId');
+                      final detailState = ref.read(postDetailProvider(postId));
+                      notifier.updatePostCommentCount(postId, detailState.comments.length);
                       if (refreshed == true && mounted) {
                         notifier.reloadCurrentBoard();
                       }
@@ -464,8 +467,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                       showDivider: false,
                       categoryLabel: boardNames[post.boardId],
                       onTap: () async {
-                        final refreshed =
-                            await context.push<bool>('/post/${post.id}');
+                        final postId = post.id;
+                        final refreshed = await context.push<bool>('/post/$postId');
+                        final detailState = ref.read(postDetailProvider(postId));
+                        notifier.updatePostCommentCount(postId, detailState.comments.length);
                         if (refreshed == true && mounted) {
                           notifier.loadHotPosts();
                         }
@@ -1273,153 +1278,6 @@ class _WarningDialog extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ─── 하단 네비게이션바 ────────────────────────────────────
-
-class _SchoolBottomBar extends StatelessWidget {
-  final int currentIndex;
-  final int chatUnreadCount;
-  final ValueChanged<int> onNavTap;
-
-  const _SchoolBottomBar({
-    required this.currentIndex,
-    required this.chatUnreadCount,
-    required this.onNavTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: c.cardBg,
-          border: Border(top: BorderSide(color: c.border, width: 1)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _BottomNavItem(
-              icon: Icons.home_rounded,
-              label: '홈',
-              selected: currentIndex == 0,
-              onTap: () => onNavTap(0),
-            ),
-            _BottomNavItem(
-              icon: Icons.chat_bubble_outline_rounded,
-              label: '채팅',
-              selected: currentIndex == 1,
-              onTap: () => onNavTap(1),
-              badgeCount: chatUnreadCount,
-            ),
-            _BottomNavItem(
-              icon: Icons.restaurant_outlined,
-              label: '급식',
-              selected: currentIndex == 2,
-              onTap: () => onNavTap(2),
-            ),
-            _BottomNavItem(
-              icon: Icons.calendar_today_outlined,
-              label: '시간표',
-              selected: currentIndex == 3,
-              onTap: () => onNavTap(3),
-            ),
-            _BottomNavItem(
-              icon: Icons.person_outline_rounded,
-              label: '내정보',
-              selected: currentIndex == 4,
-              onTap: () => onNavTap(4),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomNavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final int badgeCount;
-
-  const _BottomNavItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.badgeCount = 0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color =
-        selected ? const Color(0xFF229BF3) : context.colors.textMuted;
-
-    return GestureDetector(
-      onTap: () {
-        AppHaptics.selection();
-        onTap();
-      },
-      behavior: HitTestBehavior.opaque,
-      child: TapScale(
-        scale: 0.88,
-        child: SizedBox(
-          width: 54,
-          child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(icon, color: color, size: 27),
-                if (badgeCount > 0)
-                  Positioned(
-                    top: -4,
-                    right: -8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF44336),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                          minWidth: 16, minHeight: 16),
-                      child: Text(
-                        badgeCount > 99 ? '99+' : '$badgeCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight:
-                    selected ? FontWeight.w800 : FontWeight.w500,
-                color: color,
-                letterSpacing: 0,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
     );
   }
 }

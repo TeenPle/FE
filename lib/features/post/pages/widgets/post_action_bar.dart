@@ -38,7 +38,7 @@ class PostActionBar extends StatelessWidget {
                 likeCount: likeCount,
                 onTap: onLikeTap,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               _StaticChip(
                 icon: Icons.chat_bubble_outline_rounded,
                 label: '댓글 $commentCount',
@@ -49,7 +49,7 @@ class PostActionBar extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         _IconActionButton(
           icon: bookmarkedByMe
               ? Icons.bookmark_rounded
@@ -63,7 +63,7 @@ class PostActionBar extends StatelessWidget {
               bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
           onTap: onBookmarkTap,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         _IconActionButton(
           icon: Icons.ios_share_rounded,
           backgroundColor: c.tintBg,
@@ -94,7 +94,8 @@ class _StaticChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      constraints: const BoxConstraints(minHeight: 36),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(999),
@@ -103,12 +104,12 @@ class _StaticChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: iconColor),
-          const SizedBox(width: 6),
+          Icon(icon, size: 15, color: iconColor),
+          const SizedBox(width: 5),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
               color: iconColor,
             ),
@@ -146,8 +147,8 @@ class _IconActionButton extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(999),
         child: Container(
-          width: 42,
-          height: 42,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: backgroundColor ?? c.tintBg,
             shape: BoxShape.circle,
@@ -155,7 +156,7 @@ class _IconActionButton extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            size: 20,
+            size: 17,
             color: iconColor ?? c.iconOnCard,
           ),
         ),

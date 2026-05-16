@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
 import '../provider/timetable_provider.dart';
 
 class TimetablePage extends ConsumerStatefulWidget {
@@ -22,6 +25,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
     super.initState();
     Future.microtask(() {
       ref.read(timetableProvider.notifier).init();
+      ref.read(chatRoomListProvider.notifier).load();
     });
     _loadTodayMemos();
   }
@@ -29,23 +33,27 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(timetableProvider);
+    final chatUnreadCount = ref
+        .watch(chatRoomListProvider)
+        .rooms
+        .fold(0, (sum, room) => sum + room.unreadCount);
 
     final c = context.colors;
     return Scaffold(
       backgroundColor: c.pageBg,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 3,
+        chatUnreadCount: chatUnreadCount,
+        onTap: (index) => _goMainTab(context, index),
+      ),
       appBar: AppBar(
         backgroundColor: c.pageBg,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: c.iconPrimary,
-          onPressed: () => context.pop(),
-        ),
         title: Text(
           '시간표',
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -102,7 +110,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                               Text(
                                 '시간표 되돌리기',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: c.textMuted,
                                 ),
@@ -165,7 +173,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
 
   void _showMemoDialog(BuildContext context) {
     final controller = TextEditingController();
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text(
@@ -174,13 +182,13 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
         ),
         content: TextField(
           controller: controller,
+          autofocus: true,
           maxLength: 40,
           decoration: const InputDecoration(
             hintText: '예) 체육복 챙기기',
             counterText: '',
             border: OutlineInputBorder(),
           ),
-          autofocus: true,
           onSubmitted: (value) {
             _addMemo(value);
             Navigator.pop(ctx);
@@ -200,7 +208,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           ),
         ],
       ),
-    );
+    ).whenComplete(controller.dispose);
   }
 
   void _showResetConfirmDialog(BuildContext context) {
@@ -215,14 +223,18 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           title: Text(
             '시간표를 초기화할까요?',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: bc.textPrimary,
             ),
           ),
           content: Text(
             '직접 입력한 과목이 모두 사라지고,\n학교에서 제공한 시간표로 되돌아가요.',
-            style: TextStyle(fontSize: 12, color: bc.textBody, height: 1.55),
+            style: TextStyle(
+              fontSize: 11,
+              color: bc.textBody,
+              height: 1.55,
+            ),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           actions: [
@@ -300,7 +312,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   Text(
                     '${_weekdayLabel(day)}요일 $period교시',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
                       color: bc.textPrimary,
                     ),
@@ -332,6 +344,10 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 const SizedBox(height: 4),
                 Text(
                   'NEIS 원본: $neisSubject',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: bc.textMuted,
+                  ),
                   style: TextStyle(fontSize: 11, color: bc.textMuted),
                 ),
               ],
@@ -514,16 +530,16 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: c.borderStrong),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -534,19 +550,19 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
           Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 34,
+                height: 34,
                 decoration: const BoxDecoration(
                   color: Color(0xFFEAF7FF),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.class_rounded,
-                  size: 23,
+                  size: 18,
                   color: Color(0xFF14A3F7),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,16 +570,16 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                     Text(
                       '내 반을 입력해주세요',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 12,
                         fontWeight: FontWeight.w900,
                         color: c.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Text(
                       '학교 시간표를 불러올 때 사용돼요.',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 9,
                         fontWeight: FontWeight.w600,
                         color: c.textMuted,
                       ),
@@ -573,63 +589,73 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          TextField(
-            controller: _controller,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            maxLength: 2,
-            autofocus: true,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: c.textPrimary,
-            ),
-            decoration: InputDecoration(
-              hintText: 'ex) 3',
-              hintStyle: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: c.textHint,
-              ),
-              suffixText: '반',
-              suffixStyle: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: c.textSecondary,
-              ),
-              counterText: '',
-              filled: true,
-              fillColor: c.inputBg,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: c.border),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: Color(0xFF14A3F7),
-                  width: 1.8,
+          const SizedBox(height: 16),
+          Center(
+            child: SizedBox(
+              width: 118,
+              height: 44,
+              child: TextField(
+                controller: _controller,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 2,
+                autofocus: true,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: c.textPrimary,
                 ),
+                decoration: InputDecoration(
+                  hintText: '3',
+                  hintStyle: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: c.textHint,
+                  ),
+                  suffixText: '반',
+                  suffixStyle: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: c.textSecondary,
+                  ),
+                  counterText: '',
+                  filled: true,
+                  fillColor: c.inputBg,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: c.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF14A3F7),
+                      width: 1.4,
+                    ),
+                  ),
+                ),
+                onSubmitted: (_) => _submit(),
               ),
             ),
-            onSubmitted: (_) => _submit(),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             children: [
-              Icon(Icons.info_outline_rounded, size: 15, color: c.textMuted),
-              const SizedBox(width: 6),
+              Icon(
+                Icons.info_outline_rounded,
+                size: 13,
+                color: c.textMuted,
+              ),
+              const SizedBox(width: 5),
               Expanded(
                 child: Text(
                   '나중에 우측 상단 수정 버튼으로 변경할 수 있어요.',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 9,
                     fontWeight: FontWeight.w600,
                     color: c.textMuted,
                   ),
@@ -637,7 +663,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -647,13 +673,13 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                     foregroundColor: c.textMuted,
                     side: BorderSide(color: c.border),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   child: const Text(
                     '취소',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
                   ),
                 ),
               ),
@@ -666,13 +692,13 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   child: const Text(
                     '시간표 보기',
-                    style: TextStyle(fontWeight: FontWeight.w900),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
                   ),
                 ),
               ),
@@ -681,6 +707,25 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
         ],
       ),
     );
+  }
+}
+
+void _goMainTab(BuildContext context, int index) {
+  switch (index) {
+    case 0:
+      context.go(AppRoutes.school);
+      return;
+    case 1:
+      context.go(AppRoutes.chat);
+      return;
+    case 2:
+      context.go(AppRoutes.meal);
+      return;
+    case 3:
+      return;
+    case 4:
+      context.go(AppRoutes.profile);
+      return;
   }
 }
 
@@ -721,7 +766,7 @@ class _WeekNavigator extends ConsumerWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: c.textPrimary,
                 ),
@@ -729,7 +774,10 @@ class _WeekNavigator extends ConsumerWidget {
               if (state.classRoom != null)
                 Text(
                   '${state.week?.grade ?? '?'}학년 ${state.classRoom}반',
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: c.textMuted,
+                  ),
                 ),
             ],
           ),
@@ -789,7 +837,7 @@ class _TodayMemoCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w900,
                     color: c.textPrimary,
                   ),
@@ -799,7 +847,7 @@ class _TodayMemoCard extends StatelessWidget {
                   Text(
                     '오늘 메모 없음',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: c.textMuted,
                     ),
@@ -854,7 +902,7 @@ class _MemoRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w800,
                 color: c.textBody,
               ),
@@ -962,7 +1010,7 @@ class _TimetableGrid extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: FontWeight.w900,
             color: highlight ? const Color(0xFF14A3F7) : c.textMuted,
           ),
@@ -984,7 +1032,7 @@ class _TimetableGrid extends StatelessWidget {
         child: Text(
           '$period',
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: FontWeight.w900,
             color: c.textMuted,
           ),
@@ -1028,7 +1076,7 @@ class _TimetableGrid extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
                     color: hasSubject ? c.textBody : Colors.transparent,
                   ),
@@ -1090,7 +1138,7 @@ class _ClassRoomPrompt extends StatelessWidget {
               Text(
                 '시간표를 불러올게요',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: c.textPrimary,
                 ),
@@ -1100,7 +1148,7 @@ class _ClassRoomPrompt extends StatelessWidget {
                 '내 반 번호를 입력하면 이번 주 시간표를 바로 확인할 수 있어요.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   height: 1.45,
                   fontWeight: FontWeight.w600,
                   color: c.textMuted,
@@ -1122,7 +1170,7 @@ class _ClassRoomPrompt extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     textStyle: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1177,7 +1225,7 @@ class _ErrorState extends StatelessWidget {
     return Center(
       child: Text(
         message,
-        style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+        style: TextStyle(fontSize: 11, color: context.colors.textMuted),
       ),
     );
   }
@@ -1198,7 +1246,7 @@ class _NeisNotConfigured extends StatelessWidget {
           Text(
             '시간표 서비스가 연결되지 않았어요',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: c.textPrimary,
             ),
@@ -1206,7 +1254,7 @@ class _NeisNotConfigured extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '학교 NEIS 정보가 아직 등록되지 않았어요.',
-            style: TextStyle(fontSize: 11, color: c.textMuted),
+            style: TextStyle(fontSize: 10, color: c.textMuted),
           ),
         ],
       ),

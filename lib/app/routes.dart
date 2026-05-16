@@ -316,7 +316,8 @@ final GoRouter router = GoRouter(
       redirect: _adminOnly,
       builder: (context, state) {
         final schoolId = int.parse(state.pathParameters['schoolId']!);
-        final extra = state.extra as Map<String, dynamic>?;
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic> ? rawExtra : null;
         return AdminSchoolBoardsPage(
           schoolId: schoolId,
           schoolName: extra?['schoolName'] as String? ?? '학교 게시판',
@@ -329,7 +330,8 @@ final GoRouter router = GoRouter(
       redirect: _adminOnly,
       builder: (context, state) {
         final boardId = int.parse(state.pathParameters['boardId']!);
-        final extra = state.extra as Map<String, dynamic>?;
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic> ? rawExtra : null;
         return AdminBoardPostsPage(
           boardId: boardId,
           boardTitle: extra?['boardTitle'] as String? ?? '게시글 목록',
@@ -343,7 +345,8 @@ final GoRouter router = GoRouter(
       redirect: _adminOnly,
       builder: (context, state) {
         final postId = int.parse(state.pathParameters['postId']!);
-        final extra = state.extra as Map<String, dynamic>?;
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic> ? rawExtra : null;
         return AdminPostDetailPage(
           postId: postId,
           focusCommentId: extra?['focusCommentId'] as int?,
@@ -422,10 +425,12 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/board/:boardId',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>;
+        final boardId = int.parse(state.pathParameters['boardId']!);
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic> ? rawExtra : null;
         return BoardDetailPage(
-          boardId: extra['boardId'] as int,
-          boardTitle: extra['boardTitle'] as String,
+          boardId: extra?['boardId'] as int? ?? boardId,
+          boardTitle: extra?['boardTitle'] as String? ?? '게시판',
         );
       },
     ),
@@ -433,7 +438,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/write-post',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>? ?? const {};
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic>
+            ? rawExtra
+            : const <String, dynamic>{};
         final availableBoards = extra['availableBoards'];
         return WritePostPage(
           boardId: extra['boardId'] as int?,
@@ -453,7 +461,8 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/search',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic> ? rawExtra : null;
         return SearchPage(
           initialKeyword: extra?['keyword'] as String?,
           boardId: extra?['boardId'] as int?,
@@ -526,7 +535,11 @@ final GoRouter router = GoRouter(
       path: '/chat/rooms/:roomId',
       builder: (context, state) {
         final roomId = int.parse(state.pathParameters['roomId']!);
-        final extra = state.extra as Map<String, dynamic>;
+        final rawExtra = state.extra;
+        if (rawExtra is! Map<String, dynamic>) {
+          return const ChatRoomListPage();
+        }
+        final extra = rawExtra;
         return ChatRoomPage(
           roomId: roomId,
           otherUserId: (extra['otherUserId'] as num).toInt(),
@@ -550,7 +563,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.findEmailResult,
       builder: (context, state) {
-        final maskedEmail = state.extra as String;
+        final maskedEmail = state.extra;
+        if (maskedEmail is! String || maskedEmail.isEmpty) {
+          return const FindEmailPage();
+        }
         return FindEmailResultPage(maskedEmail: maskedEmail);
       },
     ),
@@ -563,7 +579,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.resetPassword,
       builder: (context, state) {
-        final token = state.extra as String;
+        final token = state.extra;
+        if (token is! String || token.isEmpty) {
+          return const FindPasswordPage();
+        }
         return ResetPasswordPage(verificationToken: token);
       },
     ),
@@ -618,7 +637,8 @@ final GoRouter router = GoRouter(
       redirect: _adminOnly,
       builder: (context, state) {
         final userId = int.parse(state.pathParameters['userId']!);
-        final extra = state.extra as Map<String, dynamic>?;
+        final rawExtra = state.extra;
+        final extra = rawExtra is Map<String, dynamic> ? rawExtra : null;
         final nickname = extra?['nickname'] as String? ?? '';
         return AdminUserHistoryPage(userId: userId, userNickname: nickname);
       },

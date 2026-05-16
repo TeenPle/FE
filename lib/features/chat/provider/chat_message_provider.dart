@@ -493,14 +493,14 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
     }
   }
 
-  Future<void> sendImage(MultipartFile file) async {
+  Future<bool> sendImage(MultipartFile file) async {
     if (state.isPenalized) {
       state = state.copyWith(errorMessage: _penaltyMessage());
-      return;
+      return false;
     }
     if (state.isBlocked) {
       state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.');
-      return;
+      return false;
     }
     state = state.copyWith(isSending: true, errorMessage: null);
 
@@ -510,6 +510,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       final msg = await _api.sendImageMessage(roomId, uploaded.mediaId);
       if (_isDisposed || !mounted) return;
       _appendMessageIfAbsent(msg);
+      return true;
     } catch (e) {
       if (_isDisposed || !mounted) return;
       state = state.copyWith(
@@ -518,6 +519,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
             ? e.message
             : '이미지를 보낼 수 없습니다. 파일 형식 또는 이미지 내용을 확인해주세요.',
       );
+      return false;
     }
   }
 

@@ -222,6 +222,21 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
     await refreshPosts();
   }
 
+  /// API 호출 없이 특정 게시글의 댓글 수를 로컬에서 업데이트
+  void updatePostCommentCount(int postId, int commentCount) {
+    state = state.copyWith(
+      posts: state.posts
+          .map((p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p)
+          .toList(),
+      hotPosts: state.hotPosts
+          .map((p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p)
+          .toList(),
+      topRecommendedPosts: state.topRecommendedPosts
+          .map((p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p)
+          .toList(),
+    );
+  }
+
   /// HOT 게시글을 현재 필터 기준으로 조회
   Future<void> loadHotPosts() async {
     if (state.isLoadingHot) return;

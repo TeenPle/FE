@@ -71,32 +71,63 @@ const _transitions = PageTransitionsTheme(
 );
 
 ThemeData buildTeenpleLightTheme() {
+  final colors = AppColors.light();
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: AppColors.light().pageBg,
+    scaffoldBackgroundColor: colors.pageBg,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF1DA1F2),
       brightness: Brightness.light,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.light().pageBg,
-      foregroundColor: AppColors.light().textPrimary,
+      backgroundColor: colors.pageBg,
+      foregroundColor: colors.textPrimary,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: AppColors.light().popupBg,
+      color: colors.popupBg,
       surfaceTintColor: Colors.transparent,
+      textStyle: TextStyle(color: colors.textPrimary, fontSize: 12),
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: AppColors.light().cardBg,
+      backgroundColor: colors.cardBg,
       surfaceTintColor: Colors.transparent,
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: AppColors.light().cardBg,
+      backgroundColor: colors.cardBg,
       surfaceTintColor: Colors.transparent,
+      titleTextStyle: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w800,
+        color: colors.textPrimary,
+      ),
+      contentTextStyle: TextStyle(
+        fontSize: 12,
+        height: 1.45,
+        color: colors.textSecondary,
+      ),
     ),
-    extensions: [AppColors.light()],
+    snackBarTheme: SnackBarThemeData(
+      contentTextStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        textStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
+        minimumSize: const Size(52, 34),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
+    ),
+    extensions: [colors],
     pageTransitionsTheme: _transitions,
   );
 }
@@ -135,11 +166,34 @@ ThemeData buildTeenpleDarkTheme() {
       backgroundColor: colors.cardBg,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
+        fontSize: 14,
+        fontWeight: FontWeight.w800,
         color: colors.textPrimary,
       ),
-      contentTextStyle: TextStyle(fontSize: 13, color: colors.textSecondary),
+      contentTextStyle: TextStyle(
+        fontSize: 12,
+        height: 1.45,
+        color: colors.textSecondary,
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      contentTextStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        textStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
+        minimumSize: const Size(52, 34),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

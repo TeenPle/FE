@@ -322,7 +322,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
             icon: Icons.notifications_outlined,
             label: '전체 알림',
             value: setting.allowPush,
-            onChanged: (v) => _update(context, ref, {'allowPush': v}),
+            onChanged: (v) => _update(context, ref, _pushPatch(v)),
           ),
           const _Divider(),
           _NotificationToggleTile(
@@ -380,6 +380,17 @@ class _NotificationSettingsCard extends ConsumerWidget {
             ).showSnackBar(const SnackBar(content: Text('설정 저장에 실패했습니다.')));
           }
         });
+  }
+
+  Map<String, dynamic> _pushPatch(bool allowPush) {
+    if (!allowPush) return {'allowPush': false};
+    return {
+      'allowPush': true,
+      'allowCommentNotification': true,
+      'allowReplyNotification': true,
+      'allowLikeNotification': true,
+      'allowChatNotification': true,
+    };
   }
 }
 

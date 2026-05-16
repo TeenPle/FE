@@ -5,11 +5,11 @@ import 'package:flutter/foundation.dart';
 /// - 디버그 Android 에뮬레이터: 10.0.2.2 (호스트 루프백)
 /// - 디버그 Windows/Linux/macOS/iOS 시뮬레이터: localhost
 String get apiBaseUrl {
+  const configuredUrl = String.fromEnvironment('API_BASE_URL');
+  if (configuredUrl.isNotEmpty) return configuredUrl;
+
   if (kReleaseMode) {
-    return const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'https://api.teenple.com',
-    );
+    return 'https://api.teenple.com';
   }
   if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
     const isPhysical = bool.fromEnvironment('USE_PHYSICAL', defaultValue: false);

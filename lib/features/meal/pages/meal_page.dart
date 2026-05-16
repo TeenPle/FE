@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
 import '../models/meal_model.dart';
 import '../provider/meal_provider.dart';
 
@@ -17,7 +20,10 @@ class _MealPageState extends ConsumerState<MealPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(mealProvider.notifier).init());
+    Future.microtask(() {
+      ref.read(mealProvider.notifier).init();
+      ref.read(chatRoomListProvider.notifier).load();
+    });
   }
 
   @override
@@ -30,22 +36,26 @@ class _MealPageState extends ConsumerState<MealPage> {
       5,
       (index) => weekStart.add(Duration(days: index)),
     );
+    final chatUnreadCount = ref
+        .watch(chatRoomListProvider)
+        .rooms
+        .fold(0, (sum, room) => sum + room.unreadCount);
 
     return Scaffold(
       backgroundColor: c.pageBg,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 2,
+        chatUnreadCount: chatUnreadCount,
+        onTap: (index) => _goMainTab(context, index),
+      ),
       appBar: AppBar(
         backgroundColor: c.pageBg,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          color: c.iconPrimary,
-          onPressed: () => context.pop(),
-        ),
         title: Text(
           '급식',
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -104,6 +114,25 @@ class _MealPageState extends ConsumerState<MealPage> {
   }
 }
 
+void _goMainTab(BuildContext context, int index) {
+  switch (index) {
+    case 0:
+      context.go(AppRoutes.school);
+      return;
+    case 1:
+      context.go(AppRoutes.chat);
+      return;
+    case 2:
+      return;
+    case 3:
+      context.go(AppRoutes.timetable);
+      return;
+    case 4:
+      context.go(AppRoutes.profile);
+      return;
+  }
+}
+
 class _WeekNavigator extends StatelessWidget {
   final DateTime weekStart;
   final VoidCallback onPrev;
@@ -136,7 +165,7 @@ class _WeekNavigator extends StatelessWidget {
                 const Text(
                   '이번 주 급식',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF14A3F7),
                   ),
@@ -145,7 +174,7 @@ class _WeekNavigator extends StatelessWidget {
                 Text(
                   '${_monthDay(weekStart)} - ${_monthDay(weekEnd)}',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w900,
                     color: c.textPrimary,
                   ),
@@ -244,7 +273,7 @@ class _WeekDayTile extends StatelessWidget {
             Text(
               _weekdayLabel(date),
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w800,
                 color: subColor,
               ),
@@ -253,7 +282,7 @@ class _WeekDayTile extends StatelessWidget {
             Text(
               '${date.day}',
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.w900,
                 color: foreground,
               ),
@@ -321,7 +350,7 @@ class _SelectedMealCard extends StatelessWidget {
                   Text(
                     '${_monthDay(date)} ${_weekdayLabel(date)}요일',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w900,
                       color: c.textPrimary,
                     ),
@@ -330,7 +359,7 @@ class _SelectedMealCard extends StatelessWidget {
                   Text(
                     '중식',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: c.textMuted,
                     ),
@@ -351,7 +380,7 @@ class _SelectedMealCard extends StatelessWidget {
                   child: Text(
                     meal!.calories,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF14A3F7),
                     ),
@@ -383,7 +412,7 @@ class _SelectedMealCard extends StatelessWidget {
                       child: Text(
                         dish,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: c.textBody,
                           height: 1.4,
@@ -429,7 +458,7 @@ class _WeeklySummaryCard extends StatelessWidget {
           Text(
             '이번 주 한눈에 보기',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
               color: c.textPrimary,
             ),
@@ -490,7 +519,7 @@ class _WeeklySummaryRow extends StatelessWidget {
               child: Text(
                 _weekdayLabel(date),
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.w900,
                   color: selected ? Colors.white : c.textMuted,
                 ),
@@ -503,7 +532,7 @@ class _WeeklySummaryRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: meal == null ? c.textTertiary : c.textBody,
                 ),
@@ -575,7 +604,7 @@ class _EmptyMealInline extends StatelessWidget {
             Text(
               '이 날짜에는 급식 정보가 없어요.',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: c.textSecondary,
               ),
@@ -602,7 +631,7 @@ class _NeisNotConfigured extends StatelessWidget {
           Text(
             '급식 서비스가 연결되지 않았어요',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: c.textSecondary,
             ),
@@ -610,7 +639,7 @@ class _NeisNotConfigured extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '학교 NEIS 정보가 아직 등록되지 않았어요.',
-            style: TextStyle(fontSize: 11, color: c.textTertiary),
+            style: TextStyle(fontSize: 10, color: c.textTertiary),
           ),
         ],
       ),
@@ -632,7 +661,7 @@ class _ErrorState extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, color: c.textTertiary),
+          style: TextStyle(fontSize: 11, color: c.textTertiary),
         ),
       ),
     );

@@ -7,6 +7,9 @@ import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/tap_scale.dart';
 import '../../models/post_summary.dart';
 
+const Color _likeAccentColor = Color(0xFFE2556F);
+const Color _commentAccentColor = Color(0xFF2F80ED);
+
 class PostSummaryCard extends StatelessWidget {
   final PostSummary post;
   final VoidCallback? onTap;
@@ -34,8 +37,7 @@ class PostSummaryCard extends StatelessWidget {
 
   String get _viewText =>
       post.viewCount >= 9999 ? '9999+' : '${post.viewCount}';
-  String get _likeText =>
-      post.likeCount >= 100 ? '100+' : '${post.likeCount}';
+  String get _likeText => post.likeCount >= 100 ? '100+' : '${post.likeCount}';
   String get _commentText =>
       post.commentCount >= 50 ? '50+' : '${post.commentCount}';
 
@@ -111,13 +113,17 @@ class PostSummaryCard extends StatelessWidget {
                                 _StatChip(
                                   icon: Icons.favorite_border_rounded,
                                   text: _likeText,
-                                  color: c.iconMuted,
+                                  color: _likeAccentColor,
+                                  emphasized: post.likeCount > 0,
                                 ),
                                 const SizedBox(width: 10),
                                 _StatChip(
                                   icon: Icons.chat_bubble_outline_rounded,
                                   text: _commentText,
-                                  color: c.iconMuted,
+                                  color: post.commentCount > 0
+                                      ? _commentAccentColor
+                                      : c.iconMuted,
+                                  emphasized: post.commentCount > 0,
                                 ),
                               ],
                             ),
@@ -132,10 +138,8 @@ class PostSummaryCard extends StatelessWidget {
                             imageUrl: thumbnailUrl,
                             width: 90,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              width: 90,
-                              color: c.subtleBg,
-                            ),
+                            placeholder: (context, url) =>
+                                Container(width: 90, color: c.subtleBg),
                             errorWidget: (context, url, error) => Container(
                               width: 90,
                               color: c.border,
@@ -248,8 +252,7 @@ class _TitleLine extends StatelessWidget {
         if (hasPoll) ...[
           const SizedBox(width: 6),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: const Color(0xFFEDF5FF),
               borderRadius: BorderRadius.circular(4),
@@ -275,11 +278,13 @@ class _StatChip extends StatelessWidget {
   final IconData icon;
   final String text;
   final Color color;
+  final bool emphasized;
 
   const _StatChip({
     required this.icon,
     required this.text,
     required this.color,
+    this.emphasized = false,
   });
 
   @override
@@ -293,7 +298,7 @@ class _StatChip extends StatelessWidget {
           text,
           style: TextStyle(
             fontSize: 11,
-            fontWeight: FontWeight.w400,
+            fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
             color: color,
             letterSpacing: 0,
           ),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -172,43 +172,10 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
   }
 
   void _showMemoDialog(BuildContext context) {
-    final controller = TextEditingController();
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text(
-          '오늘 메모',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: 40,
-          decoration: const InputDecoration(
-            hintText: '예) 체육복 챙기기',
-            counterText: '',
-            border: OutlineInputBorder(),
-          ),
-          onSubmitted: (value) {
-            _addMemo(value);
-            Navigator.pop(ctx);
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              _addMemo(controller.text);
-              Navigator.pop(ctx);
-            },
-            child: const Text('추가', style: TextStyle(color: Color(0xFF14A3F7))),
-          ),
-        ],
-      ),
-    ).whenComplete(controller.dispose);
+      builder: (ctx) => _MemoDialogContent(onSubmit: _addMemo),
+    );
   }
 
   void _showResetConfirmDialog(BuildContext context) {
@@ -230,11 +197,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           ),
           content: Text(
             '직접 입력한 과목이 모두 사라지고,\n학교에서 제공한 시간표로 되돌아가요.',
-            style: TextStyle(
-              fontSize: 11,
-              color: bc.textBody,
-              height: 1.55,
-            ),
+            style: TextStyle(fontSize: 11, color: bc.textBody, height: 1.55),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           actions: [
@@ -344,11 +307,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 const SizedBox(height: 4),
                 Text(
                   'NEIS 원본: $neisSubject',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: bc.textMuted,
-                  ),
-                  style: TextStyle(fontSize: 11, color: bc.textMuted),
+                  style: TextStyle(fontSize: 10, color: bc.textMuted),
                 ),
               ],
               const SizedBox(height: 16),
@@ -485,6 +444,64 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           ),
         );
       },
+    );
+  }
+}
+
+class _MemoDialogContent extends StatefulWidget {
+  final ValueChanged<String> onSubmit;
+
+  const _MemoDialogContent({required this.onSubmit});
+
+  @override
+  State<_MemoDialogContent> createState() => _MemoDialogContentState();
+}
+
+class _MemoDialogContentState extends State<_MemoDialogContent> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    widget.onSubmit(_controller.text);
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('오늘 메모', style: TextStyle(fontWeight: FontWeight.w800)),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLength: 40,
+        decoration: const InputDecoration(
+          hintText: '예) 체육복 챙기기',
+          counterText: '',
+          border: OutlineInputBorder(),
+        ),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: _submit,
+          child: const Text('추가', style: TextStyle(color: Color(0xFF14A3F7))),
+        ),
+      ],
     );
   }
 }
@@ -645,11 +662,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 13,
-                color: c.textMuted,
-              ),
+              Icon(Icons.info_outline_rounded, size: 13, color: c.textMuted),
               const SizedBox(width: 5),
               Expanded(
                 child: Text(
@@ -774,10 +787,7 @@ class _WeekNavigator extends ConsumerWidget {
               if (state.classRoom != null)
                 Text(
                   '${state.week?.grade ?? '?'}학년 ${state.classRoom}반',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: c.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 10, color: c.textMuted),
                 ),
             ],
           ),

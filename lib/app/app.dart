@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/theme_provider.dart';
+import '../core/widgets/app_snack_bar.dart';
 import 'routes.dart';
 import 'theme.dart';
 
@@ -19,15 +20,13 @@ class TeenpleApp extends ConsumerWidget {
       darkTheme: buildTeenpleDarkTheme(),
       themeMode: themeMode,
       locale: const Locale('ko', 'KR'),
-      supportedLocales: const [
-        Locale('ko', 'KR'),
-        Locale('en', 'US'),
-      ],
+      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      scaffoldMessengerKey: appScaffoldMessengerKey,
       builder: (context, child) {
         return ColoredBox(
           color: Theme.of(context).scaffoldBackgroundColor,

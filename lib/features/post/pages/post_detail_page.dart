@@ -6,6 +6,7 @@ import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../models/post_detail.dart';
 import '../provider/post_detail_providers.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../../chat/api/chat_api.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
 import '../../penalty/provider/penalty_provider.dart';
@@ -22,10 +23,7 @@ import '../../../core/widgets/school_main_ad_card.dart';
 class PostDetailPage extends ConsumerStatefulWidget {
   final int postId;
 
-  const PostDetailPage({
-    super.key,
-    required this.postId,
-  });
+  const PostDetailPage({super.key, required this.postId});
 
   @override
   ConsumerState<PostDetailPage> createState() => _PostDetailPageState();
@@ -41,8 +39,9 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 이 게시글을 보고 있음을 알림 억제 로직에 알린다.
-      ref.read(activePageProvider.notifier).state =
-          ActivePage(postId: widget.postId);
+      ref.read(activePageProvider.notifier).state = ActivePage(
+        postId: widget.postId,
+      );
       ref.read(postDetailProvider(widget.postId).notifier).loadPostDetail();
     });
   }
@@ -64,28 +63,28 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     final notifier = ref.read(postDetailProvider(widget.postId).notifier);
     final post = state.post;
     final c = context.colors;
+    final isPenalized = ref.watch(
+      activePenaltyProvider.select((s) => s.isPenalized),
+    );
 
     ref.listen(postDetailProvider(widget.postId), (previous, next) async {
       if (!mounted) return;
 
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        showAppSnackBar(next.errorMessage!);
         notifier.clearMessages();
       }
 
       if (next.successMessage != null &&
           next.successMessage != previous?.successMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.successMessage!)),
-        );
+        showAppSnackBar(next.successMessage!);
         notifier.clearMessages();
       }
 
       /// 게시글 삭제 후 이전 화면으로 이동
-      if (next.shouldClosePage && next.shouldClosePage != previous?.shouldClosePage) {
+      if (next.shouldClosePage &&
+          next.shouldClosePage != previous?.shouldClosePage) {
         notifier.clearClosePageFlag();
         if (mounted) context.pop(true);
       }
@@ -112,6 +111,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             icon: Icon(Icons.more_horiz, color: c.iconPrimary),
             onSelected: (value) async {
               if (value == 'edit' && post != null) {
+                if (isPenalized) {
+                  showAppSnackBar('제재 중에는 게시글을 수정할 수 없어요.');
+                  return;
+                }
+
                 final updated = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (_) => WritePostPage(
@@ -123,13 +127,16 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                       initialContent: post.content,
                       initialAnonymous: post.anonymous,
                       initialMediaList: post.mediaList,
-                      initialPollOptions: post.poll?.options.map((e) => e.text).toList(),
+                      initialPollOptions: post.poll?.options
+                          .map((e) => e.text)
+                          .toList(),
                     ),
                   ),
                 );
 
                 if (updated == true) {
                   await notifier.loadPostDetail();
+                  showAppSnackBar('게시글이 수정되었습니다.');
                 }
               } else if (value == 'delete') {
                 final confirmed = await _showDeleteConfirmDialog(
@@ -143,14 +150,16 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 }
               } else if (value == 'chat') {
                 if (post == null) return;
+                if (isPenalized) {
+                  showAppSnackBar('제재 중에는 채팅을 시작할 수 없어요.');
+                  return;
+                }
                 if (post.isMine) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('자신의 게시글에는 채팅할 수 없습니다.')),
-                  );
-                } else if (post.authorDeleted || !post.canChatWithAuthor || post.authorId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('채팅을 시작할 수 없습니다.')),
-                  );
+                  showAppSnackBar('자신의 게시글에는 채팅할 수 없습니다.');
+                } else if (post.authorDeleted ||
+                    !post.canChatWithAuthor ||
+                    post.authorId == null) {
+                  showAppSnackBar('채팅을 시작할 수 없습니다.');
                 } else {
                   await _startChat(
                     context: context,
@@ -159,28 +168,34 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     post: post,
                   );
                 }
-              } else if (value == 'report' && post != null && post.canReportAuthor) {
+              } else if (value == 'report' &&
+                  post != null &&
+                  post.canReportAuthor) {
                 _showReportSheet(
                   context,
                   onSubmit: (reason) {
                     notifier.reportPost(reason);
                   },
                 );
-              } else if (value == 'block' && post != null && post.canBlockAuthor && post.authorUserId != null) {
+              } else if (value == 'block' &&
+                  post != null &&
+                  post.canBlockAuthor &&
+                  post.authorUserId != null) {
                 final confirmed = await _showBlockConfirmDialog(context);
                 if (confirmed == true && mounted) {
                   try {
-                    await ref.read(blockActionProvider).block(post.authorUserId!);
+                    await ref
+                        .read(blockActionProvider)
+                        .block(post.authorUserId!);
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
-                      );
+                      showAppSnackBar('해당 사용자를 차단했습니다.');
                       context.pop(true);
                     }
                   } catch (_) {
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('차단 처리에 실패했습니다.')),
+                      showAppSnackBar(
+                        '차단 처리에 실패했습니다.',
+                        backgroundColor: const Color(0xFFE05C7B),
                       );
                     }
                   }
@@ -189,9 +204,13 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             },
             itemBuilder: (context) => [
               if (post != null && post.isMine) ...[
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'edit',
-                  child: _CompactMenuText('수정하기'),
+                  enabled: !isPenalized,
+                  child: _CompactMenuText(
+                    '수정하기',
+                    color: isPenalized ? c.textTertiary : null,
+                  ),
                 ),
                 const PopupMenuItem(
                   value: 'delete',
@@ -209,7 +228,9 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     value: 'report',
                     child: _CompactMenuText('신고하기'),
                   ),
-                if (post != null && post.canBlockAuthor && post.authorUserId != null)
+                if (post != null &&
+                    post.canBlockAuthor &&
+                    post.authorUserId != null)
                   const PopupMenuItem(
                     value: 'block',
                     child: _CompactMenuText('차단하기', color: Color(0xFFE05C5C)),
@@ -221,9 +242,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
       ),
       bottomNavigationBar: Builder(
         builder: (context) {
-          final isPenalized = ref.watch(
-            activePenaltyProvider.select((s) => s.isPenalized),
-          );
           if (isPenalized) return const SizedBox.shrink();
           return CommentInputBar(
             anonymous: state.commentAnonymous,
@@ -239,145 +257,172 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ? const Center(child: CircularProgressIndicator())
           : post == null
           ? Center(
-        child: Text(
-          state.errorMessage ?? '게시글을 불러오지 못했습니다.',
-          style: TextStyle(color: c.textBody),
-        ),
-      )
+              child: Text(
+                state.errorMessage ?? '게시글을 불러오지 못했습니다.',
+                style: TextStyle(color: c.textBody),
+              ),
+            )
           : RefreshIndicator(
-        onRefresh: notifier.refresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 120),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: PostContentCard(post: post),
-            ),
-            if (post.poll != null) ...[
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: PollCard(
-                  poll: post.poll!,
-                  isSubmitting: state.isSubmittingReaction,
-                  onVote: notifier.votePoll,
-                ),
-              ),
-            ],
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: PostActionBar(
-                likeCount: post.likeCount,
-                commentCount: state.comments.length,
-                likedByMe: state.likedByMe,
-                bookmarkedByMe: state.bookmarkedByMe,
-                onBookmarkTap: () => notifier.toggleBookmark(),
-                onLikeTap: () => notifier.toggleLike(),
-                onShareTap: () {
-                  debugPrint('share post: ${post.postId}');
-                },
-              ),
-            ),
-            const SizedBox(height: 4),
-            const SchoolMainAdCard(fullBleed: true),
-            const SizedBox(height: 8),
-            Container(
-              height: 1,
-              color: c.divider,
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _CommentSectionHeader(commentCount: state.comments.length),
-            ),
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-              children: _buildCommentWidgets(
-                comments: state.comments,
-                replyingToCommentId: state.replyingToCommentId,
-                onReplyTap: (commentId, isReply) {
-                  notifier.startReply(commentId, isReply: isReply);
-                },
-                onCommentLikeTap: (commentId) => notifier.likeComment(commentId),
-                likedCommentIds: state.likedCommentIds,
-                onCommentChatTap: (comment) async {
-                  if (comment.isMine) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('자신의 댓글에는 채팅할 수 없습니다.')),
-                    );
-                    return;
-                  }
-                  if (!comment.canChatWithAuthor || comment.authorUserId == null || post == null) return;
-                  await _startChat(
-                    context: context,
-                    ref: ref,
-                    otherUserId: comment.authorUserId!,
-                    post: post,
-                  );
-                },
-                onCommentReportTap: (commentId) {
-                  _showReportSheet(
-                    context,
-                    onSubmit: (reason) {
-                      notifier.reportComment(commentId, reason);
-                    },
-                  );
-                },
-                onCommentEditTap: (comment) {
-                  _showEditCommentDialog(
-                    context,
-                    initialContent: comment.content,
-                    initialAnonymous: comment.anonymous,
-                    onSubmit: (content, anonymous) {
-                      notifier.updateComment(
-                        commentId: comment.commentId,
-                        content: content,
-                        anonymous: anonymous,
-                      );
-                    },
-                  );
-                },
-                onCommentDeleteTap: (commentId) async {
-                  final confirmed = await _showDeleteConfirmDialog(
-                    context,
-                    title: '댓글을 삭제할까요?',
-                    description: '삭제한 댓글은 되돌릴 수 없습니다.',
-                  );
+              onRefresh: notifier.refresh,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 120),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: PostContentCard(post: post),
+                  ),
+                  if (post.poll != null) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: PollCard(
+                        poll: post.poll!,
+                        isSubmitting: state.isSubmittingReaction,
+                        onVote: notifier.votePoll,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: PostActionBar(
+                      likeCount: post.likeCount,
+                      commentCount: state.comments.length,
+                      likedByMe: state.likedByMe,
+                      bookmarkedByMe: state.bookmarkedByMe,
+                      onBookmarkTap: () => notifier.toggleBookmark(),
+                      onLikeTap: () {
+                        if (isPenalized) {
+                          showAppSnackBar('제재 중에는 공감할 수 없어요.');
+                          return;
+                        }
+                        notifier.toggleLike();
+                      },
+                      onShareTap: () {
+                        debugPrint('share post: ${post.postId}');
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const SchoolMainAdCard(fullBleed: true),
+                  const SizedBox(height: 8),
+                  Container(height: 1, color: c.divider),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: _CommentSectionHeader(
+                      commentCount: state.comments.length,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: _buildCommentWidgets(
+                        comments: state.comments,
+                        replyingToCommentId: state.replyingToCommentId,
+                        onReplyTap: (commentId, isReply) {
+                          if (isPenalized) {
+                            showAppSnackBar('제재 중에는 댓글을 작성할 수 없어요.');
+                            return;
+                          }
+                          notifier.startReply(commentId, isReply: isReply);
+                        },
+                        onCommentLikeTap: (commentId) {
+                          if (isPenalized) {
+                            showAppSnackBar('제재 중에는 공감할 수 없어요.');
+                            return;
+                          }
+                          notifier.likeComment(commentId);
+                        },
+                        likedCommentIds: state.likedCommentIds,
+                        onCommentChatTap: (comment) async {
+                          if (isPenalized) {
+                            showAppSnackBar('제재 중에는 채팅을 시작할 수 없어요.');
+                            return;
+                          }
+                          if (comment.isMine) {
+                            showAppSnackBar('자신의 댓글에는 채팅할 수 없습니다.');
+                            return;
+                          }
+                          if (!comment.canChatWithAuthor ||
+                              comment.authorUserId == null ||
+                              post == null)
+                            return;
+                          await _startChat(
+                            context: context,
+                            ref: ref,
+                            otherUserId: comment.authorUserId!,
+                            post: post,
+                          );
+                        },
+                        onCommentReportTap: (commentId) {
+                          _showReportSheet(
+                            context,
+                            onSubmit: (reason) {
+                              notifier.reportComment(commentId, reason);
+                            },
+                          );
+                        },
+                        onCommentEditTap: (comment) {
+                          if (isPenalized) {
+                            showAppSnackBar('제재 중에는 댓글을 수정할 수 없어요.');
+                            return;
+                          }
+                          _showEditCommentDialog(
+                            context,
+                            initialContent: comment.content,
+                            initialAnonymous: comment.anonymous,
+                            onSubmit: (content, anonymous) {
+                              notifier.updateComment(
+                                commentId: comment.commentId,
+                                content: content,
+                                anonymous: anonymous,
+                              );
+                            },
+                          );
+                        },
+                        onCommentDeleteTap: (commentId) async {
+                          final confirmed = await _showDeleteConfirmDialog(
+                            context,
+                            title: '댓글을 삭제할까요?',
+                            description: '삭제한 댓글은 되돌릴 수 없습니다.',
+                          );
 
-                  if (confirmed == true) {
-                    await notifier.deleteComment(commentId);
-                  }
-                },
-                onCommentBlockTap: (authorUserId) async {
-                  final confirmed = await _showBlockConfirmDialog(context);
-                  if (confirmed == true && mounted) {
-                    try {
-                      await ref.read(blockActionProvider).block(authorUserId);
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('해당 사용자를 차단했습니다.')),
-                        );
-                        await notifier.loadPostDetail();
-                      }
-                    } catch (_) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('차단 처리에 실패했습니다.')),
-                        );
-                      }
-                    }
-                  }
-                },
+                          if (confirmed == true) {
+                            await notifier.deleteComment(commentId);
+                          }
+                        },
+                        onCommentBlockTap: (authorUserId) async {
+                          final confirmed = await _showBlockConfirmDialog(
+                            context,
+                          );
+                          if (confirmed == true && mounted) {
+                            try {
+                              await ref
+                                  .read(blockActionProvider)
+                                  .block(authorUserId);
+                              if (mounted) {
+                                showAppSnackBar('해당 사용자를 차단했습니다.');
+                                await notifier.loadPostDetail();
+                              }
+                            } catch (_) {
+                              if (mounted) {
+                                showAppSnackBar(
+                                  '차단 처리에 실패했습니다.',
+                                  backgroundColor: const Color(0xFFE05C7B),
+                                );
+                              }
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -418,8 +463,9 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     return parents.asMap().entries.map((entry) {
       final index = entry.key;
       final parent = entry.value;
-      final replies =
-      comments.where((e) => e.parentId == parent.commentId).toList();
+      final replies = comments
+          .where((e) => e.parentId == parent.commentId)
+          .toList();
 
       return Column(
         children: [
@@ -437,11 +483,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             onBlockTap: onCommentBlockTap,
           ),
           if (index != parents.length - 1)
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: context.colors.dividerBlue,
-            ),
+            Divider(height: 1, thickness: 1, color: context.colors.dividerBlue),
         ],
       );
     }).toList();
@@ -466,24 +508,26 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
       ref.read(chatRoomListProvider.notifier).load();
 
       if (context.mounted) {
-        context.push('/chat/rooms/${result['roomId']}', extra: {
-          'otherUserId': result['otherUserId'],
-          'displayName': result['displayName'] as String? ?? post.title,
-          'blocked': result['blocked'] as bool? ?? false,
-          'blockedByMe': result['blockedByMe'] as bool? ?? false,
-          'blockedByOther': result['blockedByOther'] as bool? ?? false,
-          'otherUserDeleted': result['otherUserDeleted'] as bool? ?? false,
-          'canSendMessage': result['canSendMessage'] as bool? ?? true,
-          'canReport': result['canReport'] as bool? ?? true,
-          'canBlock': result['canBlock'] as bool? ?? true,
-        });
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('채팅을 시작할 수 없습니다: $e')),
+        context.push(
+          '/chat/rooms/${result['roomId']}',
+          extra: {
+            'otherUserId': result['otherUserId'],
+            'displayName': result['displayName'] as String? ?? post.title,
+            'blocked': result['blocked'] as bool? ?? false,
+            'blockedByMe': result['blockedByMe'] as bool? ?? false,
+            'blockedByOther': result['blockedByOther'] as bool? ?? false,
+            'otherUserDeleted': result['otherUserDeleted'] as bool? ?? false,
+            'canSendMessage': result['canSendMessage'] as bool? ?? true,
+            'canReport': result['canReport'] as bool? ?? true,
+            'canBlock': result['canBlock'] as bool? ?? true,
+          },
         );
       }
+    } catch (e) {
+      showAppSnackBar(
+        '채팅을 시작할 수 없습니다: $e',
+        backgroundColor: const Color(0xFFE05C7B),
+      );
     }
   }
 }
@@ -492,9 +536,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 class _CommentSectionHeader extends StatelessWidget {
   final int commentCount;
 
-  const _CommentSectionHeader({
-    required this.commentCount,
-  });
+  const _CommentSectionHeader({required this.commentCount});
 
   @override
   Widget build(BuildContext context) {
@@ -527,10 +569,7 @@ class _CompactMenuText extends StatelessWidget {
   final String text;
   final Color? color;
 
-  const _CompactMenuText(
-      this.text, {
-        this.color,
-      });
+  const _CompactMenuText(this.text, {this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -560,22 +599,18 @@ Future<bool?> _showBlockConfirmDialog(BuildContext context) {
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text(
-            '차단하기',
-            style: TextStyle(color: Color(0xFFE05C5C)),
-          ),
+          child: const Text('차단하기', style: TextStyle(color: Color(0xFFE05C5C))),
         ),
       ],
     ),
   );
 }
 
-
 /// 신고 사유 선택 바텀시트
 void _showReportSheet(
-    BuildContext context, {
-      required ValueChanged<String> onSubmit,
-    }) {
+  BuildContext context, {
+  required ValueChanged<String> onSubmit,
+}) {
   showModalBottomSheet(
     context: context,
     backgroundColor: context.colors.cardBg,
@@ -584,12 +619,12 @@ void _showReportSheet(
     ),
     builder: (context) {
       const reasons = [
-        ('SPAM',       '스팸'),
-        ('ABUSE',      '욕설/모욕'),
-        ('OBSCENE',    '음란물/선정적 내용'),
-        ('ILLEGAL',    '불법 콘텐츠'),
+        ('SPAM', '스팸'),
+        ('ABUSE', '욕설/모욕'),
+        ('OBSCENE', '음란물/선정적 내용'),
+        ('ILLEGAL', '불법 콘텐츠'),
         ('HARASSMENT', '괴롭힘'),
-        ('ETC',        '기타'),
+        ('ETC', '기타'),
       ];
 
       return SafeArea(
@@ -608,7 +643,7 @@ void _showReportSheet(
               ),
               const SizedBox(height: 16),
               ...reasons.map(
-                    (r) => ListTile(
+                (r) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(r.$2),
                   onTap: () {
@@ -627,10 +662,10 @@ void _showReportSheet(
 
 /// 삭제 확인 다이얼로그
 Future<bool?> _showDeleteConfirmDialog(
-    BuildContext context, {
-      required String title,
-      required String description,
-    }) {
+  BuildContext context, {
+  required String title,
+  required String description,
+}) {
   return showDialog<bool>(
     context: context,
     builder: (context) {
@@ -654,11 +689,11 @@ Future<bool?> _showDeleteConfirmDialog(
 
 /// 댓글 수정 다이얼로그
 Future<void> _showEditCommentDialog(
-    BuildContext context, {
-      required String initialContent,
-      required bool initialAnonymous,
-      required void Function(String content, bool anonymous) onSubmit,
-    }) {
+  BuildContext context, {
+  required String initialContent,
+  required bool initialAnonymous,
+  required void Function(String content, bool anonymous) onSubmit,
+}) {
   final controller = TextEditingController(text: initialContent);
   bool anonymous = initialAnonymous;
 

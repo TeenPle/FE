@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/haptics.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../../../core/widgets/post_summary_skeleton.dart';
 import '../../../core/widgets/school_main_ad_card.dart';
 import '../../../core/widgets/tap_scale.dart';
@@ -32,6 +34,8 @@ import '../../post/provider/post_detail_providers.dart';
 enum _HomeTab { feed, popular, boards }
 
 const bool _showSchoolMainAdTestSlot = true;
+const String _seenPenaltyDialogKeysPrefsKey = 'seen_penalty_dialog_keys';
+const String _seenWarningDialogKeysPrefsKey = 'seen_warning_dialog_keys';
 
 class SchoolPage extends ConsumerStatefulWidget {
   const SchoolPage({super.key});
@@ -45,7 +49,6 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   final ScrollController _scrollController = ScrollController();
 
   _HomeTab _selectedTab = _HomeTab.feed;
-  bool _penaltyDialogShown = false;
   bool _warningDialogShown = false;
 
   @override
@@ -72,16 +75,28 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       if (!mounted || !dialogContext.mounted) return;
 
       final penaltyState = ref.read(activePenaltyProvider);
-      if (penaltyState.isPenalized && !_penaltyDialogShown) {
-        _penaltyDialogShown = true;
-        _showPenaltyDialog(dialogContext, penaltyState.penalty!);
+      final shouldShowPenalty =
+          penaltyState.isPenalized &&
+          await _shouldShowPenaltyDialog(penaltyState.penalty!);
+      if (!mounted || !dialogContext.mounted) return;
+
+      if (shouldShowPenalty) {
+        await _showPenaltyDialog(dialogContext, penaltyState.penalty!);
+        await _markPenaltyDialogSeen(penaltyState.penalty!);
         return;
       }
 
       final warningState = ref.read(unreadWarningProvider);
-      if (warningState.hasUnread && !_warningDialogShown) {
+      final shouldShowWarning =
+          warningState.hasUnread &&
+          !_warningDialogShown &&
+          await _shouldShowWarningDialog(warningState.warning!);
+      if (!mounted || !dialogContext.mounted) return;
+
+      if (shouldShowWarning) {
         _warningDialogShown = true;
-        _showWarningDialog(dialogContext, warningState.warning!);
+        await _showWarningDialog(dialogContext, warningState.warning!);
+        await _markWarningDialogSeen(warningState.warning!);
       }
     });
 
@@ -94,8 +109,52 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       ref.read(notificationProvider.notifier).loadUnreadCount();
       ref.read(chatRoomListProvider.notifier).load();
       ref.read(chatRoomListProvider.notifier).startRealtime();
-
     });
+  }
+
+  String _penaltyDialogKey(ActivePenaltyModel penalty) {
+    final reportPart = penalty.reportId?.toString();
+    if (reportPart != null) return 'report:$reportPart';
+
+    final expiresPart = penalty.expiresAt?.toIso8601String() ?? 'none';
+    final reasonPart = penalty.reason ?? 'unknown';
+    return 'fallback:$reasonPart:$expiresPart';
+  }
+
+  Future<bool> _shouldShowPenaltyDialog(ActivePenaltyModel penalty) async {
+    final prefs = await SharedPreferences.getInstance();
+    final seenKeys =
+        prefs.getStringList(_seenPenaltyDialogKeysPrefsKey) ?? const [];
+    return !seenKeys.contains(_penaltyDialogKey(penalty));
+  }
+
+  Future<void> _markPenaltyDialogSeen(ActivePenaltyModel penalty) async {
+    final prefs = await SharedPreferences.getInstance();
+    final seenKeys = <String>{
+      ...(prefs.getStringList(_seenPenaltyDialogKeysPrefsKey) ?? const []),
+      _penaltyDialogKey(penalty),
+    }.toList();
+    await prefs.setStringList(_seenPenaltyDialogKeysPrefsKey, seenKeys);
+  }
+
+  String _warningDialogKey(UnreadWarningModel warning) {
+    return 'warning:${warning.warningId}';
+  }
+
+  Future<bool> _shouldShowWarningDialog(UnreadWarningModel warning) async {
+    final prefs = await SharedPreferences.getInstance();
+    final seenKeys =
+        prefs.getStringList(_seenWarningDialogKeysPrefsKey) ?? const [];
+    return !seenKeys.contains(_warningDialogKey(warning));
+  }
+
+  Future<void> _markWarningDialogSeen(UnreadWarningModel warning) async {
+    final prefs = await SharedPreferences.getInstance();
+    final seenKeys = <String>{
+      ...(prefs.getStringList(_seenWarningDialogKeysPrefsKey) ?? const []),
+      _warningDialogKey(warning),
+    }.toList();
+    await prefs.setStringList(_seenWarningDialogKeysPrefsKey, seenKeys);
   }
 
   @override
@@ -166,8 +225,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       if (!mounted) return;
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+        showAppSnackBar(next.errorMessage!);
       }
     });
 
@@ -183,8 +241,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
               },
               backgroundColor: const Color(0xFF229BF3),
               elevation: 6,
-              child: const Icon(Icons.edit_rounded,
-                  color: Colors.white, size: 24),
+              child: const Icon(
+                Icons.edit_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppBottomNavBar(
@@ -281,11 +342,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
   /// 현재 탭에 맞는 슬리버 목록 반환
   List<Widget> _buildTabSlivers(SchoolState state) {
     if (state.isLoading && !state.hasLoadedOnce) {
-      return [
-        const SliverToBoxAdapter(
-          child: PostListSkeleton(count: 5),
-        ),
-      ];
+      return [const SliverToBoxAdapter(child: PostListSkeleton(count: 5))];
     }
 
     switch (_selectedTab) {
@@ -303,10 +360,10 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     final boardNames = {
       for (final board in state.boards) board.id: board.title,
     };
-    final hotIds =
-        state.topRecommendedPosts.map((post) => post.id).toSet();
-    final feedPosts =
-        state.posts.where((post) => !hotIds.contains(post.id)).toList();
+    final hotIds = state.topRecommendedPosts.map((post) => post.id).toSet();
+    final feedPosts = state.posts
+        .where((post) => !hotIds.contains(post.id))
+        .toList();
 
     if (state.posts.isEmpty && state.topRecommendedPosts.isEmpty) {
       return [
@@ -322,8 +379,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
     final showAdSlot = _showSchoolMainAdTestSlot;
     final adInsertIndex = state.topRecommendedPosts.isNotEmpty ? 1 : 0;
-    final totalPostCount =
-        state.topRecommendedPosts.length + feedPosts.length;
+    final totalPostCount = state.topRecommendedPosts.length + feedPosts.length;
     final totalItemCount =
         totalPostCount + (showAdSlot ? 1 : 0) + 1; // +1 for footer
 
@@ -352,8 +408,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
             } else if (showAdSlot && index == adInsertIndex) {
               item = const SchoolMainAdCard();
             } else {
-              final postIndex =
-                  showAdSlot && index > adInsertIndex ? index - 1 : index;
+              final postIndex = showAdSlot && index > adInsertIndex
+                  ? index - 1
+                  : index;
 
               if (postIndex < state.topRecommendedPosts.length) {
                 final post = state.topRecommendedPosts[postIndex];
@@ -367,9 +424,14 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     hot: true,
                     onTap: () async {
                       final postId = post.id;
-                      final refreshed = await context.push<bool>('/post/$postId');
+                      final refreshed = await context.push<bool>(
+                        '/post/$postId',
+                      );
                       final detailState = ref.read(postDetailProvider(postId));
-                      notifier.updatePostCommentCount(postId, detailState.comments.length);
+                      notifier.updatePostCommentCount(
+                        postId,
+                        detailState.comments.length,
+                      );
                       if (refreshed == true && mounted) {
                         notifier.reloadCurrentBoard();
                       }
@@ -377,8 +439,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                   ),
                 );
               } else {
-                final feedIndex =
-                    postIndex - state.topRecommendedPosts.length;
+                final feedIndex = postIndex - state.topRecommendedPosts.length;
                 final post = feedPosts[feedIndex];
                 item = Container(
                   color: context.colors.pageBg,
@@ -389,9 +450,14 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                     categoryLabel: boardNames[post.boardId],
                     onTap: () async {
                       final postId = post.id;
-                      final refreshed = await context.push<bool>('/post/$postId');
+                      final refreshed = await context.push<bool>(
+                        '/post/$postId',
+                      );
                       final detailState = ref.read(postDetailProvider(postId));
-                      notifier.updatePostCommentCount(postId, detailState.comments.length);
+                      notifier.updatePostCommentCount(
+                        postId,
+                        detailState.comments.length,
+                      );
                       if (refreshed == true && mounted) {
                         notifier.reloadCurrentBoard();
                       }
@@ -434,13 +500,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
         const SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.only(top: 64),
-            child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2.4)),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
           ),
         )
       else if (state.hotPosts.isEmpty)
-        SliverToBoxAdapter(
-            child: _EmptyPopularState(filter: state.hotFilter))
+        SliverToBoxAdapter(child: _EmptyPopularState(filter: state.hotFilter))
       else
         SliverList.separated(
           itemCount: state.hotPosts.length,
@@ -468,9 +532,16 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                       categoryLabel: boardNames[post.boardId],
                       onTap: () async {
                         final postId = post.id;
-                        final refreshed = await context.push<bool>('/post/$postId');
-                        final detailState = ref.read(postDetailProvider(postId));
-                        notifier.updatePostCommentCount(postId, detailState.comments.length);
+                        final refreshed = await context.push<bool>(
+                          '/post/$postId',
+                        );
+                        final detailState = ref.read(
+                          postDetailProvider(postId),
+                        );
+                        notifier.updatePostCommentCount(
+                          postId,
+                          detailState.comments.length,
+                        );
                         if (refreshed == true && mounted) {
                           notifier.loadHotPosts();
                         }
@@ -509,8 +580,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
         padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
         sliver: SliverList.separated(
           itemCount: visibleBoards.length,
-          separatorBuilder: (context, index) =>
-              const SizedBox(height: 10),
+          separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final board = visibleBoards[index];
             return AnimationConfiguration.staggeredList(
@@ -555,13 +625,17 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                                     color: c.tintBg,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(Icons.tag_rounded,
-                                      color: Color(0xFF14A3F7), size: 22),
+                                  child: const Icon(
+                                    Icons.tag_rounded,
+                                    color: Color(0xFF14A3F7),
+                                    size: 22,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         board.title,
@@ -590,8 +664,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Icon(Icons.chevron_right_rounded,
-                                    color: c.iconSecondary, size: 24),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: c.iconSecondary,
+                                  size: 24,
+                                ),
                               ],
                             ),
                           );
@@ -612,8 +689,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     // 활성화된 학교 게시판만 노출 (지역 게시판은 아직 미지원이므로 제외)
     final activeBoards = boards.where((b) => b.active && !b.isRegion).toList();
     if (activeBoards.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('글을 작성할 게시판이 없어요.')));
+      showAppSnackBar('글을 작성할 게시판이 없어요.');
       return;
     }
 
@@ -626,8 +702,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
     await ref.read(schoolProvider.notifier).refreshPosts();
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('게시글이 등록되었어요.')));
+    showAppSnackBar('게시글이 등록되었습니다.');
   }
 }
 
@@ -637,10 +712,7 @@ class _HomeTabBar extends StatelessWidget {
   final _HomeTab selectedTab;
   final ValueChanged<_HomeTab> onChanged;
 
-  const _HomeTabBar({
-    required this.selectedTab,
-    required this.onChanged,
-  });
+  const _HomeTabBar({required this.selectedTab, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -738,11 +810,8 @@ class _HomeTabButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               height: 1.05,
-              fontWeight:
-                  selected ? FontWeight.w800 : FontWeight.w600,
-              color: selected
-                  ? Colors.white
-                  : context.colors.textTertiary,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              color: selected ? Colors.white : context.colors.textTertiary,
               letterSpacing: 0,
             ),
           ),
@@ -758,10 +827,7 @@ class _HotFilterRow extends StatelessWidget {
   final HotFilter selected;
   final ValueChanged<HotFilter> onChanged;
 
-  const _HotFilterRow({
-    required this.selected,
-    required this.onChanged,
-  });
+  const _HotFilterRow({required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -776,28 +842,33 @@ class _HotFilterRow extends StatelessWidget {
               onChanged(filter);
             },
             borderRadius: BorderRadius.circular(999),
-            child: Builder(builder: (context) {
-              final c = context.colors;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 160),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFFF6B35) : c.cardBg,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: isSelected ? const Color(0xFFFF6B35) : c.border,
+            child: Builder(
+              builder: (context) {
+                final c = context.colors;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
                   ),
-                ),
-                child: Text(
-                  filter.label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: isSelected ? Colors.white : c.textMuted,
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFFFF6B35) : c.cardBg,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFFFF6B35) : c.border,
+                    ),
                   ),
-                ),
-              );
-            }),
+                  child: Text(
+                    filter.label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: isSelected ? Colors.white : c.textMuted,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         );
       }).toList(),
@@ -860,7 +931,9 @@ class _SchoolMainAdCard extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 3),
+                              horizontal: 7,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFF4DF),
                               borderRadius: BorderRadius.circular(999),
@@ -942,10 +1015,7 @@ class _PagingFooter extends StatelessWidget {
   final bool hasNext;
   final bool isLoading;
 
-  const _PagingFooter({
-    required this.hasNext,
-    required this.isLoading,
-  });
+  const _PagingFooter({required this.hasNext, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
@@ -1066,7 +1136,10 @@ class _EmptyState extends StatelessWidget {
 
 // ─── 다이얼로그 ──────────────────────────────────────────
 
-void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
+Future<void> _showPenaltyDialog(
+  BuildContext context,
+  ActivePenaltyModel penalty,
+) {
   final expiresAt = penalty.expiresAt;
   final reasonLabel = penalty.reasonLabel;
 
@@ -1077,12 +1150,11 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
         '${expiresAt.hour.toString().padLeft(2, '0')}:${expiresAt.minute.toString().padLeft(2, '0')}';
   }
 
-  showDialog(
+  return showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           const Icon(Icons.gavel_rounded, color: Color(0xFFE05C7B), size: 22),
@@ -1104,7 +1176,10 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
           const Text(
             '커뮤니티 규칙 위반으로 일부 기능이 제한되었어요.',
             style: TextStyle(
-                fontSize: 12, color: Color(0xFF444444), height: 1.5),
+              fontSize: 12,
+              color: Color(0xFF444444),
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 16),
           _DialogInfoRow(label: '사유', value: reasonLabel),
@@ -1120,7 +1195,10 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
             child: const Text(
               '제한 기간에는 게시글, 댓글 작성과 채팅이 제한돼요. 게시글 열람은 가능해요.',
               style: TextStyle(
-                  fontSize: 11, color: Color(0xFFE05C7B), height: 1.5),
+                fontSize: 11,
+                color: Color(0xFFE05C7B),
+                height: 1.5,
+              ),
             ),
           ),
         ],
@@ -1131,7 +1209,9 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
           child: const Text(
             '확인',
             style: TextStyle(
-                fontWeight: FontWeight.w700, color: Color(0xFF14A3F7)),
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF14A3F7),
+            ),
           ),
         ),
       ],
@@ -1139,8 +1219,11 @@ void _showPenaltyDialog(BuildContext context, ActivePenaltyModel penalty) {
   );
 }
 
-void _showWarningDialog(BuildContext context, UnreadWarningModel warning) {
-  showDialog(
+Future<void> _showWarningDialog(
+  BuildContext context,
+  UnreadWarningModel warning,
+) {
+  return showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (ctx) => _WarningDialog(warning: warning),
@@ -1158,12 +1241,14 @@ class _WarningDialog extends ConsumerWidget {
         '${warning.issuedAt.year}.${warning.issuedAt.month.toString().padLeft(2, '0')}.${warning.issuedAt.day.toString().padLeft(2, '0')}';
 
     return AlertDialog(
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded,
-              color: Color(0xFFF59E0B), size: 22),
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: Color(0xFFF59E0B),
+            size: 22,
+          ),
           const SizedBox(width: 8),
           Text(
             '관리자 경고',
@@ -1182,15 +1267,16 @@ class _WarningDialog extends ConsumerWidget {
           const Text(
             '커뮤니티 규칙 위반으로 관리자 경고를 받았어요.',
             style: TextStyle(
-                fontSize: 12, color: Color(0xFF444444), height: 1.5),
+              fontSize: 12,
+              color: Color(0xFF444444),
+              height: 1.5,
+            ),
           ),
-          if (warning.targetType != null &&
-              warning.targetSummary != null) ...[
+          if (warning.targetType != null && warning.targetSummary != null) ...[
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8F9FA),
                 borderRadius: BorderRadius.circular(8),
@@ -1234,16 +1320,16 @@ class _WarningDialog extends ConsumerWidget {
             child: Text(
               warning.adminComment,
               style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF78350F),
-                  height: 1.5),
+                fontSize: 12,
+                color: Color(0xFF78350F),
+                height: 1.5,
+              ),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             '경고 일시: $issuedStr',
-            style: const TextStyle(
-                fontSize: 11, color: Color(0xFF9AA7B2)),
+            style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
           ),
           const SizedBox(height: 8),
           Container(
@@ -1255,9 +1341,10 @@ class _WarningDialog extends ConsumerWidget {
             child: const Text(
               '경고 누적 시 이용이 제한될 수 있어요.',
               style: TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF6B7280),
-                  height: 1.4),
+                fontSize: 11,
+                color: Color(0xFF6B7280),
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -1273,8 +1360,9 @@ class _WarningDialog extends ConsumerWidget {
           child: const Text(
             '확인했어요',
             style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFF59E0B)),
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFF59E0B),
+            ),
           ),
         ),
       ],

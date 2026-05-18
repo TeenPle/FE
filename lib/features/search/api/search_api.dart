@@ -32,10 +32,7 @@ class SearchApi {
           .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      return BoardPostPage(
-        posts: content,
-        hasNext: map['hasNext'] as bool? ?? false,
-      );
+      return BoardPostPage(posts: content, hasNext: _hasNext(map));
     });
 
     if (!response.isSuccess || response.result == null) {
@@ -43,5 +40,15 @@ class SearchApi {
     }
 
     return response.result!;
+  }
+
+  bool _hasNext(Map<String, dynamic> map) {
+    if (map['hasNext'] is bool) {
+      return map['hasNext'] as bool;
+    }
+    if (map['last'] is bool) {
+      return !(map['last'] as bool);
+    }
+    return false;
   }
 }

@@ -9,9 +9,7 @@ import '../models/school_response.dart';
 class SchoolApi {
   final AppApiClient client;
 
-  const SchoolApi({
-    required this.client,
-  });
+  const SchoolApi({required this.client});
 
   /// 학교 상세와 기본 게시판 미리보기 데이터를 조회
   Future<SchoolResponse> getSchoolDetail({
@@ -21,15 +19,12 @@ class SchoolApi {
   }) async {
     final json = await client.get(
       '/api/schools/$schoolId',
-      queryParameters: {
-        'page': '$page',
-        'size': '$size',
-      },
+      queryParameters: {'page': '$page', 'size': '$size'},
     );
 
     final response = ApiResponse.fromJson(
       json,
-          (data) => SchoolResponse.fromJson(data as Map<String, dynamic>),
+      (data) => SchoolResponse.fromJson(data as Map<String, dynamic>),
     );
 
     if (!response.isSuccess || response.result == null) {
@@ -57,20 +52,14 @@ class SchoolApi {
       },
     );
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) {
-        final map = data as Map<String, dynamic>;
-        final content = (map['content'] as List<dynamic>? ?? [])
-            .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
-            .toList();
+    final response = ApiResponse.fromJson(json, (data) {
+      final map = data as Map<String, dynamic>;
+      final content = (map['content'] as List<dynamic>? ?? [])
+          .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-        return BoardPostPage(
-          posts: content,
-          hasNext: map['hasNext'] as bool? ?? false,
-        );
-      },
-    );
+      return BoardPostPage(posts: content, hasNext: _hasNext(map));
+    });
 
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
@@ -87,25 +76,16 @@ class SchoolApi {
   }) async {
     final json = await client.get(
       '/api/schools/$schoolId/posts',
-      queryParameters: {
-        'page': '$page',
-        'size': '$size',
-      },
+      queryParameters: {'page': '$page', 'size': '$size'},
     );
 
-    final response = ApiResponse.fromJson(
-      json,
-      (data) {
-        final map = data as Map<String, dynamic>;
-        final content = (map['content'] as List<dynamic>? ?? [])
-            .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
-            .toList();
-        return BoardPostPage(
-          posts: content,
-          hasNext: map['hasNext'] as bool? ?? false,
-        );
-      },
-    );
+    final response = ApiResponse.fromJson(json, (data) {
+      final map = data as Map<String, dynamic>;
+      final content = (map['content'] as List<dynamic>? ?? [])
+          .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return BoardPostPage(posts: content, hasNext: _hasNext(map));
+    });
 
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
@@ -122,10 +102,7 @@ class SchoolApi {
   }) async {
     final json = await client.get(
       '/api/schools/$schoolId/posts/hot',
-      queryParameters: {
-        'filter': filter.queryValue,
-        'size': '$size',
-      },
+      queryParameters: {'filter': filter.queryValue, 'size': '$size'},
     );
 
     final response = ApiResponse.fromJson(
@@ -149,10 +126,7 @@ class SchoolApi {
   }) async {
     final json = await client.get(
       '/api/schools/$schoolId/posts/top-recommended',
-      queryParameters: {
-        'hours': '$hours',
-        'size': '$size',
-      },
+      queryParameters: {'hours': '$hours', 'size': '$size'},
     );
 
     final response = ApiResponse.fromJson(
@@ -167,5 +141,15 @@ class SchoolApi {
     }
 
     return response.result!;
+  }
+
+  bool _hasNext(Map<String, dynamic> map) {
+    if (map['hasNext'] is bool) {
+      return map['hasNext'] as bool;
+    }
+    if (map['last'] is bool) {
+      return !(map['last'] as bool);
+    }
+    return false;
   }
 }

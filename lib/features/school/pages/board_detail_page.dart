@@ -163,14 +163,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
           BoardTabBar(
             boards: state.boards,
             selectedBoardId: state.selectedBoardId,
-            onTabSelected: (boardId) {
-              if (boardId == null) {
-                notifier.selectAllBoards();
-                if (context.canPop()) context.pop();
-              } else {
-                notifier.selectBoard(boardId);
-              }
-            },
+            onTabSelected: notifier.selectBoard,
           ),
           Divider(height: 1, thickness: 1, color: c.divider),
           _TodayLatestSection(
@@ -314,14 +307,7 @@ class _ModernBoardDetailScaffold extends ConsumerWidget {
             BoardTabBar(
               boards: state.boards,
               selectedBoardId: state.selectedBoardId,
-              onTabSelected: (boardId) {
-                if (boardId == null) {
-                  notifier.selectAllBoards();
-                  if (context.canPop()) context.pop();
-                } else {
-                  notifier.selectBoard(boardId);
-                }
-              },
+              onTabSelected: notifier.selectBoard,
             ),
             _ModernBoardToolbar(
               selectedSortType: state.sortType,
@@ -1067,8 +1053,9 @@ class _WriteFab extends ConsumerWidget {
       activePenaltyProvider.select((s) => s.isPenalized),
     );
 
-    if (isPenalized || state.selectedBoardId == null)
+    if (isPenalized || state.selectedBoardId == null) {
       return const SizedBox.shrink();
+    }
 
     final currentBoard = state.boards
         .where((b) => b.id == state.selectedBoardId)

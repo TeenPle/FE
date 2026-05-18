@@ -32,12 +32,17 @@ class _CommentInputBarState extends State<CommentInputBar> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
+    _controller.addListener(_handleTextChanged);
+  }
+
+  void _handleTextChanged() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    _controller.removeListener(_handleTextChanged);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();

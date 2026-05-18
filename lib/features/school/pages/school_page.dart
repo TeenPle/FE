@@ -360,7 +360,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     final boardNames = {
       for (final board in state.boards) board.id: board.title,
     };
-    final hotIds = state.topRecommendedPosts.map((post) => post.id).toSet();
+    final hotPosts = state.topRecommendedPosts.take(1).toList();
+    final hotIds = hotPosts.map((post) => post.id).toSet();
     final feedPosts = state.posts
         .where((post) => !hotIds.contains(post.id))
         .toList();
@@ -378,8 +379,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     }
 
     final showAdSlot = _showSchoolMainAdTestSlot;
-    final adInsertIndex = state.topRecommendedPosts.isNotEmpty ? 1 : 0;
-    final totalPostCount = state.topRecommendedPosts.length + feedPosts.length;
+    final adInsertIndex = hotPosts.isNotEmpty ? 1 : 0;
+    final totalPostCount = hotPosts.length + feedPosts.length;
     final totalItemCount =
         totalPostCount + (showAdSlot ? 1 : 0) + 1; // +1 for footer
 
@@ -412,8 +413,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                   ? index - 1
                   : index;
 
-              if (postIndex < state.topRecommendedPosts.length) {
-                final post = state.topRecommendedPosts[postIndex];
+              if (postIndex < hotPosts.length) {
+                final post = hotPosts[postIndex];
                 item = Container(
                   color: context.colors.pageBg,
                   child: PostSummaryCard(
@@ -439,7 +440,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                   ),
                 );
               } else {
-                final feedIndex = postIndex - state.topRecommendedPosts.length;
+                final feedIndex = postIndex - hotPosts.length;
                 final post = feedPosts[feedIndex];
                 item = Container(
                   color: context.colors.pageBg,
@@ -717,13 +718,14 @@ class _HomeTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final tabBarWidth = (MediaQuery.sizeOf(context).width * 0.62).clamp(200.0, 260.0);
     return Container(
       color: c.pageBg,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Center(
         child: Container(
           height: 40,
-          width: 236,
+          width: tabBarWidth,
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: c.chipContainerBg,

@@ -5,6 +5,7 @@ import '../../../core/active_page_provider.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../models/post_detail.dart';
+import '../provider/post_detail_provider.dart';
 import '../provider/post_detail_providers.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../chat/api/chat_api.dart';
@@ -30,29 +31,35 @@ class PostDetailPage extends ConsumerStatefulWidget {
 }
 
 class _PostDetailPageState extends ConsumerState<PostDetailPage> {
+  late final PostDetailNotifier _detailNotifier;
+  late final StateController<ActivePage> _activePageNotifier;
+
   @override
   void initState() {
     super.initState();
+    _detailNotifier = ref.read(postDetailProvider(widget.postId).notifier);
+    _activePageNotifier = ref.read(activePageProvider.notifier);
 
     debugPrint('PostDetailPage 진입 postId = ${widget.postId}');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 이 게시글을 보고 있음을 알림 억제 로직에 알린다.
-      ref.read(activePageProvider.notifier).state = ActivePage(
-        postId: widget.postId,
-      );
-      ref.read(postDetailProvider(widget.postId).notifier).loadPostDetail();
+      _activePageNotifier.state = ActivePage(postId: widget.postId);
+      _detailNotifier.loadPostDetail();
     });
   }
 
   @override
   void dispose() {
-    final detailNotifier = ref.read(postDetailProvider(widget.postId).notifier);
-    final activePageNotifier = ref.read(activePageProvider.notifier);
-    Future.microtask(() {
-      detailNotifier.cancelReply();
-      activePageNotifier.state = const ActivePage();
+    Future<void>(() {
+      if (_detailNotifier.mounted) {
+        _detailNotifier.cancelReply();
+      }
+      if (_activePageNotifier.mounted &&
+          _activePageNotifier.state.postId == widget.postId) {
+        _activePageNotifier.state = const ActivePage();
+      }
     });
     super.dispose();
   }

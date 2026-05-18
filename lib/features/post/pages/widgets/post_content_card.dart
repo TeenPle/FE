@@ -8,10 +8,7 @@ import 'linkable_text.dart';
 class PostContentCard extends StatelessWidget {
   final PostDetail post;
 
-  const PostContentCard({
-    super.key,
-    required this.post,
-  });
+  const PostContentCard({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
@@ -123,42 +120,48 @@ class _ImageRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 160,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: urls.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          return GestureDetector(
-            onTap: () => _openImageViewer(context, urls[i]),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: CachedNetworkImage(
-                imageUrl: urls[i],
-                width: 160,
-                height: 160,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  width: 160,
-                  height: 160,
-                  color: placeholderColor,
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  width: 160,
-                  height: 160,
-                  color: placeholderColor,
-                  child: Icon(
-                    Icons.broken_image_rounded,
-                    color: context.colors.iconSecondary,
-                    size: 32,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tileSize = (constraints.maxWidth * 0.42).clamp(128.0, 160.0);
+
+        return SizedBox(
+          height: tileSize,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: urls.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, i) {
+              return GestureDetector(
+                onTap: () => _openImageViewer(context, urls[i]),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: CachedNetworkImage(
+                    imageUrl: urls[i],
+                    width: tileSize,
+                    height: tileSize,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(
+                      width: tileSize,
+                      height: tileSize,
+                      color: placeholderColor,
+                    ),
+                    errorWidget: (_, __, ___) => Container(
+                      width: tileSize,
+                      height: tileSize,
+                      color: placeholderColor,
+                      child: Icon(
+                        Icons.broken_image_rounded,
+                        color: context.colors.iconSecondary,
+                        size: 32,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -254,11 +257,16 @@ void _openImageViewer(BuildContext context, String url) {
               fit: BoxFit.contain,
               placeholder: (_, __) => const Center(
                 child: CircularProgressIndicator(
-                    color: Colors.white54, strokeWidth: 2),
+                  color: Colors.white54,
+                  strokeWidth: 2,
+                ),
               ),
               errorWidget: (_, __, ___) => const Center(
-                child: Icon(Icons.broken_image_rounded,
-                    color: Colors.white54, size: 60),
+                child: Icon(
+                  Icons.broken_image_rounded,
+                  color: Colors.white54,
+                  size: 60,
+                ),
               ),
             ),
           ),
@@ -348,11 +356,7 @@ class _MetaText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       value,
-      style: TextStyle(
-        fontSize: 11,
-        color: color,
-        fontWeight: FontWeight.w500,
-      ),
+      style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500),
     );
   }
 }

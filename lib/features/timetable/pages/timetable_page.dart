@@ -959,32 +959,49 @@ class _TimetableGrid extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Table(
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            columnWidths: const {0: FixedColumnWidth(34)},
-            children: [
-              TableRow(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final subjectColumnWidth =
+                  (constraints.maxWidth - 34) / _days.length;
+              final cellHeight = subjectColumnWidth.clamp(40.0, 48.0);
+              final headerHeight = (cellHeight * 0.68).clamp(26.0, 32.0);
+              final subjectFontSize = subjectColumnWidth < 48 ? 9.0 : 10.0;
+
+              return Table(
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                columnWidths: const {0: FixedColumnWidth(34)},
                 children: [
-                  const SizedBox(height: 30),
-                  for (int i = 0; i < _days.length; i++)
-                    _headerCell(_days[i], highlight: (i + 1) == todayDow, c: c),
+                  TableRow(
+                    children: [
+                      SizedBox(height: headerHeight),
+                      for (int i = 0; i < _days.length; i++)
+                        _headerCell(
+                          _days[i],
+                          height: headerHeight,
+                          highlight: (i + 1) == todayDow,
+                          c: c,
+                        ),
+                    ],
+                  ),
+                  for (int p = 1; p <= _totalPeriods; p++)
+                    TableRow(
+                      children: [
+                        _periodCell(p, c, height: cellHeight),
+                        for (int d = 1; d <= 5; d++)
+                          _subjectCell(
+                            neisSubject: subjectMap['${d}_$p'] ?? '',
+                            override: overrides['${d}_$p'],
+                            isToday: d == todayDow,
+                            height: cellHeight,
+                            fontSize: subjectFontSize,
+                            onLongPress: () => onCellLongPress(d, p),
+                            c: c,
+                          ),
+                      ],
+                    ),
                 ],
-              ),
-              for (int p = 1; p <= _totalPeriods; p++)
-                TableRow(
-                  children: [
-                    _periodCell(p, c),
-                    for (int d = 1; d <= 5; d++)
-                      _subjectCell(
-                        neisSubject: subjectMap['${d}_$p'] ?? '',
-                        override: overrides['${d}_$p'],
-                        isToday: d == todayDow,
-                        onLongPress: () => onCellLongPress(d, p),
-                        c: c,
-                      ),
-                  ],
-                ),
-            ],
+              );
+            },
           ),
           const SizedBox(height: 10),
           Row(
@@ -992,9 +1009,13 @@ class _TimetableGrid extends StatelessWidget {
             children: [
               Icon(Icons.touch_app_rounded, size: 13, color: c.textHint),
               const SizedBox(width: 4),
-              Text(
-                '과목 칸을 꾹 누르면 직접 수정할 수 있어요',
-                style: TextStyle(fontSize: 10, color: c.textHint),
+              Flexible(
+                child: Text(
+                  '과목 칸을 꾹 누르면 직접 수정할 수 있어요',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10, color: c.textHint),
+                ),
               ),
             ],
           ),
@@ -1005,13 +1026,14 @@ class _TimetableGrid extends StatelessWidget {
 
   Widget _headerCell(
     String text, {
+    required double height,
     bool highlight = false,
     required AppColors c,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
       child: Container(
-        height: 28,
+        height: height,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: highlight ? const Color(0xFFEAF7FF) : Colors.transparent,
@@ -1029,11 +1051,11 @@ class _TimetableGrid extends StatelessWidget {
     );
   }
 
-  Widget _periodCell(int period, AppColors c) {
+  Widget _periodCell(int period, AppColors c, {required double height}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Container(
-        height: 44,
+        height: height,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: c.subtleBg,
@@ -1055,6 +1077,8 @@ class _TimetableGrid extends StatelessWidget {
     required String neisSubject,
     String? override,
     required bool isToday,
+    required double height,
+    required double fontSize,
     required VoidCallback onLongPress,
     required AppColors c,
   }) {
@@ -1070,7 +1094,7 @@ class _TimetableGrid extends StatelessWidget {
           onLongPress();
         },
         child: Container(
-          height: 44,
+          height: height,
           padding: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
             color: isToday ? c.tintBg : c.subtleBg,
@@ -1086,7 +1110,7 @@ class _TimetableGrid extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: fontSize,
                     fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
                     color: hasSubject ? c.textBody : Colors.transparent,
                   ),

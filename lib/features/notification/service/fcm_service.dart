@@ -35,7 +35,9 @@ Future<void> showLocalNotification(RemoteMessage message) async {
   final notification = message.notification;
   if (notification == null) {
     if (kDebugMode) {
-      debugPrint('[FCM] showLocalNotification: notification payload is null, skip');
+      debugPrint(
+        '[FCM] showLocalNotification: notification payload is null, skip',
+      );
     }
     return;
   }
@@ -62,7 +64,9 @@ Future<void> showLocalNotification(RemoteMessage message) async {
       payload: payload,
     );
     if (kDebugMode) {
-      debugPrint('[FCM] local notification shown: id=$id title=${notification.title}');
+      debugPrint(
+        '[FCM] local notification shown: id=$id title=${notification.title}',
+      );
     }
   } catch (e) {
     if (kDebugMode) debugPrint('[FCM] showLocalNotification error: $e');
@@ -80,7 +84,8 @@ class FcmService {
     if (_initialized) return;
     _initialized = true;
 
-    if (kDebugMode) debugPrint('[FCM] init() called, platform: $defaultTargetPlatform');
+    if (kDebugMode)
+      debugPrint('[FCM] init() called, platform: $defaultTargetPlatform');
     if (!_isMobile) {
       if (kDebugMode) debugPrint('[FCM] 모바일 아님 — 종료');
       return;
@@ -91,7 +96,8 @@ class FcmService {
     await _registerToken();
 
     FirebaseMessaging.onMessage.listen((message) async {
-      if (kDebugMode) debugPrint('[FCM] onMessage fired: ${message.notification?.title}');
+      if (kDebugMode)
+        debugPrint('[FCM] onMessage fired: ${message.notification?.title}');
 
       // 알림 OFF된 채팅방이면 목록만 갱신하고 종료
       if (_isMutedChatRoom(message.data)) {
@@ -279,7 +285,9 @@ class FcmService {
     );
 
     final androidPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     await androidPlugin?.createNotificationChannel(
       const AndroidNotificationChannel(
         _channelId,
@@ -289,7 +297,8 @@ class FcmService {
         playSound: true,
       ),
     );
-    if (kDebugMode) debugPrint('[FCM] notification channel created: $_channelId');
+    if (kDebugMode)
+      debugPrint('[FCM] notification channel created: $_channelId');
   }
 
   Future<void> _requestPermission() async {
@@ -303,10 +312,10 @@ class FcmService {
 
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+          alert: true,
+          badge: true,
+          sound: true,
+        );
   }
 
   Future<void> _registerToken() async {

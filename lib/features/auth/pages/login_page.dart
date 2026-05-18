@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/login_blocked_reason.dart';
 import '../provider/login_provider.dart';
@@ -122,7 +123,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: ConstrainedBox(
                 // 뷰포트 높이를 최소 높이로 설정 → 키보드가 없을 때는 Center가 세로 중앙에 배치되고,
                 // 키보드가 올라와 높이가 줄어들면 자연스럽게 스크롤이 동작한다.
-                constraints: BoxConstraints(minHeight: constraints.maxHeight - 64),
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 64,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 360),
@@ -148,11 +151,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   return Center(
                                     child: Text(
                                       'T',
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color(0xFF4A67F2),
-                                      ),
+                                      style: AppTextStyles.displayLarge
+                                          .copyWith(color: Color(0xFF4A67F2)),
                                     ),
                                   );
                                 },
@@ -166,9 +166,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         Center(
                           child: Text(
                             'TeenPle',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
+                            style: AppTextStyles.displayLarge.copyWith(
                               letterSpacing: -0.8,
                               color: c.textPrimary,
                             ),
@@ -181,8 +179,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: Text(
                             '우리 학교와 동네를 잇는 학생 커뮤니티',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: AppTextStyles.bodyMedium.copyWith(
                               height: 1.5,
                               color: c.textSecondary,
                             ),
@@ -196,14 +193,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           autocorrect: false,
-                          style: TextStyle(fontSize: 13, color: c.textPrimary),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: c.textPrimary,
+                          ),
                           onChanged: (_) {
-                            ref.read(loginProvider.notifier).clearTransientState();
+                            ref
+                                .read(loginProvider.notifier)
+                                .clearTransientState();
                             setState(() {});
                           },
                           decoration: InputDecoration(
                             hintText: '이메일을 입력해주세요.',
-                            hintStyle: TextStyle(fontSize: 12, color: c.textHint),
+                            hintStyle: AppTextStyles.captionLarge.copyWith(
+                              color: c.textHint,
+                            ),
                             filled: true,
                             fillColor: c.inputBg,
                             contentPadding: const EdgeInsets.symmetric(
@@ -240,17 +243,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           autocorrect: false,
                           enableSuggestions: false,
                           textInputAction: TextInputAction.done,
-                          style: TextStyle(fontSize: 13, color: c.textPrimary),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: c.textPrimary,
+                          ),
                           onSubmitted: (_) {
                             if (canLogin) _submit();
                           },
                           onChanged: (_) {
-                            ref.read(loginProvider.notifier).clearTransientState();
+                            ref
+                                .read(loginProvider.notifier)
+                                .clearTransientState();
                             setState(() {});
                           },
                           decoration: InputDecoration(
                             hintText: '비밀번호를 입력해주세요.',
-                            hintStyle: TextStyle(fontSize: 12, color: c.textHint),
+                            hintStyle: AppTextStyles.captionLarge.copyWith(
+                              color: c.textHint,
+                            ),
                             filled: true,
                             fillColor: c.inputBg,
                             contentPadding: const EdgeInsets.symmetric(
@@ -296,8 +305,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           children: [
                             InkWell(
                               borderRadius: BorderRadius.circular(8),
-                              onTap: () =>
-                                  setState(() => _keepLoggedIn = !_keepLoggedIn),
+                              onTap: () => setState(
+                                () => _keepLoggedIn = !_keepLoggedIn,
+                              ),
                               child: Row(
                                 children: [
                                   SizedBox(
@@ -321,9 +331,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   SizedBox(width: 8),
                                   Text(
                                     '로그인 상태 유지',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
+                                    style: AppTextStyles.captionSmall.copyWith(
                                       color: c.textSecondary,
                                     ),
                                   ),
@@ -332,7 +340,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                             const Spacer(),
                             TextButton(
-                              onPressed: () => context.push(AppRoutes.findEmail),
+                              onPressed: () =>
+                                  context.push(AppRoutes.findEmail),
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
                                 minimumSize: Size.zero,
@@ -340,22 +349,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               child: Text(
                                 '아이디 찾기',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
+                                style: AppTextStyles.captionSmall.copyWith(
                                   color: c.textSecondary,
                                 ),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
                               child: Text(
                                 '|',
-                                style: TextStyle(fontSize: 11, color: c.textTertiary),
+                                style: AppTextStyles.captionSmall.copyWith(
+                                  color: c.textTertiary,
+                                ),
                               ),
                             ),
                             TextButton(
-                              onPressed: () => context.push(AppRoutes.findPassword),
+                              onPressed: () =>
+                                  context.push(AppRoutes.findPassword),
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
                                 minimumSize: Size.zero,
@@ -363,9 +375,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               child: Text(
                                 '비밀번호 찾기',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
+                                style: AppTextStyles.captionSmall.copyWith(
                                   color: c.textSecondary,
                                 ),
                               ),
@@ -381,7 +391,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             padding: const EdgeInsets.only(left: 4),
                             child: Text(
                               loginState.errorMessage!,
-                              style: TextStyle(fontSize: 11, color: Colors.red),
+                              style: AppTextStyles.captionSmall.copyWith(
+                                color: Colors.red,
+                              ),
                             ),
                           ),
 
@@ -403,10 +415,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                             child: Text(
                               loginState.isLoading ? '로그인 중...' : '로그인',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: AppTextStyles.titleSmall,
                             ),
                           ),
                         ),
@@ -419,7 +428,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             children: [
                               Text(
                                 '계정이 없으신가요?',
-                                style: TextStyle(fontSize: 12, color: c.textTertiary),
+                                style: AppTextStyles.captionLarge.copyWith(
+                                  color: c.textTertiary,
+                                ),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -427,15 +438,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   context.push(AppRoutes.signupConsent);
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
                                   minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
                                   '회원가입',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
+                                  style: AppTextStyles.labelMedium.copyWith(
                                     color: Color(0xFF4A67F2),
                                   ),
                                 ),

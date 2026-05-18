@@ -24,12 +24,12 @@ class UserSettingModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'allowPush': allowPush,
-        'allowCommentNotification': allowCommentNotification,
-        'allowReplyNotification': allowReplyNotification,
-        'allowLikeNotification': allowLikeNotification,
-        'allowChatNotification': allowChatNotification,
-      };
+    'allowPush': allowPush,
+    'allowCommentNotification': allowCommentNotification,
+    'allowReplyNotification': allowReplyNotification,
+    'allowLikeNotification': allowLikeNotification,
+    'allowChatNotification': allowChatNotification,
+  };
 
   UserSettingModel copyWith({
     bool? allowPush,
@@ -40,10 +40,14 @@ class UserSettingModel {
   }) {
     return UserSettingModel(
       allowPush: allowPush ?? this.allowPush,
-      allowCommentNotification: allowCommentNotification ?? this.allowCommentNotification,
-      allowReplyNotification: allowReplyNotification ?? this.allowReplyNotification,
-      allowLikeNotification: allowLikeNotification ?? this.allowLikeNotification,
-      allowChatNotification: allowChatNotification ?? this.allowChatNotification,
+      allowCommentNotification:
+          allowCommentNotification ?? this.allowCommentNotification,
+      allowReplyNotification:
+          allowReplyNotification ?? this.allowReplyNotification,
+      allowLikeNotification:
+          allowLikeNotification ?? this.allowLikeNotification,
+      allowChatNotification:
+          allowChatNotification ?? this.allowChatNotification,
     );
   }
 }

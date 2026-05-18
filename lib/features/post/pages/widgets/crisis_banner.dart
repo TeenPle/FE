@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 import 'package:flutter/services.dart';
 
 /// 위기 키워드 감지 시 노출하는 위기상담 안내 배너.
@@ -6,8 +7,16 @@ class CrisisBanner extends StatelessWidget {
   const CrisisBanner({super.key});
 
   static const _keywords = [
-    '자살', '자해', '죽고싶', '죽고 싶', '죽어버리', '죽어버려',
-    '살고싶지않', '살기싫', '삶을끝내', '목숨을끊',
+    '자살',
+    '자해',
+    '죽고싶',
+    '죽고 싶',
+    '죽어버리',
+    '죽어버려',
+    '살고싶지않',
+    '살기싫',
+    '삶을끝내',
+    '목숨을끊',
   ];
 
   static bool containsCrisisKeyword(String text) {
@@ -27,15 +36,19 @@ class CrisisBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.favorite_rounded, size: 18, color: Color(0xFFE05C5C)),
+          const Icon(
+            Icons.favorite_rounded,
+            size: 18,
+            color: Color(0xFFE05C5C),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '힘드신가요? 혼자 견디지 않아도 됩니다.',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFB71C1C),
@@ -43,9 +56,9 @@ class CrisisBanner extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   '자살예방상담전화 1393 (24시간)',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     color: Color(0xFF7D2020),
                     height: 1.4,
@@ -67,9 +80,9 @@ class CrisisBanner extends StatelessWidget {
                 color: const Color(0xFFE05C5C),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 '1393',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,

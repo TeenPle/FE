@@ -4,11 +4,7 @@ class TapScale extends StatefulWidget {
   final Widget child;
   final double scale;
 
-  const TapScale({
-    super.key,
-    required this.child,
-    this.scale = 0.96,
-  });
+  const TapScale({super.key, required this.child, this.scale = 0.96});
 
   @override
   State<TapScale> createState() => _TapScaleState();
@@ -28,9 +24,10 @@ class _TapScaleState extends State<TapScale>
       duration: const Duration(milliseconds: 80),
       reverseDuration: const Duration(milliseconds: 160),
     );
-    _animation = Tween<double>(begin: 1.0, end: widget.scale).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _animation = Tween<double>(
+      begin: 1.0,
+      end: widget.scale,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -63,10 +60,8 @@ class _TapScaleState extends State<TapScale>
       },
       child: AnimatedBuilder(
         animation: _animation,
-        builder: (context, child) => Transform.scale(
-          scale: _animation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _animation.value, child: child),
         child: widget.child,
       ),
     );

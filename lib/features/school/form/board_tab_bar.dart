@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/board_model.dart';
 
@@ -39,7 +40,7 @@ class BoardTabBar extends StatelessWidget {
               ),
               child: Text(
                 board.title,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: isSelected ? Colors.white : const Color(0xFF4B4B4B),

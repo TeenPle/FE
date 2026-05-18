@@ -49,7 +49,9 @@ final dioProvider = Provider<Dio>((ref) {
             final newToken = await refreshCompleter!.future;
             if (newToken != null) {
               try {
-                handler.resolve(await _retry(dio, error.requestOptions, newToken));
+                handler.resolve(
+                  await _retry(dio, error.requestOptions, newToken),
+                );
               } catch (_) {
                 handler.next(error);
               }
@@ -66,8 +68,9 @@ final dioProvider = Provider<Dio>((ref) {
 
           try {
             final storage = ref.read(tokenStorageProvider);
-            final refreshToken = ref.read(authSessionProvider).refreshToken
-                ?? await storage.getRefreshToken();
+            final refreshToken =
+                ref.read(authSessionProvider).refreshToken ??
+                await storage.getRefreshToken();
 
             if (refreshToken == null) throw Exception('no refresh token');
 
@@ -78,12 +81,15 @@ final dioProvider = Provider<Dio>((ref) {
               data: {'refreshToken': refreshToken},
             );
 
-            final result = refreshResponse.data['result'] as Map<String, dynamic>;
+            final result =
+                refreshResponse.data['result'] as Map<String, dynamic>;
             newAccessToken = result['accessToken'] as String;
             final newRefreshToken = result['refreshToken'] as String;
 
             // 세션 갱신
-            ref.read(authSessionProvider.notifier).setTokens(newAccessToken, newRefreshToken);
+            ref
+                .read(authSessionProvider.notifier)
+                .setTokens(newAccessToken, newRefreshToken);
 
             // 자동로그인 체크 유저만 디스크에도 저장
             final autoLogin = await storage.getAutoLogin();
@@ -105,7 +111,9 @@ final dioProvider = Provider<Dio>((ref) {
 
           if (newAccessToken != null) {
             try {
-              handler.resolve(await _retry(dio, error.requestOptions, newAccessToken));
+              handler.resolve(
+                await _retry(dio, error.requestOptions, newAccessToken),
+              );
             } catch (_) {
               handler.next(error);
             }

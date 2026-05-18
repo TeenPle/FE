@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
 
@@ -43,7 +44,10 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
         elevation: 0,
         title: Text(
           '신고 관리',
-          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: c.textPrimary,
+          ),
         ),
         centerTitle: true,
       ),
@@ -87,7 +91,7 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
                         ),
                         child: Text(
                           tab.$2,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: isActive
@@ -109,14 +113,18 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
                 ? Center(
                     child: Text(
                       state.error!,
-                      style: TextStyle(color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textMuted,
+                      ),
                     ),
                   )
                 : state.reports.isEmpty
                 ? Center(
                     child: Text(
                       '신고 내역이 없어요.',
-                      style: TextStyle(color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textMuted,
+                      ),
                     ),
                   )
                 : RefreshIndicator(
@@ -180,7 +188,10 @@ class _ReportCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   _formatDate(report.createdAt),
-                  style: TextStyle(fontSize: 11, color: c.textTertiary),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textTertiary,
+                  ),
                 ),
               ],
             ),
@@ -193,7 +204,10 @@ class _ReportCard extends StatelessWidget {
                   child: Text(
                     '신고자: ${report.reporterNickname}',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11, color: c.textSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      color: c.textSecondary,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -203,7 +217,10 @@ class _ReportCard extends StatelessWidget {
                   child: Text(
                     '피신고자: ${report.reportedUserNickname}',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11, color: c.textSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      color: c.textSecondary,
+                    ),
                   ),
                 ),
               ],
@@ -242,7 +259,7 @@ class _TypeBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           color: c.iconOnCard,
@@ -266,7 +283,7 @@ class _ReasonBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           color: Color(0xFFE05C7B),

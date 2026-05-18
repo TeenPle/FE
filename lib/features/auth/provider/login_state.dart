@@ -37,12 +37,15 @@ class LoginState {
   }) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
-      loginResponse:
-      clearLoginResponse ? null : (loginResponse ?? this.loginResponse),
-      blockedReason:
-      clearBlockedReason ? null : (blockedReason ?? this.blockedReason),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
+      loginResponse: clearLoginResponse
+          ? null
+          : (loginResponse ?? this.loginResponse),
+      blockedReason: clearBlockedReason
+          ? null
+          : (blockedReason ?? this.blockedReason),
       attemptedEmail: attemptedEmail ?? this.attemptedEmail,
       attemptedPassword: attemptedPassword ?? this.attemptedPassword,
     );

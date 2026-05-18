@@ -26,8 +26,7 @@ class PenaltyApi {
       '/api/penalties/me/history',
       queryParameters: {'page': '$page', 'size': '$size'},
     );
-    final content =
-        (res['result']?['content'] as List<dynamic>? ?? []);
+    final content = (res['result']?['content'] as List<dynamic>? ?? []);
     return content
         .map((e) => PenaltyHistoryModel.fromJson(e as Map<String, dynamic>))
         .toList();

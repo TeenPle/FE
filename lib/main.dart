@@ -30,11 +30,13 @@ void main() async {
   // Flutter의 MediaQuery 인셋(padding.bottom 등)이 시스템 바 높이를 정확히 반영해
   // Scaffold가 콘텐츠를 자동으로 피해준다.
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarDividerColor: Colors.transparent,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+    ),
+  );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (_isMobile) {
@@ -43,11 +45,7 @@ void main() async {
     // 앱 시작 시점에 채널을 즉시 생성
     await _ensureNotificationChannel();
   }
-  runApp(
-    const ProviderScope(
-      child: TeenpleApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: TeenpleApp()));
 }
 
 Future<void> _ensureNotificationChannel() async {
@@ -55,7 +53,9 @@ Future<void> _ensureNotificationChannel() async {
   const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
   await plugin.initialize(const InitializationSettings(android: androidInit));
   await plugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
       ?.createNotificationChannel(
         const AndroidNotificationChannel(
           fcmChannelId,

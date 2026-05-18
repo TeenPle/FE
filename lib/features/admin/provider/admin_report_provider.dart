@@ -51,8 +51,8 @@ class AdminReportListNotifier extends StateNotifier<AdminReportListState> {
 
 final adminReportListProvider =
     StateNotifierProvider<AdminReportListNotifier, AdminReportListState>((ref) {
-  return AdminReportListNotifier(ref.watch(adminReportApiProvider));
-});
+      return AdminReportListNotifier(ref.watch(adminReportApiProvider));
+    });
 
 class AdminReportDetailState {
   final ReportDetailModel? detail;
@@ -91,7 +91,7 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
   final int reportId;
 
   AdminReportDetailNotifier(this._api, this.reportId)
-      : super(const AdminReportDetailState());
+    : super(const AdminReportDetailState());
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -140,7 +140,14 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
   }
 }
 
-final adminReportDetailProvider = StateNotifierProvider.family<
-    AdminReportDetailNotifier, AdminReportDetailState, int>((ref, reportId) {
-  return AdminReportDetailNotifier(ref.watch(adminReportApiProvider), reportId);
-});
+final adminReportDetailProvider =
+    StateNotifierProvider.family<
+      AdminReportDetailNotifier,
+      AdminReportDetailState,
+      int
+    >((ref, reportId) {
+      return AdminReportDetailNotifier(
+        ref.watch(adminReportApiProvider),
+        reportId,
+      );
+    });

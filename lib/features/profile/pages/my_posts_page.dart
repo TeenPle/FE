@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
 class MyPostsPage extends ConsumerStatefulWidget {
@@ -51,7 +52,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
         centerTitle: true,
         title: Text(
           '내가 쓴 글',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -78,7 +79,10 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
             const SizedBox(height: 12),
             Text(
               '아직 쓴 글이 없어요.',
-              style: TextStyle(fontSize: 13, color: c.textMuted),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textMuted,
+              ),
             ),
           ],
         ),
@@ -115,14 +119,17 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: cc.tintBg,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         post.boardTitle!,
-                        style: const TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF14A3F7),
@@ -132,7 +139,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                   ),
                 Text(
                   post.title,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: cc.textPrimary,
@@ -143,7 +150,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                 const SizedBox(height: 6),
                 Text(
                   post.preview,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     height: 1.5,
                     color: cc.iconOnCard,
@@ -154,11 +161,15 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    _Chip(icon: Icons.thumb_up_outlined, label: '${post.likeCount}'),
+                    _Chip(
+                      icon: Icons.thumb_up_outlined,
+                      label: '${post.likeCount}',
+                    ),
                     const SizedBox(width: 8),
                     _Chip(
-                        icon: Icons.chat_bubble_outline_rounded,
-                        label: '${post.commentCount}'),
+                      icon: Icons.chat_bubble_outline_rounded,
+                      label: '${post.commentCount}',
+                    ),
                   ],
                 ),
               ],
@@ -186,7 +197,7 @@ class _Chip extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             color: c,
             fontWeight: FontWeight.w600,

@@ -6,10 +6,10 @@ import 'signup_school_state.dart';
 
 /// 학교 검색 상태를 관리하는 provider
 final signupSchoolProvider =
-StateNotifierProvider<SignupSchoolNotifier, SignupSchoolState>((ref) {
-  final schoolApi = ref.read(schoolApiProvider);
-  return SignupSchoolNotifier(schoolApi);
-});
+    StateNotifierProvider<SignupSchoolNotifier, SignupSchoolState>((ref) {
+      final schoolApi = ref.read(schoolApiProvider);
+      return SignupSchoolNotifier(schoolApi);
+    });
 
 class SignupSchoolNotifier extends StateNotifier<SignupSchoolState> {
   final SchoolApi _schoolApi;
@@ -18,10 +18,7 @@ class SignupSchoolNotifier extends StateNotifier<SignupSchoolState> {
 
   /// 검색어 변경
   void updateKeyword(String value) {
-    state = state.copyWith(
-      keyword: value,
-      clearErrorMessage: true,
-    );
+    state = state.copyWith(keyword: value, clearErrorMessage: true);
   }
 
   /// 학교 검색 API 호출
@@ -43,10 +40,7 @@ class SignupSchoolNotifier extends StateNotifier<SignupSchoolState> {
     try {
       final schools = await _schoolApi.searchSchools(trimmed);
 
-      state = state.copyWith(
-        isLoading: false,
-        schools: schools,
-      );
+      state = state.copyWith(isLoading: false, schools: schools);
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

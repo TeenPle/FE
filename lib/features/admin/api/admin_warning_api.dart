@@ -20,8 +20,9 @@ class AdminWarningApi {
     );
     final content = (res['result']?['content'] as List<dynamic>? ?? []);
     return content
-        .map((e) =>
-            AdminWarningHistoryModel.fromJson(e as Map<String, dynamic>))
+        .map(
+          (e) => AdminWarningHistoryModel.fromJson(e as Map<String, dynamic>),
+        )
         .toList();
   }
 }

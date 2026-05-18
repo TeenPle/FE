@@ -36,8 +36,8 @@ class AdminWarningHistoryModel {
   }
 
   String get targetTypeLabel => switch (targetType) {
-        'POST' => '게시글',
-        'COMMENT' => '댓글',
-        _ => '',
-      };
+    'POST' => '게시글',
+    'COMMENT' => '댓글',
+    _ => '',
+  };
 }

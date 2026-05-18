@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../models/notification_model.dart';
 import '../provider/notification_provider.dart';
@@ -58,11 +59,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
         ),
         title: Text(
           '알림',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -171,17 +168,15 @@ class _CommentNotificationContent extends StatelessWidget {
         if (notification.boardName != null) ...[
           Text(
             notification.boardName!,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF14A3F7),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: const Color(0xFF14A3F7),
             ),
           ),
           const SizedBox(height: 3),
         ],
         Text(
           notification.message,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
             color: c.textPrimary,
@@ -193,7 +188,7 @@ class _CommentNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: TextStyle(fontSize: 11, color: c.textTertiary),
+          style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
         ),
       ],
     );
@@ -217,7 +212,7 @@ class _DefaultNotificationContent extends StatelessWidget {
       children: [
         Text(
           notification.message,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
             color: c.textPrimary,
@@ -227,7 +222,7 @@ class _DefaultNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: TextStyle(fontSize: 11, color: c.textTertiary),
+          style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
         ),
       ],
     );
@@ -294,16 +289,12 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             '아직 알림이 없어요',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: c.textPrimary,
-            ),
+            style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
             '새 댓글이나 공감이 오면 알려드릴게요.',
-            style: TextStyle(fontSize: 11, color: c.textTertiary),
+            style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
           ),
         ],
       ),

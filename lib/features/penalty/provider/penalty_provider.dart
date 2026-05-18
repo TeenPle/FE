@@ -47,8 +47,8 @@ class ActivePenaltyNotifier extends StateNotifier<ActivePenaltyState> {
 
 final activePenaltyProvider =
     StateNotifierProvider<ActivePenaltyNotifier, ActivePenaltyState>((ref) {
-  return ActivePenaltyNotifier(ref.watch(penaltyApiProvider));
-});
+      return ActivePenaltyNotifier(ref.watch(penaltyApiProvider));
+    });
 
 // ── 제재 이력 (설정 > 제재 이력 화면용) ──────────────────────
 class PenaltyHistoryState {
@@ -125,5 +125,5 @@ class PenaltyHistoryNotifier extends StateNotifier<PenaltyHistoryState> {
 
 final penaltyHistoryProvider =
     StateNotifierProvider<PenaltyHistoryNotifier, PenaltyHistoryState>((ref) {
-  return PenaltyHistoryNotifier(ref.watch(penaltyApiProvider));
-});
+      return PenaltyHistoryNotifier(ref.watch(penaltyApiProvider));
+    });

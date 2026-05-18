@@ -7,13 +7,13 @@ import 'admin_verification_detail_state.dart';
 
 /// 관리자 인증 요청 상세 provider
 /// autoDispose: 페이지를 떠나면 상태 초기화 → 재진입 시 항상 최신 상태로 조회
-final adminVerificationDetailProvider = StateNotifierProvider.autoDispose.family<
-    AdminVerificationDetailNotifier, AdminVerificationDetailState, int>(
+final adminVerificationDetailProvider = StateNotifierProvider.autoDispose
+    .family<AdminVerificationDetailNotifier, AdminVerificationDetailState, int>(
       (ref, requestId) {
-    final api = ref.read(adminVerificationApiProvider);
-    return AdminVerificationDetailNotifier(api, requestId);
-  },
-);
+        final api = ref.read(adminVerificationApiProvider);
+        return AdminVerificationDetailNotifier(api, requestId);
+      },
+    );
 
 class AdminVerificationDetailNotifier
     extends StateNotifier<AdminVerificationDetailState> {
@@ -21,7 +21,7 @@ class AdminVerificationDetailNotifier
   final int requestId;
 
   AdminVerificationDetailNotifier(this._api, this.requestId)
-      : super(const AdminVerificationDetailState()) {
+    : super(const AdminVerificationDetailState()) {
     fetchDetail();
   }
 
@@ -37,10 +37,7 @@ class AdminVerificationDetailNotifier
     try {
       final result = await _api.getRequestDetail(requestId);
 
-      state = state.copyWith(
-        isLoading: false,
-        detail: result,
-      );
+      state = state.copyWith(isLoading: false, detail: result);
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -68,9 +65,7 @@ class AdminVerificationDetailNotifier
 
     /// 승인도 코멘트가 필수인 경우 프론트에서 먼저 막음
     if (trimmed.isEmpty) {
-      state = state.copyWith(
-        actionErrorMessage: '승인 코멘트를 입력해주세요.',
-      );
+      state = state.copyWith(actionErrorMessage: '승인 코멘트를 입력해주세요.');
       return;
     }
 
@@ -83,15 +78,10 @@ class AdminVerificationDetailNotifier
     try {
       await _api.approveRequest(
         requestId: requestId,
-        request: VerificationDecisionRequestModel(
-          adminComment: trimmed,
-        ),
+        request: VerificationDecisionRequestModel(adminComment: trimmed),
       );
 
-      state = state.copyWith(
-        isActionLoading: false,
-        isActionSuccess: true,
-      );
+      state = state.copyWith(isActionLoading: false, isActionSuccess: true);
     } on DioException catch (e) {
       state = state.copyWith(
         isActionLoading: false,
@@ -110,9 +100,7 @@ class AdminVerificationDetailNotifier
     final trimmed = adminComment.trim();
 
     if (trimmed.isEmpty) {
-      state = state.copyWith(
-        actionErrorMessage: '거절 사유를 입력해주세요.',
-      );
+      state = state.copyWith(actionErrorMessage: '거절 사유를 입력해주세요.');
       return;
     }
 
@@ -125,15 +113,10 @@ class AdminVerificationDetailNotifier
     try {
       await _api.rejectRequest(
         requestId: requestId,
-        request: VerificationDecisionRequestModel(
-          adminComment: trimmed,
-        ),
+        request: VerificationDecisionRequestModel(adminComment: trimmed),
       );
 
-      state = state.copyWith(
-        isActionLoading: false,
-        isActionSuccess: true,
-      );
+      state = state.copyWith(isActionLoading: false, isActionSuccess: true);
     } on DioException catch (e) {
       state = state.copyWith(
         isActionLoading: false,

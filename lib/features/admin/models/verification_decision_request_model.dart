@@ -2,13 +2,9 @@
 class VerificationDecisionRequestModel {
   final String adminComment;
 
-  const VerificationDecisionRequestModel({
-    required this.adminComment,
-  });
+  const VerificationDecisionRequestModel({required this.adminComment});
 
   Map<String, dynamic> toJson() {
-    return {
-      'adminComment': adminComment,
-    };
+    return {'adminComment': adminComment};
   }
 }

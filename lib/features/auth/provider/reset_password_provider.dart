@@ -4,11 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/find_password_api.dart';
 import 'reset_password_state.dart';
 
-final resetPasswordProvider = StateNotifierProvider.autoDispose<
-    ResetPasswordNotifier, ResetPasswordState>((ref) {
-  final api = ref.read(findPasswordApiProvider);
-  return ResetPasswordNotifier(api);
-});
+final resetPasswordProvider =
+    StateNotifierProvider.autoDispose<
+      ResetPasswordNotifier,
+      ResetPasswordState
+    >((ref) {
+      final api = ref.read(findPasswordApiProvider);
+      return ResetPasswordNotifier(api);
+    });
 
 class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   final FindPasswordApi _api;

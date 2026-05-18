@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/verification_status_model.dart';
 import '../provider/admin_verification_list_provider.dart';
 
@@ -57,7 +58,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       '학교 인증 요청',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.4,
@@ -74,9 +75,9 @@ class AdminVerificationListPage extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     '현재 요청',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF6B7280),
@@ -85,7 +86,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Text(
                     '${state.items.length}건',
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF4A67F2),
@@ -129,17 +130,17 @@ class AdminVerificationListPage extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: isSelected
                                 ? const [
-                              BoxShadow(
-                                color: Color(0x14000000),
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ]
+                                    BoxShadow(
+                                      color: Color(0x14000000),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ]
                                 : null,
                           ),
                           child: Text(
                             status.label,
-                            style: TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: isSelected
@@ -162,7 +163,7 @@ class AdminVerificationListPage extends ConsumerWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     state.errorMessage!,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       color: Colors.red,
                     ),
@@ -177,175 +178,172 @@ class AdminVerificationListPage extends ConsumerWidget {
                   ? const Center(child: CircularProgressIndicator())
                   : state.items.isEmpty
                   ? Center(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 24),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 24,
-                  ),
-                  decoration: BoxDecoration(
-                    color: c.cardBg,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: c.border,
-                    ),
-                  ),
-                  child: const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.inbox_rounded,
-                        size: 28,
-                        color: Color(0xFF9AA3AF),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        '조회된 요청이 없어요.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF374151),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 24,
+                        ),
+                        decoration: BoxDecoration(
+                          color: c.cardBg,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: c.border),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.inbox_rounded,
+                              size: 28,
+                              color: Color(0xFF9AA3AF),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '조회된 요청이 없어요.',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF374151),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              )
+                    )
                   : RefreshIndicator(
-                onRefresh: () async {
-                  await ref
-                      .read(adminVerificationListProvider.notifier)
-                      .fetchList(state.selectedStatus);
-                },
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                  itemCount: state.items.length,
-                  separatorBuilder: (context, index) =>
-                  const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final item = state.items[index];
+                      onRefresh: () async {
+                        await ref
+                            .read(adminVerificationListProvider.notifier)
+                            .fetchList(state.selectedStatus);
+                      },
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                        itemCount: state.items.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final item = state.items[index];
 
-                    return Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () async {
-                          final result = await context.push<bool>(
-                            '${AppRoutes.adminVerificationList}/${item.requestId}',
-                          );
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () async {
+                                final result = await context.push<bool>(
+                                  '${AppRoutes.adminVerificationList}/${item.requestId}',
+                                );
 
-                          if (result == true) {
-                            ref
-                                .read(
-                              adminVerificationListProvider
-                                  .notifier,
-                            )
-                                .fetchList(state.selectedStatus);
-                          }
-                        },
-                        child: Ink(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: c.cardBg,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: c.border,
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x08000000),
-                                blurRadius: 10,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                if (result == true) {
+                                  ref
+                                      .read(
+                                        adminVerificationListProvider.notifier,
+                                      )
+                                      .fetchList(state.selectedStatus);
+                                }
+                              },
+                              child: Ink(
+                                padding: const EdgeInsets.all(18),
+                                decoration: BoxDecoration(
+                                  color: c.cardBg,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: c.border),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0x08000000),
+                                      blurRadius: 10,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      item.schoolName,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -0.2,
-                                        color: c.textPrimary,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item.schoolName,
+                                            style: AppTextStyles.bodyMedium
+                                                .copyWith(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w800,
+                                                  letterSpacing: -0.2,
+                                                  color: c.textPrimary,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            item.userName,
+                                            style: AppTextStyles.bodyMedium
+                                                .copyWith(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF222222),
+                                                ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.mail_outline_rounded,
+                                                size: 16,
+                                                color: c.iconSecondary,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  item.userEmail,
+                                                  style: AppTextStyles
+                                                      .bodyMedium
+                                                      .copyWith(
+                                                        fontSize: 12,
+                                                        color: c.textBody,
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.schedule_rounded,
+                                                size: 16,
+                                                color: c.iconSecondary,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                _formatDate(item.requestedAt),
+                                                style: AppTextStyles.bodyMedium
+                                                    .copyWith(
+                                                      fontSize: 11,
+                                                      color: Color(0xFF6B7280),
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      item.userName,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF222222),
+                                    const SizedBox(width: 12),
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 2),
+                                      child: Icon(
+                                        Icons.chevron_right_rounded,
+                                        size: 24,
+                                        color: Color(0xFF9AA3AF),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.mail_outline_rounded,
-                                          size: 16,
-                                          color: c.iconSecondary,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            item.userEmail,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: c.textBody,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.schedule_rounded,
-                                          size: 16,
-                                          color: c.iconSecondary,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          _formatDate(
-                                            item.requestedAt,
-                                          ),
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Color(0xFF6B7280),
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              const Padding(
-                                padding: EdgeInsets.only(top: 2),
-                                child: Icon(
-                                  Icons.chevron_right_rounded,
-                                  size: 24,
-                                  color: Color(0xFF9AA3AF),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-              ),
+                    ),
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/penalty_model.dart';
 import '../provider/penalty_provider.dart';
 
@@ -37,7 +38,11 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
         centerTitle: true,
         title: Text(
           '제재 이력',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: ListView(
@@ -50,7 +55,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
             padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
               '제재 이력',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: c.textTertiary,
@@ -72,7 +77,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                 padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Text(
                   history.error!,
-                  style: TextStyle(color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
                 ),
               ),
             )
@@ -87,7 +92,10 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
               ),
               child: Text(
                 '제재 이력이 없어요.',
-                style: TextStyle(fontSize: 12, color: c.textMuted),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 12,
+                  color: c.textMuted,
+                ),
               ),
             )
           else
@@ -104,8 +112,8 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                         onPressed: history.isLoading
                             ? null
                             : () => ref
-                                .read(penaltyHistoryProvider.notifier)
-                                .loadMore(),
+                                  .read(penaltyHistoryProvider.notifier)
+                                  .loadMore(),
                         style: OutlinedButton.styleFrom(
                           backgroundColor: c.cardBg,
                           side: BorderSide(color: c.border),
@@ -117,11 +125,13 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : Text(
                                 '더보기',
-                                style: TextStyle(
+                                style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: c.textMuted,
@@ -155,9 +165,7 @@ class _ActivePenaltyCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: c.borderStrong),
         ),
-        child: const Center(
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
     }
 
@@ -167,9 +175,7 @@ class _ActivePenaltyCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isPenalized
-            ? const Color(0xFFFFF3F3)
-            : const Color(0xFFF0FFF4),
+        color: isPenalized ? const Color(0xFFFFF3F3) : const Color(0xFFF0FFF4),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isPenalized
@@ -194,9 +200,9 @@ class _ActivePenaltyCard extends StatelessWidget {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         '현재 제재 중',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFFE05C7B),
@@ -205,17 +211,23 @@ class _ActivePenaltyCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '사유: ${penalty.reasonLabel}',
-                        style: TextStyle(fontSize: 11, color: c.iconOnCard),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
+                          color: c.iconOnCard,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '해제 예정: ${_formatDate(penalty.expiresAt!)}',
-                        style: TextStyle(fontSize: 11, color: c.iconOnCard),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
+                          color: c.iconOnCard,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         '제재 기간 중 게시글·댓글 작성 및 채팅이 제한됩니다.',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           color: c.textMuted,
                           height: 1.4,
@@ -226,9 +238,9 @@ class _ActivePenaltyCard extends StatelessWidget {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         '정상 이용 중',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF43A047),
@@ -237,7 +249,10 @@ class _ActivePenaltyCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '현재 활성 제재가 없어요.',
-                        style: TextStyle(fontSize: 11, color: c.iconOnCard),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
+                          color: c.iconOnCard,
+                        ),
                       ),
                     ],
                   ),
@@ -281,7 +296,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
             ),
             child: Text(
               expired ? '만료' : '제재 중',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: expired ? c.textMuted : const Color(0xFFE05C7B),
@@ -295,7 +310,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
               children: [
                 Text(
                   penalty.reasonLabel,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: c.textBody,
@@ -304,7 +319,10 @@ class _PenaltyHistoryCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textMuted,
+                  ),
                 ),
               ],
             ),

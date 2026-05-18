@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../models/post_detail.dart';
@@ -21,7 +22,7 @@ class PostContentCard extends StatelessWidget {
         const SizedBox(height: 20),
         Text(
           post.title,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -31,7 +32,7 @@ class PostContentCard extends StatelessWidget {
         const SizedBox(height: 12),
         LinkableText(
           text: post.content,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 14,
             height: 1.72,
             color: c.textBody,
@@ -202,7 +203,7 @@ class _FileAttachmentChip extends StatelessWidget {
                 _filename,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 11,
                   color: c.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -315,7 +316,7 @@ class _PostMetaRow extends StatelessWidget {
             children: [
               Text(
                 post.displayAuthorName,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: c.textPrimary,
@@ -356,7 +357,11 @@ class _MetaText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       value,
-      style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500),
+      style: AppTextStyles.bodyMedium.copyWith(
+        fontSize: 11,
+        color: color,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 }

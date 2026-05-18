@@ -11,8 +11,8 @@ class VerificationReapplyInfoResponseModel {
   });
 
   factory VerificationReapplyInfoResponseModel.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return VerificationReapplyInfoResponseModel(
       schoolId: (json['schoolId'] as num).toInt(),
       schoolName: json['schoolName'] as String,

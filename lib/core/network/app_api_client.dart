@@ -18,17 +18,19 @@ class AppApiClient {
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
-  }) =>
-      _execute(() => _dio.post<dynamic>(path,
-          data: body, queryParameters: queryParameters));
+  }) => _execute(
+    () =>
+        _dio.post<dynamic>(path, data: body, queryParameters: queryParameters),
+  );
 
   Future<Map<String, dynamic>> patch(
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
-  }) =>
-      _execute(() => _dio.patch<dynamic>(path,
-          data: body, queryParameters: queryParameters));
+  }) => _execute(
+    () =>
+        _dio.patch<dynamic>(path, data: body, queryParameters: queryParameters),
+  );
 
   Future<Map<String, dynamic>> postMultipart(
     String path, {
@@ -36,13 +38,15 @@ class AppApiClient {
     List<MultipartFile> files = const [],
   }) {
     final formData = FormData();
-    formData.files.add(MapEntry(
-      'data',
-      MultipartFile.fromString(
-        jsonEncode(jsonBody),
-        contentType: MediaType('application', 'json'),
+    formData.files.add(
+      MapEntry(
+        'data',
+        MultipartFile.fromString(
+          jsonEncode(jsonBody),
+          contentType: MediaType('application', 'json'),
+        ),
       ),
-    ));
+    );
     for (final file in files) {
       formData.files.add(MapEntry('files', file));
     }
@@ -55,13 +59,15 @@ class AppApiClient {
     List<MultipartFile> files = const [],
   }) {
     final formData = FormData();
-    formData.files.add(MapEntry(
-      'data',
-      MultipartFile.fromString(
-        jsonEncode(jsonBody),
-        contentType: MediaType('application', 'json'),
+    formData.files.add(
+      MapEntry(
+        'data',
+        MultipartFile.fromString(
+          jsonEncode(jsonBody),
+          contentType: MediaType('application', 'json'),
+        ),
       ),
-    ));
+    );
     for (final file in files) {
       formData.files.add(MapEntry('files', file));
     }
@@ -72,9 +78,13 @@ class AppApiClient {
     String path, {
     Object? body,
     Map<String, String>? queryParameters,
-  }) =>
-      _execute(() => _dio.delete<dynamic>(path,
-          data: body, queryParameters: queryParameters));
+  }) => _execute(
+    () => _dio.delete<dynamic>(
+      path,
+      data: body,
+      queryParameters: queryParameters,
+    ),
+  );
 
   Future<Map<String, dynamic>> patchMultipartFile(
     String path, {
@@ -87,7 +97,8 @@ class AppApiClient {
   }
 
   Future<Map<String, dynamic>> _execute(
-      Future<Response<dynamic>> Function() call) async {
+    Future<Response<dynamic>> Function() call,
+  ) async {
     try {
       final response = await call();
       return _decodeResponse(response);
@@ -119,10 +130,7 @@ class AppApiClient {
   Map<String, dynamic> _decodeResponse(Response<dynamic> response) {
     final data = response.data;
     if (data is! Map<String, dynamic>) {
-      throw ApiException(
-        '올바르지 않은 응답 형식입니다.',
-        statusCode: response.statusCode,
-      );
+      throw ApiException('올바르지 않은 응답 형식입니다.', statusCode: response.statusCode);
     }
     return data;
   }

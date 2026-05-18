@@ -11,6 +11,7 @@ import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../core/widgets/app_snack_bar.dart';
@@ -81,7 +82,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         centerTitle: true,
         title: Text(
           '내 프로필',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -97,13 +98,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 children: [
                   Text(
                     state.errorMessage ?? '프로필을 불러오지 못했습니다.',
-                    style: TextStyle(color: c.textMuted),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: c.textMuted,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () =>
                         ref.read(profileProvider.notifier).loadProfile(),
-                    child: const Text('다시 시도'),
+                    child: Text('다시 시도'),
                   ),
                 ],
               ),
@@ -216,7 +219,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
           const SizedBox(height: 14),
           Text(
             profile.nickname,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 17,
               fontWeight: FontWeight.w800,
               color: c.textPrimary,
@@ -230,7 +233,10 @@ class _ProfileHeaderCard extends ConsumerWidget {
               const SizedBox(width: 4),
               Text(
                 '${profile.schoolName} · ${profile.gradeLabel}',
-                style: TextStyle(fontSize: 11, color: c.textMuted),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textMuted,
+                ),
               ),
               if (profile.verified) ...[
                 const SizedBox(width: 6),
@@ -243,9 +249,9 @@ class _ProfileHeaderCard extends ConsumerWidget {
                     color: c.tintBg,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Text(
+                  child: Text(
                     '인증됨',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF14A3F7),
@@ -279,7 +285,10 @@ class _ProfileHeaderCard extends ConsumerWidget {
               profile.canChangeNickname
                   ? '닉네임 변경'
                   : '${profile.daysUntilNicknameChange}일 후 변경 가능',
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -309,7 +318,7 @@ class _InfoSection extends StatelessWidget {
         children: [
           Text(
             '내 정보',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w800,
               color: c.textPrimary,
@@ -362,11 +371,17 @@ class _InfoRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
-              Text(label, style: TextStyle(fontSize: 12, color: c.textMuted)),
+              Text(
+                label,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 12,
+                  color: c.textMuted,
+                ),
+              ),
               const Spacer(),
               Text(
                 value,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: valueColor ?? c.textPrimary,
@@ -537,7 +552,7 @@ class _ActivityTile extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: c.textPrimary,
@@ -547,7 +562,7 @@ class _ActivityTile extends StatelessWidget {
             if (count != null)
               Text(
                 '$count',
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF14A3F7),
@@ -641,16 +656,16 @@ class _SettingsSection extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('로그아웃'),
-        content: const Text('로그아웃 하시겠습니까?'),
+        title: Text('로그아웃'),
+        content: Text('로그아웃 하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('로그아웃'),
+            child: Text('로그아웃'),
           ),
         ],
       ),
@@ -669,19 +684,19 @@ class _SettingsSection extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('회원 탈퇴'),
-        content: const Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
+        title: Text('회원 탈퇴'),
+        content: Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFE05C5C),
             ),
-            child: const Text('탈퇴하기'),
+            child: Text('탈퇴하기'),
           ),
         ],
       ),
@@ -716,7 +731,7 @@ class _ProfileThemeCard extends ConsumerWidget {
               const SizedBox(width: 14),
               Text(
                 '테마',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
@@ -776,7 +791,7 @@ class _ProfileThemeSegment extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : c.textTertiary,
@@ -918,7 +933,7 @@ class _ProfileNotificationToggleTile extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: color,
@@ -997,14 +1012,20 @@ class _ProfileInfoTile extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
           ),
           const Spacer(),
-          Text(trailing, style: TextStyle(fontSize: 12, color: c.textTertiary)),
+          Text(
+            trailing,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 12,
+              color: c.textTertiary,
+            ),
+          ),
         ],
       ),
     );
@@ -1022,7 +1043,7 @@ class _ProfileSectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: c.textMuted,
@@ -1096,7 +1117,7 @@ class _ProfileSettingsTile extends StatelessWidget {
             const SizedBox(width: 14),
             Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,

@@ -5,8 +5,5 @@ class BoardPostPage {
   final List<PostSummary> posts;
   final bool hasNext;
 
-  const BoardPostPage({
-    required this.posts,
-    required this.hasNext,
-  });
+  const BoardPostPage({required this.posts, required this.hasNext});
 }

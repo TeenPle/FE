@@ -73,10 +73,7 @@ class EmailApi {
   }) async {
     final response = await _dio.post(
       '/api/auth/email/verify',
-      data: {
-        'email': email,
-        'code': code,
-      },
+      data: {'email': email, 'code': code},
     );
 
     final data = response.data;

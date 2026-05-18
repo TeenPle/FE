@@ -36,8 +36,9 @@ class VerificationReapplyState {
       isSubmitLoading: isSubmitLoading ?? this.isSubmitLoading,
       info: info ?? this.info,
       selectedFilePath: selectedFilePath ?? this.selectedFilePath,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
       submitErrorMessage: clearSubmitErrorMessage
           ? null
           : (submitErrorMessage ?? this.submitErrorMessage),

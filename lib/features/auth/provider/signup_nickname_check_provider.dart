@@ -6,22 +6,20 @@ import 'signup_nickname_check_state.dart';
 
 /// 닉네임 중복 확인 상태를 관리하는 provider
 final signupNicknameCheckProvider =
-StateNotifierProvider<
-    SignupNicknameCheckNotifier,
-    SignupNicknameCheckState
->(
-      (ref) {
-    final nicknameApi = ref.read(nicknameApiProvider);
-    return SignupNicknameCheckNotifier(nicknameApi);
-  },
-);
+    StateNotifierProvider<
+      SignupNicknameCheckNotifier,
+      SignupNicknameCheckState
+    >((ref) {
+      final nicknameApi = ref.read(nicknameApiProvider);
+      return SignupNicknameCheckNotifier(nicknameApi);
+    });
 
 class SignupNicknameCheckNotifier
     extends StateNotifier<SignupNicknameCheckState> {
   final NicknameApi _nicknameApi;
 
   SignupNicknameCheckNotifier(this._nicknameApi)
-      : super(const SignupNicknameCheckState());
+    : super(const SignupNicknameCheckState());
 
   /// 닉네임 중복 확인
   Future<void> checkNickname(String nickname) async {

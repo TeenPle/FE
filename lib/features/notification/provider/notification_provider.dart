@@ -51,7 +51,12 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> loadNotifications() async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true, notifications: [], currentPage: 0, hasMore: true);
+    state = state.copyWith(
+      isLoading: true,
+      notifications: [],
+      currentPage: 0,
+      hasMore: true,
+    );
     try {
       final (:items, :hasNext) = await _api.getNotifications(page: 0);
       state = state.copyWith(
@@ -87,7 +92,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   Future<void> markAllAsRead() async {
     try {
       await _api.markAllAsRead();
-      final updated = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
+      final updated = state.notifications
+          .map((n) => n.copyWith(isRead: true))
+          .toList();
       state = state.copyWith(notifications: updated, unreadCount: 0);
     } catch (e) {
       if (kDebugMode) debugPrint('[Notification] markAllAsRead error: $e');
@@ -100,7 +107,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       await _api.markAllAsRead();
       state = state.copyWith(unreadCount: 0);
     } catch (e) {
-      if (kDebugMode) debugPrint('[Notification] markAllAsReadServerOnly error: $e');
+      if (kDebugMode)
+        debugPrint('[Notification] markAllAsReadServerOnly error: $e');
     }
   }
 
@@ -120,5 +128,5 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
 final notificationProvider =
     StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {
-  return NotificationNotifier(ref.watch(notificationApiProvider));
-});
+      return NotificationNotifier(ref.watch(notificationApiProvider));
+    });

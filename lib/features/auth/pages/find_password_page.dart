@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/find_password_provider.dart';
 
 class FindPasswordPage extends ConsumerStatefulWidget {
@@ -100,7 +101,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -162,7 +163,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                   : (state.isSendLoading
                         ? '전송 중...'
                         : (_hasSentCode ? '인증 완료 후 다음' : '인증번호 받기')),
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              style: AppTextStyles.titleSmall,
             ),
           ),
         ),
@@ -186,9 +187,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
 
               Text(
                 '비밀번호 찾기',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: Color(0xFF4A67F2),
                 ),
               ),
@@ -197,9 +196,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
 
               Text(
                 '가입한 이메일로\n인증번호를 받아주세요.',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.displaySmall.copyWith(
                   height: 1.3,
                   letterSpacing: -0.5,
                   color: context.colors.textPrimary,
@@ -210,9 +207,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
 
               Text(
                 '이메일',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.colors.textMuted,
                 ),
               ),
@@ -253,10 +248,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                         ),
                         child: Text(
                           state.isSendLoading ? '전송 중' : '재전송',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: AppTextStyles.labelMedium,
                         ),
                       ),
                     ),
@@ -269,26 +261,26 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
               if (state.sendError != null)
                 Text(
                   state.sendError!,
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 )
               else if (isVerified)
                 Text(
                   '인증이 완료된 이메일이에요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 )
               else if (_hasSentCode)
                 Text(
                   '인증번호를 전송했어요.',
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: context.colors.textMuted,
                   ),
                 )
               else
                 Text(
                   '인증번호는 3분 동안 유효해요.',
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: context.colors.textMuted,
                   ),
                 ),
@@ -298,9 +290,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
 
                 Text(
                   '인증번호',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: context.colors.textMuted,
                   ),
                 ),
@@ -331,9 +321,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                         SizedBox(width: 10),
                         Text(
                           '이메일 인증이 완료되었어요.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.labelMedium.copyWith(
                             color: context.colors.textPrimary,
                           ),
                         ),
@@ -382,10 +370,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                           ),
                           child: Text(
                             state.isVerifyLoading ? '확인 중' : '확인',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: AppTextStyles.labelMedium,
                           ),
                         ),
                       ),
@@ -399,9 +384,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                     isExpired
                         ? '인증 시간이 만료되었어요.'
                         : '남은 시간 ${_formatTime(_remainingSeconds)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: isExpired ? Colors.red : const Color(0xFF4A67F2),
                     ),
                   ),
@@ -410,7 +393,9 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                   SizedBox(height: 4),
                   Text(
                     state.verifyError!,
-                    style: TextStyle(fontSize: 11, color: Colors.red),
+                    style: AppTextStyles.captionSmall.copyWith(
+                      color: Colors.red,
+                    ),
                   ),
                 ],
               ],

@@ -49,26 +49,25 @@ class DDayModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'label': label,
-        'targetDate': targetDate.toIso8601String(),
-        'iconName': iconName,
-      };
+    'id': id,
+    'label': label,
+    'targetDate': targetDate.toIso8601String(),
+    'iconName': iconName,
+  };
 
   factory DDayModel.fromJson(Map<String, dynamic> json) => DDayModel(
-        id: json['id'] as String,
-        label: json['label'] as String,
-        targetDate: DateTime.parse(json['targetDate'] as String),
-        iconName: json['iconName'] as String? ?? 'event',
-      );
+    id: json['id'] as String,
+    label: json['label'] as String,
+    targetDate: DateTime.parse(json['targetDate'] as String),
+    iconName: json['iconName'] as String? ?? 'event',
+  );
 
   static String encodeList(List<DDayModel> list) =>
       jsonEncode(list.map((d) => d.toJson()).toList());
 
-  static List<DDayModel> decodeList(String raw) =>
-      (jsonDecode(raw) as List)
-          .map((e) => DDayModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+  static List<DDayModel> decodeList(String raw) => (jsonDecode(raw) as List)
+      .map((e) => DDayModel.fromJson(e as Map<String, dynamic>))
+      .toList();
 
   DDayModel copyWith({
     String? id,
@@ -76,9 +75,9 @@ class DDayModel {
     DateTime? targetDate,
     String? iconName,
   }) => DDayModel(
-        id: id ?? this.id,
-        label: label ?? this.label,
-        targetDate: targetDate ?? this.targetDate,
-        iconName: iconName ?? this.iconName,
-      );
+    id: id ?? this.id,
+    label: label ?? this.label,
+    targetDate: targetDate ?? this.targetDate,
+    iconName: iconName ?? this.iconName,
+  );
 }

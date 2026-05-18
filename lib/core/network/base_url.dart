@@ -12,7 +12,10 @@ String get apiBaseUrl {
     return 'https://api.teenple.com';
   }
   if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
-    const isPhysical = bool.fromEnvironment('USE_PHYSICAL', defaultValue: false);
+    const isPhysical = bool.fromEnvironment(
+      'USE_PHYSICAL',
+      defaultValue: false,
+    );
     return isPhysical ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
   }
   return 'http://localhost:8080';
@@ -21,5 +24,7 @@ String get apiBaseUrl {
 /// WebSocket base URL (http → ws, https → wss)
 String get wsBaseUrl {
   final http = apiBaseUrl;
-  return http.replaceFirst('http://', 'ws://').replaceFirst('https://', 'wss://');
+  return http
+      .replaceFirst('http://', 'ws://')
+      .replaceFirst('https://', 'wss://');
 }

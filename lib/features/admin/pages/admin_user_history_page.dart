@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/penalty_summary_model.dart';
 import '../models/warning_history_model.dart';
 import '../provider/admin_penalty_provider.dart';
@@ -18,7 +19,8 @@ class AdminUserHistoryPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdminUserHistoryPage> createState() => _AdminUserHistoryPageState();
+  ConsumerState<AdminUserHistoryPage> createState() =>
+      _AdminUserHistoryPageState();
 }
 
 class _AdminUserHistoryPageState extends ConsumerState<AdminUserHistoryPage>
@@ -53,14 +55,20 @@ class _AdminUserHistoryPageState extends ConsumerState<AdminUserHistoryPage>
         centerTitle: true,
         title: Text(
           '${widget.userNickname} 이력',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
         ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: const Color(0xFF4A67F2),
           unselectedLabelColor: c.textMuted,
           indicatorColor: const Color(0xFF4A67F2),
-          labelStyle: const TextStyle(fontWeight: FontWeight.w700),
+          labelStyle: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
           tabs: const [
             Tab(text: '제재 이력'),
             Tab(text: '경고 이력'),
@@ -92,18 +100,30 @@ class _PenaltyTab extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (state.error != null && state.penalties.isEmpty) {
-      return Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)));
+      return Center(
+        child: Text(
+          state.error!,
+          style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+        ),
+      );
     }
     if (state.penalties.isEmpty) {
       return Center(
-        child: Text('제재 이력이 없어요.', style: TextStyle(fontSize: 13, color: c.textMuted)),
+        child: Text(
+          '제재 이력이 없어요.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 13,
+            color: c.textMuted,
+          ),
+        ),
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.penalties.length,
-      itemBuilder: (context, index) => _UserPenaltyCard(penalty: state.penalties[index]),
+      itemBuilder: (context, index) =>
+          _UserPenaltyCard(penalty: state.penalties[index]),
     );
   }
 }
@@ -122,8 +142,8 @@ class _UserPenaltyCard extends StatelessWidget {
     final (statusLabel, statusColor, statusBg) = isCancelled
         ? ('취소됨', c.textTertiary, c.subtleBg)
         : isActive
-            ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
-            : ('만료', c.textTertiary, c.subtleBg);
+        ? ('제재 중', const Color(0xFFE05C7B), const Color(0xFFFFF3F3))
+        : ('만료', c.textTertiary, c.subtleBg);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -139,33 +159,65 @@ class _UserPenaltyCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusBg,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Text(
                   statusLabel,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: statusColor,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: c.tintBg, borderRadius: BorderRadius.circular(6)),
+                decoration: BoxDecoration(
+                  color: c.tintBg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Text(
                   penalty.reasonLabel,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: c.iconOnCard),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: c.iconOnCard,
+                  ),
                 ),
               ),
               const Spacer(),
-              Text(_fmt(penalty.createdAt), style: TextStyle(fontSize: 11, color: c.textTertiary)),
+              Text(
+                _fmt(penalty.createdAt),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textTertiary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '${_fmt(penalty.createdAt)} ~ ${_fmt(penalty.expiresAt)}',
-            style: TextStyle(fontSize: 11, color: c.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: c.textSecondary,
+            ),
           ),
           const SizedBox(height: 2),
-          Text('신고 #${penalty.reportId}', style: TextStyle(fontSize: 11, color: c.textTertiary)),
+          Text(
+            '신고 #${penalty.reportId}',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: c.textTertiary,
+            ),
+          ),
         ],
       ),
     );
@@ -189,18 +241,30 @@ class _WarningTab extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (state.error != null && state.items.isEmpty) {
-      return Center(child: Text(state.error!, style: TextStyle(color: c.textMuted)));
+      return Center(
+        child: Text(
+          state.error!,
+          style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+        ),
+      );
     }
     if (state.items.isEmpty) {
       return Center(
-        child: Text('경고 이력이 없어요.', style: TextStyle(fontSize: 13, color: c.textMuted)),
+        child: Text(
+          '경고 이력이 없어요.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 13,
+            color: c.textMuted,
+          ),
+        ),
       );
     }
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.items.length,
-      itemBuilder: (context, index) => _UserWarningCard(warning: state.items[index]),
+      itemBuilder: (context, index) =>
+          _UserWarningCard(warning: state.items[index]),
     );
   }
 }
@@ -229,18 +293,38 @@ class _UserWarningCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, size: 15, color: Color(0xFFF59E0B)),
+              const Icon(
+                Icons.warning_amber_rounded,
+                size: 15,
+                color: Color(0xFFF59E0B),
+              ),
               const SizedBox(width: 6),
-              const Text(
+              Text(
                 '경고',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFF59E0B)),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFF59E0B),
+                ),
               ),
               if (warning.reportId != null) ...[
                 const SizedBox(width: 8),
-                Text('신고 #${warning.reportId}', style: TextStyle(fontSize: 11, color: c.textTertiary)),
+                Text(
+                  '신고 #${warning.reportId}',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textTertiary,
+                  ),
+                ),
               ],
               const Spacer(),
-              Text(issuedStr, style: TextStyle(fontSize: 11, color: c.textTertiary)),
+              Text(
+                issuedStr,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textTertiary,
+                ),
+              ),
             ],
           ),
           if (warning.targetType != null && warning.targetSummary != null) ...[
@@ -258,12 +342,20 @@ class _UserWarningCard extends StatelessWidget {
                 children: [
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: c.textTertiary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: c.textTertiary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     warning.targetSummary!,
-                    style: TextStyle(fontSize: 11, color: c.textBody, height: 1.4),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      color: c.textBody,
+                      height: 1.4,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -282,23 +374,33 @@ class _UserWarningCard extends StatelessWidget {
             ),
             child: Text(
               warning.adminComment,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF78350F), height: 1.5),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: Color(0xFF78350F),
+                height: 1.5,
+              ),
             ),
           ),
           const SizedBox(height: 6),
           Row(
             children: [
               Icon(
-                warning.isRead ? Icons.check_circle_outline : Icons.circle_outlined,
+                warning.isRead
+                    ? Icons.check_circle_outline
+                    : Icons.circle_outlined,
                 size: 13,
-                color: warning.isRead ? const Color(0xFF43A047) : c.iconSecondary,
+                color: warning.isRead
+                    ? const Color(0xFF43A047)
+                    : c.iconSecondary,
               ),
               const SizedBox(width: 4),
               Text(
                 warning.isRead ? '읽음' : '미확인',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 11,
-                  color: warning.isRead ? const Color(0xFF43A047) : c.textTertiary,
+                  color: warning.isRead
+                      ? const Color(0xFF43A047)
+                      : c.textTertiary,
                 ),
               ),
             ],

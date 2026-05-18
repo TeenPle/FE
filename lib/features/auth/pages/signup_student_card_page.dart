@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_submit_provider.dart';
 
@@ -85,7 +86,10 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           ),
           child: Text(
             submitState.isLoading ? '가입 중...' : '완료',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -110,7 +114,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           /// 단계 표시
           Text(
             '8/8',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: context.colors.textTertiary,
@@ -122,7 +126,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           /// 페이지 성격 안내
           Text(
             '재학 인증',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: Color(0xFF4A67F2),
@@ -134,7 +138,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           /// 제목
           Text(
             '학생증을 업로드해주세요',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w800,
               height: 1.22,
@@ -148,7 +152,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           /// 보조 문구
           Text(
             '마지막 단계예요. 재학 확인에 사용할 사진이에요.',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               height: 1.5,
               color: context.colors.textBody,
@@ -160,7 +164,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           /// 학생증 업로드 라벨
           Text(
             '학생증 이미지',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: context.colors.textMuted,
@@ -200,7 +204,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
                   Expanded(
                     child: Text(
                       selectedFileName.isEmpty ? '학생증 사진 선택' : selectedFileName,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 13,
                         fontWeight: selectedFileName.isEmpty
                             ? FontWeight.w400
@@ -221,7 +225,10 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           /// 안내 문구
           Text(
             '학생증 정보가 잘 보이는 사진을 올려주세요.',
-            style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: context.colors.textMuted,
+            ),
           ),
 
           /// 선택한 이미지 미리보기
@@ -231,7 +238,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
             /// 미리보기 라벨
             Text(
               '미리보기',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: context.colors.textMuted,
@@ -258,7 +265,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
                     return Center(
                       child: Text(
                         '이미지를 불러올 수 없어요.',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           color: context.colors.iconSecondary,
                         ),
@@ -274,7 +281,10 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
             /// 업로드 성공 안내
             Text(
               '선택한 이미지가 맞는지 확인해주세요.',
-              style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: Color(0xFF4A67F2),
+              ),
             ),
           ],
 
@@ -283,7 +293,10 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
             SizedBox(height: 8),
             Text(
               submitState.errorMessage!,
-              style: TextStyle(fontSize: 11, color: Colors.red),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: Colors.red,
+              ),
             ),
           ],
         ],

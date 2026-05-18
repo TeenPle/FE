@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_school_provider.dart';
 
@@ -67,7 +68,10 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           ),
           child: Text(
             '다음',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -92,7 +96,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           /// 단계 표시
           Text(
             '1/8',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: context.colors.textTertiary,
@@ -104,7 +108,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           /// 페이지 성격 안내
           Text(
             '학교 정보',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: Color(0xFF4A67F2),
@@ -116,7 +120,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           /// 제목
           Text(
             '학교를 알려주세요',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.6,
@@ -130,7 +134,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           /// 보조 문구
           Text(
             '재학 중인 학교를 검색하고 선택해주세요.',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               height: 1.5,
               color: context.colors.textBody,
@@ -142,7 +146,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           /// 학교 라벨
           Text(
             '학교 검색',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: context.colors.textMuted,
@@ -169,7 +173,10 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
             },
             decoration: InputDecoration(
               hintText: '학교명을 검색해주세요',
-              hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                color: c.textHint,
+                fontSize: 12,
+              ),
               filled: true,
               fillColor: c.inputBg,
               contentPadding: const EdgeInsets.symmetric(
@@ -229,7 +236,10 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(
                 searchState.errorMessage!,
-                style: TextStyle(fontSize: 11, color: Colors.red),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: Colors.red,
+                ),
               ),
             ),
 
@@ -252,7 +262,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     ),
                     child: Text(
                       '학교명을 입력하면\n검색 결과가 여기에 표시돼요.',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 12,
                         height: 1.6,
                         color: context.colors.iconSecondary,
@@ -290,7 +300,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     child: Text(
                       '검색 결과가 없어요.\n학교명을 다시 확인해주세요.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 12,
                         height: 1.6,
                         color: context.colors.textMuted,
@@ -321,7 +331,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                           children: [
                             Text(
                               '검색 결과',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: context.colors.textPrimary,
@@ -330,7 +340,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                             SizedBox(width: 8),
                             Text(
                               '${searchState.schools.length}개',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF4A67F2),
@@ -411,13 +421,14 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                     Expanded(
                                       child: Text(
                                         school.name,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: isSelected
-                                              ? FontWeight.w700
-                                              : FontWeight.w500,
-                                          color: context.colors.textPrimary,
-                                        ),
+                                        style: AppTextStyles.bodyMedium
+                                            .copyWith(
+                                              fontSize: 13,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w700
+                                                  : FontWeight.w500,
+                                              color: context.colors.textPrimary,
+                                            ),
                                       ),
                                     ),
                                     if (isSelected)

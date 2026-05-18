@@ -10,9 +10,7 @@ import 'school_repository.dart';
 class LiveSchoolRepository implements SchoolRepository {
   final SchoolApi api;
 
-  const LiveSchoolRepository({
-    required this.api,
-  });
+  const LiveSchoolRepository({required this.api});
 
   /// 학교 상세 정보를 서버에서 조회
   @override
@@ -21,11 +19,7 @@ class LiveSchoolRepository implements SchoolRepository {
     int page = 0,
     int size = 10,
   }) {
-    return api.getSchoolDetail(
-      schoolId: schoolId,
-      page: page,
-      size: size,
-    );
+    return api.getSchoolDetail(schoolId: schoolId, page: page, size: size);
   }
 
   /// 특정 게시판 글 목록을 서버에서 조회

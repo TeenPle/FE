@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
@@ -88,7 +89,7 @@ class PostSummaryCard extends StatelessWidget {
                               post.content,
                               maxLines: thumbnailUrl == null ? 3 : 2,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 12,
                                 height: 1.38,
                                 fontWeight: FontWeight.w400,
@@ -192,7 +193,7 @@ class _BoardMetaRow extends StatelessWidget {
       parts.join('  ·  '),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(
+      style: AppTextStyles.bodyMedium.copyWith(
         fontSize: 11,
         fontWeight: FontWeight.w400,
         color: color,
@@ -227,9 +228,9 @@ class _TitleLine extends StatelessWidget {
             text: TextSpan(
               children: [
                 if (hot)
-                  const TextSpan(
+                  TextSpan(
                     text: 'HOT ',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 12,
                       height: 1.2,
                       fontWeight: FontWeight.w700,
@@ -239,7 +240,7 @@ class _TitleLine extends StatelessWidget {
                   ),
                 TextSpan(
                   text: title,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     height: 1.2,
                     fontWeight: FontWeight.w600,
@@ -260,9 +261,9 @@ class _TitleLine extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               border: Border.all(color: const Color(0xFF229BF3), width: 1),
             ),
-            child: const Text(
+            child: Text(
               '투표',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF229BF3),
@@ -298,7 +299,7 @@ class _StatChip extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           text,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
             color: color,

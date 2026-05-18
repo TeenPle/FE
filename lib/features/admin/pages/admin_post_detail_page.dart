@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
@@ -56,14 +57,20 @@ class _AdminPostDetailPageState extends ConsumerState<AdminPostDetailPage> {
         elevation: 0,
         title: Text(
           '게시글 모더레이션',
-          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.post == null
           ? Center(
-              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
             )
           : state.post == null
           ? const SizedBox()
@@ -116,13 +123,16 @@ class _PostDetailBody extends StatelessWidget {
                 title: '게시글 내용',
                 trailing: Text(
                   _formatDate(post.createdAt),
-                  style: TextStyle(fontSize: 11, color: c.textTertiary),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textTertiary,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 post.title,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: c.textPrimary,
@@ -132,7 +142,11 @@ class _PostDetailBody extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 post.content,
-                style: TextStyle(fontSize: 13, color: c.textBody, height: 1.6),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 13,
+                  color: c.textBody,
+                  height: 1.6,
+                ),
               ),
               if (post.mediaList.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -199,7 +213,7 @@ class _PostDetailBody extends StatelessWidget {
                     extra: {'nickname': post.authorLabel},
                   ),
                   icon: const Icon(Icons.history_rounded, size: 18),
-                  label: const Text('작성자 이력'),
+                  label: Text('작성자 이력'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF426C82),
                     side: const BorderSide(color: Color(0xFF426C82)),
@@ -224,7 +238,7 @@ class _PostDetailBody extends StatelessWidget {
                                 onConfirm: onRestorePost,
                               ),
                         icon: const Icon(Icons.undo_rounded, size: 18),
-                        label: const Text('게시글 복구'),
+                        label: Text('게시글 복구'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2F7D46),
                           foregroundColor: Colors.white,
@@ -247,7 +261,7 @@ class _PostDetailBody extends StatelessWidget {
                           Icons.visibility_off_outlined,
                           size: 18,
                         ),
-                        label: const Text('게시글 숨김'),
+                        label: Text('게시글 숨김'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFFE05C7B),
                           side: const BorderSide(color: Color(0xFFE05C7B)),
@@ -270,7 +284,7 @@ class _PostDetailBody extends StatelessWidget {
                 title: '댓글',
                 trailing: Text(
                   '${post.comments.length}개',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: c.textSecondary,
@@ -283,7 +297,9 @@ class _PostDetailBody extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
                     '댓글이 없습니다.',
-                    style: TextStyle(color: c.iconSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: c.iconSecondary,
+                    ),
                   ),
                 )
               else
@@ -358,7 +374,12 @@ class _PostDetailBody extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('취소', style: TextStyle(color: ctx.colors.textMuted)),
+            child: Text(
+              '취소',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: ctx.colors.textMuted,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -370,7 +391,9 @@ class _PostDetailBody extends StatelessWidget {
             },
             child: Text(
               confirmText,
-              style: const TextStyle(color: Color(0xFFE05C7B)),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Color(0xFFE05C7B),
+              ),
             ),
           ),
         ],
@@ -433,13 +456,16 @@ class _PostSummaryHeader extends StatelessWidget {
                   children: [
                     Text(
                       '콘텐츠 모더레이션',
-                      style: TextStyle(fontSize: 11, color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        color: c.textMuted,
+                      ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       post.boardTitle,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
                         color: c.textPrimary,
@@ -522,7 +548,7 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 7),
         Text(
           title,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w900,
             color: c.textPrimary,
@@ -652,7 +678,7 @@ class _CommentTile extends StatelessWidget {
                 child: Text(
                   comment.authorLabel,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: c.textBody,
@@ -665,7 +691,11 @@ class _CommentTile extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             comment.content,
-            style: TextStyle(fontSize: 12, color: c.textBody, height: 1.35),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 12,
+              color: c.textBody,
+              height: 1.35,
+            ),
           ),
           const SizedBox(height: 6),
           Row(
@@ -687,7 +717,7 @@ class _CommentTile extends StatelessWidget {
                     ? TextButton.icon(
                         onPressed: isActing ? null : onRestore,
                         icon: const Icon(Icons.undo_rounded, size: 15),
-                        label: const Text('복구'),
+                        label: Text('복구'),
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF2F7D46),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -701,7 +731,7 @@ class _CommentTile extends StatelessWidget {
                           Icons.visibility_off_outlined,
                           size: 15,
                         ),
-                        label: const Text('숨김'),
+                        label: Text('숨김'),
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFFE05C7B),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -744,7 +774,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         _label(status),
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w800,
           color: color,
@@ -781,7 +811,13 @@ class _InfoChip extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: c.iconOnCard),
           const SizedBox(width: 5),
-          Text(label, style: TextStyle(fontSize: 11, color: c.textSecondary)),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: c.textSecondary,
+            ),
+          ),
         ],
       ),
     );
@@ -815,11 +851,17 @@ class _MetricBox extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: c.iconOnCard),
           const SizedBox(height: 6),
-          Text(label, style: TextStyle(fontSize: 10, color: c.textMuted)),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10,
+              color: c.textMuted,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(
             '$value',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w900,
               color: c.textPrimary,
@@ -845,7 +887,13 @@ class _Metric extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: c.iconSecondary),
         const SizedBox(width: 4),
-        Text(value, style: TextStyle(fontSize: 11, color: c.textMuted)),
+        Text(
+          value,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 11,
+            color: c.textMuted,
+          ),
+        ),
       ],
     );
   }

@@ -25,10 +25,7 @@ class LoginApi {
   ///   "password": "..."
   /// }
   Future<LoginResponseModel> login(LoginRequestModel request) async {
-    final response = await _dio.post(
-      '/api/auth/login',
-      data: request.toJson(),
-    );
+    final response = await _dio.post('/api/auth/login', data: request.toJson());
 
     final data = response.data;
 
@@ -56,9 +53,6 @@ class LoginApi {
   ///
   /// POST /api/auth/logout
   Future<void> logout(String refreshToken) async {
-    await _dio.post(
-      '/api/auth/logout',
-      data: {'refreshToken': refreshToken},
-    );
+    await _dio.post('/api/auth/logout', data: {'refreshToken': refreshToken});
   }
 }

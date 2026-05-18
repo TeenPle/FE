@@ -17,11 +17,7 @@ class KeyboardAwareBottomBar extends StatelessWidget {
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOutCubic,
       padding: EdgeInsets.only(bottom: keyboardInset),
-      child: SafeArea(
-        top: false,
-        minimum: minimum,
-        child: child,
-      ),
+      child: SafeArea(top: false, minimum: minimum, child: child),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
 class MyLikedPostsPage extends ConsumerStatefulWidget {
@@ -51,7 +52,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
         centerTitle: true,
         title: Text(
           '내가 공감한 글',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -78,7 +79,10 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
             const SizedBox(height: 12),
             Text(
               '아직 공감한 글이 없어요.',
-              style: TextStyle(fontSize: 13, color: c.textMuted),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textMuted,
+              ),
             ),
           ],
         ),
@@ -113,7 +117,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
               children: [
                 Text(
                   post.title,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: cc.textPrimary,
@@ -124,7 +128,7 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
                 const SizedBox(height: 6),
                 Text(
                   post.preview,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     height: 1.5,
                     color: cc.iconOnCard,
@@ -136,23 +140,30 @@ class _MyLikedPostsPageState extends ConsumerState<MyLikedPostsPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.thumb_up_rounded, size: 14, color: Color(0xFF14A3F7)),
+                    const Icon(
+                      Icons.thumb_up_rounded,
+                      size: 14,
+                      color: Color(0xFF14A3F7),
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       '${post.likeCount}',
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         color: Color(0xFF14A3F7),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Icon(Icons.chat_bubble_outline_rounded,
-                        size: 14, color: cc.textMuted),
+                    Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      size: 14,
+                      color: cc.textMuted,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       '${post.commentCount}',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         color: cc.textMuted,
                         fontWeight: FontWeight.w600,

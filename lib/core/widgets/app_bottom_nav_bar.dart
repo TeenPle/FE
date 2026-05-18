@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../theme/app_colors.dart';
 import '../utils/haptics.dart';
@@ -123,7 +124,7 @@ class _NavItem extends StatelessWidget {
                         ),
                         child: Text(
                           badgeCount > 99 ? '99+' : '$badgeCount',
-                          style: const TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -137,7 +138,7 @@ class _NavItem extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 10,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                   color: color,

@@ -5,19 +5,21 @@ import '../api/email_api.dart';
 import '../api/find_password_api.dart';
 import 'find_password_state.dart';
 
-final findPasswordProvider = StateNotifierProvider.autoDispose<
-    FindPasswordNotifier, FindPasswordState>((ref) {
-  final findPasswordApi = ref.read(findPasswordApiProvider);
-  final emailApi = ref.read(emailApiProvider);
-  return FindPasswordNotifier(findPasswordApi, emailApi);
-});
+final findPasswordProvider =
+    StateNotifierProvider.autoDispose<FindPasswordNotifier, FindPasswordState>((
+      ref,
+    ) {
+      final findPasswordApi = ref.read(findPasswordApiProvider);
+      final emailApi = ref.read(emailApiProvider);
+      return FindPasswordNotifier(findPasswordApi, emailApi);
+    });
 
 class FindPasswordNotifier extends StateNotifier<FindPasswordState> {
   final FindPasswordApi _findPasswordApi;
   final EmailApi _emailApi;
 
   FindPasswordNotifier(this._findPasswordApi, this._emailApi)
-      : super(const FindPasswordState());
+    : super(const FindPasswordState());
 
   Future<void> sendCode(String email) async {
     state = state.copyWith(
@@ -37,8 +39,10 @@ class FindPasswordNotifier extends StateNotifier<FindPasswordState> {
 
       if (data is Map<String, dynamic>) {
         final code = data['code'];
-        if (code == 'USER4003') message = '가입되지 않은 이메일입니다.';
-        else if (data['message'] is String) message = data['message'] as String;
+        if (code == 'USER4003')
+          message = '가입되지 않은 이메일입니다.';
+        else if (data['message'] is String)
+          message = data['message'] as String;
       }
 
       state = state.copyWith(isSendLoading: false, sendError: message);
@@ -50,10 +54,7 @@ class FindPasswordNotifier extends StateNotifier<FindPasswordState> {
     }
   }
 
-  Future<void> verifyCode({
-    required String email,
-    required String code,
-  }) async {
+  Future<void> verifyCode({required String email, required String code}) async {
     state = state.copyWith(
       isVerifyLoading: true,
       clearVerifyError: true,

@@ -7,6 +7,7 @@ import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
@@ -37,7 +38,7 @@ class SettingsPage extends ConsumerWidget {
         centerTitle: true,
         title: Text(
           '설정',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -141,16 +142,16 @@ class SettingsPage extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('로그아웃'),
-        content: const Text('로그아웃 하시겠습니까?'),
+        title: Text('로그아웃'),
+        content: Text('로그아웃 하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('로그아웃'),
+            child: Text('로그아웃'),
           ),
         ],
       ),
@@ -169,19 +170,19 @@ class SettingsPage extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('회원 탈퇴'),
-        content: const Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
+        title: Text('회원 탈퇴'),
+        content: Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFE05C5C),
             ),
-            child: const Text('탈퇴하기'),
+            child: Text('탈퇴하기'),
           ),
         ],
       ),
@@ -219,7 +220,7 @@ class _ThemeCard extends ConsumerWidget {
               const SizedBox(width: 14),
               Text(
                 '테마',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: context.colors.textPrimary,
@@ -278,7 +279,7 @@ class _ThemeSegment extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : context.colors.textMuted,
@@ -424,7 +425,7 @@ class _NotificationToggleTile extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: color,
@@ -506,7 +507,7 @@ class _InfoTile extends StatelessWidget {
           const SizedBox(width: 14),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: context.colors.textPrimary,
@@ -515,7 +516,10 @@ class _InfoTile extends StatelessWidget {
           const Spacer(),
           Text(
             trailing,
-            style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 12,
+              color: context.colors.textTertiary,
+            ),
           ),
         ],
       ),
@@ -537,7 +541,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 4),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: context.colors.textTertiary,
@@ -611,7 +615,7 @@ class _SettingsTile extends StatelessWidget {
             const SizedBox(width: 14),
             Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,

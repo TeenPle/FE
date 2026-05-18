@@ -99,7 +99,9 @@ class SchoolState {
       schoolName: schoolName ?? this.schoolName,
       schoolDescription: schoolDescription ?? this.schoolDescription,
       boards: boards ?? this.boards,
-      selectedBoardId: clearSelectedBoard ? null : (selectedBoardId ?? this.selectedBoardId),
+      selectedBoardId: clearSelectedBoard
+          ? null
+          : (selectedBoardId ?? this.selectedBoardId),
       posts: posts ?? this.posts,
       topRecommendedPosts: topRecommendedPosts ?? this.topRecommendedPosts,
       hotPosts: hotPosts ?? this.hotPosts,

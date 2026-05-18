@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
 class MyCommentsPage extends ConsumerStatefulWidget {
@@ -51,7 +52,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
         centerTitle: true,
         title: Text(
           '내가 쓴 댓글',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -74,11 +75,18 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.chat_bubble_outline_rounded, size: 52, color: c.iconMuted),
+            Icon(
+              Icons.chat_bubble_outline_rounded,
+              size: 52,
+              color: c.iconMuted,
+            ),
             const SizedBox(height: 12),
             Text(
               '아직 쓴 댓글이 없어요.',
-              style: TextStyle(fontSize: 13, color: c.textMuted),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textMuted,
+              ),
             ),
           ],
         ),
@@ -115,14 +123,17 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                   children: [
                     if (comment.boardTitle != null) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: cc.tintBg,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           comment.boardTitle!,
-                          style: const TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF14A3F7),
@@ -136,7 +147,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                     Expanded(
                       child: Text(
                         comment.postTitle,
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           color: cc.textMuted,
                           fontWeight: FontWeight.w600,
@@ -150,7 +161,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                 const SizedBox(height: 8),
                 Text(
                   comment.content,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 12,
                     height: 1.5,
                     color: cc.textBody,
@@ -162,11 +173,15 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.thumb_up_outlined, size: 13, color: cc.textMuted),
+                    Icon(
+                      Icons.thumb_up_outlined,
+                      size: 13,
+                      color: cc.textMuted,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       '${comment.likeCount}',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         color: cc.textMuted,
                         fontWeight: FontWeight.w600,

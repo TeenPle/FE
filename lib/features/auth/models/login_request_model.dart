@@ -6,16 +6,10 @@ class LoginRequestModel {
   /// 로그인 비밀번호
   final String password;
 
-  const LoginRequestModel({
-    required this.email,
-    required this.password,
-  });
+  const LoginRequestModel({required this.email, required this.password});
 
   /// JSON 직렬화
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'password': password,
-    };
+    return {'email': email, 'password': password};
   }
 }

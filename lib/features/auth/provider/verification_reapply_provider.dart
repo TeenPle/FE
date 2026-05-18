@@ -7,20 +7,21 @@ import '../models/verification_reapply_request_model.dart';
 import 'verification_reapply_state.dart';
 
 /// 반려 사유 조회 / 재요청 provider
-final verificationReapplyProvider = StateNotifierProvider<
-    VerificationReapplyNotifier, VerificationReapplyState>(
-      (ref) {
-    final api = ref.read(verificationReapplyApiProvider);
-    return VerificationReapplyNotifier(api);
-  },
-);
+final verificationReapplyProvider =
+    StateNotifierProvider<
+      VerificationReapplyNotifier,
+      VerificationReapplyState
+    >((ref) {
+      final api = ref.read(verificationReapplyApiProvider);
+      return VerificationReapplyNotifier(api);
+    });
 
 class VerificationReapplyNotifier
     extends StateNotifier<VerificationReapplyState> {
   final VerificationReapplyApi _api;
 
   VerificationReapplyNotifier(this._api)
-      : super(const VerificationReapplyState());
+    : super(const VerificationReapplyState());
 
   /// 반려 사유 조회
   Future<void> fetchInfo({
@@ -31,9 +32,7 @@ class VerificationReapplyNotifier
     final trimmedPassword = password.trim();
 
     if (trimmedEmail.isEmpty || trimmedPassword.isEmpty) {
-      state = state.copyWith(
-        errorMessage: '로그인 정보가 없어 반려 사유를 조회할 수 없습니다.',
-      );
+      state = state.copyWith(errorMessage: '로그인 정보가 없어 반려 사유를 조회할 수 없습니다.');
       return;
     }
 
@@ -52,10 +51,7 @@ class VerificationReapplyNotifier
         ),
       );
 
-      state = state.copyWith(
-        isInfoLoading: false,
-        info: result,
-      );
+      state = state.copyWith(isInfoLoading: false, info: result);
     } on DioException catch (e) {
       state = state.copyWith(
         isInfoLoading: false,
@@ -79,31 +75,22 @@ class VerificationReapplyNotifier
   }
 
   /// 재요청
-  Future<void> submit({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> submit({required String email, required String password}) async {
     final trimmedEmail = email.trim();
     final trimmedPassword = password.trim();
 
     if (state.info == null) {
-      state = state.copyWith(
-        submitErrorMessage: '반려 정보를 먼저 불러와주세요.',
-      );
+      state = state.copyWith(submitErrorMessage: '반려 정보를 먼저 불러와주세요.');
       return;
     }
 
     if (trimmedEmail.isEmpty || trimmedPassword.isEmpty) {
-      state = state.copyWith(
-        submitErrorMessage: '로그인 정보가 없어 재요청할 수 없습니다.',
-      );
+      state = state.copyWith(submitErrorMessage: '로그인 정보가 없어 재요청할 수 없습니다.');
       return;
     }
 
     if (state.selectedFilePath.trim().isEmpty) {
-      state = state.copyWith(
-        submitErrorMessage: '학생증 이미지를 선택해주세요.',
-      );
+      state = state.copyWith(submitErrorMessage: '학생증 이미지를 선택해주세요.');
       return;
     }
 
@@ -123,10 +110,7 @@ class VerificationReapplyNotifier
         studentCardFilePath: state.selectedFilePath,
       );
 
-      state = state.copyWith(
-        isSubmitLoading: false,
-        isSubmitSuccess: true,
-      );
+      state = state.copyWith(isSubmitLoading: false, isSubmitSuccess: true);
     } on DioException catch (e) {
       state = state.copyWith(
         isSubmitLoading: false,

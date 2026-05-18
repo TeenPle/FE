@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../models/inquiry_model.dart';
 import '../provider/admin_inquiry_provider.dart';
@@ -39,7 +40,10 @@ class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
         centerTitle: true,
         title: Text(
           '문의 관리',
-          style: TextStyle(fontWeight: FontWeight.w800, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: Column(
@@ -84,7 +88,7 @@ class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
                         ),
                         child: Text(
                           tab.$2,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: active ? Colors.white : c.textSecondary,
@@ -104,14 +108,18 @@ class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
                 ? Center(
                     child: Text(
                       state.error!,
-                      style: TextStyle(color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textMuted,
+                      ),
                     ),
                   )
                 : state.inquiries.isEmpty
                 ? Center(
                     child: Text(
                       '문의 내역이 없어요.',
-                      style: TextStyle(color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textMuted,
+                      ),
                     ),
                   )
                 : RefreshIndicator(
@@ -177,7 +185,10 @@ class _AdminInquiryTile extends StatelessWidget {
                   const Spacer(),
                   Text(
                     timeAgo(inquiry.createdAt),
-                    style: TextStyle(fontSize: 11, color: c.textTertiary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      color: c.textTertiary,
+                    ),
                   ),
                 ],
               ),
@@ -186,7 +197,7 @@ class _AdminInquiryTile extends StatelessWidget {
                 inquiry.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: c.textPrimary,
@@ -201,7 +212,10 @@ class _AdminInquiryTile extends StatelessWidget {
                     child: Text(
                       _userLine(inquiry),
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 11, color: c.textSecondary),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        color: c.textSecondary,
+                      ),
                     ),
                   ),
                   Icon(
@@ -251,7 +265,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         answered ? '답변 완료' : '답변 대기',
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w800,
           color: answered ? const Color(0xFF14A3F7) : c.textMuted,

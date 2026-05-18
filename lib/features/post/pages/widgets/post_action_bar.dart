@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
@@ -54,13 +55,9 @@ class PostActionBar extends StatelessWidget {
           icon: bookmarkedByMe
               ? Icons.bookmark_rounded
               : Icons.bookmark_border_rounded,
-          iconColor: bookmarkedByMe
-              ? const Color(0xFFF5A623)
-              : c.iconOnCard,
-          backgroundColor:
-              bookmarkedByMe ? const Color(0xFFFFF8ED) : c.tintBg,
-          borderColor:
-              bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
+          iconColor: bookmarkedByMe ? const Color(0xFFF5A623) : c.iconOnCard,
+          backgroundColor: bookmarkedByMe ? const Color(0xFFFFF8ED) : c.tintBg,
+          borderColor: bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
           onTap: onBookmarkTap,
         ),
         const SizedBox(width: 10),
@@ -108,7 +105,7 @@ class _StaticChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: iconColor,
@@ -154,11 +151,7 @@ class _IconActionButton extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: borderColor ?? c.borderBlue),
           ),
-          child: Icon(
-            icon,
-            size: 17,
-            color: iconColor ?? c.iconOnCard,
-          ),
+          child: Icon(icon, size: 17, color: iconColor ?? c.iconOnCard),
         ),
       ),
     );

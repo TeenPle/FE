@@ -6,7 +6,7 @@ class PostDetail {
   final int postId;
   final int? authorUserId;
   final bool isMine;
-  final int? authorId;  // 게시글 작성자 userId (채팅 유입용)
+  final int? authorId; // 게시글 작성자 userId (채팅 유입용)
   final String title;
   final String content;
   final int viewCount;
@@ -61,20 +61,31 @@ class PostDetail {
     final rawProfileUrl = json['authorProfileImageUrl'] as String?;
     return PostDetail(
       postId: (json['postId'] as num).toInt(),
-      authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
+      authorUserId: json['authorUserId'] != null
+          ? (json['authorUserId'] as num).toInt()
+          : null,
       isMine: json['isMine'] as bool? ?? false,
-      authorId: json['authorId'] != null ? (json['authorId'] as num).toInt() : null,
+      authorId: json['authorId'] != null
+          ? (json['authorId'] as num).toInt()
+          : null,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
-      viewCount: json['viewCount'] != null ? (json['viewCount'] as num).toInt() : 0,
+      viewCount: json['viewCount'] != null
+          ? (json['viewCount'] as num).toInt()
+          : 0,
       anonymous: json['anonymous'] as bool? ?? false,
-      likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
-      dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
+      likeCount: json['likeCount'] != null
+          ? (json['likeCount'] as num).toInt()
+          : 0,
+      dislikeCount: json['dislikeCount'] != null
+          ? (json['dislikeCount'] as num).toInt()
+          : 0,
       likedByMe: json['likedByMe'] as bool? ?? false,
       dislikedByMe: json['dislikedByMe'] as bool? ?? false,
       postStatus: json['postStatus'] as String? ?? '',
       username: json['username'] as String? ?? '',
-      authorProfileImageUrl: (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
+      authorProfileImageUrl:
+          (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
           ? rawProfileUrl
           : null,
       authorDeleted: json['authorDeleted'] as bool? ?? false,
@@ -82,7 +93,9 @@ class PostDetail {
       canReportAuthor: json['canReportAuthor'] as bool? ?? true,
       canBlockAuthor: json['canBlockAuthor'] as bool? ?? true,
       createdAt: json['createdAt'] as String? ?? '',
-      createdAtMs: json['createdAtMs'] != null ? (json['createdAtMs'] as num).toInt() : null,
+      createdAtMs: json['createdAtMs'] != null
+          ? (json['createdAtMs'] as num).toInt()
+          : null,
       comments: (json['comments'] as List<dynamic>? ?? [])
           .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -138,7 +151,8 @@ class PostDetail {
       dislikedByMe: dislikedByMe ?? this.dislikedByMe,
       postStatus: postStatus ?? this.postStatus,
       username: username ?? this.username,
-      authorProfileImageUrl: authorProfileImageUrl ?? this.authorProfileImageUrl,
+      authorProfileImageUrl:
+          authorProfileImageUrl ?? this.authorProfileImageUrl,
       authorDeleted: authorDeleted ?? this.authorDeleted,
       canChatWithAuthor: canChatWithAuthor ?? this.canChatWithAuthor,
       canReportAuthor: canReportAuthor ?? this.canReportAuthor,
@@ -154,5 +168,6 @@ class PostDetail {
 
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
-  String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
+  String get displayAuthorName =>
+      authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
 }

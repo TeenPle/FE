@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/profile_provider.dart';
 
@@ -85,7 +86,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
         centerTitle: true,
         title: Text(
           '비밀번호 변경',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -143,9 +144,9 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         '변경하기',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -182,7 +183,7 @@ class _PwField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             color: c.textPrimary,
@@ -194,7 +195,7 @@ class _PwField extends StatelessWidget {
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: c.textHint),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(color: c.textHint),
             filled: true,
             fillColor: c.cardBg,
             contentPadding: const EdgeInsets.symmetric(

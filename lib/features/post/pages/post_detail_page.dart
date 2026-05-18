@@ -18,6 +18,7 @@ import 'widgets/post_content_card.dart';
 import 'widgets/poll_card.dart';
 import 'write_post_page.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/school_main_ad_card.dart';
 
 /// 게시글 상세 페이지
@@ -106,11 +107,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         centerTitle: true,
         title: Text(
           '게시글',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
         ),
         actions: [
           PopupMenuButton<String>(
@@ -266,7 +263,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ? Center(
               child: Text(
                 state.errorMessage ?? '게시글을 불러오지 못했습니다.',
-                style: TextStyle(color: c.textBody),
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textBody),
               ),
             )
           : RefreshIndicator(
@@ -449,17 +446,16 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     final parents = comments.where((e) => e.parentId == null).toList();
 
     if (parents.isEmpty) {
-      return const [
+      return [
         Padding(
-          padding: EdgeInsets.symmetric(vertical: 28),
+          padding: const EdgeInsets.symmetric(vertical: 28),
           child: Center(
             child: Text(
               '아직 댓글이 없어요.\n첫 댓글을 남겨보세요.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.captionLarge.copyWith(
+                color: const Color(0xFF7D8790),
                 height: 1.5,
-                color: Color(0xFF7D8790),
               ),
             ),
           ),
@@ -552,19 +548,13 @@ class _CommentSectionHeader extends StatelessWidget {
       children: [
         Text(
           '댓글',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
         ),
         const SizedBox(width: 6),
         Text(
           '$commentCount',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF14A3F7),
+          style: AppTextStyles.labelMedium.copyWith(
+            color: const Color(0xFF14A3F7),
           ),
         ),
       ],
@@ -582,9 +572,7 @@ class _CompactMenuText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
+      style: AppTextStyles.labelMedium.copyWith(
         color: color ?? context.colors.textPrimary,
       ),
     );
@@ -597,16 +585,19 @@ Future<bool?> _showBlockConfirmDialog(BuildContext context) {
     context: context,
     builder: (ctx) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('사용자 차단'),
-      content: const Text('이 사용자를 차단하면 해당 사용자의 게시글과 댓글이 보이지 않습니다.\n차단하시겠습니까?'),
+      title: Text('사용자 차단'),
+      content: Text('이 사용자를 차단하면 해당 사용자의 게시글과 댓글이 보이지 않습니다.\n차단하시겠습니까?'),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('취소'),
+          child: Text('취소'),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('차단하기', style: TextStyle(color: Color(0xFFE05C5C))),
+          child: Text(
+            '차단하기',
+            style: AppTextStyles.bodyMedium.copyWith(color: Color(0xFFE05C5C)),
+          ),
         ),
       ],
     ),
@@ -642,9 +633,7 @@ void _showReportSheet(
             children: [
               Text(
                 '신고 사유 선택',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.titleLarge.copyWith(
                   color: context.colors.textPrimary,
                 ),
               ),
@@ -682,11 +671,11 @@ Future<bool?> _showDeleteConfirmDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('삭제'),
+            child: Text('삭제'),
           ),
         ],
       );
@@ -710,7 +699,7 @@ Future<void> _showEditCommentDialog(
       return StatefulBuilder(
         builder: (context, setLocalState) {
           return AlertDialog(
-            title: const Text('댓글 수정'),
+            title: Text('댓글 수정'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -736,7 +725,7 @@ Future<void> _showEditCommentDialog(
                           });
                         },
                       ),
-                      const Text('익명으로 수정'),
+                      Text('익명으로 수정'),
                     ],
                   ),
                 ],
@@ -745,7 +734,7 @@ Future<void> _showEditCommentDialog(
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('취소'),
+                child: Text('취소'),
               ),
               TextButton(
                 onPressed: () {
@@ -755,7 +744,7 @@ Future<void> _showEditCommentDialog(
                   Navigator.pop(dialogContext);
                   onSubmit(content, anonymous);
                 },
-                child: const Text('수정'),
+                child: Text('수정'),
               ),
             ],
           );

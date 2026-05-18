@@ -31,13 +31,11 @@ final postRepositoryProvider = Provider<PostRepository>((ref) {
 });
 
 final postDetailProvider =
-StateNotifierProvider.family<PostDetailNotifier, PostDetailState, int>(
-      (ref, postId) {
-    final repository = ref.watch(postRepositoryProvider);
+    StateNotifierProvider.family<PostDetailNotifier, PostDetailState, int>((
+      ref,
+      postId,
+    ) {
+      final repository = ref.watch(postRepositoryProvider);
 
-    return PostDetailNotifier(
-      postId: postId,
-      repository: repository,
-    );
-  },
-);
+      return PostDetailNotifier(postId: postId, repository: repository);
+    });

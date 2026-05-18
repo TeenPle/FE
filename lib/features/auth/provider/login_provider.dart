@@ -131,8 +131,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }
 
   Future<void> logout() async {
-    final refreshToken = _authSession.state.refreshToken
-        ?? await _tokenStorage.getRefreshToken();
+    final refreshToken =
+        _authSession.state.refreshToken ??
+        await _tokenStorage.getRefreshToken();
 
     // FCM 토큰 서버 삭제 및 로컬 삭제
     try {
@@ -160,11 +161,13 @@ class LoginNotifier extends StateNotifier<LoginState> {
   String? _extractBackendCode(dynamic data) {
     if (data is! Map<String, dynamic>) return null;
     final directCode = data['code'];
-    if (directCode is String && directCode.trim().isNotEmpty) return directCode.trim();
+    if (directCode is String && directCode.trim().isNotEmpty)
+      return directCode.trim();
     final result = data['result'];
     if (result is Map<String, dynamic>) {
       final nestedCode = result['code'];
-      if (nestedCode is String && nestedCode.trim().isNotEmpty) return nestedCode.trim();
+      if (nestedCode is String && nestedCode.trim().isNotEmpty)
+        return nestedCode.trim();
     }
     return null;
   }
@@ -172,22 +175,29 @@ class LoginNotifier extends StateNotifier<LoginState> {
   String? _extractBackendMessage(dynamic data) {
     if (data is! Map<String, dynamic>) return null;
     final directMessage = data['message'];
-    if (directMessage is String && directMessage.trim().isNotEmpty) return directMessage.trim();
+    if (directMessage is String && directMessage.trim().isNotEmpty)
+      return directMessage.trim();
     final result = data['result'];
     if (result is Map<String, dynamic>) {
       final nestedMessage = result['message'];
-      if (nestedMessage is String && nestedMessage.trim().isNotEmpty) return nestedMessage.trim();
+      if (nestedMessage is String && nestedMessage.trim().isNotEmpty)
+        return nestedMessage.trim();
     }
     return null;
   }
 
   LoginBlockedReason? _mapBlockedReason(String? code) {
     switch (code) {
-      case 'USER4031': return LoginBlockedReason.required;
-      case 'USER4032': return LoginBlockedReason.pending;
-      case 'USER4033': return LoginBlockedReason.rejected;
-      case 'USER5001': return LoginBlockedReason.invalid;
-      default: return null;
+      case 'USER4031':
+        return LoginBlockedReason.required;
+      case 'USER4032':
+        return LoginBlockedReason.pending;
+      case 'USER4033':
+        return LoginBlockedReason.rejected;
+      case 'USER5001':
+        return LoginBlockedReason.invalid;
+      default:
+        return null;
     }
   }
 
@@ -197,8 +207,10 @@ class LoginNotifier extends StateNotifier<LoginState> {
     final statusCode = e.response?.statusCode;
 
     switch (code) {
-      case 'USER4003': return '존재하지 않는 이메일입니다.';
-      case 'USER4004': return '비밀번호가 일치하지 않습니다.';
+      case 'USER4003':
+        return '존재하지 않는 이메일입니다.';
+      case 'USER4004':
+        return '비밀번호가 일치하지 않습니다.';
     }
 
     if (message != null && message.isNotEmpty) return message;

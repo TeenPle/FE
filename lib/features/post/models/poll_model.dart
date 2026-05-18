@@ -17,8 +17,12 @@ class PollOptionModel {
     return PollOptionModel(
       optionId: (json['optionId'] as num).toInt(),
       text: json['text'] as String? ?? '',
-      voteCount: json['voteCount'] != null ? (json['voteCount'] as num).toInt() : 0,
-      percentage: json['percentage'] != null ? (json['percentage'] as num).toInt() : 0,
+      voteCount: json['voteCount'] != null
+          ? (json['voteCount'] as num).toInt()
+          : 0,
+      percentage: json['percentage'] != null
+          ? (json['percentage'] as num).toInt()
+          : 0,
       selectedByMe: json['selectedByMe'] as bool? ?? false,
     );
   }

@@ -7,8 +7,9 @@ final _mutedRoomsStorageProvider = Provider<MutedRoomsStorage>((ref) {
 });
 
 /// 알림이 꺼진 채팅방 ID 집합. SharedPreferences에 영구 저장된다.
-final mutedRoomsProvider =
-    StateNotifierProvider<MutedRoomsNotifier, Set<int>>((ref) {
+final mutedRoomsProvider = StateNotifierProvider<MutedRoomsNotifier, Set<int>>((
+  ref,
+) {
   return MutedRoomsNotifier(ref.read(_mutedRoomsStorageProvider));
 });
 

@@ -3,10 +3,7 @@ class SchoolModel {
   final int id;
   final String name;
 
-  const SchoolModel({
-    required this.id,
-    required this.name,
-  });
+  const SchoolModel({required this.id, required this.name});
 
   /// JSON -> 모델 변환
   factory SchoolModel.fromJson(Map<String, dynamic> json) {

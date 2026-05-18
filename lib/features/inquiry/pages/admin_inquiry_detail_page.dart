@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/admin_inquiry_provider.dart';
@@ -62,7 +63,10 @@ class _AdminInquiryDetailPageState
         elevation: 0,
         title: Text(
           '문의 상세',
-          style: TextStyle(fontWeight: FontWeight.w800, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading && inquiry == null
@@ -71,7 +75,7 @@ class _AdminInquiryDetailPageState
           ? Center(
               child: Text(
                 state.error ?? '문의 내용을 불러오지 못했습니다.',
-                style: TextStyle(color: c.textMuted),
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
               ),
             )
           : ListView(
@@ -97,7 +101,7 @@ class _AdminInquiryDetailPageState
                           const Spacer(),
                           Text(
                             timeAgo(inquiry.createdAt),
-                            style: TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 11,
                               color: c.textTertiary,
                             ),
@@ -113,7 +117,7 @@ class _AdminInquiryDetailPageState
                       const SizedBox(height: 12),
                       Text(
                         inquiry.title,
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                           color: c.textPrimary,
@@ -122,7 +126,7 @@ class _AdminInquiryDetailPageState
                       const SizedBox(height: 12),
                       Text(
                         inquiry.content,
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 13,
                           height: 1.55,
                           color: c.textBody,
@@ -139,7 +143,7 @@ class _AdminInquiryDetailPageState
                           children: [
                             Text(
                               '답변 작성',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
                                 color: c.textPrimary,
@@ -197,7 +201,7 @@ class _AdminInquiryDetailPageState
                                     ],
                                     Text(
                                       state.isAnswering ? '등록 중...' : '답변 등록',
-                                      style: const TextStyle(
+                                      style: AppTextStyles.bodyMedium.copyWith(
                                         fontWeight: FontWeight.w900,
                                       ),
                                     ),
@@ -212,7 +216,7 @@ class _AdminInquiryDetailPageState
                           children: [
                             Text(
                               '등록된 답변',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
                                 color: c.textPrimary,
@@ -221,7 +225,7 @@ class _AdminInquiryDetailPageState
                             const SizedBox(height: 12),
                             Text(
                               inquiry.adminAnswer ?? '',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 13,
                                 height: 1.55,
                                 color: c.textBody,
@@ -308,14 +312,17 @@ class _InquirySummaryHeader extends StatelessWidget {
                 Text(
                   userLine,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textMuted,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
                     color: c.textPrimary,
@@ -363,13 +370,19 @@ class _MetaRow extends StatelessWidget {
     final c = context.colors;
     return Row(
       children: [
-        Text(label, style: TextStyle(fontSize: 11, color: c.textTertiary)),
+        Text(
+          label,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 11,
+            color: c.textTertiary,
+          ),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             value,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: c.textSecondary,
@@ -398,7 +411,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         answered ? '답변 완료' : '답변 대기',
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: answered ? const Color(0xFF14A3F7) : c.textMuted,

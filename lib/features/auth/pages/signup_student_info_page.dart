@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
 
 /// 회원가입 2단계 - 학년 선택 페이지
@@ -52,7 +53,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 /// 바텀시트 제목
                 Text(
                   '학년을 선택해주세요',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.4,
@@ -65,7 +66,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 /// 바텀시트 설명
                 Text(
                   '현재 재학 중인 학년을 선택하면 다음 단계로 이동할 수 있어요.',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 12,
                     height: 1.5,
                     color: context.colors.textMuted,
@@ -108,7 +109,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               '$grade학년',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 13,
                                 fontWeight: selectedGrade == grade
                                     ? FontWeight.w700
@@ -175,7 +176,10 @@ class SignupStudentInfoPage extends ConsumerWidget {
           ),
           child: Text(
             '다음',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -200,7 +204,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
           /// 단계 표시
           Text(
             '2/8',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: context.colors.textTertiary,
@@ -212,7 +216,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
           /// 페이지 성격 안내
           Text(
             '재학 정보',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: Color(0xFF4A67F2),
@@ -224,7 +228,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
           /// 제목
           Text(
             '몇 학년에 재학 중이신가요?',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.6,
@@ -238,7 +242,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
           /// 보조 문구
           Text(
             '선택한 학교를 기준으로 현재 학년을 알려주세요.',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               height: 1.5,
               color: context.colors.textBody,
@@ -250,7 +254,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
           /// 학년 라벨
           Text(
             '학년',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: context.colors.textMuted,
@@ -290,7 +294,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 children: [
                   Text(
                     selectedGrade == null ? '학년을 선택해주세요' : '$selectedGrade학년',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 13,
                       fontWeight: selectedGrade == null
                           ? FontWeight.w400
@@ -314,7 +318,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
           /// 선택한 학교 라벨
           Text(
             '선택한 학교',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: context.colors.textMuted,
@@ -343,7 +347,7 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 12,
                       fontWeight: selectedSchool != null
                           ? FontWeight.w600

@@ -10,8 +10,8 @@ class AuthSession {
 
 final authSessionProvider =
     StateNotifierProvider<AuthSessionNotifier, AuthSession>((ref) {
-  return AuthSessionNotifier();
-});
+      return AuthSessionNotifier();
+    });
 
 class AuthSessionNotifier extends StateNotifier<AuthSession> {
   AuthSessionNotifier() : super(const AuthSession());

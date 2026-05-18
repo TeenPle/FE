@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../models/inquiry_model.dart';
 import '../provider/inquiry_provider.dart';
@@ -39,7 +40,7 @@ class _InquiryDetailPageState extends ConsumerState<InquiryDetailPage> {
         centerTitle: true,
         title: Text(
           '문의 상세',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -52,7 +53,7 @@ class _InquiryDetailPageState extends ConsumerState<InquiryDetailPage> {
           ? Center(
               child: Text(
                 state.error ?? '문의 내용을 불러오지 못했습니다.',
-                style: TextStyle(color: c.textMuted),
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
               ),
             )
           : ListView(
@@ -94,14 +95,17 @@ class _QuestionPanel extends StatelessWidget {
               const Spacer(),
               Text(
                 timeAgo(inquiry.createdAt),
-                style: TextStyle(fontSize: 11, color: c.textTertiary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textTertiary,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
           Text(
             inquiry.title,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 17,
               height: 1.25,
               fontWeight: FontWeight.w800,
@@ -119,7 +123,11 @@ class _QuestionPanel extends StatelessWidget {
             ),
             child: Text(
               inquiry.content,
-              style: TextStyle(fontSize: 13, height: 1.55, color: c.textBody),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                height: 1.55,
+                color: c.textBody,
+              ),
             ),
           ),
         ],
@@ -152,7 +160,7 @@ class _AnswerPanel extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '운영팀 답변',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: c.textPrimary,
@@ -171,7 +179,7 @@ class _AnswerPanel extends StatelessWidget {
             ),
             child: Text(
               hasAnswer ? answer!.trim() : '아직 답변을 준비하고 있습니다.',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 13,
                 height: 1.55,
                 color: hasAnswer ? c.textBody : c.textMuted,
@@ -238,7 +246,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         answered ? '답변 완료' : '답변 대기',
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: answered ? const Color(0xFF14A3F7) : c.textMuted,

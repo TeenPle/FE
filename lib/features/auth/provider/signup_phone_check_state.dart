@@ -34,8 +34,9 @@ class SignupPhoneCheckState {
       isLoading: isLoading ?? this.isLoading,
       isAvailable: clearAvailability ? null : (isAvailable ?? this.isAvailable),
       checkedPhoneNumber: checkedPhoneNumber ?? this.checkedPhoneNumber,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

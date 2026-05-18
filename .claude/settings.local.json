@@ -39,7 +39,9 @@
       "Bash(adb devices *)",
       "Bash(python3 *)",
       "Bash(git pull *)",
-      "Bash(grep -E \"\\\\.\\(dart|kotlin|java\\)$\")"
+      "Bash(grep -E \"\\\\.\\(dart|kotlin|java\\)$\")",
+      "Bash(awk -F: '{print $1}')",
+      "Bash(grep -v \"^--$\")"
     ]
   }
 }

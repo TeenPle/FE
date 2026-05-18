@@ -4,8 +4,8 @@ import '../models/user_setting_model.dart';
 
 final notificationSettingProvider =
     AsyncNotifierProvider<NotificationSettingNotifier, UserSettingModel>(
-  NotificationSettingNotifier.new,
-);
+      NotificationSettingNotifier.new,
+    );
 
 class NotificationSettingNotifier extends AsyncNotifier<UserSettingModel> {
   @override
@@ -21,7 +21,9 @@ class NotificationSettingNotifier extends AsyncNotifier<UserSettingModel> {
     state = AsyncData(_applyPatch(prev, patch));
 
     try {
-      final updated = await ref.read(notificationApiProvider).updateUserSetting(patch);
+      final updated = await ref
+          .read(notificationApiProvider)
+          .updateUserSetting(patch);
       state = AsyncData(updated);
     } catch (_) {
       state = AsyncData(prev);
@@ -29,13 +31,18 @@ class NotificationSettingNotifier extends AsyncNotifier<UserSettingModel> {
     }
   }
 
-  UserSettingModel _applyPatch(UserSettingModel base, Map<String, dynamic> patch) {
+  UserSettingModel _applyPatch(
+    UserSettingModel base,
+    Map<String, dynamic> patch,
+  ) {
     return base.copyWith(
       allowPush: patch['allowPush'] as bool? ?? base.allowPush,
       allowCommentNotification:
-          patch['allowCommentNotification'] as bool? ?? base.allowCommentNotification,
+          patch['allowCommentNotification'] as bool? ??
+          base.allowCommentNotification,
       allowReplyNotification:
-          patch['allowReplyNotification'] as bool? ?? base.allowReplyNotification,
+          patch['allowReplyNotification'] as bool? ??
+          base.allowReplyNotification,
       allowLikeNotification:
           patch['allowLikeNotification'] as bool? ?? base.allowLikeNotification,
       allowChatNotification:

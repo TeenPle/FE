@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
 class EditNicknamePage extends ConsumerStatefulWidget {
@@ -35,7 +36,9 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
 
     setState(() => _errorText = null);
 
-    final ok = await ref.read(profileProvider.notifier).updateNickname(nickname);
+    final ok = await ref
+        .read(profileProvider.notifier)
+        .updateNickname(nickname);
     if (ok && mounted) {
       context.pop(true);
     }
@@ -63,7 +66,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
         centerTitle: true,
         title: Text(
           '닉네임 변경',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -85,7 +88,9 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF8EC),
@@ -94,13 +99,16 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.access_time_rounded,
-                            size: 18, color: Color(0xFFE89C2F)),
+                        const Icon(
+                          Icons.access_time_rounded,
+                          size: 18,
+                          color: Color(0xFFE89C2F),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             '닉네임은 30일에 한 번 변경할 수 있습니다.\n$daysLeft일 후에 다시 변경 가능합니다.',
-                            style: const TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 11,
                               height: 1.5,
                               color: Color(0xFF8A6200),
@@ -114,7 +122,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
 
                 Text(
                   '새 닉네임',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: c.textPrimary,
@@ -131,11 +139,15 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                   },
                   decoration: InputDecoration(
                     hintText: '2~20자로 입력해주세요',
-                    hintStyle: TextStyle(color: c.textHint),
+                    hintStyle: AppTextStyles.bodyMedium.copyWith(
+                      color: c.textHint,
+                    ),
                     filled: true,
                     fillColor: canChange ? c.cardBg : c.subtleBg,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     errorText: _errorText,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -163,13 +175,11 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFE05C5C)),
+                      borderSide: const BorderSide(color: Color(0xFFE05C5C)),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFE05C5C)),
+                      borderSide: const BorderSide(color: Color(0xFFE05C5C)),
                     ),
                   ),
                 ),
@@ -200,7 +210,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                           )
                         : Text(
                             canChange ? '변경하기' : '$daysLeft일 후 변경 가능',
-                            style: const TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),

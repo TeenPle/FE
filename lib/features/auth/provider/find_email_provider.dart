@@ -6,9 +6,9 @@ import 'find_email_state.dart';
 
 final findEmailProvider =
     StateNotifierProvider.autoDispose<FindEmailNotifier, FindEmailState>((ref) {
-  final api = ref.read(findEmailApiProvider);
-  return FindEmailNotifier(api);
-});
+      final api = ref.read(findEmailApiProvider);
+      return FindEmailNotifier(api);
+    });
 
 class FindEmailNotifier extends StateNotifier<FindEmailState> {
   final FindEmailApi _api;

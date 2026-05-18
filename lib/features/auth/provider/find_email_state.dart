@@ -19,7 +19,9 @@ class FindEmailState {
     return FindEmailState(
       isLoading: isLoading ?? this.isLoading,
       maskedEmail: clearMaskedEmail ? null : (maskedEmail ?? this.maskedEmail),
-      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

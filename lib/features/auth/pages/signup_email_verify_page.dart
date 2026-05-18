@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_email_send_provider.dart';
 import '../provider/signup_email_verify_provider.dart';
 import '../provider/signup_form_provider.dart';
@@ -139,7 +140,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -236,10 +237,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Text(
-            bottomButtonText,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+          child: Text(bottomButtonText, style: AppTextStyles.titleSmall),
         ),
       ),
       child: Column(
@@ -263,9 +261,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
           /// 단계 표시
           Text(
             '5/8',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textTertiary,
             ),
           ),
@@ -275,11 +271,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
           /// 페이지 성격 안내
           Text(
             '이메일 인증',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF4A67F2),
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4A67F2)),
           ),
 
           SizedBox(height: 8),
@@ -287,9 +279,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
           /// 제목
           Text(
             '이메일을 인증해주세요',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.displayLarge.copyWith(
               height: 1.22,
               letterSpacing: -0.6,
               color: context.colors.textPrimary,
@@ -305,8 +295,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                 : (_hasSentCode
                       ? '받은 인증번호를 입력하면 다음 단계로 이동할 수 있어요.'
                       : '입력한 이메일로 인증번호를 보내드릴게요.'),
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodyMedium.copyWith(
               height: 1.5,
               color: context.colors.textBody,
             ),
@@ -317,9 +306,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
           /// 이메일 라벨
           Text(
             '인증할 이메일',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -346,13 +333,13 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                 Expanded(
                   child: Text(
                     hasEmail ? email : '이메일 정보가 없습니다.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: hasEmail ? FontWeight.w600 : FontWeight.w400,
-                      color: hasEmail
-                          ? context.colors.textPrimary
-                          : context.colors.textTertiary,
-                    ),
+                    style: hasEmail
+                        ? AppTextStyles.labelMedium.copyWith(
+                            color: context.colors.textPrimary,
+                          )
+                        : AppTextStyles.captionLarge.copyWith(
+                            color: context.colors.textTertiary,
+                          ),
                   ),
                 ),
               ],
@@ -365,22 +352,28 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
           if (sendState.errorMessage != null)
             Text(
               sendState.errorMessage!,
-              style: TextStyle(fontSize: 11, color: Colors.red),
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
             )
           else if (isVerified)
             Text(
               '인증이 완료된 이메일이에요.',
-              style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+              style: AppTextStyles.captionSmall.copyWith(
+                color: Color(0xFF4A67F2),
+              ),
             )
           else if (!_hasSentCode)
             Text(
               '인증번호는 5분 동안 유효해요.',
-              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+              style: AppTextStyles.captionSmall.copyWith(
+                color: context.colors.textMuted,
+              ),
             )
           else
             Text(
               '인증번호를 전송했어요. 아래에서 확인을 완료해주세요.',
-              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+              style: AppTextStyles.captionSmall.copyWith(
+                color: context.colors.textMuted,
+              ),
             ),
 
           /// 인증번호를 한 번이라도 전송했거나 이미 인증 완료된 경우 노출
@@ -390,9 +383,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
             /// 인증번호 라벨
             Text(
               '인증번호',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.colors.textMuted,
               ),
             ),
@@ -426,9 +417,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                     Expanded(
                       child: Text(
                         '이메일 인증이 완료되었어요.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: AppTextStyles.labelMedium.copyWith(
                           color: context.colors.textPrimary,
                         ),
                       ),
@@ -509,10 +498,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                       ),
                       child: Text(
                         verifyState.isLoading ? '확인 중' : '확인',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTextStyles.labelMedium,
                       ),
                     ),
                   ),
@@ -529,9 +515,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                     isExpired
                         ? '인증 시간이 만료되었어요.'
                         : '남은 시간 ${_formatRemainingTime(_remainingSeconds)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: isExpired ? Colors.red : const Color(0xFF4A67F2),
                     ),
                   ),
@@ -549,9 +533,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                     ),
                     child: Text(
                       '인증번호 재전송',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: Color(0xFF4A67F2),
                       ),
                     ),
@@ -565,23 +547,25 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
             if (!isVerified && verifyState.errorMessage != null)
               Text(
                 verifyState.errorMessage!,
-                style: TextStyle(fontSize: 11, color: Colors.red),
+                style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
               )
             else if (isVerified)
               Text(
                 '아래 다음 버튼을 눌러 비밀번호 설정으로 이동해주세요.',
-                style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: Color(0xFF4A67F2),
+                ),
               )
             else if (_codeController.text.isNotEmpty &&
                 !_isValidCode(_codeController.text))
               Text(
                 '인증번호는 6자리 숫자로 입력해주세요.',
-                style: TextStyle(fontSize: 11, color: Colors.red),
+                style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
               )
             else if (isExpired)
               Text(
                 '인증번호를 다시 전송한 뒤 새 번호로 인증해주세요.',
-                style: TextStyle(fontSize: 11, color: Colors.red),
+                style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
               ),
           ],
         ],

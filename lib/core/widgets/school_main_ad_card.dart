@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 class SchoolMainAdCard extends StatelessWidget {
   final bool fullBleed;
 
-  const SchoolMainAdCard({
-    super.key,
-    this.fullBleed = false,
-  });
+  const SchoolMainAdCard({super.key, this.fullBleed = false});
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +69,9 @@ class SchoolMainAdCard extends StatelessWidget {
                               color: const Color(0xFFFFF4DF),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Text(
+                            child: Text(
                               'AD',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 9,
                                 height: 1,
                                 fontWeight: FontWeight.w900,
@@ -88,11 +86,8 @@ class SchoolMainAdCard extends StatelessWidget {
                               '학교생활 제휴 안내',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: c.textMuted,
-                                letterSpacing: 0,
                               ),
                             ),
                           ),
@@ -103,12 +98,9 @@ class SchoolMainAdCard extends StatelessWidget {
                         '우리 학교 근처 혜택 모아보기',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.2,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.titleSmall.copyWith(
                           color: c.textPrimary,
-                          letterSpacing: 0,
+                          height: 1.2,
                         ),
                       ),
                       const SizedBox(height: 5),
@@ -116,12 +108,9 @@ class SchoolMainAdCard extends StatelessWidget {
                         '청소년 이용 가능 제휴만 검수해서 보여주는 테스트 광고 영역입니다.',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          height: 1.35,
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyles.captionSmall.copyWith(
                           color: c.textSecondary,
-                          letterSpacing: 0,
+                          height: 1.35,
                         ),
                       ),
                     ],

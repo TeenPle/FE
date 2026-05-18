@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/dday_provider.dart';
 
 class DDayStrip extends ConsumerWidget {
@@ -16,69 +17,60 @@ class DDayStrip extends ConsumerWidget {
     final sorted = [...ddays]
       ..sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
 
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
-        textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.0),
-      ),
-      child: GestureDetector(
-        onTap: () => context.push(AppRoutes.ddaySettings),
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          height: 36,
-          margin: const EdgeInsets.fromLTRB(16, 2, 16, 6),
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Row(
-            children: [
-              Icon(
-                Icons.calendar_today_rounded,
-                size: 14,
-                color: sorted.isEmpty
-                    ? c.textDisabled
-                    : const Color(0xFF229BF3),
-              ),
-              const SizedBox(width: 8),
-              if (sorted.isEmpty)
-                Expanded(
-                  child: Text(
-                    '중요한 날짜를 D-Day로 기록해보세요',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1,
-                      fontWeight: FontWeight.w600,
-                      color: c.textDisabled,
-                      letterSpacing: 0,
-                    ),
-                  ),
-                )
-              else
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      children: [
-                        for (int i = 0; i < sorted.length; i++) ...[
-                          _InlineDDayText(
-                            label: sorted[i].label,
-                            dDayLabel: sorted[i].dDayLabel,
-                            color: _accentColor(sorted[i].daysRemaining),
-                          ),
-                          if (i != sorted.length - 1) _Dot(color: c.textTertiary),
-                        ],
-                      ],
-                    ),
+    return GestureDetector(
+      onTap: () => context.push(AppRoutes.ddaySettings),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 36,
+        margin: const EdgeInsets.fromLTRB(16, 2, 16, 6),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_today_rounded,
+              size: 14,
+              color: sorted.isEmpty ? c.textDisabled : const Color(0xFF229BF3),
+            ),
+            const SizedBox(width: 8),
+            if (sorted.isEmpty)
+              Expanded(
+                child: Text(
+                  '중요한 날짜를 D-Day로 기록해보세요',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    height: 1,
+                    color: c.textDisabled,
+                    letterSpacing: 0,
                   ),
                 ),
-              const SizedBox(width: 8),
-              Icon(
-                sorted.isEmpty ? Icons.add_rounded : Icons.chevron_right_rounded,
-                size: sorted.isEmpty ? 17 : 18,
-                color: c.textMuted,
+              )
+            else
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      for (int i = 0; i < sorted.length; i++) ...[
+                        _InlineDDayText(
+                          label: sorted[i].label,
+                          dDayLabel: sorted[i].dDayLabel,
+                          color: _accentColor(sorted[i].daysRemaining),
+                        ),
+                        if (i != sorted.length - 1) _Dot(color: c.textTertiary),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
+            const SizedBox(width: 8),
+            Icon(
+              sorted.isEmpty ? Icons.add_rounded : Icons.chevron_right_rounded,
+              size: sorted.isEmpty ? 17 : 18,
+              color: c.textMuted,
+            ),
+          ],
         ),
       ),
     );
@@ -117,8 +109,7 @@ class _InlineDDayText extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
+            style: AppTextStyles.captionLarge.copyWith(
               height: 1,
               fontWeight: FontWeight.w700,
               color: c.textBody,
@@ -130,8 +121,7 @@ class _InlineDDayText extends StatelessWidget {
         Text(
           dDayLabel,
           maxLines: 1,
-          style: TextStyle(
-            fontSize: 12,
+          style: AppTextStyles.captionLarge.copyWith(
             height: 1,
             fontWeight: FontWeight.w900,
             color: color,
@@ -154,8 +144,7 @@ class _Dot extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Text(
         '·',
-        style: TextStyle(
-          fontSize: 12,
+        style: AppTextStyles.captionLarge.copyWith(
           height: 1,
           fontWeight: FontWeight.w700,
           color: color,

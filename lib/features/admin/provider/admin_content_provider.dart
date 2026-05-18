@@ -73,7 +73,10 @@ class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
     final nextPage = state.page + 1;
     state = state.copyWith(isLoadingMore: true, error: null);
     try {
-      final more = await _api.searchSchools(keyword: state.keyword, page: nextPage);
+      final more = await _api.searchSchools(
+        keyword: state.keyword,
+        page: nextPage,
+      );
       state = state.copyWith(
         schools: [...state.schools, ...more],
         page: nextPage,
@@ -81,15 +84,18 @@ class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
         hasMore: more.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoadingMore: false, error: '추가 학교 목록을 불러오지 못했습니다.');
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: '추가 학교 목록을 불러오지 못했습니다.',
+      );
     }
   }
 }
 
 final adminSchoolListProvider =
     StateNotifierProvider<AdminSchoolListNotifier, AdminSchoolListState>((ref) {
-  return AdminSchoolListNotifier(ref.watch(adminContentApiProvider));
-});
+      return AdminSchoolListNotifier(ref.watch(adminContentApiProvider));
+    });
 
 class AdminBoardListState {
   final List<AdminBoardModel> boards;
@@ -120,7 +126,7 @@ class AdminBoardListNotifier extends StateNotifier<AdminBoardListState> {
   final int schoolId;
 
   AdminBoardListNotifier(this._api, this.schoolId)
-      : super(const AdminBoardListState());
+    : super(const AdminBoardListState());
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -133,10 +139,17 @@ class AdminBoardListNotifier extends StateNotifier<AdminBoardListState> {
   }
 }
 
-final adminBoardListProvider = StateNotifierProvider.family<
-    AdminBoardListNotifier, AdminBoardListState, int>((ref, schoolId) {
-  return AdminBoardListNotifier(ref.watch(adminContentApiProvider), schoolId);
-});
+final adminBoardListProvider =
+    StateNotifierProvider.family<
+      AdminBoardListNotifier,
+      AdminBoardListState,
+      int
+    >((ref, schoolId) {
+      return AdminBoardListNotifier(
+        ref.watch(adminContentApiProvider),
+        schoolId,
+      );
+    });
 
 class AdminPostListState {
   final List<AdminPostSummaryModel> posts;
@@ -179,10 +192,15 @@ class AdminPostListNotifier extends StateNotifier<AdminPostListState> {
   final int boardId;
 
   AdminPostListNotifier(this._api, this.boardId)
-      : super(const AdminPostListState());
+    : super(const AdminPostListState());
 
   Future<void> load() async {
-    state = state.copyWith(page: 0, isLoading: true, hasMore: true, error: null);
+    state = state.copyWith(
+      page: 0,
+      isLoading: true,
+      hasMore: true,
+      error: null,
+    );
     try {
       final posts = await _api.getPostsByBoard(boardId: boardId);
       state = state.copyWith(
@@ -208,15 +226,22 @@ class AdminPostListNotifier extends StateNotifier<AdminPostListState> {
         hasMore: more.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoadingMore: false, error: '추가 게시글을 불러오지 못했습니다.');
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: '추가 게시글을 불러오지 못했습니다.',
+      );
     }
   }
 }
 
-final adminPostListProvider = StateNotifierProvider.family<
-    AdminPostListNotifier, AdminPostListState, int>((ref, boardId) {
-  return AdminPostListNotifier(ref.watch(adminContentApiProvider), boardId);
-});
+final adminPostListProvider =
+    StateNotifierProvider.family<
+      AdminPostListNotifier,
+      AdminPostListState,
+      int
+    >((ref, boardId) {
+      return AdminPostListNotifier(ref.watch(adminContentApiProvider), boardId);
+    });
 
 class AdminPostDetailState {
   final AdminPostDetailModel? post;
@@ -255,7 +280,7 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
   final int postId;
 
   AdminPostDetailNotifier(this._api, this.postId)
-      : super(const AdminPostDetailState());
+    : super(const AdminPostDetailState());
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null, successMessage: null);
@@ -328,7 +353,14 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
   }
 }
 
-final adminPostDetailProvider = StateNotifierProvider.family<
-    AdminPostDetailNotifier, AdminPostDetailState, int>((ref, postId) {
-  return AdminPostDetailNotifier(ref.watch(adminContentApiProvider), postId);
-});
+final adminPostDetailProvider =
+    StateNotifierProvider.family<
+      AdminPostDetailNotifier,
+      AdminPostDetailState,
+      int
+    >((ref, postId) {
+      return AdminPostDetailNotifier(
+        ref.watch(adminContentApiProvider),
+        postId,
+      );
+    });

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
 class MyBookmarksPage extends ConsumerStatefulWidget {
@@ -51,7 +52,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
         centerTitle: true,
         title: Text(
           '내 북마크',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -78,7 +79,10 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
             const SizedBox(height: 12),
             Text(
               '아직 북마크한 글이 없어요.',
-              style: TextStyle(fontSize: 13, color: c.textMuted),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textMuted,
+              ),
             ),
           ],
         ),
@@ -116,14 +120,16 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: cc.tintBg,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         post.boardTitle!,
-                        style: const TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF14A3F7),
@@ -133,7 +139,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                   ),
                 Text(
                   post.title,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: cc.textPrimary,
@@ -144,7 +150,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                 const SizedBox(height: 6),
                 Text(
                   post.preview,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     height: 1.5,
                     color: cc.iconOnCard,
@@ -156,15 +162,20 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
                 Row(
                   children: [
                     _Chip(
-                        icon: Icons.bookmark_rounded,
-                        label: '북마크',
-                        color: const Color(0xFFF5A623)),
-                    const SizedBox(width: 8),
-                    _Chip(icon: Icons.thumb_up_outlined, label: '${post.likeCount}'),
+                      icon: Icons.bookmark_rounded,
+                      label: '북마크',
+                      color: const Color(0xFFF5A623),
+                    ),
                     const SizedBox(width: 8),
                     _Chip(
-                        icon: Icons.chat_bubble_outline_rounded,
-                        label: '${post.commentCount}'),
+                      icon: Icons.thumb_up_outlined,
+                      label: '${post.likeCount}',
+                    ),
+                    const SizedBox(width: 8),
+                    _Chip(
+                      icon: Icons.chat_bubble_outline_rounded,
+                      label: '${post.commentCount}',
+                    ),
                   ],
                 ),
               ],
@@ -193,7 +204,7 @@ class _Chip extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             color: c,
             fontWeight: FontWeight.w600,

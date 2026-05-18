@@ -24,21 +24,24 @@ class NotificationApi {
   }
 
   Future<void> registerPushToken(String token, String platform) async {
-    await _client.post('/api/push-tokens', body: {
-      'token': token,
-      'platform': platform,
-    });
+    await _client.post(
+      '/api/push-tokens',
+      body: {'token': token, 'platform': platform},
+    );
   }
 
   Future<void> deletePushToken(String token) async {
     await _client.delete('/api/push-tokens', queryParameters: {'token': token});
   }
 
-  Future<({List<NotificationModel> items, bool hasNext})> getNotifications({int page = 0, int size = 20}) async {
-    final res = await _client.get('/api/notifications', queryParameters: {
-      'page': '$page',
-      'size': '$size',
-    });
+  Future<({List<NotificationModel> items, bool hasNext})> getNotifications({
+    int page = 0,
+    int size = 20,
+  }) async {
+    final res = await _client.get(
+      '/api/notifications',
+      queryParameters: {'page': '$page', 'size': '$size'},
+    );
     final result = res['result'] as Map<String, dynamic>;
     final content = result['content'] as List<dynamic>;
     final hasNext = result['hasNext'] as bool? ?? false;

@@ -17,9 +17,7 @@ import '../models/update_post_request.dart';
 class PostApi {
   final AppApiClient client;
 
-  const PostApi({
-    required this.client,
-  });
+  const PostApi({required this.client});
 
   /// 게시글 상세 조회 API 호출
   Future<PostDetail> getPostDetail(int postId) async {
@@ -27,7 +25,7 @@ class PostApi {
 
     final response = ApiResponse.fromJson(
       json,
-          (data) => PostDetail.fromJson(data as Map<String, dynamic>),
+      (data) => PostDetail.fromJson(data as Map<String, dynamic>),
     );
 
     if (!response.isSuccess || response.result == null) {
@@ -49,7 +47,7 @@ class PostApi {
 
     final response = ApiResponse.fromJson(
       json,
-          (data) => (data as num).toInt(),
+      (data) => (data as num).toInt(),
     );
 
     if (!response.isSuccess || response.result == null) {
@@ -73,7 +71,7 @@ class PostApi {
 
     final response = ApiResponse.fromJson(
       json,
-          (data) => ReactionResponse.fromJson(data as Map<String, dynamic>),
+      (data) => ReactionResponse.fromJson(data as Map<String, dynamic>),
     );
 
     if (!response.isSuccess || response.result == null) {
@@ -84,21 +82,13 @@ class PostApi {
   }
 
   /// 신고 API 호출
-  Future<int> report({
-    required ReportRequest request,
-  }) async {
-    final json = await client.post(
-      '/api/reports',
-      body: request.toJson(),
-    );
+  Future<int> report({required ReportRequest request}) async {
+    final json = await client.post('/api/reports', body: request.toJson());
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) {
-        final map = data as Map<String, dynamic>;
-        return (map['reportId'] as num).toInt();
-      },
-    );
+    final response = ApiResponse.fromJson(json, (data) {
+      final map = data as Map<String, dynamic>;
+      return (map['reportId'] as num).toInt();
+    });
 
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
@@ -121,7 +111,7 @@ class PostApi {
 
     final response = ApiResponse.fromJson(
       json,
-          (data) => (data as num).toInt(),
+      (data) => (data as num).toInt(),
     );
 
     if (!response.isSuccess || response.result == null) {
@@ -143,10 +133,7 @@ class PostApi {
       files: files,
     );
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) => data,
-    );
+    final response = ApiResponse.fromJson(json, (data) => data);
 
     if (!response.isSuccess) {
       throw Exception(response.message);
@@ -157,10 +144,7 @@ class PostApi {
   Future<void> deletePost(int postId) async {
     final json = await client.delete('/api/posts/$postId');
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) => data,
-    );
+    final response = ApiResponse.fromJson(json, (data) => data);
 
     if (!response.isSuccess) {
       throw Exception(response.message);
@@ -177,10 +161,7 @@ class PostApi {
       body: request.toJson(),
     );
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) => data,
-    );
+    final response = ApiResponse.fromJson(json, (data) => data);
 
     if (!response.isSuccess) {
       throw Exception(response.message);
@@ -191,10 +172,7 @@ class PostApi {
   Future<void> deleteComment(int commentId) async {
     final json = await client.delete('/api/comments/$commentId');
 
-    final response = ApiResponse.fromJson(
-      json,
-          (data) => data,
-    );
+    final response = ApiResponse.fromJson(json, (data) => data);
 
     if (!response.isSuccess) {
       throw Exception(response.message);

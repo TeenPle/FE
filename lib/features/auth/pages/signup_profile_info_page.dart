@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_nickname_check_provider.dart';
 
@@ -117,7 +118,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -194,10 +195,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Text(
-            '다음',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+          child: Text('다음', style: AppTextStyles.titleSmall),
         ),
       ),
       child: Column(
@@ -221,9 +219,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 단계 표시
           Text(
             '3/8',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textTertiary,
             ),
           ),
@@ -233,11 +229,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 페이지 성격 안내
           Text(
             '프로필 정보',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF4A67F2),
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4A67F2)),
           ),
 
           SizedBox(height: 8),
@@ -245,9 +237,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 제목
           Text(
             '프로필을 설정해주세요',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.displayLarge.copyWith(
               height: 1.22,
               letterSpacing: -0.6,
               color: context.colors.textPrimary,
@@ -259,8 +249,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 보조 문구
           Text(
             'TeenPle에서 사용할 기본 정보를 입력해주세요.',
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodyMedium.copyWith(
               height: 1.5,
               color: context.colors.textBody,
             ),
@@ -271,9 +260,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 이름 라벨
           Text(
             '이름',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -293,7 +280,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           if (username.isNotEmpty && !isUsernameValid)
             Text(
               '이름은 한글 또는 영어만 입력할 수 있으며, 최대 20자까지 가능해요.',
-              style: TextStyle(fontSize: 11, color: Colors.red),
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
             ),
 
           SizedBox(height: 16),
@@ -301,9 +288,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 닉네임 라벨
           Text(
             '닉네임',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -325,8 +310,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               if (nickname.isEmpty) {
                 return Text(
                   '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: context.colors.textMuted,
                   ),
                 );
@@ -335,41 +319,47 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               if (!isNicknameValid) {
                 return Text(
                   '닉네임은 한글 또는 영어로 3~10자 입력해주세요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (nicknameCheckState.isLoading) {
                 return Text(
                   '닉네임 중복 여부를 확인하고 있어요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 );
               }
 
               if (nicknameCheckState.errorMessage != null && isSameAsChecked) {
                 return Text(
                   nicknameCheckState.errorMessage!,
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (nicknameCheckState.isAvailable == false && isSameAsChecked) {
                 return Text(
                   '이미 사용 중인 닉네임이에요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (nicknameCheckState.isAvailable == true && isSameAsChecked) {
                 return Text(
                   '사용 가능한 닉네임이에요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 );
               }
 
               return Text(
                 '한글 또는 영어로 3~10자까지 사용할 수 있어요.',
-                style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: context.colors.textMuted,
+                ),
               );
             },
           ),
@@ -379,9 +369,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 성별 라벨
           Text(
             '성별',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -391,7 +379,9 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           /// 성별 선택 설명
           Text(
             '프로필에 표시할 성별을 선택해주세요.',
-            style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+            style: AppTextStyles.captionSmall.copyWith(
+              color: context.colors.textMuted,
+            ),
           ),
 
           SizedBox(height: 12),
@@ -419,9 +409,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     ),
                     child: Text(
                       '남성',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.titleSmall.copyWith(
                         color: gender == 'MALE'
                             ? const Color(0xFF4A67F2)
                             : context.colors.textPrimary,
@@ -453,9 +441,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     ),
                     child: Text(
                       '여성',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.titleSmall.copyWith(
                         color: gender == 'FEMALE'
                             ? const Color(0xFF4A67F2)
                             : context.colors.textPrimary,
@@ -472,7 +458,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
           if (!isGenderSelected && (username.isNotEmpty || nickname.isNotEmpty))
             Text(
               '성별을 선택해주세요.',
-              style: TextStyle(fontSize: 11, color: Colors.red),
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
             ),
         ],
       ),

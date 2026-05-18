@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
@@ -62,7 +63,7 @@ class CommentItem extends StatelessWidget {
           if (replies.isNotEmpty) const SizedBox(height: 10),
           if (replies.isNotEmpty)
             ...replies.map(
-                  (reply) => Padding(
+              (reply) => Padding(
                 padding: const EdgeInsets.only(left: 6, top: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,9 +86,7 @@ class CommentItem extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: c.replyBg,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: c.borderBlue,
-                          ),
+                          border: Border.all(color: c.borderBlue),
                         ),
                         child: _CommentBody(
                           comment: reply,
@@ -169,9 +168,9 @@ class _CommentBody extends StatelessWidget {
       child: InkWell(
         onTap: canReplyFromSurface
             ? () {
-          AppHaptics.light();
-          onReplyTap!();
-        }
+                AppHaptics.light();
+                onReplyTap!();
+              }
             : null,
         borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
@@ -218,7 +217,7 @@ class _CommentBody extends StatelessWidget {
                       children: [
                         Text(
                           comment.displayAuthorName,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: c.textPrimary,
@@ -226,15 +225,18 @@ class _CommentBody extends StatelessWidget {
                         ),
                         if (comment.isPostAuthor)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: c.tintBg,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(color: c.borderBlue),
                             ),
-                            child: const Text(
+                            child: Text(
                               '작성자',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF3A9DE0),
@@ -244,7 +246,7 @@ class _CommentBody extends StatelessWidget {
                         if (createdAtText.isNotEmpty)
                           Text(
                             createdAtText,
-                            style: const TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF7D8790),
@@ -296,7 +298,10 @@ class _CommentBody extends StatelessWidget {
                         if (comment.canBlockAuthor && onBlockTap != null)
                           const PopupMenuItem(
                             value: 'block',
-                            child: _CompactMenuText('차단하기', color: Color(0xFFE05C5C)),
+                            child: _CompactMenuText(
+                              '차단하기',
+                              color: Color(0xFFE05C5C),
+                            ),
                           ),
                       ],
                     ],
@@ -317,7 +322,7 @@ class _CommentBody extends StatelessWidget {
                   padding: EdgeInsets.only(left: isReply ? 0 : 1),
                   child: Text(
                     comment.content,
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 12,
                       height: 1.48,
                       color: c.textBody,
@@ -377,9 +382,9 @@ class _DeletedCommentPlaceholder extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Text(
+        Text(
           '삭제된 댓글입니다.',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             color: Color(0xFF95A3AF),
             fontStyle: FontStyle.italic,
@@ -414,9 +419,9 @@ class _InlineActionButton extends StatelessWidget {
         onTap: onTap == null
             ? null
             : () {
-          AppHaptics.light();
-          onTap!();
-        },
+                AppHaptics.light();
+                onTap!();
+              },
         borderRadius: BorderRadius.circular(999),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -427,7 +432,7 @@ class _InlineActionButton extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: color,
@@ -445,16 +450,13 @@ class _CompactMenuText extends StatelessWidget {
   final String text;
   final Color color;
 
-  const _CompactMenuText(
-      this.text, {
-        this.color = const Color(0xFF222222),
-      });
+  const _CompactMenuText(this.text, {this.color = const Color(0xFF222222)});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(
+      style: AppTextStyles.bodyMedium.copyWith(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: color,

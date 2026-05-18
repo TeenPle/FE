@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../features/dday/widgets/dday_strip.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../models/hot_filter.dart';
@@ -50,8 +51,10 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       onPressed: () {
-                        if (context.canPop()) context.pop();
-                        else context.go('/school');
+                        if (context.canPop())
+                          context.pop();
+                        else
+                          context.go('/school');
                       },
                       icon: Icon(
                         Icons.arrow_back_ios_new_rounded,
@@ -64,13 +67,16 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('🔥', style: TextStyle(fontSize: 15)),
+                        Text(
+                          '🔥',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 15,
+                          ),
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'HOT 게시판',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.titleLarge.copyWith(
                             color: c.textPrimary,
                           ),
                         ),
@@ -141,16 +147,12 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: selected
-                            ? const Color(0xFFFF6B35)
-                            : c.subtleBg,
+                        color: selected ? const Color(0xFFFF6B35) : c.subtleBg,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         f.label,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                        style: AppTextStyles.labelSmall.copyWith(
                           color: selected ? Colors.white : c.textMuted,
                         ),
                       ),
@@ -165,45 +167,45 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
             child: state.isLoadingHot
                 ? const Center(child: CircularProgressIndicator())
                 : state.hotPosts.isEmpty
-                    ? _EmptyHotState(filter: state.hotFilter)
-                    : RefreshIndicator(
-                        onRefresh: notifier.loadHotPosts,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.only(bottom: 80),
-                          itemCount: state.hotPosts.length,
-                          itemBuilder: (ctx, i) {
-                            final post = state.hotPosts[i];
-                            return Container(
-                              color: i.isEven
-                                  ? ctx.colors.cardBg
-                                  : ctx.colors.pageBg,
-                              child: Column(
-                                children: [
-                                  PostSummaryCard(
-                                    post: post,
-                                    compact: true,
-                                    showDivider: false,
-                                    onTap: () async {
-                                      await context.push('/post/${post.id}');
-                                      if (context.mounted) {
-                                        notifier.loadHotPosts();
-                                      }
-                                    },
-                                  ),
-                                  if (i < state.hotPosts.length - 1)
-                                    Divider(
-                                      height: 1,
-                                      thickness: 1,
-                                      color: ctx.colors.borderSubtle,
-                                      indent: 18,
-                                      endIndent: 18,
-                                    ),
-                                ],
+                ? _EmptyHotState(filter: state.hotFilter)
+                : RefreshIndicator(
+                    onRefresh: notifier.loadHotPosts,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 80),
+                      itemCount: state.hotPosts.length,
+                      itemBuilder: (ctx, i) {
+                        final post = state.hotPosts[i];
+                        return Container(
+                          color: i.isEven
+                              ? ctx.colors.cardBg
+                              : ctx.colors.pageBg,
+                          child: Column(
+                            children: [
+                              PostSummaryCard(
+                                post: post,
+                                compact: true,
+                                showDivider: false,
+                                onTap: () async {
+                                  await context.push('/post/${post.id}');
+                                  if (context.mounted) {
+                                    notifier.loadHotPosts();
+                                  }
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                              if (i < state.hotPosts.length - 1)
+                                Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: ctx.colors.borderSubtle,
+                                  indent: 18,
+                                  endIndent: 18,
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -222,20 +224,20 @@ class _EmptyHotState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 36)),
+          Text('🔥', style: AppTextStyles.bodyMedium.copyWith(fontSize: 36)),
           const SizedBox(height: 14),
           Text(
             '${filter.label} HOT 게시글이 없어요',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.titleMedium.copyWith(
               color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             '좋아요를 많이 받은 글이 여기에 모여요.',
-            style: TextStyle(fontSize: 12, color: context.colors.textTertiary),
+            style: AppTextStyles.captionLarge.copyWith(
+              color: context.colors.textTertiary,
+            ),
           ),
         ],
       ),
@@ -272,8 +274,10 @@ class _HotNotificationButton extends ConsumerWidget {
                 top: -4,
                 right: -4,
                 child: Container(
-                  constraints:
-                      const BoxConstraints(minWidth: 16, minHeight: 16),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: const BoxDecoration(
                     color: Color(0xFFE05C7B),
@@ -282,7 +286,7 @@ class _HotNotificationButton extends ConsumerWidget {
                   child: Center(
                     child: Text(
                       unreadCount > 99 ? '99+' : '$unreadCount',
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/haptics.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
@@ -642,11 +643,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                                         board.title,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w900,
-                                          color: c.textPrimary,
-                                        ),
+                                        style: AppTextStyles.titleSmall
+                                            .copyWith(color: c.textPrimary),
                                       ),
                                       if (board.description.isNotEmpty) ...[
                                         const SizedBox(height: 4),
@@ -654,11 +652,8 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                                           board.description,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: c.textMuted,
-                                          ),
+                                          style: AppTextStyles.labelSmall
+                                              .copyWith(color: c.textMuted),
                                         ),
                                       ],
                                     ],
@@ -718,7 +713,10 @@ class _HomeTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final tabBarWidth = (MediaQuery.sizeOf(context).width * 0.62).clamp(200.0, 260.0);
+    final tabBarWidth = (MediaQuery.sizeOf(context).width * 0.62).clamp(
+      200.0,
+      260.0,
+    );
     return Container(
       color: c.pageBg,
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -809,7 +807,7 @@ class _HomeTabButton extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 12,
               height: 1.05,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
@@ -862,9 +860,7 @@ class _HotFilterRow extends StatelessWidget {
                   ),
                   child: Text(
                     filter.label,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: isSelected ? Colors.white : c.textMuted,
                     ),
                   ),
@@ -940,9 +936,9 @@ class _SchoolMainAdCard extends StatelessWidget {
                               color: const Color(0xFFFFF4DF),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Text(
+                            child: Text(
                               'AD',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 9,
                                 height: 1,
                                 fontWeight: FontWeight.w900,
@@ -957,11 +953,8 @@ class _SchoolMainAdCard extends StatelessWidget {
                               '학교생활 제휴 안내',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                              style: AppTextStyles.labelSmall.copyWith(
                                 color: c.textMuted,
-                                letterSpacing: 0,
                               ),
                             ),
                           ),
@@ -972,12 +965,9 @@ class _SchoolMainAdCard extends StatelessWidget {
                         '우리 학교 근처 스터디 혜택 모아보기',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.2,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.titleSmall.copyWith(
                           color: c.textPrimary,
-                          letterSpacing: 0,
+                          height: 1.2,
                         ),
                       ),
                       const SizedBox(height: 5),
@@ -985,12 +975,9 @@ class _SchoolMainAdCard extends StatelessWidget {
                         '청소년 이용 가능 제휴만 검수해서 보여주는 테스트 광고 영역입니다.',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          height: 1.35,
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyles.captionSmall.copyWith(
                           color: c.textSecondary,
-                          letterSpacing: 0,
+                          height: 1.35,
                         ),
                       ),
                     ],
@@ -1033,9 +1020,7 @@ class _PagingFooter extends StatelessWidget {
       child: Center(
         child: Text(
           hasNext ? '스크롤하면 더 불러와요' : '마지막 게시글까지 확인했어요',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
+          style: AppTextStyles.labelSmall.copyWith(
             color: context.colors.textTertiary,
           ),
         ),
@@ -1113,21 +1098,15 @@ class _EmptyState extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: c.textPrimary,
-            ),
+            style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              height: 1.5,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: c.textMuted,
+              height: 1.5,
             ),
           ),
         ],
@@ -1163,9 +1142,7 @@ Future<void> _showPenaltyDialog(
           const SizedBox(width: 8),
           Text(
             '이용 제한 안내',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.titleMedium.copyWith(
               color: context.colors.textPrimary,
             ),
           ),
@@ -1175,9 +1152,9 @@ Future<void> _showPenaltyDialog(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '커뮤니티 규칙 위반으로 일부 기능이 제한되었어요.',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 12,
               color: Color(0xFF444444),
               height: 1.5,
@@ -1194,9 +1171,9 @@ Future<void> _showPenaltyDialog(
               color: const Color(0xFFFFF3F3),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Text(
+            child: Text(
               '제한 기간에는 게시글, 댓글 작성과 채팅이 제한돼요. 게시글 열람은 가능해요.',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 color: Color(0xFFE05C7B),
                 height: 1.5,
@@ -1208,9 +1185,9 @@ Future<void> _showPenaltyDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: const Text(
+          child: Text(
             '확인',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w700,
               color: Color(0xFF14A3F7),
             ),
@@ -1254,9 +1231,7 @@ class _WarningDialog extends ConsumerWidget {
           const SizedBox(width: 8),
           Text(
             '관리자 경고',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.titleMedium.copyWith(
               color: context.colors.textPrimary,
             ),
           ),
@@ -1266,9 +1241,9 @@ class _WarningDialog extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '커뮤니티 규칙 위반으로 관리자 경고를 받았어요.',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 12,
               color: Color(0xFF444444),
               height: 1.5,
@@ -1289,7 +1264,7 @@ class _WarningDialog extends ConsumerWidget {
                 children: [
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF9AA7B2),
@@ -1298,7 +1273,7 @@ class _WarningDialog extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     warning.targetSummary!,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       color: Color(0xFF444444),
                       height: 1.4,
@@ -1321,7 +1296,7 @@ class _WarningDialog extends ConsumerWidget {
             ),
             child: Text(
               warning.adminComment,
-              style: const TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 12,
                 color: Color(0xFF78350F),
                 height: 1.5,
@@ -1331,7 +1306,10 @@ class _WarningDialog extends ConsumerWidget {
           const SizedBox(height: 10),
           Text(
             '경고 일시: $issuedStr',
-            style: const TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: Color(0xFF9AA7B2),
+            ),
           ),
           const SizedBox(height: 8),
           Container(
@@ -1340,9 +1318,9 @@ class _WarningDialog extends ConsumerWidget {
               color: const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
+            child: Text(
               '경고 누적 시 이용이 제한될 수 있어요.',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 color: Color(0xFF6B7280),
                 height: 1.4,
@@ -1359,9 +1337,9 @@ class _WarningDialog extends ConsumerWidget {
                 .read(unreadWarningProvider.notifier)
                 .markRead(warning.warningId);
           },
-          child: const Text(
+          child: Text(
             '확인했어요',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w700,
               color: Color(0xFFF59E0B),
             ),
@@ -1392,21 +1370,13 @@ class _DialogInfoRow extends StatelessWidget {
             width: 64,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 11,
-                color: c.textTertiary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: c.textTertiary),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: 11,
-                color: c.textBody,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: c.textBody),
             ),
           ),
         ],

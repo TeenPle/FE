@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 import '../utils/haptics.dart';
 
 class LikeBurstButton extends StatefulWidget {
@@ -64,29 +65,25 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final color =
-        widget.liked ? const Color(0xFF14A3F7) : const Color(0xFF6E7B87);
-    final backgroundColor =
-        widget.liked ? const Color(0xFFEAF7FF) : c.cardBg;
-    final borderColor =
-        widget.liked ? const Color(0xFFBFE6FF) : c.border;
+    final color = widget.liked
+        ? const Color(0xFF14A3F7)
+        : const Color(0xFF6E7B87);
+    final backgroundColor = widget.liked ? const Color(0xFFEAF7FF) : c.cardBg;
+    final borderColor = widget.liked ? const Color(0xFFBFE6FF) : c.border;
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         AnimatedBuilder(
           animation: _scaleController,
-          builder: (context, child) => Transform.scale(
-            scale: _scaleAnim.value,
-            child: child,
-          ),
+          builder: (context, child) =>
+              Transform.scale(scale: _scaleAnim.value, child: child),
           child: InkWell(
             onTap: _handleTap,
             borderRadius: BorderRadius.circular(999),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(999),
@@ -97,14 +94,10 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
                 children: [
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
-                    transitionBuilder: (child, anim) => ScaleTransition(
-                      scale: anim,
-                      child: child,
-                    ),
+                    transitionBuilder: (child, anim) =>
+                        ScaleTransition(scale: anim, child: child),
                     child: Icon(
-                      widget.liked
-                          ? Icons.thumb_up
-                          : Icons.thumb_up_outlined,
+                      widget.liked ? Icons.thumb_up : Icons.thumb_up_outlined,
                       key: ValueKey(widget.liked),
                       size: 15,
                       color: color,
@@ -113,11 +106,7 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
                   const SizedBox(width: 5),
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
+                    style: AppTextStyles.labelSmall.copyWith(color: color),
                     child: Text('공감 ${widget.likeCount}'),
                   ),
                 ],
@@ -173,8 +162,8 @@ class _BurstPainter extends CustomPainter {
 
     for (var i = 0; i < _count; i++) {
       final angle = (2 * math.pi / _count) * i - math.pi / 2;
-      final pos = center +
-          Offset(math.cos(angle) * radius, math.sin(angle) * radius);
+      final pos =
+          center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
       canvas.drawCircle(pos, pSize, paint);
     }
   }

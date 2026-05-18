@@ -6,24 +6,21 @@ import 'signup_email_verify_state.dart';
 
 /// 이메일 인증번호 확인 상태 provider
 final signupEmailVerifyProvider =
-StateNotifierProvider<SignupEmailVerifyNotifier, SignupEmailVerifyState>(
-      (ref) {
-    final emailApi = ref.read(emailApiProvider);
-    return SignupEmailVerifyNotifier(emailApi);
-  },
-);
+    StateNotifierProvider<SignupEmailVerifyNotifier, SignupEmailVerifyState>((
+      ref,
+    ) {
+      final emailApi = ref.read(emailApiProvider);
+      return SignupEmailVerifyNotifier(emailApi);
+    });
 
 class SignupEmailVerifyNotifier extends StateNotifier<SignupEmailVerifyState> {
   final EmailApi _emailApi;
 
   SignupEmailVerifyNotifier(this._emailApi)
-      : super(const SignupEmailVerifyState());
+    : super(const SignupEmailVerifyState());
 
   /// 인증번호 검증
-  Future<void> verify({
-    required String email,
-    required String code,
-  }) async {
+  Future<void> verify({required String email, required String code}) async {
     state = state.copyWith(
       isLoading: true,
       isSuccess: false,

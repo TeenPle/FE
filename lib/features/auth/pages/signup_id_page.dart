@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_email_check_provider.dart';
 import '../provider/signup_form_provider.dart';
 
@@ -89,7 +90,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -152,10 +153,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Text(
-            '다음',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+          child: Text('다음', style: AppTextStyles.titleSmall),
         ),
       ),
       child: Column(
@@ -179,9 +177,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
           /// 단계 표시
           Text(
             '4/8',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textTertiary,
             ),
           ),
@@ -191,11 +187,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
           /// 페이지 성격 안내
           Text(
             '계정 정보',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF4A67F2),
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4A67F2)),
           ),
 
           SizedBox(height: 8),
@@ -203,9 +195,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
           /// 제목
           Text(
             '이메일을 입력해주세요',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.displayLarge.copyWith(
               height: 1.22,
               letterSpacing: -0.6,
               color: context.colors.textPrimary,
@@ -217,8 +207,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
           /// 보조 문구
           Text(
             '가입 후 TeenPle 로그인과 이메일 인증에 사용할 주소예요.',
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodyMedium.copyWith(
               height: 1.5,
               color: context.colors.textBody,
             ),
@@ -229,9 +218,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
           /// 이메일 라벨
           Text(
             '이메일',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -262,8 +249,7 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               if (email.isEmpty) {
                 return Text(
                   '로그인과 본인 확인에 사용할 이메일이에요.',
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: context.colors.textMuted,
                   ),
                 );
@@ -272,41 +258,47 @@ class _SignupIdPageState extends ConsumerState<SignupIdPage> {
               if (!isValidEmail) {
                 return Text(
                   '올바른 이메일 형식으로 입력해주세요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (emailCheckState.isLoading) {
                 return Text(
                   '이메일 사용 가능 여부를 확인하고 있어요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 );
               }
 
               if (emailCheckState.errorMessage != null && isSameAsChecked) {
                 return Text(
                   emailCheckState.errorMessage!,
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (emailCheckState.isAvailable == false && isSameAsChecked) {
                 return Text(
                   '이미 사용 중인 이메일이에요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (emailCheckState.isAvailable == true && isSameAsChecked) {
                 return Text(
                   '사용 가능한 이메일이에요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 );
               }
 
               return Text(
                 '로그인과 본인 확인에 사용할 이메일이에요.',
-                style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: context.colors.textMuted,
+                ),
               );
             },
           ),

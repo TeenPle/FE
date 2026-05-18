@@ -61,19 +61,27 @@ class ProfileModel {
 
   String get gradeLabel {
     switch (grade) {
-      case 'FIRST': return '1학년';
-      case 'SECOND': return '2학년';
-      case 'THIRD': return '3학년';
-      case 'GRADUATED': return '졸업생';
-      default: return grade;
+      case 'FIRST':
+        return '1학년';
+      case 'SECOND':
+        return '2학년';
+      case 'THIRD':
+        return '3학년';
+      case 'GRADUATED':
+        return '졸업생';
+      default:
+        return grade;
     }
   }
 
   String get genderLabel {
     switch (gender) {
-      case 'MALE': return '남성';
-      case 'FEMALE': return '여성';
-      default: return gender;
+      case 'MALE':
+        return '남성';
+      case 'FEMALE':
+        return '여성';
+      default:
+        return gender;
     }
   }
 }

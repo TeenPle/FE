@@ -34,8 +34,9 @@ class SignupNicknameCheckState {
       isLoading: isLoading ?? this.isLoading,
       isAvailable: clearAvailability ? null : (isAvailable ?? this.isAvailable),
       checkedNickname: checkedNickname ?? this.checkedNickname,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

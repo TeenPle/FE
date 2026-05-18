@@ -30,9 +30,11 @@ class PostActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               LikeBurstButton(
                 liked: likedByMe,

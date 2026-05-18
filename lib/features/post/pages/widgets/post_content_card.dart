@@ -220,13 +220,13 @@ class _FileAttachmentChip extends StatelessWidget {
 Widget _defaultAvatar(BuildContext context) {
   final c = context.colors;
   return Container(
-    width: 42,
-    height: 42,
+    width: 36,
+    height: 36,
     decoration: BoxDecoration(
       color: c.tintBg,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
     ),
-    child: Icon(Icons.person_rounded, color: c.iconSecondary, size: 24),
+    child: Icon(Icons.person_rounded, color: c.iconSecondary, size: 21),
   );
 }
 
@@ -298,12 +298,12 @@ class _PostMetaRow extends StatelessWidget {
     return Row(
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           child: showNetworkAvatar
               ? Image.network(
                   profileUrl!,
-                  width: 42,
-                  height: 42,
+                  width: 36,
+                  height: 36,
                   fit: BoxFit.cover,
                   errorBuilder: (ctx, _, __) => _defaultAvatar(ctx),
                 )

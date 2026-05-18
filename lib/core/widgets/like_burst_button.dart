@@ -5,6 +5,18 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptics.dart';
 
+const bool _useHeartLikeStyle = true;
+const Color _heartLikeColor = Color(0xFFE2556F);
+const Color _heartLikeBackgroundColor = Color(0xFFFFF1F4);
+const Color _heartLikeBorderColor = Color(0xFFFFC9D3);
+const Color _heartLikeDarkBackgroundColor = Color(0xFF3A2028);
+const Color _heartLikeDarkBorderColor = Color(0xFF6E2E3E);
+const Color _thumbLikeColor = Color(0xFF14A3F7);
+const Color _thumbLikeBackgroundColor = Color(0xFFEAF7FF);
+const Color _thumbLikeBorderColor = Color(0xFFBFE6FF);
+const Color _thumbLikeDarkBackgroundColor = Color(0xFF152240);
+const Color _thumbLikeDarkBorderColor = Color(0xFF1E3550);
+
 class LikeBurstButton extends StatefulWidget {
   final bool liked;
   final int likeCount;
@@ -64,29 +76,39 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final color =
-        widget.liked ? const Color(0xFF14A3F7) : const Color(0xFF6E7B87);
-    final backgroundColor =
-        widget.liked ? const Color(0xFFEAF7FF) : c.cardBg;
-    final borderColor =
-        widget.liked ? const Color(0xFFBFE6FF) : c.border;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = _useHeartLikeStyle ? _heartLikeColor : _thumbLikeColor;
+    final activeBackgroundColor = _useHeartLikeStyle
+        ? (isDark ? _heartLikeDarkBackgroundColor : _heartLikeBackgroundColor)
+        : (isDark ? _thumbLikeDarkBackgroundColor : _thumbLikeBackgroundColor);
+    final activeBorderColor = _useHeartLikeStyle
+        ? (isDark ? _heartLikeDarkBorderColor : _heartLikeBorderColor)
+        : (isDark ? _thumbLikeDarkBorderColor : _thumbLikeBorderColor);
+    final color = widget.liked ? activeColor : const Color(0xFF6E7B87);
+    final backgroundColor = widget.liked ? activeBackgroundColor : c.cardBg;
+    final borderColor = widget.liked ? activeBorderColor : c.border;
+    final activeIcon = _useHeartLikeStyle
+        ? Icons.favorite_rounded
+        : Icons.thumb_up;
+    final inactiveIcon = _useHeartLikeStyle
+        ? Icons.favorite_border_rounded
+        : Icons.thumb_up_outlined;
+    final label = _useHeartLikeStyle ? '좋아요' : '공감';
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         AnimatedBuilder(
           animation: _scaleController,
-          builder: (context, child) => Transform.scale(
-            scale: _scaleAnim.value,
-            child: child,
-          ),
+          builder: (context, child) =>
+              Transform.scale(scale: _scaleAnim.value, child: child),
           child: InkWell(
             onTap: _handleTap,
             borderRadius: BorderRadius.circular(999),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(999),
@@ -97,14 +119,10 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
                 children: [
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
-                    transitionBuilder: (child, anim) => ScaleTransition(
-                      scale: anim,
-                      child: child,
-                    ),
+                    transitionBuilder: (child, anim) =>
+                        ScaleTransition(scale: anim, child: child),
                     child: Icon(
-                      widget.liked
-                          ? Icons.thumb_up
-                          : Icons.thumb_up_outlined,
+                      widget.liked ? activeIcon : inactiveIcon,
                       key: ValueKey(widget.liked),
                       size: 15,
                       color: color,
@@ -118,7 +136,7 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),
-                    child: Text('공감 ${widget.likeCount}'),
+                    child: Text('$label ${widget.likeCount}'),
                   ),
                 ],
               ),
@@ -158,7 +176,6 @@ class _BurstPainter extends CustomPainter {
   static const _maxRadius = 26.0;
   static const _particleSize = 4.5;
   static const _fadeStart = 0.4;
-  static const _color = Color(0xFF14A3F7);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -167,14 +184,15 @@ class _BurstPainter extends CustomPainter {
         ? 1.0
         : 1.0 - (progress - _fadeStart) / (1.0 - _fadeStart);
     final paint = Paint()
-      ..color = _color.withValues(alpha: opacity.clamp(0.0, 1.0));
+      ..color = (_useHeartLikeStyle ? _heartLikeColor : _thumbLikeColor)
+          .withValues(alpha: opacity.clamp(0.0, 1.0));
     final radius = progress * _maxRadius;
     final pSize = _particleSize * (1 - progress * 0.4);
 
     for (var i = 0; i < _count; i++) {
       final angle = (2 * math.pi / _count) * i - math.pi / 2;
-      final pos = center +
-          Offset(math.cos(angle) * radius, math.sin(angle) * radius);
+      final pos =
+          center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
       canvas.drawCircle(pos, pSize, paint);
     }
   }

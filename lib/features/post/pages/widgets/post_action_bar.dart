@@ -29,9 +29,11 @@ class PostActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               LikeBurstButton(
                 liked: likedByMe,
@@ -54,13 +56,9 @@ class PostActionBar extends StatelessWidget {
           icon: bookmarkedByMe
               ? Icons.bookmark_rounded
               : Icons.bookmark_border_rounded,
-          iconColor: bookmarkedByMe
-              ? const Color(0xFFF5A623)
-              : c.iconOnCard,
-          backgroundColor:
-              bookmarkedByMe ? const Color(0xFFFFF8ED) : c.tintBg,
-          borderColor:
-              bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
+          iconColor: bookmarkedByMe ? const Color(0xFFF5A623) : c.iconOnCard,
+          backgroundColor: bookmarkedByMe ? const Color(0xFFFFF8ED) : c.tintBg,
+          borderColor: bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
           onTap: onBookmarkTap,
         ),
         const SizedBox(width: 10),
@@ -154,11 +152,7 @@ class _IconActionButton extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: borderColor ?? c.borderBlue),
           ),
-          child: Icon(
-            icon,
-            size: 17,
-            color: iconColor ?? c.iconOnCard,
-          ),
+          child: Icon(icon, size: 17, color: iconColor ?? c.iconOnCard),
         ),
       ),
     );

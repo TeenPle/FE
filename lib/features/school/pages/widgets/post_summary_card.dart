@@ -8,7 +8,7 @@ import '../../../../core/widgets/tap_scale.dart';
 import '../../models/post_summary.dart';
 
 const Color _likeAccentColor = Color(0xFFE2556F);
-const Color _viewAccentColor = Color(0xFFD89A16);
+const Color _viewAccentColor = Color(0xFFC9A24A);
 const Color _commentAccentColor = Color(0xFF2F80ED);
 
 class PostSummaryCard extends StatelessWidget {

@@ -62,7 +62,7 @@ class CommentItem extends StatelessWidget {
           if (replies.isNotEmpty) const SizedBox(height: 10),
           if (replies.isNotEmpty)
             ...replies.map(
-                  (reply) => Padding(
+              (reply) => Padding(
                 padding: const EdgeInsets.only(left: 6, top: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,15 +85,13 @@ class CommentItem extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: c.replyBg,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: c.borderBlue,
-                          ),
+                          border: Border.all(color: c.borderBlue),
                         ),
                         child: _CommentBody(
                           comment: reply,
                           showReplyButton: false,
                           isMyComment: reply.isMine,
-                          likedByMe: false,
+                          likedByMe: reply.likedByMe,
                           isReply: true,
                           isReplyTarget: false,
                           onLikeTap: () {},
@@ -169,9 +167,9 @@ class _CommentBody extends StatelessWidget {
       child: InkWell(
         onTap: canReplyFromSurface
             ? () {
-          AppHaptics.light();
-          onReplyTap!();
-        }
+                AppHaptics.light();
+                onReplyTap!();
+              }
             : null,
         borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
@@ -226,7 +224,10 @@ class _CommentBody extends StatelessWidget {
                         ),
                         if (comment.isPostAuthor)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: c.tintBg,
                               borderRadius: BorderRadius.circular(4),
@@ -296,7 +297,10 @@ class _CommentBody extends StatelessWidget {
                         if (comment.canBlockAuthor && onBlockTap != null)
                           const PopupMenuItem(
                             value: 'block',
-                            child: _CompactMenuText('차단하기', color: Color(0xFFE05C5C)),
+                            child: _CompactMenuText(
+                              '차단하기',
+                              color: Color(0xFFE05C5C),
+                            ),
                           ),
                       ],
                     ],
@@ -340,11 +344,12 @@ class _CommentBody extends StatelessWidget {
                     if (showReplyButton) const SizedBox(width: 8),
                     _InlineActionButton(
                       icon: likedByMe
-                          ? Icons.thumb_up_alt
-                          : Icons.thumb_up_alt_outlined,
-                      label: '공감 ${comment.likeCount}',
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      label: '좋아요 ${comment.likeCount}',
                       onTap: onLikeTap,
                       isActive: likedByMe,
+                      activeColor: const Color(0xFFE2556F),
                     ),
                   ],
                 ),
@@ -396,17 +401,21 @@ class _InlineActionButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final bool isActive;
+  final Color? activeColor;
 
   const _InlineActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
     this.isActive = false,
+    this.activeColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? const Color(0xFF14A3F7) : const Color(0xFF7D8790);
+    final color = isActive
+        ? activeColor ?? const Color(0xFF14A3F7)
+        : const Color(0xFF7D8790);
 
     return TapScale(
       scale: 0.90,
@@ -414,9 +423,9 @@ class _InlineActionButton extends StatelessWidget {
         onTap: onTap == null
             ? null
             : () {
-          AppHaptics.light();
-          onTap!();
-        },
+                AppHaptics.light();
+                onTap!();
+              },
         borderRadius: BorderRadius.circular(999),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -445,20 +454,13 @@ class _CompactMenuText extends StatelessWidget {
   final String text;
   final Color color;
 
-  const _CompactMenuText(
-      this.text, {
-        this.color = const Color(0xFF222222),
-      });
+  const _CompactMenuText(this.text, {this.color = const Color(0xFF222222)});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
     );
   }
 }

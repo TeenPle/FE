@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,30 @@ import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
 import '../provider/timetable_provider.dart';
 
+class TimetableMemo {
+  final String time;
+  final String text;
+
+  const TimetableMemo({required this.time, required this.text});
+
+  factory TimetableMemo.fromStored(String value) {
+    try {
+      final decoded = jsonDecode(value);
+      if (decoded is Map<String, dynamic>) {
+        return TimetableMemo(
+          time: decoded['time'] as String? ?? '',
+          text: decoded['text'] as String? ?? '',
+        );
+      }
+    } catch (_) {
+      // Older app versions stored plain memo text.
+    }
+    return TimetableMemo(time: '시간 없음', text: value);
+  }
+
+  String toStored() => jsonEncode({'time': time, 'text': text});
+}
+
 class TimetablePage extends ConsumerStatefulWidget {
   const TimetablePage({super.key});
 
@@ -19,7 +45,7 @@ class TimetablePage extends ConsumerStatefulWidget {
 }
 
 class _TimetablePageState extends ConsumerState<TimetablePage> {
-  List<String> _todayMemos = const [];
+  List<TimetableMemo> _todayMemos = const [];
   int _memoWeekday = DateTime.now().weekday;
   @override
   void initState() {
@@ -127,6 +153,8 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   const SizedBox(height: 6),
                   _TimetableGrid(
                     state: state,
+                    selectedWeekday: _memoWeekday,
+                    onDayTap: _selectMemoWeekday,
                     onCellLongPress: (day, period) =>
                         _showEditCellSheet(context, day, period),
                   ),
@@ -139,23 +167,52 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
   Future<void> _loadTodayMemos() async {
     final weekday = DateTime.now().weekday;
     final prefs = await SharedPreferences.getInstance();
+    final memos = _decodeStoredMemos(
+      prefs.getStringList(_memoStorageKey(weekday)) ?? const [],
+    );
     if (!mounted) return;
     setState(() {
       _memoWeekday = weekday;
-      _todayMemos = prefs.getStringList(_memoStorageKey(weekday)) ?? const [];
+      _todayMemos = memos;
     });
   }
 
-  Future<void> _saveTodayMemos(List<String> memos) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_memoStorageKey(_memoWeekday), memos);
+  List<TimetableMemo> _decodeStoredMemos(List<String> values) {
+    return values
+        .map(TimetableMemo.fromStored)
+        .where((memo) => memo.text.trim().isNotEmpty)
+        .toList();
   }
 
-  Future<void> _addMemo(String memo) async {
-    final trimmed = memo.trim();
+  Future<void> _selectMemoWeekday(int weekday) async {
+    if (weekday < 1 || weekday > 5 || weekday == _memoWeekday) return;
+    final prefs = await SharedPreferences.getInstance();
+    final memos = _decodeStoredMemos(
+      prefs.getStringList(_memoStorageKey(weekday)) ?? const [],
+    );
+    if (!mounted) return;
+    setState(() {
+      _memoWeekday = weekday;
+      _todayMemos = memos;
+    });
+  }
+
+  Future<void> _saveTodayMemos(List<TimetableMemo> memos) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _memoStorageKey(_memoWeekday),
+      memos.map((memo) => memo.toStored()).toList(),
+    );
+  }
+
+  Future<void> _addMemo(TimetableMemo memo) async {
+    final trimmed = memo.text.trim();
     if (trimmed.isEmpty) return;
 
-    final updated = [..._todayMemos, trimmed];
+    final updated = [
+      ..._todayMemos,
+      TimetableMemo(time: memo.time, text: trimmed),
+    ]..sort((a, b) => a.time.compareTo(b.time));
     setState(() => _todayMemos = updated);
     await _saveTodayMemos(updated);
   }
@@ -457,7 +514,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
 }
 
 class _MemoBottomSheet extends StatefulWidget {
-  final ValueChanged<String> onSubmit;
+  final ValueChanged<TimetableMemo> onSubmit;
 
   const _MemoBottomSheet({required this.onSubmit});
 
@@ -467,27 +524,64 @@ class _MemoBottomSheet extends StatefulWidget {
 
 class _MemoBottomSheetState extends State<_MemoBottomSheet> {
   late final TextEditingController _controller;
+  late final TextEditingController _hourController;
+  late final TextEditingController _minuteController;
   bool _hasText = false;
+  bool _hasValidTime = true;
+  bool _isPm = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    final currentTime = _splitMemoTime(_currentTimeText());
+    _isPm = currentTime.isPm;
+    _hourController = TextEditingController(text: currentTime.hour);
+    _minuteController = TextEditingController(text: currentTime.minute);
     _controller.addListener(() {
       final hasText = _controller.text.trim().isNotEmpty;
       if (hasText != _hasText) setState(() => _hasText = hasText);
     });
+    void validateTime() {
+      if (!mounted) return;
+      final hasValidTime = _buildMemoTime() != null;
+      setState(() => _hasValidTime = hasValidTime);
+    }
+
+    _hourController.addListener(validateTime);
+    _minuteController.addListener(validateTime);
   }
 
   @override
   void dispose() {
+    _hourController.dispose();
+    _minuteController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   void _submit() {
-    widget.onSubmit(_controller.text);
+    final time = _buildMemoTime();
+    if (!_hasText || time == null) return;
+    widget.onSubmit(TimetableMemo(time: time, text: _controller.text));
     Navigator.pop(context);
+  }
+
+  void _setPeriod(bool isPm) {
+    if (_isPm == isPm) return;
+    setState(() => _isPm = isPm);
+  }
+
+  String? _buildMemoTime() {
+    final hour = int.tryParse(_hourController.text.trim());
+    final minute = int.tryParse(_minuteController.text.trim());
+    if (hour == null || minute == null) return null;
+    if (hour < 1 || hour > 12 || minute < 0 || minute > 59) return null;
+
+    final hour24 = _isPm
+        ? (hour == 12 ? 12 : hour + 12)
+        : (hour == 12 ? 0 : hour);
+    return '${hour24.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -499,7 +593,7 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
         color: c.popupBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + bottom),
+      padding: EdgeInsets.fromLTRB(18, 10, 18, 16 + bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -511,35 +605,97 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
               borderRadius: BorderRadius.circular(999),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           Row(
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAF7FF),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   Icons.edit_note_rounded,
-                  size: 18,
+                  size: 16,
                   color: Color(0xFF14A3F7),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Text(
                 '메모 추가',
-                style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: c.textPrimary,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  _PeriodSegment(
+                    label: '오전',
+                    selected: !_isPm,
+                    onTap: () => _setPeriod(false),
+                  ),
+                  const SizedBox(width: 5),
+                  _PeriodSegment(
+                    label: '오후',
+                    selected: _isPm,
+                    onTap: () => _setPeriod(true),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 66,
+                child: _TimePartField(
+                  controller: _hourController,
+                  label: '시',
+                  hintText: '8',
+                  hasError: !_hasValidTime,
+                  textInputAction: TextInputAction.next,
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 66,
+                child: _TimePartField(
+                  controller: _minuteController,
+                  label: '분',
+                  hintText: '30',
+                  hasError: !_hasValidTime,
+                  textInputAction: TextInputAction.next,
+                ),
+              ),
+            ],
+          ),
+          if (!_hasValidTime) ...[
+            const SizedBox(height: 6),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '시간은 1~12시, 분은 0~59 사이로 입력해 주세요',
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: const Color(0xFFE76F6F),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
           TextField(
             controller: _controller,
             autofocus: true,
-            maxLength: 40,
-            style: AppTextStyles.titleMedium.copyWith(color: c.textBody),
+            maxLength: 36,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: c.textBody,
+              fontWeight: FontWeight.w700,
+            ),
             decoration: InputDecoration(
               hintText: '예) 체육복 챙기기',
               hintStyle: AppTextStyles.bodyMedium.copyWith(
@@ -549,16 +705,17 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
               counterText: '',
               filled: true,
               fillColor: c.inputBg,
+              isDense: true,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
+                horizontal: 12,
+                vertical: 11,
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
                   color: Color(0xFF14A3F7),
                   width: 1.5,
@@ -567,31 +724,33 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
             ),
             onSubmitted: (_) => _submit(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 44,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               decoration: BoxDecoration(
-                gradient: _hasText
+                gradient: _hasText && _hasValidTime
                     ? const LinearGradient(
                         colors: [Color(0xFF14A3F7), Color(0xFF0D87D4)],
                       )
                     : null,
-                color: _hasText ? null : const Color(0xFFEAF7FF),
+                color: _hasText && _hasValidTime
+                    ? null
+                    : const Color(0xFFEAF7FF),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: _hasText ? _submit : null,
+                  onTap: _hasText && _hasValidTime ? _submit : null,
                   borderRadius: BorderRadius.circular(14),
                   child: Center(
                     child: Text(
                       '추가하기',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: _hasText
+                        color: _hasText && _hasValidTime
                             ? Colors.white
                             : const Color(0xFF14A3F7),
                       ),
@@ -602,6 +761,117 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PeriodSegment extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _PeriodSegment({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      width: 42,
+      height: 25,
+      decoration: BoxDecoration(
+        color: selected ? const Color(0xFF14A3F7) : c.subtleBg,
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(
+          color: selected ? const Color(0xFF14A3F7) : c.border,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(9),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyles.captionSmall.copyWith(
+                fontSize: 9,
+                color: selected ? Colors.white : c.textMuted,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TimePartField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hintText;
+  final bool hasError;
+  final TextInputAction textInputAction;
+
+  const _TimePartField({
+    required this.controller,
+    required this.label,
+    required this.hintText,
+    required this.hasError,
+    required this.textInputAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final borderColor = hasError ? const Color(0xFFE76F6F) : c.border;
+    return TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      textInputAction: textInputAction,
+      maxLength: 2,
+      textAlign: TextAlign.center,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(2),
+      ],
+      style: AppTextStyles.titleMedium.copyWith(
+        color: c.textPrimary,
+        fontWeight: FontWeight.w900,
+      ),
+      decoration: InputDecoration(
+        hintText: hintText,
+        suffixText: label,
+        suffixStyle: AppTextStyles.labelSmall.copyWith(
+          color: c.textBody,
+          fontWeight: FontWeight.w800,
+        ),
+        counterText: '',
+        filled: true,
+        fillColor: c.inputBg,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: hasError ? const Color(0xFFE76F6F) : const Color(0xFF14A3F7),
+            width: 1.5,
+          ),
+        ),
       ),
     );
   }
@@ -902,7 +1172,7 @@ class _WeekNavigator extends ConsumerWidget {
 }
 
 class _TodayMemoCard extends StatelessWidget {
-  final List<String> memos;
+  final List<TimetableMemo> memos;
   final String title;
   final VoidCallback onAdd;
   final ValueChanged<int> onDelete;
@@ -920,13 +1190,13 @@ class _TodayMemoCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: c.borderBlue),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFB9DCFF), width: 0.9),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14A3F7).withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF14A3F7).withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -934,7 +1204,7 @@ class _TodayMemoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 10, 10),
+            padding: const EdgeInsets.fromLTRB(12, 10, 10, 8),
             child: Row(
               children: [
                 Container(
@@ -959,7 +1229,7 @@ class _TodayMemoCard extends StatelessWidget {
                   title,
                   style: AppTextStyles.labelMedium.copyWith(
                     color: c.textPrimary,
-                    letterSpacing: -0.2,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 const Spacer(),
@@ -967,12 +1237,16 @@ class _TodayMemoCard extends StatelessWidget {
                   onTap: onAdd,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                      horizontal: 9,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEAF7FF),
-                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: const Color(0xFF14A3F7),
+                        width: 1,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -985,9 +1259,9 @@ class _TodayMemoCard extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           '추가',
-                          style: AppTextStyles.bodyMedium.copyWith(
+                          style: AppTextStyles.captionSmall.copyWith(
                             fontSize: 11,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w900,
                             color: Color(0xFF14A3F7),
                           ),
                         ),
@@ -998,9 +1272,8 @@ class _TodayMemoCard extends StatelessWidget {
               ],
             ),
           ),
-          Container(height: 1, color: c.borderBlue),
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+            padding: const EdgeInsets.fromLTRB(12, 2, 12, 10),
             child: memos.isEmpty
                 ? Row(
                     children: [
@@ -1021,7 +1294,11 @@ class _TodayMemoCard extends StatelessWidget {
                 : Column(
                     children: [
                       for (int i = 0; i < memos.length; i++)
-                        _MemoRow(memo: memos[i], onDelete: () => onDelete(i)),
+                        _MemoRow(
+                          memo: memos[i],
+                          isLast: i == memos.length - 1,
+                          onDelete: () => onDelete(i),
+                        ),
                     ],
                   ),
           ),
@@ -1032,54 +1309,68 @@ class _TodayMemoCard extends StatelessWidget {
 }
 
 class _MemoRow extends StatelessWidget {
-  final String memo;
+  final TimetableMemo memo;
+  final bool isLast;
   final VoidCallback onDelete;
 
-  const _MemoRow({required this.memo, required this.onDelete});
+  const _MemoRow({
+    required this.memo,
+    required this.isLast,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 6),
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 7),
+      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
       decoration: BoxDecoration(
-        color: c.tintBg,
-        borderRadius: BorderRadius.circular(10),
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: const Color(0xFF9DCEFF), width: 0.9),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Container(width: 3, color: const Color(0xFF14A3F7)),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                child: Text(
-                  memo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.labelSmall.copyWith(color: c.textBody),
-                ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 43,
+            child: Text(
+              memo.time,
+              textAlign: TextAlign.left,
+              style: AppTextStyles.labelSmall.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF1498F3),
               ),
             ),
-            InkWell(
-              onTap: onDelete,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                child: Icon(
-                  Icons.close_rounded,
-                  size: 14,
-                  color: c.textTertiary,
-                ),
+          ),
+          const SizedBox(width: 8),
+          Container(width: 1, height: 14, color: const Color(0xFFCBE6FF)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              memo.text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: c.textPrimary,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: onDelete,
+            borderRadius: BorderRadius.circular(999),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(Icons.close_rounded, size: 15, color: c.textTertiary),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1087,18 +1378,46 @@ class _MemoRow extends StatelessWidget {
 
 class _TimetableGrid extends StatelessWidget {
   final TimetableState state;
+  final int selectedWeekday;
+  final ValueChanged<int> onDayTap;
   final void Function(int day, int period) onCellLongPress;
 
   static const _days = ['월', '화', '수', '목', '금'];
   static const _totalPeriods = 7;
+  static const _subjectPalettes = [
+    _SubjectPalette(Color(0xFFEAF4FF), Color(0xFFDCEEFF)),
+    _SubjectPalette(Color(0xFFE8F7F3), Color(0xFFD9F0EA)),
+    _SubjectPalette(Color(0xFFFFF3DF), Color(0xFFFFEBC8)),
+    _SubjectPalette(Color(0xFFF1EEFF), Color(0xFFE6E0FF)),
+    _SubjectPalette(Color(0xFFFFECE7), Color(0xFFFFDDD5)),
+    _SubjectPalette(Color(0xFFEFF8E8), Color(0xFFE0F1D6)),
+    _SubjectPalette(Color(0xFFE8F7F8), Color(0xFFD8F0F2)),
+    _SubjectPalette(Color(0xFFF8EFFA), Color(0xFFEEDFF4)),
+    _SubjectPalette(Color(0xFFF1F5FF), Color(0xFFE0E9FF)),
+    _SubjectPalette(Color(0xFFFFF0F3), Color(0xFFFFDDE6)),
+    _SubjectPalette(Color(0xFFEAF2E6), Color(0xFFDDEBD7)),
+    _SubjectPalette(Color(0xFFFFF7D8), Color(0xFFFFF0B8)),
+    _SubjectPalette(Color(0xFFE6F3FF), Color(0xFFCFE7FA)),
+    _SubjectPalette(Color(0xFFFCEDE2), Color(0xFFF8DDCA)),
+    _SubjectPalette(Color(0xFFEDEBFA), Color(0xFFDED9F3)),
+    _SubjectPalette(Color(0xFFE9F6EE), Color(0xFFD7EDDF)),
+    _SubjectPalette(Color(0xFFFFEEF5), Color(0xFFFAD7E6)),
+    _SubjectPalette(Color(0xFFE5F7FB), Color(0xFFCDEDF4)),
+  ];
 
-  const _TimetableGrid({required this.state, required this.onCellLongPress});
+  const _TimetableGrid({
+    required this.state,
+    required this.selectedWeekday,
+    required this.onDayTap,
+    required this.onCellLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final subjectMap = state.week?.subjectMap ?? {};
     final overrides = state.overrides;
+    final paletteIndexes = _buildSubjectPaletteIndexes(subjectMap, overrides);
     final todayDow = DateTime.now().weekday; // 1=월~5=금
 
     return Container(
@@ -1130,7 +1449,9 @@ class _TimetableGrid extends StatelessWidget {
                         _headerCell(
                           _days[i],
                           height: headerHeight,
-                          highlight: (i + 1) == todayDow,
+                          highlight: (i + 1) == selectedWeekday,
+                          isToday: (i + 1) == todayDow,
+                          onTap: () => onDayTap(i + 1),
                           c: c,
                         ),
                     ],
@@ -1143,7 +1464,8 @@ class _TimetableGrid extends StatelessWidget {
                           _subjectCell(
                             neisSubject: subjectMap['${d}_$p'] ?? '',
                             override: overrides['${d}_$p'],
-                            isToday: d == todayDow,
+                            paletteIndexes: paletteIndexes,
+                            isToday: d == selectedWeekday,
                             height: cellHeight,
                             fontSize: subjectFontSize,
                             onLongPress: () => onCellLongPress(d, p),
@@ -1183,23 +1505,35 @@ class _TimetableGrid extends StatelessWidget {
     String text, {
     required double height,
     bool highlight = false,
+    bool isToday = false,
+    required VoidCallback onTap,
     required AppColors c,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-      child: Container(
-        height: height,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: highlight ? const Color(0xFFEAF7FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            color: highlight ? const Color(0xFF14A3F7) : c.textMuted,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          height: height,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: highlight ? const Color(0xFFEAF7FF) : Colors.transparent,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: highlight ? c.borderBlue : Colors.transparent,
+            ),
+          ),
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: highlight || isToday
+                  ? const Color(0xFF14A3F7)
+                  : c.textMuted,
+            ),
           ),
         ),
       ),
@@ -1231,6 +1565,7 @@ class _TimetableGrid extends StatelessWidget {
   Widget _subjectCell({
     required String neisSubject,
     String? override,
+    required Map<String, int> paletteIndexes,
     required bool isToday,
     required double height,
     required double fontSize,
@@ -1240,6 +1575,7 @@ class _TimetableGrid extends StatelessWidget {
     final displaySubject = override ?? neisSubject;
     final hasOverride = override != null;
     final hasSubject = displaySubject.isNotEmpty;
+    final palette = _paletteForSubject(displaySubject, paletteIndexes);
 
     return Padding(
       padding: const EdgeInsets.all(3),
@@ -1252,9 +1588,19 @@ class _TimetableGrid extends StatelessWidget {
           height: height,
           padding: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
-            color: isToday ? c.tintBg : c.subtleBg,
+            gradient: hasSubject
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [palette.start, palette.end],
+                  )
+                : null,
+            color: hasSubject ? null : (isToday ? c.tintBg : c.subtleBg),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: isToday ? c.borderBlue : c.border),
+            border: Border.all(
+              color: isToday ? c.borderBlue : c.border,
+              width: isToday ? 1.2 : 1,
+            ),
           ),
           child: Stack(
             children: [
@@ -1267,7 +1613,9 @@ class _TimetableGrid extends StatelessWidget {
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: fontSize,
                     fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
-                    color: hasSubject ? c.textBody : Colors.transparent,
+                    color: hasSubject
+                        ? const Color(0xFF172232)
+                        : Colors.transparent,
                   ),
                 ),
               ),
@@ -1286,6 +1634,50 @@ class _TimetableGrid extends StatelessWidget {
       ),
     );
   }
+
+  Map<String, int> _buildSubjectPaletteIndexes(
+    Map<String, String> subjectMap,
+    Map<String, String> overrides,
+  ) {
+    final indexes = <String, int>{};
+    for (int d = 1; d <= _days.length; d++) {
+      for (int p = 1; p <= _totalPeriods; p++) {
+        final key = '${d}_$p';
+        final subject = overrides[key] ?? subjectMap[key] ?? '';
+        final normalized = _normalizeSubjectKey(subject);
+        if (normalized.isEmpty || indexes.containsKey(normalized)) continue;
+        indexes[normalized] = indexes.length % _subjectPalettes.length;
+      }
+    }
+    return indexes;
+  }
+
+  _SubjectPalette _paletteForSubject(
+    String subject,
+    Map<String, int> paletteIndexes,
+  ) {
+    final normalized = _normalizeSubjectKey(subject);
+    if (normalized.isEmpty) return _subjectPalettes.first;
+    final indexedPalette = paletteIndexes[normalized];
+    if (indexedPalette != null) return _subjectPalettes[indexedPalette];
+
+    var hash = 0;
+    for (final codeUnit in normalized.codeUnits) {
+      hash = (hash * 31 + codeUnit) & 0x7fffffff;
+    }
+    return _subjectPalettes[hash % _subjectPalettes.length];
+  }
+
+  String _normalizeSubjectKey(String subject) {
+    return subject.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+  }
+}
+
+class _SubjectPalette {
+  final Color start;
+  final Color end;
+
+  const _SubjectPalette(this.start, this.end);
 }
 
 class _ClassRoomPrompt extends StatelessWidget {
@@ -1397,6 +1789,38 @@ String _weekdayLabel(int weekday) {
 }
 
 String _memoStorageKey(int weekday) => 'timetable_memos_weekday_$weekday';
+
+String _currentTimeText() {
+  final now = DateTime.now();
+  final hour = now.hour.toString().padLeft(2, '0');
+  final minute = now.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
+}
+
+_MemoTimeParts _splitMemoTime(String value) {
+  final parts = value.split(':');
+  final hour24 = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 8 : 8;
+  final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+  final isPm = hour24 >= 12;
+  final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+  return _MemoTimeParts(
+    isPm: isPm,
+    hour: hour12.toString(),
+    minute: minute.toString().padLeft(2, '0'),
+  );
+}
+
+class _MemoTimeParts {
+  final bool isPm;
+  final String hour;
+  final String minute;
+
+  const _MemoTimeParts({
+    required this.isPm,
+    required this.hour,
+    required this.minute,
+  });
+}
 
 class _ErrorState extends StatelessWidget {
   final String message;

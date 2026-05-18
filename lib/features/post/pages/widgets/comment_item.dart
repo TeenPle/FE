@@ -193,66 +193,69 @@ class _CommentBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: isReply ? 30 : 34,
-                    height: isReply ? 30 : 34,
+                    width: isReply ? 24 : 28,
+                    height: isReply ? 24 : 28,
                     decoration: BoxDecoration(
                       color: isReply ? c.cardBg : const Color(0xFFE4F2FF),
-                      borderRadius: BorderRadius.circular(isReply ? 10 : 12),
+                      borderRadius: BorderRadius.circular(isReply ? 8 : 9),
                     ),
                     child: Icon(
                       Icons.person_rounded,
                       color: const Color(0xFF8EA2B5),
-                      size: isReply ? 18 : 20,
+                      size: isReply ? 15 : 17,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 6,
-                      runSpacing: 3,
-                      children: [
-                        Text(
-                          comment.displayAuthorName,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: c.textPrimary,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 3,
+                        children: [
+                          Text(
+                            comment.displayAuthorName,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: c.textPrimary,
+                            ),
                           ),
-                        ),
-                        if (comment.isPostAuthor)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: c.tintBg,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: c.borderBlue),
-                            ),
-                            child: Text(
-                              '작성자',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF3A9DE0),
+                          if (comment.isPostAuthor)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: c.tintBg,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: c.borderBlue),
+                              ),
+                              child: Text(
+                                '작성자',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF3A9DE0),
+                                ),
                               ),
                             ),
-                          ),
-                        if (createdAtText.isNotEmpty)
-                          Text(
-                            createdAtText,
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF7D8790),
+                          if (createdAtText.isNotEmpty)
+                            Text(
+                              createdAtText,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF7D8790),
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
 

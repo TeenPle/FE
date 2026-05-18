@@ -2,7 +2,7 @@ class UnreadWarningModel {
   final int warningId;
   final String adminComment;
   final DateTime issuedAt;
-  final String? targetType;    // POST | COMMENT
+  final String? targetType; // POST | COMMENT
   final String? targetSummary; // 최대 80자 요약
 
   const UnreadWarningModel({
@@ -24,10 +24,10 @@ class UnreadWarningModel {
   }
 
   String get targetTypeLabel => switch (targetType) {
-        'POST' => '게시글',
-        'COMMENT' => '댓글',
-        _ => '',
-      };
+    'POST' => '게시글',
+    'COMMENT' => '댓글',
+    _ => '',
+  };
 }
 
 class WarningHistoryModel {
@@ -59,8 +59,8 @@ class WarningHistoryModel {
   }
 
   String get targetTypeLabel => switch (targetType) {
-        'POST' => '게시글',
-        'COMMENT' => '댓글',
-        _ => '',
-      };
+    'POST' => '게시글',
+    'COMMENT' => '댓글',
+    _ => '',
+  };
 }

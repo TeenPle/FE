@@ -41,10 +41,7 @@ class ProfileApi {
   }) async {
     final json = await client.patch(
       '/api/users/me/password',
-      body: {
-        'currentPassword': currentPassword,
-        'newPassword': newPassword,
-      },
+      body: {'currentPassword': currentPassword, 'newPassword': newPassword},
     );
     final response = ApiResponse.fromJson(json, (data) => data);
     if (!response.isSuccess) throw Exception(response.message);
@@ -67,8 +64,10 @@ class ProfileApi {
     return response.result!;
   }
 
-  Future<List<MyCommentModel>> getMyComments(
-      {int page = 0, int size = 20}) async {
+  Future<List<MyCommentModel>> getMyComments({
+    int page = 0,
+    int size = 20,
+  }) async {
     final json = await client.get(
       '/api/users/me/comments',
       queryParameters: {'page': '$page', 'size': '$size'},
@@ -87,7 +86,9 @@ class ProfileApi {
 
   Future<String> updateProfileImage(File imageFile) async {
     final ext = imageFile.path.split('.').last.toLowerCase();
-    final contentType = ext == 'png' ? MediaType('image', 'png') : MediaType('image', 'jpeg');
+    final contentType = ext == 'png'
+        ? MediaType('image', 'png')
+        : MediaType('image', 'jpeg');
     final multipartFile = await MultipartFile.fromFile(
       imageFile.path,
       filename: 'profile.$ext',
@@ -121,7 +122,10 @@ class ProfileApi {
     return response.result!;
   }
 
-  Future<List<MyPostModel>> getMyBookmarks({int page = 0, int size = 20}) async {
+  Future<List<MyPostModel>> getMyBookmarks({
+    int page = 0,
+    int size = 20,
+  }) async {
     final json = await client.get(
       '/api/users/me/bookmarks',
       queryParameters: {'page': '$page', 'size': '$size'},

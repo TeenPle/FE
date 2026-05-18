@@ -11,10 +11,6 @@ class VerificationReapplyRequestModel {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'password': password,
-      'schoolId': schoolId,
-    };
+    return {'email': email, 'password': password, 'schoolId': schoolId};
   }
 }

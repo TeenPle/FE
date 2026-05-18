@@ -21,8 +21,9 @@ final schoolRepositoryProvider = Provider<SchoolRepository>((ref) {
   return LiveSchoolRepository(api: api);
 });
 
-final schoolProvider =
-    StateNotifierProvider<SchoolNotifier, SchoolState>((ref) {
+final schoolProvider = StateNotifierProvider<SchoolNotifier, SchoolState>((
+  ref,
+) {
   final repository = ref.watch(schoolRepositoryProvider);
   return SchoolNotifier(repository);
 });

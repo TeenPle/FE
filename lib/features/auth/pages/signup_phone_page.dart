@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_phone_check_provider.dart';
 
@@ -89,7 +90,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -155,10 +156,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Text(
-            '다음',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+          child: Text('다음', style: AppTextStyles.titleSmall),
         ),
       ),
       child: Column(
@@ -182,9 +180,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
           /// 단계 표시
           Text(
             '7/8',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textTertiary,
             ),
           ),
@@ -194,11 +190,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
           /// 페이지 성격 안내
           Text(
             '연락처 정보',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF4A67F2),
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4A67F2)),
           ),
 
           SizedBox(height: 8),
@@ -206,9 +198,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
           /// 제목
           Text(
             '전화번호를 등록해주세요',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.displayLarge.copyWith(
               height: 1.22,
               letterSpacing: -0.6,
               color: context.colors.textPrimary,
@@ -220,8 +210,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
           /// 보조 문구
           Text(
             '계정 확인과 안내에 사용할 휴대폰 번호예요.',
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodyMedium.copyWith(
               height: 1.5,
               color: context.colors.textBody,
             ),
@@ -232,9 +221,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
           /// 전화번호 라벨
           Text(
             '휴대폰 번호',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -268,8 +255,7 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               if (phoneNumber.isEmpty) {
                 return Text(
                   '예시) 01012345678',
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: context.colors.textMuted,
                   ),
                 );
@@ -278,41 +264,47 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               if (!isValidPhoneNumber) {
                 return Text(
                   '예시) 01012345678',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (phoneCheckState.isLoading) {
                 return Text(
                   '전화번호 사용 가능 여부를 확인하고 있어요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 );
               }
 
               if (phoneCheckState.errorMessage != null && isSameAsChecked) {
                 return Text(
                   phoneCheckState.errorMessage!,
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (phoneCheckState.isAvailable == false && isSameAsChecked) {
                 return Text(
                   '이미 사용 중인 전화번호예요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 );
               }
 
               if (phoneCheckState.isAvailable == true && isSameAsChecked) {
                 return Text(
                   '등록 가능한 전화번호예요.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+                  style: AppTextStyles.captionSmall.copyWith(
+                    color: Color(0xFF4A67F2),
+                  ),
                 );
               }
 
               return Text(
                 '예시) 01012345678',
-                style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: context.colors.textMuted,
+                ),
               );
             },
           ),

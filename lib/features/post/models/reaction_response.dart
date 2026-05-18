@@ -24,8 +24,12 @@ class ReactionResponse {
       liked: json['liked'] as bool? ?? false,
       disliked: json['disliked'] as bool? ?? false,
       applied: json['applied'] as bool? ?? false,
-      likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
-      dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
+      likeCount: json['likeCount'] != null
+          ? (json['likeCount'] as num).toInt()
+          : 0,
+      dislikeCount: json['dislikeCount'] != null
+          ? (json['dislikeCount'] as num).toInt()
+          : 0,
     );
   }
 }

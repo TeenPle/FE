@@ -10,10 +10,6 @@ class ReactionRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'targetType': targetType,
-      'targetId': targetId,
-      'action': action,
-    };
+    return {'targetType': targetType, 'targetId': targetId, 'action': action};
   }
 }

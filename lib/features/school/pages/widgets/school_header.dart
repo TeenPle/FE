@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/routes.dart';
@@ -42,7 +43,7 @@ class SchoolHeader extends ConsumerWidget {
                     schoolName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
                       color: c.textPrimary,
@@ -115,7 +116,7 @@ class _BadgeIcon extends StatelessWidget {
               child: Center(
                 child: Text(
                   count > 99 ? '99+' : '$count',
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,

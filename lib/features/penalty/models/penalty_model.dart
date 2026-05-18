@@ -26,14 +26,14 @@ class ActivePenaltyModel {
   }
 
   String get reasonLabel => switch (reason) {
-        'SPAM' => '스팸',
-        'ABUSE' => '욕설/모욕',
-        'OBSCENE' => '음란물/선정적 내용',
-        'ILLEGAL' => '불법 콘텐츠',
-        'HARASSMENT' => '괴롭힘',
-        'ETC' => '기타',
-        _ => reason ?? '',
-      };
+    'SPAM' => '스팸',
+    'ABUSE' => '욕설/모욕',
+    'OBSCENE' => '음란물/선정적 내용',
+    'ILLEGAL' => '불법 콘텐츠',
+    'HARASSMENT' => '괴롭힘',
+    'ETC' => '기타',
+    _ => reason ?? '',
+  };
 }
 
 class PenaltyHistoryModel {
@@ -62,14 +62,14 @@ class PenaltyHistoryModel {
   }
 
   String get reasonLabel => switch (reason) {
-        'SPAM' => '스팸',
-        'ABUSE' => '욕설/모욕',
-        'OBSCENE' => '음란물/선정적 내용',
-        'ILLEGAL' => '불법 콘텐츠',
-        'HARASSMENT' => '괴롭힘',
-        'ETC' => '기타',
-        _ => reason,
-      };
+    'SPAM' => '스팸',
+    'ABUSE' => '욕설/모욕',
+    'OBSCENE' => '음란물/선정적 내용',
+    'ILLEGAL' => '불법 콘텐츠',
+    'HARASSMENT' => '괴롭힘',
+    'ETC' => '기타',
+    _ => reason,
+  };
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 }

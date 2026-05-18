@@ -1,6 +1,37 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_text_styles.dart';
+
+TextTheme _teenpleTextTheme(AppColors colors) {
+  return TextTheme(
+    displayLarge: AppTextStyles.displayLarge.copyWith(
+      color: colors.textPrimary,
+    ),
+    displayMedium: AppTextStyles.displaySmall.copyWith(
+      color: colors.textPrimary,
+    ),
+    displaySmall: AppTextStyles.displaySmall.copyWith(
+      color: colors.textPrimary,
+    ),
+    headlineLarge: AppTextStyles.titleLarge.copyWith(color: colors.textPrimary),
+    headlineMedium: AppTextStyles.titleMedium.copyWith(
+      color: colors.textPrimary,
+    ),
+    headlineSmall: AppTextStyles.titleSmall.copyWith(color: colors.textPrimary),
+    titleLarge: AppTextStyles.titleLarge.copyWith(color: colors.textPrimary),
+    titleMedium: AppTextStyles.titleMedium.copyWith(color: colors.textPrimary),
+    titleSmall: AppTextStyles.titleSmall.copyWith(color: colors.textPrimary),
+    bodyLarge: AppTextStyles.bodyLarge.copyWith(color: colors.textBody),
+    bodyMedium: AppTextStyles.bodyMedium.copyWith(color: colors.textBody),
+    bodySmall: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
+    labelLarge: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary),
+    labelMedium: AppTextStyles.labelMedium.copyWith(
+      color: colors.textSecondary,
+    ),
+    labelSmall: AppTextStyles.labelSmall.copyWith(color: colors.textTertiary),
+  );
+}
 
 /// 모든 페이지 전환에 적용되는 커스텀 트랜지션.
 ///
@@ -21,10 +52,7 @@ class _TeenplePageTransitionsBuilder extends PageTransitionsBuilder {
     final slideIn = Tween<Offset>(
       begin: const Offset(1.0, 0.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: animation,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
 
     final fadeIn = CurvedAnimation(
       parent: animation,
@@ -32,19 +60,19 @@ class _TeenplePageTransitionsBuilder extends PageTransitionsBuilder {
     );
 
     // 이 페이지가 다른 페이지에 덮일 때: 약간 왼쪽으로 밀리며 살짝 어두워짐
-    final slideOut = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(-0.12, 0.0),
-    ).animate(CurvedAnimation(
-      parent: secondaryAnimation,
-      curve: Curves.easeInCubic,
-    ));
+    final slideOut =
+        Tween<Offset>(
+          begin: Offset.zero,
+          end: const Offset(-0.12, 0.0),
+        ).animate(
+          CurvedAnimation(
+            parent: secondaryAnimation,
+            curve: Curves.easeInCubic,
+          ),
+        );
 
     final dimOut = Tween<double>(begin: 1.0, end: 0.94).animate(
-      CurvedAnimation(
-        parent: secondaryAnimation,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeIn),
     );
 
     return SlideTransition(
@@ -53,10 +81,7 @@ class _TeenplePageTransitionsBuilder extends PageTransitionsBuilder {
         opacity: dimOut,
         child: SlideTransition(
           position: slideIn,
-          child: FadeTransition(
-            opacity: fadeIn,
-            child: child,
-          ),
+          child: FadeTransition(opacity: fadeIn, child: child),
         ),
       ),
     );
@@ -79,6 +104,7 @@ ThemeData buildTeenpleLightTheme() {
       seedColor: const Color(0xFF1DA1F2),
       brightness: Brightness.light,
     ),
+    textTheme: _teenpleTextTheme(colors),
     appBarTheme: AppBarTheme(
       backgroundColor: colors.pageBg,
       foregroundColor: colors.textPrimary,
@@ -88,7 +114,7 @@ ThemeData buildTeenpleLightTheme() {
     popupMenuTheme: PopupMenuThemeData(
       color: colors.popupBg,
       surfaceTintColor: Colors.transparent,
-      textStyle: TextStyle(color: colors.textPrimary, fontSize: 12),
+      textStyle: AppTextStyles.labelMedium.copyWith(color: colors.textPrimary),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: colors.cardBg,
@@ -97,35 +123,29 @@ ThemeData buildTeenpleLightTheme() {
     dialogTheme: DialogThemeData(
       backgroundColor: colors.cardBg,
       surfaceTintColor: Colors.transparent,
-      titleTextStyle: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w800,
+      titleTextStyle: AppTextStyles.titleMedium.copyWith(
         color: colors.textPrimary,
       ),
-      contentTextStyle: TextStyle(
-        fontSize: 12,
-        height: 1.45,
+      contentTextStyle: AppTextStyles.bodySmall.copyWith(
         color: colors.textSecondary,
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-      contentTextStyle: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
-      ),
+      contentTextStyle: AppTextStyles.labelMedium.copyWith(color: Colors.white),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        textStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-        ),
+        textStyle: AppTextStyles.labelMedium,
         minimumSize: const Size(52, 34),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: colors.inputBg,
+      hintStyle: AppTextStyles.bodyMedium.copyWith(color: colors.textHint),
     ),
     extensions: [colors],
     pageTransitionsTheme: _transitions,
@@ -137,14 +157,16 @@ ThemeData buildTeenpleDarkTheme() {
   return ThemeData(
     useMaterial3: true,
     scaffoldBackgroundColor: colors.pageBg,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1DA1F2),
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: colors.cardBg,
-      surfaceContainer: colors.cardBg,
-      onSurface: colors.textPrimary,
-    ),
+    colorScheme:
+        ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1DA1F2),
+          brightness: Brightness.dark,
+        ).copyWith(
+          surface: colors.cardBg,
+          surfaceContainer: colors.cardBg,
+          onSurface: colors.textPrimary,
+        ),
+    textTheme: _teenpleTextTheme(colors),
     appBarTheme: AppBarTheme(
       backgroundColor: colors.pageBg,
       foregroundColor: colors.textPrimary,
@@ -156,7 +178,7 @@ ThemeData buildTeenpleDarkTheme() {
     popupMenuTheme: PopupMenuThemeData(
       color: colors.popupBg,
       surfaceTintColor: Colors.transparent,
-      textStyle: TextStyle(color: colors.textPrimary, fontSize: 12),
+      textStyle: AppTextStyles.labelMedium.copyWith(color: colors.textPrimary),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: colors.cardBg,
@@ -165,32 +187,21 @@ ThemeData buildTeenpleDarkTheme() {
     dialogTheme: DialogThemeData(
       backgroundColor: colors.cardBg,
       surfaceTintColor: Colors.transparent,
-      titleTextStyle: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w800,
+      titleTextStyle: AppTextStyles.titleMedium.copyWith(
         color: colors.textPrimary,
       ),
-      contentTextStyle: TextStyle(
-        fontSize: 12,
-        height: 1.45,
+      contentTextStyle: AppTextStyles.bodySmall.copyWith(
         color: colors.textSecondary,
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-      contentTextStyle: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
-      ),
+      contentTextStyle: AppTextStyles.labelMedium.copyWith(color: Colors.white),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        textStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-        ),
+        textStyle: AppTextStyles.labelMedium,
         minimumSize: const Size(52, 34),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       ),
@@ -198,7 +209,7 @@ ThemeData buildTeenpleDarkTheme() {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: colors.inputBg,
-      hintStyle: TextStyle(color: colors.textHint),
+      hintStyle: AppTextStyles.bodyMedium.copyWith(color: colors.textHint),
     ),
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Color(0xFF229BF3),

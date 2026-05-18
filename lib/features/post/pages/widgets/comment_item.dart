@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
@@ -216,7 +217,7 @@ class _CommentBody extends StatelessWidget {
                       children: [
                         Text(
                           comment.displayAuthorName,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: c.textPrimary,
@@ -233,9 +234,9 @@ class _CommentBody extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(color: c.borderBlue),
                             ),
-                            child: const Text(
+                            child: Text(
                               '작성자',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF3A9DE0),
@@ -245,7 +246,7 @@ class _CommentBody extends StatelessWidget {
                         if (createdAtText.isNotEmpty)
                           Text(
                             createdAtText,
-                            style: const TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF7D8790),
@@ -321,7 +322,7 @@ class _CommentBody extends StatelessWidget {
                   padding: EdgeInsets.only(left: isReply ? 0 : 1),
                   child: Text(
                     comment.content,
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 12,
                       height: 1.48,
                       color: c.textBody,
@@ -382,9 +383,9 @@ class _DeletedCommentPlaceholder extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Text(
+        Text(
           '삭제된 댓글입니다.',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             color: Color(0xFF95A3AF),
             fontStyle: FontStyle.italic,
@@ -436,7 +437,7 @@ class _InlineActionButton extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: color,
@@ -460,7 +461,11 @@ class _CompactMenuText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
+      style: AppTextStyles.bodyMedium.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ),
     );
   }
 }

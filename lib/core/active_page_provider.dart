@@ -11,5 +11,4 @@ class ActivePage {
   static const none = ActivePage();
 }
 
-final activePageProvider =
-    StateProvider<ActivePage>((_) => const ActivePage());
+final activePageProvider = StateProvider<ActivePage>((_) => const ActivePage());

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/find_email_provider.dart';
 
 class FindEmailPage extends ConsumerStatefulWidget {
@@ -56,7 +57,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -100,7 +101,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
             ),
             child: Text(
               state.isLoading ? '조회 중...' : '아이디 찾기',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              style: AppTextStyles.titleSmall,
             ),
           ),
         ),
@@ -125,9 +126,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
 
               Text(
                 '아이디 찾기',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: Color(0xFF4A67F2),
                 ),
               ),
@@ -136,9 +135,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
 
               Text(
                 '가입할 때 입력한\n이름과 전화번호를 입력해주세요.',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.displaySmall.copyWith(
                   height: 1.3,
                   letterSpacing: -0.5,
                   color: c.textPrimary,
@@ -149,18 +146,17 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
 
               Text(
                 '입력한 정보와 일치하는 아이디를 알려드릴게요.',
-                style: TextStyle(fontSize: 13, height: 1.5, color: c.textBody),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  height: 1.5,
+                  color: c.textBody,
+                ),
               ),
 
               SizedBox(height: 32),
 
               Text(
                 '이름',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: c.textMuted,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(color: c.textMuted),
               ),
               SizedBox(height: 8),
               TextField(
@@ -178,11 +174,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
 
               Text(
                 '휴대폰 번호',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: c.textMuted,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(color: c.textMuted),
               ),
               SizedBox(height: 8),
               TextField(
@@ -208,7 +200,7 @@ class _FindEmailPageState extends ConsumerState<FindEmailPage> {
                 SizedBox(height: 10),
                 Text(
                   state.errorMessage!,
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 ),
               ],
             ],

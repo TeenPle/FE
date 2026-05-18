@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../auth/provider/login_provider.dart';
 import '../provider/admin_dashboard_provider.dart';
 
@@ -189,21 +190,25 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('로그아웃'),
-        content: const Text('관리자 계정에서 로그아웃할까요?'),
+        title: Text('로그아웃'),
+        content: Text('관리자 계정에서 로그아웃할까요?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               '취소',
-              style: TextStyle(color: context.colors.textMuted),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.colors.textMuted,
+              ),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text(
+            child: Text(
               '로그아웃',
-              style: TextStyle(color: Color(0xFFE05C7B)),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Color(0xFFE05C7B),
+              ),
             ),
           ),
         ],
@@ -312,12 +317,12 @@ class _AdminHero extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'TeenPle Admin',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: Color(0xCCFFFFFF),
@@ -341,9 +346,9 @@ class _AdminHero extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   // 메인 타이틀
-                  const Text(
+                  Text(
                     '관리자 콘솔',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
@@ -352,9 +357,9 @@ class _AdminHero extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  const Text(
+                  Text(
                     '오늘의 처리 현황을 확인하세요',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: Color(0xAAFFFFFF),
@@ -481,7 +486,11 @@ class _PendingSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final count = item.count;
-    final label = count == null ? '-' : count > 99 ? '99+' : '$count';
+    final label = count == null
+        ? '-'
+        : count > 99
+        ? '99+'
+        : '$count';
 
     return Material(
       color: Colors.white,
@@ -524,7 +533,7 @@ class _PendingSummaryCard extends StatelessWidget {
                 child: Text(
                   label,
                   maxLines: 1,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 20,
                     height: 1,
                     fontWeight: FontWeight.w900,
@@ -537,7 +546,7 @@ class _PendingSummaryCard extends StatelessWidget {
                 item.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   height: 1.1,
                   fontWeight: FontWeight.w700,
@@ -639,7 +648,7 @@ class _AdminMenuTile extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: titleSize,
                             height: 1.15,
                             fontWeight: FontWeight.w900,
@@ -651,7 +660,7 @@ class _AdminMenuTile extends StatelessWidget {
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: subtitleSize,
                             height: 1.2,
                             fontWeight: FontWeight.w500,
@@ -712,7 +721,7 @@ class _SectionTitle extends StatelessWidget {
     final fontSize = screenWidth < 360 ? 15.0 : 17.0;
     return Text(
       title,
-      style: TextStyle(
+      style: AppTextStyles.bodyMedium.copyWith(
         fontSize: fontSize,
         height: 1.2,
         fontWeight: FontWeight.w900,
@@ -740,7 +749,7 @@ class _PendingBadge extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 12,
           height: 1.1,
           fontWeight: FontWeight.w900,
@@ -750,4 +759,3 @@ class _PendingBadge extends StatelessWidget {
     );
   }
 }
-

@@ -12,7 +12,11 @@ class UnreadWarningState {
 
   bool get hasUnread => warning != null;
 
-  UnreadWarningState copyWith({UnreadWarningModel? warning, bool? isLoading, bool clear = false}) {
+  UnreadWarningState copyWith({
+    UnreadWarningModel? warning,
+    bool? isLoading,
+    bool clear = false,
+  }) {
     return UnreadWarningState(
       warning: clear ? null : (warning ?? this.warning),
       isLoading: isLoading ?? this.isLoading,
@@ -48,8 +52,8 @@ class UnreadWarningNotifier extends StateNotifier<UnreadWarningState> {
 
 final unreadWarningProvider =
     StateNotifierProvider<UnreadWarningNotifier, UnreadWarningState>((ref) {
-  return UnreadWarningNotifier(ref.watch(warningApiProvider));
-});
+      return UnreadWarningNotifier(ref.watch(warningApiProvider));
+    });
 
 // ── 내 경고 이력 ────────────────────────────────────────────
 
@@ -127,5 +131,5 @@ class WarningHistoryNotifier extends StateNotifier<WarningHistoryState> {
 
 final warningHistoryProvider =
     StateNotifierProvider<WarningHistoryNotifier, WarningHistoryState>((ref) {
-  return WarningHistoryNotifier(ref.watch(warningApiProvider));
-});
+      return WarningHistoryNotifier(ref.watch(warningApiProvider));
+    });

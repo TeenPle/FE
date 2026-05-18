@@ -33,7 +33,9 @@ class AdminContentApi {
   }
 
   Future<List<AdminBoardModel>> getBoardsBySchool(int schoolId) async {
-    final res = await _client.get('/api/admin/content/schools/$schoolId/boards');
+    final res = await _client.get(
+      '/api/admin/content/schools/$schoolId/boards',
+    );
     final result = res['result'] as List<dynamic>? ?? [];
     return result
         .map((e) => AdminBoardModel.fromJson(e as Map<String, dynamic>))
@@ -84,7 +86,10 @@ class AdminContentApi {
     return AdminPostDetailModel.fromJson(res['result'] as Map<String, dynamic>);
   }
 
-  Future<AdminPostDetailModel> restoreComment(int commentId, String reason) async {
+  Future<AdminPostDetailModel> restoreComment(
+    int commentId,
+    String reason,
+  ) async {
     final res = await _client.patch(
       '/api/admin/content/comments/$commentId/restore',
       body: {'reason': reason},

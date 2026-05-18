@@ -26,8 +26,9 @@ class AdminVerificationListState {
       isLoading: isLoading ?? this.isLoading,
       selectedStatus: selectedStatus ?? this.selectedStatus,
       items: items ?? this.items,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

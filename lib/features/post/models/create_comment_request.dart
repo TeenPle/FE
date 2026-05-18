@@ -10,10 +10,6 @@ class CreateCommentRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'content': content,
-      'anonymous': anonymous,
-      'parentId': parentId,
-    };
+    return {'content': content, 'anonymous': anonymous, 'parentId': parentId};
   }
 }

@@ -19,7 +19,9 @@ class AdminSchoolModel {
     return AdminSchoolModel(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String? ?? '',
-      regionId: json['regionId'] != null ? (json['regionId'] as num).toInt() : null,
+      regionId: json['regionId'] != null
+          ? (json['regionId'] as num).toInt()
+          : null,
       regionName: json['regionName'] as String?,
       neisOfficeCode: json['neisOfficeCode'] as String?,
       neisSchoolCode: json['neisSchoolCode'] as String?,
@@ -59,9 +61,13 @@ class AdminBoardModel {
       description: json['description'] as String?,
       scope: json['scope'] as String? ?? '',
       active: json['active'] as bool? ?? false,
-      schoolId: json['schoolId'] != null ? (json['schoolId'] as num).toInt() : null,
+      schoolId: json['schoolId'] != null
+          ? (json['schoolId'] as num).toInt()
+          : null,
       schoolName: json['schoolName'] as String?,
-      regionId: json['regionId'] != null ? (json['regionId'] as num).toInt() : null,
+      regionId: json['regionId'] != null
+          ? (json['regionId'] as num).toInt()
+          : null,
       regionName: json['regionName'] as String?,
       postCount: (json['postCount'] as num?)?.toInt() ?? 0,
     );
@@ -122,9 +128,13 @@ class AdminPostSummaryModel {
       authorLabel: json['authorLabel'] as String? ?? '알 수 없음',
       boardId: (json['boardId'] as num).toInt(),
       boardTitle: json['boardTitle'] as String? ?? '',
-      schoolId: json['schoolId'] != null ? (json['schoolId'] as num).toInt() : null,
+      schoolId: json['schoolId'] != null
+          ? (json['schoolId'] as num).toInt()
+          : null,
       schoolName: json['schoolName'] as String?,
-      regionId: json['regionId'] != null ? (json['regionId'] as num).toInt() : null,
+      regionId: json['regionId'] != null
+          ? (json['regionId'] as num).toInt()
+          : null,
       regionName: json['regionName'] as String?,
       viewCount: (json['viewCount'] as num?)?.toInt() ?? 0,
       likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
@@ -203,7 +213,9 @@ class AdminCommentModel {
       likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
       dislikeCount: (json['dislikeCount'] as num?)?.toInt() ?? 0,
       depth: (json['depth'] as num?)?.toInt() ?? 0,
-      parentId: json['parentId'] != null ? (json['parentId'] as num).toInt() : null,
+      parentId: json['parentId'] != null
+          ? (json['parentId'] as num).toInt()
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
@@ -248,9 +260,13 @@ class AdminPostDetailModel extends AdminPostSummaryModel {
       authorLabel: json['authorLabel'] as String? ?? '알 수 없음',
       boardId: (json['boardId'] as num).toInt(),
       boardTitle: json['boardTitle'] as String? ?? '',
-      schoolId: json['schoolId'] != null ? (json['schoolId'] as num).toInt() : null,
+      schoolId: json['schoolId'] != null
+          ? (json['schoolId'] as num).toInt()
+          : null,
       schoolName: json['schoolName'] as String?,
-      regionId: json['regionId'] != null ? (json['regionId'] as num).toInt() : null,
+      regionId: json['regionId'] != null
+          ? (json['regionId'] as num).toInt()
+          : null,
       regionName: json['regionName'] as String?,
       viewCount: (json['viewCount'] as num?)?.toInt() ?? 0,
       likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,

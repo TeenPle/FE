@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/warning_model.dart';
 import '../provider/warning_provider.dart';
 
@@ -34,68 +35,70 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
         centerTitle: true,
         title: Text(
           '내 경고 이력',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading && state.items.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.items.isEmpty
-              ? Center(
-                  child: Text(
-                    state.error!,
-                    style: TextStyle(color: c.textMuted),
-                  ),
-                )
-              : state.items.isEmpty
-                  ? Center(
-                      child: Text(
-                        '경고 이력이 없어요.',
-                        style: TextStyle(fontSize: 13, color: c.textMuted),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () =>
-                          ref.read(warningHistoryProvider.notifier).load(),
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-                        itemCount:
-                            state.items.length + (state.hasMore ? 1 : 0),
-                        itemBuilder: (ctx, index) {
-                          if (index == state.items.length) {
-                            final cc = ctx.colors;
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 12),
-                              child: Center(
-                                child: state.isLoading
-                                    ? const CircularProgressIndicator(
-                                        strokeWidth: 2)
-                                    : OutlinedButton(
-                                        onPressed: () => ref
-                                            .read(warningHistoryProvider
-                                                .notifier)
-                                            .loadMore(),
-                                        style: OutlinedButton.styleFrom(
-                                          backgroundColor: cc.cardBg,
-                                          side: BorderSide(color: cc.border),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '더보기',
-                                          style: TextStyle(color: cc.textMuted),
-                                        ),
-                                      ),
+          ? Center(
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
+            )
+          : state.items.isEmpty
+          ? Center(
+              child: Text(
+                '경고 이력이 없어요.',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 13,
+                  color: c.textMuted,
+                ),
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: () => ref.read(warningHistoryProvider.notifier).load(),
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+                itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                itemBuilder: (ctx, index) {
+                  if (index == state.items.length) {
+                    final cc = ctx.colors;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Center(
+                        child: state.isLoading
+                            ? const CircularProgressIndicator(strokeWidth: 2)
+                            : OutlinedButton(
+                                onPressed: () => ref
+                                    .read(warningHistoryProvider.notifier)
+                                    .loadMore(),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: cc.cardBg,
+                                  side: BorderSide(color: cc.border),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                child: Text(
+                                  '더보기',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: cc.textMuted,
+                                  ),
+                                ),
                               ),
-                            );
-                          }
-                          return _WarningHistoryCard(
-                              warning: state.items[index]);
-                        },
                       ),
-                    ),
+                    );
+                  }
+                  return _WarningHistoryCard(warning: state.items[index]);
+                },
+              ),
+            ),
     );
   }
 }
@@ -124,12 +127,15 @@ class _WarningHistoryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded,
-                  size: 16, color: Color(0xFFF59E0B)),
+              const Icon(
+                Icons.warning_amber_rounded,
+                size: 16,
+                color: Color(0xFFF59E0B),
+              ),
               const SizedBox(width: 6),
-              const Text(
+              Text(
                 '관리자 경고',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFFF59E0B),
@@ -138,7 +144,10 @@ class _WarningHistoryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 issuedStr,
-                style: TextStyle(fontSize: 11, color: c.textMuted),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textMuted,
+                ),
               ),
             ],
           ),
@@ -157,7 +166,7 @@ class _WarningHistoryCard extends StatelessWidget {
                 children: [
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: c.textMuted,
@@ -166,7 +175,7 @@ class _WarningHistoryCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     warning.targetSummary!,
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       color: c.textBody,
                       height: 1.4,
@@ -189,7 +198,7 @@ class _WarningHistoryCard extends StatelessWidget {
             ),
             child: Text(
               warning.adminComment,
-              style: const TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 color: Color(0xFF78350F),
                 height: 1.5,

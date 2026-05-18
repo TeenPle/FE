@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/dday_model.dart';
 import '../provider/dday_provider.dart';
 
@@ -21,10 +22,7 @@ class DDaySettingsPage extends ConsumerWidget {
         elevation: 0,
         foregroundColor: c.textPrimary,
         centerTitle: true,
-        title: const Text(
-          'D-Day 관리',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-        ),
+        title: Text('D-Day 관리', style: AppTextStyles.titleLarge),
       ),
       floatingActionButton: ddays.length < 10
           ? FloatingActionButton(
@@ -36,9 +34,7 @@ class DDaySettingsPage extends ConsumerWidget {
             )
           : null,
       body: ddays.isEmpty
-          ? _EmptyState(
-              onAdd: () => _showEditSheet(context, notifier, null),
-            )
+          ? _EmptyState(onAdd: () => _showEditSheet(context, notifier, null))
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
               itemCount: ddays.length,
@@ -134,30 +130,21 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
             ),
             Text(
               isEdit ? 'D-Day 수정' : 'D-Day 추가',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: c.textPrimary,
-              ),
+              style: AppTextStyles.displaySmall.copyWith(color: c.textPrimary),
             ),
             const SizedBox(height: 22),
             Text(
               '이름',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: c.textMuted,
-              ),
+              style: AppTextStyles.labelMedium.copyWith(color: c.textMuted),
             ),
             const SizedBox(height: 6),
             TextField(
               controller: _labelCtrl,
               maxLength: 20,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.textPrimary),
+              style: AppTextStyles.labelLarge.copyWith(color: c.textPrimary),
               decoration: InputDecoration(
                 hintText: '예: 수능, 기말고사, 졸업식',
-                hintStyle: TextStyle(
-                  fontSize: 13,
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
                   color: c.textMuted,
                 ),
                 counterText: '',
@@ -183,11 +170,7 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
             const SizedBox(height: 16),
             Text(
               '날짜',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: c.textMuted,
-              ),
+              style: AppTextStyles.labelMedium.copyWith(color: c.textMuted),
             ),
             const SizedBox(height: 6),
             GestureDetector(
@@ -218,12 +201,13 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                           surfaceTintColor: Colors.transparent,
                           headerBackgroundColor: const Color(0xFF229BF3),
                           headerForegroundColor: Colors.white,
-                          headerHeadlineStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            height: 1.2,
-                          ),
-                          headerHelpStyle: const TextStyle(
+                          headerHeadlineStyle: AppTextStyles.bodyMedium
+                              .copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                height: 1.2,
+                              ),
+                          headerHelpStyle: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             height: 1.1,
@@ -238,17 +222,14 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                             foregroundColor: isDark
                                 ? const Color(0xFF6EC5FF)
                                 : const Color(0xFF229BF3),
-                            textStyle: const TextStyle(
+                            textStyle: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ),
-                      child: Transform.scale(
-                        scale: 0.92,
-                        child: child!,
-                      ),
+                      child: Transform.scale(scale: 0.92, child: child!),
                     );
                   },
                 );
@@ -274,9 +255,7 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                     const SizedBox(width: 10),
                     Text(
                       '${_selectedDate.year}.${_selectedDate.month.toString().padLeft(2, '0')}.${_selectedDate.day.toString().padLeft(2, '0')}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: c.textPrimary,
                       ),
                     ),
@@ -293,11 +272,7 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
             const SizedBox(height: 16),
             Text(
               '아이콘',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: c.textMuted,
-              ),
+              style: AppTextStyles.labelMedium.copyWith(color: c.textMuted),
             ),
             const SizedBox(height: 10),
             GridView.count(
@@ -338,7 +313,8 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                   if (label.isEmpty) return;
                   widget.onSave(
                     DDayModel(
-                      id: widget.existing?.id ??
+                      id:
+                          widget.existing?.id ??
                           DateTime.now().millisecondsSinceEpoch.toString(),
                       label: label,
                       targetDate: _selectedDate,
@@ -357,10 +333,7 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                 ),
                 child: Text(
                   isEdit ? '저장하기' : '추가하기',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTextStyles.titleLarge,
                 ),
               ),
             ),
@@ -388,10 +361,10 @@ class _DDayTile extends StatelessWidget {
     final accentColor = d == 0
         ? const Color(0xFFE05C7B)
         : d > 0 && d <= 7
-            ? const Color(0xFFFF6B35)
-            : d > 0
-                ? const Color(0xFF4A67F2)
-                : const Color(0xFF9AA7B2);
+        ? const Color(0xFFFF6B35)
+        : d > 0
+        ? const Color(0xFF4A67F2)
+        : const Color(0xFF9AA7B2);
     final icon = ddayIconMap[dday.iconName] ?? Icons.event_rounded;
 
     final c = context.colors;
@@ -411,9 +384,7 @@ class _DDayTile extends StatelessWidget {
               color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
-              child: Icon(icon, size: 22, color: accentColor),
-            ),
+            child: Center(child: Icon(icon, size: 22, color: accentColor)),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -422,9 +393,7 @@ class _DDayTile extends StatelessWidget {
               children: [
                 Text(
                   dday.label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.titleSmall.copyWith(
                     color: c.textPrimary,
                   ),
                 ),
@@ -433,16 +402,14 @@ class _DDayTile extends StatelessWidget {
                   children: [
                     Text(
                       dday.dDayLabel,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.labelMedium.copyWith(
                         color: accentColor,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '${dday.targetDate.year}.${dday.targetDate.month.toString().padLeft(2, '0')}.${dday.targetDate.day.toString().padLeft(2, '0')}',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         color: c.textTertiary,
                       ),
@@ -480,30 +447,22 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.event_available_outlined,
-            size: 52,
-            color: c.iconMuted,
-          ),
+          Icon(Icons.event_available_outlined, size: 52, color: c.iconMuted),
           const SizedBox(height: 14),
           Text(
             'D-Day가 없어요',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: c.textPrimary,
-            ),
+            style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
             '수능, 시험일 등 중요한 날짜를 추가해보세요.',
-            style: TextStyle(fontSize: 12, color: c.textTertiary),
+            style: AppTextStyles.captionLarge.copyWith(color: c.textTertiary),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('D-Day 추가'),
+            label: Text('D-Day 추가'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF229BF3),
               foregroundColor: Colors.white,

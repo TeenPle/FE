@@ -14,11 +14,7 @@ class CreatePostRequest {
 
   /// 백엔드 요청 바디로 변환
   Map<String, dynamic> toJson() {
-    final json = {
-      'title': title,
-      'content': content,
-      'anonymous': anonymous,
-    };
+    final json = {'title': title, 'content': content, 'anonymous': anonymous};
     if (pollOptions != null) {
       json['pollOptions'] = pollOptions!;
     }

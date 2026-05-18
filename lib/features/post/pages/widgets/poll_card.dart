@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../models/poll_model.dart';
@@ -31,12 +32,15 @@ class PollCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.poll_rounded,
-                  size: 19, color: Color(0xFF14A3F7)),
+              const Icon(
+                Icons.poll_rounded,
+                size: 19,
+                color: Color(0xFF14A3F7),
+              ),
               const SizedBox(width: 8),
               Text(
                 '투표',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: c.textPrimary,
@@ -61,7 +65,7 @@ class PollCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               '총 참여자 : ${poll.totalParticipants}명',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: c.textMuted,
@@ -90,8 +94,9 @@ class _PollOptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final fillRatio =
-        showResult ? (option.percentage.clamp(0, 100) / 100.0) : 0.0;
+    final fillRatio = showResult
+        ? (option.percentage.clamp(0, 100) / 100.0)
+        : 0.0;
 
     return InkWell(
       onTap: showResult || isSubmitting ? null : onTap,
@@ -104,9 +109,7 @@ class _PollOptionTile extends StatelessWidget {
               color: c.tintBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: option.selectedByMe
-                    ? const Color(0xFF14A3F7)
-                    : c.border,
+                color: option.selectedByMe ? const Color(0xFF14A3F7) : c.border,
               ),
             ),
           ),
@@ -142,7 +145,7 @@ class _PollOptionTile extends StatelessWidget {
                       option.text,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: c.textPrimary,
@@ -153,7 +156,7 @@ class _PollOptionTile extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       '${option.voteCount}명 (${option.percentage}%)',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: c.textSecondary,

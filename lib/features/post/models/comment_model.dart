@@ -44,7 +44,9 @@ class CommentModel {
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       commentId: (json['commentId'] as num).toInt(),
-      authorUserId: json['authorUserId'] != null ? (json['authorUserId'] as num).toInt() : null,
+      authorUserId: json['authorUserId'] != null
+          ? (json['authorUserId'] as num).toInt()
+          : null,
       isMine: json['isMine'] as bool? ?? false,
       isPostAuthor: json['isPostAuthor'] as bool? ?? false,
       authorDeleted: json['authorDeleted'] as bool? ?? false,
@@ -54,14 +56,22 @@ class CommentModel {
       commentStatus: json['commentStatus'] as String? ?? 'ACTIVE',
       content: json['content'] as String? ?? '',
       author: json['author'] as String? ?? '',
-      likeCount: json['likeCount'] != null ? (json['likeCount'] as num).toInt() : 0,
-      dislikeCount: json['dislikeCount'] != null ? (json['dislikeCount'] as num).toInt() : 0,
+      likeCount: json['likeCount'] != null
+          ? (json['likeCount'] as num).toInt()
+          : 0,
+      dislikeCount: json['dislikeCount'] != null
+          ? (json['dislikeCount'] as num).toInt()
+          : 0,
       likedByMe: json['likedByMe'] as bool? ?? false,
       anonymous: json['anonymous'] as bool? ?? false,
       depth: json['depth'] != null ? (json['depth'] as num).toInt() : 0,
-      parentId: json['parentId'] != null ? (json['parentId'] as num).toInt() : null,
+      parentId: json['parentId'] != null
+          ? (json['parentId'] as num).toInt()
+          : null,
       createdAt: json['createdAt'] as String?,
-      createdAtMs: json['createdAtMs'] != null ? (json['createdAtMs'] as num).toInt() : null,
+      createdAtMs: json['createdAtMs'] != null
+          ? (json['createdAtMs'] as num).toInt()
+          : null,
     );
   }
 

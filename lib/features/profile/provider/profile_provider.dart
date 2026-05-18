@@ -13,8 +13,9 @@ final profileApiProvider = Provider<ProfileApi>((ref) {
   return ProfileApi(client: AppApiClient(ref.watch(dioProvider)));
 });
 
-final profileProvider =
-    StateNotifierProvider<ProfileNotifier, ProfileState>((ref) {
+final profileProvider = StateNotifierProvider<ProfileNotifier, ProfileState>((
+  ref,
+) {
   return ProfileNotifier(ref.watch(profileApiProvider));
 });
 
@@ -66,10 +67,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
-      state = state.copyWith(
-        isSaving: false,
-        successMessage: '비밀번호가 변경되었습니다.',
-      );
+      state = state.copyWith(isSaving: false, successMessage: '비밀번호가 변경되었습니다.');
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -142,13 +140,12 @@ class _PagedState<T> {
     bool? isLoading,
     bool? hasMore,
     int? currentPage,
-  }) =>
-      _PagedState(
-        items: items ?? this.items,
-        isLoading: isLoading ?? this.isLoading,
-        hasMore: hasMore ?? this.hasMore,
-        currentPage: currentPage ?? this.currentPage,
-      );
+  }) => _PagedState(
+    items: items ?? this.items,
+    isLoading: isLoading ?? this.isLoading,
+    hasMore: hasMore ?? this.hasMore,
+    currentPage: currentPage ?? this.currentPage,
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -163,10 +160,19 @@ class MyPostsNotifier extends StateNotifier<MyPostsState> {
 
   Future<void> load() async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    state = state.copyWith(
+      isLoading: true,
+      items: [],
+      currentPage: 0,
+      hasMore: true,
+    );
     try {
       final items = await _api.getMyPosts(page: 0);
-      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+      state = state.copyWith(
+        isLoading: false,
+        items: items,
+        hasMore: items.length >= 20,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false);
     }
@@ -192,8 +198,8 @@ class MyPostsNotifier extends StateNotifier<MyPostsState> {
 
 final myPostsNotifierProvider =
     StateNotifierProvider<MyPostsNotifier, MyPostsState>((ref) {
-  return MyPostsNotifier(ref.watch(profileApiProvider));
-});
+      return MyPostsNotifier(ref.watch(profileApiProvider));
+    });
 
 // ─────────────────────────────────────────────
 // 내가 쓴 댓글
@@ -207,10 +213,19 @@ class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
 
   Future<void> load() async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    state = state.copyWith(
+      isLoading: true,
+      items: [],
+      currentPage: 0,
+      hasMore: true,
+    );
     try {
       final items = await _api.getMyComments(page: 0);
-      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+      state = state.copyWith(
+        isLoading: false,
+        items: items,
+        hasMore: items.length >= 20,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false);
     }
@@ -236,8 +251,8 @@ class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
 
 final myCommentsNotifierProvider =
     StateNotifierProvider<MyCommentsNotifier, MyCommentsState>((ref) {
-  return MyCommentsNotifier(ref.watch(profileApiProvider));
-});
+      return MyCommentsNotifier(ref.watch(profileApiProvider));
+    });
 
 // ─────────────────────────────────────────────
 // 내가 공감한 글
@@ -251,10 +266,19 @@ class MyLikedPostsNotifier extends StateNotifier<MyLikedPostsState> {
 
   Future<void> load() async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    state = state.copyWith(
+      isLoading: true,
+      items: [],
+      currentPage: 0,
+      hasMore: true,
+    );
     try {
       final items = await _api.getLikedPosts(page: 0);
-      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+      state = state.copyWith(
+        isLoading: false,
+        items: items,
+        hasMore: items.length >= 20,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false);
     }
@@ -280,8 +304,8 @@ class MyLikedPostsNotifier extends StateNotifier<MyLikedPostsState> {
 
 final myLikedPostsNotifierProvider =
     StateNotifierProvider<MyLikedPostsNotifier, MyLikedPostsState>((ref) {
-  return MyLikedPostsNotifier(ref.watch(profileApiProvider));
-});
+      return MyLikedPostsNotifier(ref.watch(profileApiProvider));
+    });
 
 // ─────────────────────────────────────────────
 // 내 북마크
@@ -295,10 +319,19 @@ class MyBookmarksNotifier extends StateNotifier<MyBookmarksState> {
 
   Future<void> load() async {
     if (state.isLoading) return;
-    state = state.copyWith(isLoading: true, items: [], currentPage: 0, hasMore: true);
+    state = state.copyWith(
+      isLoading: true,
+      items: [],
+      currentPage: 0,
+      hasMore: true,
+    );
     try {
       final items = await _api.getMyBookmarks(page: 0);
-      state = state.copyWith(isLoading: false, items: items, hasMore: items.length >= 20);
+      state = state.copyWith(
+        isLoading: false,
+        items: items,
+        hasMore: items.length >= 20,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false);
     }
@@ -324,5 +357,5 @@ class MyBookmarksNotifier extends StateNotifier<MyBookmarksState> {
 
 final myBookmarksNotifierProvider =
     StateNotifierProvider<MyBookmarksNotifier, MyBookmarksState>((ref) {
-  return MyBookmarksNotifier(ref.watch(profileApiProvider));
-});
+      return MyBookmarksNotifier(ref.watch(profileApiProvider));
+    });

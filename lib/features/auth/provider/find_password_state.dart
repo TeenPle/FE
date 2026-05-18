@@ -37,8 +37,7 @@ class FindPasswordState {
       verificationToken: clearVerificationToken
           ? null
           : (verificationToken ?? this.verificationToken),
-      verifyError:
-          clearVerifyError ? null : (verifyError ?? this.verifyError),
+      verifyError: clearVerifyError ? null : (verifyError ?? this.verifyError),
     );
   }
 }

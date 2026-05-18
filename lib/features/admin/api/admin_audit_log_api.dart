@@ -28,7 +28,8 @@ class AdminAuditLogApi {
         'page': '$page',
         'size': '$size',
         if (action != null && action.isNotEmpty) 'action': action,
-        if (targetType != null && targetType.isNotEmpty) 'targetType': targetType,
+        if (targetType != null && targetType.isNotEmpty)
+          'targetType': targetType,
         if (adminId != null) 'adminId': '$adminId',
         if (from != null) 'from': _dateOnly(from),
         if (to != null) 'to': _dateOnly(to),

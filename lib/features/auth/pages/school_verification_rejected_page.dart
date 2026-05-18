@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/login_provider.dart';
 import '../provider/verification_reapply_provider.dart';
 
@@ -46,7 +47,9 @@ class _SchoolVerificationRejectedPageState
 
     if (image == null) return;
 
-    ref.read(verificationReapplyProvider.notifier).setSelectedFilePath(image.path);
+    ref
+        .read(verificationReapplyProvider.notifier)
+        .setSelectedFilePath(image.path);
   }
 
   @override
@@ -105,7 +108,10 @@ class _SchoolVerificationRejectedPageState
             ),
             child: Text(
               reapplyState.isSubmitLoading ? '재요청 중...' : '다시 인증 요청하기',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),
@@ -162,7 +168,7 @@ class _SchoolVerificationRejectedPageState
                       ),
                       child: Text(
                         '학교 인증 반려',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFFFF7A45),
@@ -175,7 +181,7 @@ class _SchoolVerificationRejectedPageState
                     /// 제목
                     Text(
                       '학교 인증이 반려되었어요.',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                         height: 1.22,
@@ -189,7 +195,7 @@ class _SchoolVerificationRejectedPageState
                     /// 설명
                     Text(
                       '반려 사유를 확인한 뒤 학생증 사진을 다시 업로드해주세요.',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 13,
                         height: 1.6,
                         color: context.colors.textBody,
@@ -210,7 +216,7 @@ class _SchoolVerificationRejectedPageState
                         ),
                         child: Text(
                           reapplyState.errorMessage!,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 12,
                             height: 1.6,
                             color: Colors.red,
@@ -238,7 +244,7 @@ class _SchoolVerificationRejectedPageState
                           ),
                           child: Text(
                             '다시 불러오기',
-                            style: TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               color: Color(0xFF4A67F2),
                               fontWeight: FontWeight.w700,
                             ),
@@ -260,7 +266,7 @@ class _SchoolVerificationRejectedPageState
                           children: [
                             Text(
                               '학교',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: context.colors.textMuted,
@@ -269,7 +275,7 @@ class _SchoolVerificationRejectedPageState
                             SizedBox(height: 8),
                             Text(
                               reapplyState.info!.schoolName,
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: context.colors.textPrimary,
@@ -295,7 +301,7 @@ class _SchoolVerificationRejectedPageState
                           children: [
                             Text(
                               '반려 사유',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFFFF7A45),
@@ -306,7 +312,7 @@ class _SchoolVerificationRejectedPageState
                               reapplyState.info!.adminComment.trim().isEmpty
                                   ? '관리자 코멘트가 없습니다.'
                                   : reapplyState.info!.adminComment,
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 12,
                                 height: 1.6,
                                 color: context.colors.textBody,
@@ -321,7 +327,7 @@ class _SchoolVerificationRejectedPageState
                       /// 학생증 업로드 라벨
                       Text(
                         '학생증 이미지',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: context.colors.textMuted,
@@ -366,7 +372,7 @@ class _SchoolVerificationRejectedPageState
                                   selectedFileName.isEmpty
                                       ? '학생증 사진 다시 업로드하기'
                                       : selectedFileName,
-                                  style: TextStyle(
+                                  style: AppTextStyles.bodyMedium.copyWith(
                                     fontSize: 13,
                                     fontWeight: selectedFileName.isEmpty
                                         ? FontWeight.w400
@@ -386,7 +392,7 @@ class _SchoolVerificationRejectedPageState
 
                       Text(
                         '학생증 정보가 잘 보이는 사진을 올려주세요.',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           color: context.colors.textMuted,
                         ),
@@ -398,7 +404,7 @@ class _SchoolVerificationRejectedPageState
 
                         Text(
                           '미리보기',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: context.colors.textMuted,
@@ -424,7 +430,7 @@ class _SchoolVerificationRejectedPageState
                                 return Center(
                                   child: Text(
                                     '이미지를 불러올 수 없어요.',
-                                    style: TextStyle(
+                                    style: AppTextStyles.bodyMedium.copyWith(
                                       fontSize: 11,
                                       color: context.colors.iconSecondary,
                                     ),
@@ -439,7 +445,7 @@ class _SchoolVerificationRejectedPageState
 
                         Text(
                           '선택한 이미지가 맞는지 확인해주세요.',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 11,
                             color: Color(0xFF4A67F2),
                           ),
@@ -450,7 +456,10 @@ class _SchoolVerificationRejectedPageState
                         SizedBox(height: 12),
                         Text(
                           reapplyState.submitErrorMessage!,
-                          style: TextStyle(fontSize: 11, color: Colors.red),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 11,
+                            color: Colors.red,
+                          ),
                         ),
                       ],
                     ],

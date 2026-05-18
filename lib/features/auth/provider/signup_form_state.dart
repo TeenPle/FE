@@ -67,8 +67,9 @@ class SignupFormState {
     bool clearSelectedSchool = false,
   }) {
     return SignupFormState(
-      selectedSchool:
-      clearSelectedSchool ? null : (selectedSchool ?? this.selectedSchool),
+      selectedSchool: clearSelectedSchool
+          ? null
+          : (selectedSchool ?? this.selectedSchool),
       grade: grade ?? this.grade,
       username: username ?? this.username,
       nickname: nickname ?? this.nickname,

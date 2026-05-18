@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 const _termsUrl = 'https://www.notion.so/7715bdc3bc8c479c859d6716aa4bfeac';
 
@@ -33,7 +34,7 @@ class TermsPage extends StatelessWidget {
         centerTitle: true,
         title: Text(
           '이용약관',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -118,12 +119,12 @@ class _TermsContent extends StatelessWidget {
         TextButton.icon(
           onPressed: onOpenOriginalDocument,
           icon: const Icon(Icons.open_in_new_rounded, size: 16),
-          label: const Text('전체 이용약관 보기'),
+          label: Text('전체 이용약관 보기'),
           style: TextButton.styleFrom(
             alignment: Alignment.centerLeft,
             foregroundColor: const Color(0xFF4A67F2),
             padding: EdgeInsets.zero,
-            textStyle: const TextStyle(
+            textStyle: AppTextStyles.bodyMedium.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -150,7 +151,7 @@ class _Section extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: c.textPrimary,
@@ -159,7 +160,11 @@ class _Section extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             body,
-            style: TextStyle(fontSize: 12, height: 1.7, color: c.textBody),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 12,
+              height: 1.7,
+              color: c.textBody,
+            ),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 import '../utils/haptics.dart';
 
 const bool _useHeartLikeStyle = true;
@@ -131,8 +132,7 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
                   const SizedBox(width: 5),
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
-                    style: TextStyle(
-                      fontSize: 11,
+                    style: AppTextStyles.labelSmall.copyWith(
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),

@@ -28,14 +28,25 @@ class TeenpleApp extends ConsumerWidget {
       ],
       scaffoldMessengerKey: appScaffoldMessengerKey,
       builder: (context, child) {
-        return ColoredBox(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: SafeArea(
-            top: false,
-            left: false,
-            right: false,
-            bottom: true,
-            child: child ?? const SizedBox.shrink(),
+        // 앱 전체 기본 글자 크기 보정: 하드코딩된 fontSize 값들이 11–13px 중심이라
+        // 시스템 보통 상태에서도 읽기 편하도록 1.1배 기본 배수를 적용한다.
+        // 시스템 설정 반영: small(≈0.85) → ~0.94×, normal(1.0) → 1.1×, large(1.3) → 1.35× (상한)
+        final systemScale = MediaQuery.textScalerOf(context).scale(1.0);
+        final effective = (systemScale * 1.1).clamp(0.85, 1.35);
+        final clamped = MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(effective));
+        return MediaQuery(
+          data: clamped,
+          child: ColoredBox(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: SafeArea(
+              top: false,
+              left: false,
+              right: false,
+              bottom: true,
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },

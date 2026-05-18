@@ -10,10 +10,10 @@ final blockApiProvider = Provider<BlockApi>((ref) {
 
 final blockSummaryProvider =
     StateNotifierProvider<BlockSummaryNotifier, AsyncValue<int>>((ref) {
-  final notifier = BlockSummaryNotifier(ref.watch(blockApiProvider));
-  Future.microtask(notifier.load);
-  return notifier;
-});
+      final notifier = BlockSummaryNotifier(ref.watch(blockApiProvider));
+      Future.microtask(notifier.load);
+      return notifier;
+    });
 
 class BlockSummaryNotifier extends StateNotifier<AsyncValue<int>> {
   final BlockApi _api;

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'auth_bottom_action_area.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/haptics.dart';
 
 import '../../../app/routes.dart';
@@ -96,7 +97,10 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
           ),
           child: Text(
             '동의하고 계속하기',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -118,7 +122,7 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
 
           Text(
             '서비스 이용에\n동의해주세요',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w800,
               height: 1.3,
@@ -131,7 +135,11 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
 
           Text(
             'TeenPle는 만 15세 이상 고등학교 재학생을 위한 서비스입니다.',
-            style: TextStyle(fontSize: 13, height: 1.5, color: c.textBody),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              height: 1.5,
+              color: c.textBody,
+            ),
           ),
 
           SizedBox(height: 32),
@@ -203,7 +211,7 @@ class _ConsentItem extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: c.textBody,
@@ -212,7 +220,7 @@ class _ConsentItem extends StatelessWidget {
             ),
             Text(
               checked ? '다시 보기' : '상세 보기',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF4A67F2),
@@ -390,7 +398,7 @@ class _LegalAgreementSheet extends StatelessWidget {
                     Expanded(
                       child: Text(
                         type.title,
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: c.textPrimary,
@@ -412,7 +420,7 @@ class _LegalAgreementSheet extends StatelessWidget {
                   children: [
                     Text(
                       '아래 주요 내용을 확인한 뒤 동의함을 눌러야 회원가입 필수 동의가 완료됩니다. 전체 원문은 하단 링크에서 확인할 수 있습니다.',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 12,
                         height: 1.6,
                         color: c.textMuted,
@@ -424,12 +432,12 @@ class _LegalAgreementSheet extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onOpenExternalUrl,
                       icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                      label: const Text('전체 문서 자세히 보기'),
+                      label: Text('전체 문서 자세히 보기'),
                       style: TextButton.styleFrom(
                         alignment: Alignment.centerLeft,
                         foregroundColor: const Color(0xFF4A67F2),
                         padding: EdgeInsets.zero,
-                        textStyle: const TextStyle(
+                        textStyle: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -458,9 +466,9 @@ class _LegalAgreementSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         '동의함',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
@@ -500,7 +508,7 @@ class _LegalSheetSection extends StatelessWidget {
         children: [
           Text(
             section.title,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w800,
               color: c.textPrimary,
@@ -509,7 +517,11 @@ class _LegalSheetSection extends StatelessWidget {
           const SizedBox(height: 7),
           Text(
             section.body,
-            style: TextStyle(fontSize: 12, height: 1.7, color: c.textBody),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 12,
+              height: 1.7,
+              color: c.textBody,
+            ),
           ),
         ],
       ),
@@ -551,7 +563,7 @@ class _AgeConsentItem extends StatelessWidget {
                 children: [
                   Text(
                     '[필수] 만 14세 이상 확인',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: c.textBody,
@@ -560,7 +572,7 @@ class _AgeConsentItem extends StatelessWidget {
                   SizedBox(height: 3),
                   Text(
                     '만 14세 미만은 서비스를 이용할 수 없습니다.',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       height: 1.4,
                       color: c.textMuted,
@@ -615,7 +627,11 @@ class _PrivacyNote extends StatelessWidget {
     final c = context.colors;
     return Text.rich(
       TextSpan(
-        style: TextStyle(fontSize: 11, height: 1.6, color: c.textMuted),
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 11,
+          height: 1.6,
+          color: c.textMuted,
+        ),
         children: [
           const TextSpan(
             text:
@@ -624,7 +640,7 @@ class _PrivacyNote extends StatelessWidget {
           ),
           TextSpan(
             text: '개인정보처리방침',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               color: Color(0xFF4A67F2),
               fontWeight: FontWeight.w600,
               decoration: TextDecoration.underline,

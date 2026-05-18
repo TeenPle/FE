@@ -6,18 +6,18 @@ import 'signup_email_check_state.dart';
 
 /// 이메일 중복 확인 상태를 관리하는 provider
 final signupEmailCheckProvider =
-StateNotifierProvider<SignupEmailCheckNotifier, SignupEmailCheckState>(
-      (ref) {
-    final emailApi = ref.read(emailApiProvider);
-    return SignupEmailCheckNotifier(emailApi);
-  },
-);
+    StateNotifierProvider<SignupEmailCheckNotifier, SignupEmailCheckState>((
+      ref,
+    ) {
+      final emailApi = ref.read(emailApiProvider);
+      return SignupEmailCheckNotifier(emailApi);
+    });
 
 class SignupEmailCheckNotifier extends StateNotifier<SignupEmailCheckState> {
   final EmailApi _emailApi;
 
   SignupEmailCheckNotifier(this._emailApi)
-      : super(const SignupEmailCheckState());
+    : super(const SignupEmailCheckState());
 
   /// 이메일 중복 확인
   Future<void> checkEmail(String email) async {

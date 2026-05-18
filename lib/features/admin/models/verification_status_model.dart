@@ -1,9 +1,5 @@
 /// 학교 인증 요청 상태 모델
-enum VerificationStatusModel {
-  pending,
-  approved,
-  rejected,
-}
+enum VerificationStatusModel { pending, approved, rejected }
 
 extension VerificationStatusModelX on VerificationStatusModel {
   /// 백엔드 요청 파라미터 값

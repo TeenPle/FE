@@ -7,9 +7,10 @@ import '../models/timetable_model.dart';
 class TimetableState {
   final TimetableWeek? week;
   final DateTime focusedWeekStart; // 해당 주 월요일
-  final String? classRoom;         // 저장된 반 번호
+  final String? classRoom; // 저장된 반 번호
   final bool isLoading;
   final String? error;
+
   /// 사용자가 직접 수정한 과목. key: "${dayOfWeek}_${period}", value: 커스텀 과목명
   final Map<String, String> overrides;
 
@@ -48,7 +49,7 @@ class TimetableNotifier extends StateNotifier<TimetableState> {
   static const _overridePrefix = 'timetable_subject_override_';
 
   TimetableNotifier(this._api, this._storage)
-      : super(TimetableState(focusedWeekStart: _thisMonday()));
+    : super(TimetableState(focusedWeekStart: _thisMonday()));
 
   static DateTime _thisMonday() {
     final now = DateTime.now();
@@ -104,7 +105,8 @@ class TimetableNotifier extends StateNotifier<TimetableState> {
   /// 사용자가 직접 수정한 모든 과목을 초기화하고 NEIS 데이터로 되돌린다.
   Future<void> clearAllOverrides() async {
     final prefs = await SharedPreferences.getInstance();
-    final toRemove = prefs.getKeys()
+    final toRemove = prefs
+        .getKeys()
         .where((k) => k.startsWith(_overridePrefix))
         .toList();
     for (final key in toRemove) {
@@ -147,8 +149,8 @@ class TimetableNotifier extends StateNotifier<TimetableState> {
 
 final timetableProvider =
     StateNotifierProvider<TimetableNotifier, TimetableState>((ref) {
-  return TimetableNotifier(
-    ref.watch(timetableApiProvider),
-    ref.watch(tokenStorageProvider),
-  );
-});
+      return TimetableNotifier(
+        ref.watch(timetableApiProvider),
+        ref.watch(tokenStorageProvider),
+      );
+    });

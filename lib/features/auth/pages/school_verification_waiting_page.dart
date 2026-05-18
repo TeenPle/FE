@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/login_blocked_reason.dart';
 import '../provider/login_provider.dart';
 
@@ -54,10 +55,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Text(
-              '확인',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-            ),
+            child: Text('확인', style: AppTextStyles.titleSmall),
           ),
         ),
       ),
@@ -98,9 +96,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                 ),
                 child: Text(
                   _statusLabel(),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: Color(0xFF4A67F2),
                   ),
                 ),
@@ -111,9 +107,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
               /// 제목
               Text(
                 blockedReason.title,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.displayLarge.copyWith(
                   height: 1.22,
                   letterSpacing: -0.6,
                   color: context.colors.textPrimary,
@@ -125,8 +119,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
               /// 설명
               Text(
                 blockedReason.description,
-                style: TextStyle(
-                  fontSize: 13,
+                style: AppTextStyles.bodyMedium.copyWith(
                   height: 1.6,
                   color: context.colors.textBody,
                 ),
@@ -165,8 +158,7 @@ class SchoolVerificationWaitingPage extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         _helperText(),
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.captionLarge.copyWith(
                           height: 1.6,
                           color: context.colors.textMuted,
                         ),

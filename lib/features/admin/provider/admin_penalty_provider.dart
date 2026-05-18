@@ -35,12 +35,10 @@ class AdminPenaltyListState {
   }
 }
 
-class AdminPenaltyListNotifier
-    extends StateNotifier<AdminPenaltyListState> {
+class AdminPenaltyListNotifier extends StateNotifier<AdminPenaltyListState> {
   final AdminPenaltyApi _api;
 
-  AdminPenaltyListNotifier(this._api)
-      : super(const AdminPenaltyListState());
+  AdminPenaltyListNotifier(this._api) : super(const AdminPenaltyListState());
 
   Future<void> load() async {
     state = const AdminPenaltyListState(isLoading: true);
@@ -103,10 +101,12 @@ class AdminPenaltyListNotifier
   }
 }
 
-final adminPenaltyListProvider = StateNotifierProvider<AdminPenaltyListNotifier,
-    AdminPenaltyListState>((ref) {
-  return AdminPenaltyListNotifier(ref.watch(adminPenaltyApiProvider));
-});
+final adminPenaltyListProvider =
+    StateNotifierProvider<AdminPenaltyListNotifier, AdminPenaltyListState>((
+      ref,
+    ) {
+      return AdminPenaltyListNotifier(ref.watch(adminPenaltyApiProvider));
+    });
 
 // ── 유저별 제재 이력 ─────────────────────────────────────────
 
@@ -115,7 +115,7 @@ class AdminUserPenaltyNotifier extends StateNotifier<AdminPenaltyListState> {
   final int userId;
 
   AdminUserPenaltyNotifier(this._api, this.userId)
-      : super(const AdminPenaltyListState());
+    : super(const AdminPenaltyListState());
 
   Future<void> load() async {
     state = const AdminPenaltyListState(isLoading: true);
@@ -135,7 +135,14 @@ class AdminUserPenaltyNotifier extends StateNotifier<AdminPenaltyListState> {
   }
 }
 
-final adminUserPenaltyProvider = StateNotifierProvider.family<
-    AdminUserPenaltyNotifier, AdminPenaltyListState, int>((ref, userId) {
-  return AdminUserPenaltyNotifier(ref.watch(adminPenaltyApiProvider), userId);
-});
+final adminUserPenaltyProvider =
+    StateNotifierProvider.family<
+      AdminUserPenaltyNotifier,
+      AdminPenaltyListState,
+      int
+    >((ref, userId) {
+      return AdminUserPenaltyNotifier(
+        ref.watch(adminPenaltyApiProvider),
+        userId,
+      );
+    });

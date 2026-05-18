@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../school/models/board_model.dart';
 import '../models/create_post_request.dart';
@@ -272,34 +273,25 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
           builder: (context) => AlertDialog(
             title: Text(
               widget.isEditMode ? '수정을 취소할까요?' : '작성 중인 내용을 나갈까요?',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+              style: AppTextStyles.titleSmall.copyWith(
                 color: context.colors.textPrimary,
               ),
             ),
             content: Text(
               '저장되지 않은 내용은 사라집니다.',
-              style: TextStyle(
-                fontSize: 11,
-                height: 1.4,
+              style: AppTextStyles.captionSmall.copyWith(
                 color: context.colors.textSecondary,
+                height: 1.4,
               ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text(
-                  '취소',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-                ),
+                child: Text('취소', style: AppTextStyles.labelSmall),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  '나가기',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
-                ),
+                child: Text('나가기', style: AppTextStyles.labelSmall),
               ),
             ],
           ),
@@ -337,9 +329,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
               const SizedBox(height: 18),
               Text(
                 '게시판 선택',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                style: AppTextStyles.titleSmall.copyWith(
                   color: context.colors.textPrimary,
                 ),
               ),
@@ -358,7 +348,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         board.title,
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 12,
                           fontWeight: selected
                               ? FontWeight.w900
@@ -453,12 +443,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                             required isFocused,
                             maxLength,
                           }) => const SizedBox.shrink(),
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                        height: 1.28,
+                      style: AppTextStyles.titleLarge.copyWith(
                         color: context.colors.textPrimary,
-                        letterSpacing: 0,
+                        height: 1.28,
                       ),
                       decoration: _plainInputDecoration('제목'),
                     ),
@@ -483,11 +470,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                             required isFocused,
                             maxLength,
                           }) => const SizedBox.shrink(),
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.55,
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: context.colors.textBody,
-                        letterSpacing: 0,
                       ),
                       decoration: _plainInputDecoration('내용을 입력해주세요'),
                     ),
@@ -542,11 +526,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   InputDecoration _plainInputDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFF8B95A1),
-        fontWeight: FontWeight.w700,
-        fontSize: 12,
-        letterSpacing: 0,
+      hintStyle: AppTextStyles.labelMedium.copyWith(
+        color: const Color(0xFF8B95A1),
       ),
       filled: true,
       fillColor: Colors.transparent,
@@ -593,12 +574,7 @@ class _WriteHeader extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: c.textPrimary,
-                letterSpacing: 0,
-              ),
+              style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
             ),
           ),
           TextButton(
@@ -608,10 +584,7 @@ class _WriteHeader extends StatelessWidget {
               disabledForegroundColor: const Color(0xFFB8CCDF),
               padding: const EdgeInsets.symmetric(horizontal: 12),
             ),
-            child: Text(
-              submitText,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-            ),
+            child: Text(submitText, style: AppTextStyles.labelMedium),
           ),
         ],
       ),
@@ -654,9 +627,7 @@ class _BoardSelectorLine extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: selected
                       ? const Color(0xFF2F80ED)
                       : const Color(0xFF8B95A1),
@@ -699,17 +670,18 @@ class _PostWritingGuidelines extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.shield_outlined, size: 15, color: Color(0xFF2F80ED)),
-              SizedBox(width: 6),
+              const Icon(
+                Icons.shield_outlined,
+                size: 15,
+                color: Color(0xFF2F80ED),
+              ),
+              const SizedBox(width: 6),
               Text(
                 '게시글 작성 규칙',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF27415C),
-                  letterSpacing: 0,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: const Color(0xFF27415C),
                 ),
               ),
             ],
@@ -733,7 +705,7 @@ class _PostWritingGuidelines extends StatelessWidget {
                   Expanded(
                     child: Text(
                       rule,
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 10,
                         height: 1.45,
                         fontWeight: FontWeight.w600,
@@ -812,7 +784,7 @@ class _WriteBottomToolbar extends StatelessWidget {
                   children: [
                     Text(
                       '익명',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         color: context.colors.textPrimary,
@@ -893,7 +865,7 @@ class _ToolIconButton extends StatelessWidget {
                   ),
                   child: Text(
                     label!,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 7,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
@@ -987,9 +959,7 @@ class _PollSummaryStrip extends StatelessWidget {
           Expanded(
             child: Text(
               '투표 $count개 항목',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
+              style: AppTextStyles.labelSmall.copyWith(
                 color: context.colors.textPrimary,
               ),
             ),
@@ -1104,11 +1074,8 @@ class _PollFormPageState extends State<_PollFormPage> {
                 children: [
                   Text(
                     '투표 항목',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
+                    style: AppTextStyles.titleLarge.copyWith(
                       color: context.colors.textPrimary,
-                      letterSpacing: 0,
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -1130,17 +1097,13 @@ class _PollFormPageState extends State<_PollFormPage> {
                                     required isFocused,
                                     maxLength,
                                   }) => const SizedBox.shrink(),
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                              style: AppTextStyles.labelMedium.copyWith(
                                 color: context.colors.textPrimary,
                               ),
                               decoration: InputDecoration(
                                 hintText: '항목 ${index + 1}',
-                                hintStyle: const TextStyle(
-                                  color: Color(0xFF9AA7B2),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 11,
+                                hintStyle: AppTextStyles.labelSmall.copyWith(
+                                  color: const Color(0xFF9AA7B2),
                                 ),
                                 filled: true,
                                 fillColor: context.colors.inputBg,
@@ -1197,10 +1160,7 @@ class _PollFormPageState extends State<_PollFormPage> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF2F80ED),
                       side: const BorderSide(color: Color(0xFFCBE4FF)),
-                      textStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      textStyle: AppTextStyles.labelMedium,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1213,13 +1173,10 @@ class _PollFormPageState extends State<_PollFormPage> {
                     TextButton.icon(
                       onPressed: () => Navigator.pop(context, <String>[]),
                       icon: const Icon(Icons.delete_outline_rounded, size: 16),
-                      label: const Text('투표 제거'),
+                      label: Text('투표 제거'),
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFFE05C5C),
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        textStyle: AppTextStyles.labelMedium,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
@@ -1343,7 +1300,10 @@ class _ThumbFrame extends StatelessWidget {
                 label!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white, fontSize: 9),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Colors.white,
+                  fontSize: 9,
+                ),
               ),
             ),
           ),
@@ -1396,7 +1356,10 @@ class _FilePlaceholder extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 9, color: Color(0xFF7D8790)),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 9,
+                color: Color(0xFF7D8790),
+              ),
             ),
           ),
         ],

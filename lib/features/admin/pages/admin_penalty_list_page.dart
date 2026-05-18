@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/penalty_summary_model.dart';
 import '../provider/admin_penalty_provider.dart';
@@ -37,18 +38,27 @@ class _AdminPenaltyListPageState extends ConsumerState<AdminPenaltyListPage> {
         centerTitle: true,
         title: Text(
           '제재 내역',
-          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading && state.penalties.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.penalties.isEmpty
           ? Center(
-              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
             )
           : state.penalties.isEmpty
           ? Center(
-              child: Text('제재 내역이 없어요.', style: TextStyle(color: c.textMuted)),
+              child: Text(
+                '제재 내역이 없어요.',
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
             )
           : RefreshIndicator(
               onRefresh: () =>
@@ -69,7 +79,7 @@ class _AdminPenaltyListPageState extends ConsumerState<AdminPenaltyListPage> {
                                 onPressed: () => ref
                                     .read(adminPenaltyListProvider.notifier)
                                     .loadMore(),
-                                child: const Text('더보기'),
+                                child: Text('더보기'),
                               ),
                       ),
                     );
@@ -122,7 +132,7 @@ class _PenaltyCard extends ConsumerWidget {
                 ),
                 child: Text(
                   statusLabel,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: statusColor,
@@ -138,7 +148,7 @@ class _PenaltyCard extends ConsumerWidget {
                 ),
                 child: Text(
                   penalty.reasonLabel,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: c.iconOnCard,
@@ -148,7 +158,10 @@ class _PenaltyCard extends ConsumerWidget {
               const Spacer(),
               Text(
                 _formatDate(penalty.createdAt),
-                style: TextStyle(fontSize: 11, color: c.textTertiary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textTertiary,
+                ),
               ),
             ],
           ),
@@ -166,7 +179,7 @@ class _PenaltyCard extends ConsumerWidget {
                   child: Text(
                     penalty.userNickname,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       color: Color(0xFF426C82),
                       decoration: TextDecoration.underline,
@@ -179,7 +192,10 @@ class _PenaltyCard extends ConsumerWidget {
               const SizedBox(width: 4),
               Text(
                 '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
-                style: TextStyle(fontSize: 11, color: c.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textSecondary,
+                ),
               ),
             ],
           ),
@@ -188,7 +204,10 @@ class _PenaltyCard extends ConsumerWidget {
             children: [
               Text(
                 '신고 #${penalty.reportId}',
-                style: TextStyle(fontSize: 11, color: c.textTertiary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: c.textTertiary,
+                ),
               ),
               const Spacer(),
               if (isActive)
@@ -203,9 +222,12 @@ class _PenaltyCard extends ConsumerWidget {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text(
+                  child: Text(
                     '제재 취소',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
             ],
@@ -219,19 +241,26 @@ class _PenaltyCard extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('제재 취소'),
+        title: Text('제재 취소'),
         content: Text('${penalty.userNickname}의 제재를 즉시 해제하시겠어요?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               '취소',
-              style: TextStyle(color: context.colors.textMuted),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.colors.textMuted,
+              ),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('해제', style: TextStyle(color: Color(0xFFE05C7B))),
+            child: Text(
+              '해제',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Color(0xFFE05C7B),
+              ),
+            ),
           ),
         ],
       ),

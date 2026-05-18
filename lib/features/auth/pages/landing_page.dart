@@ -6,6 +6,7 @@ import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -133,9 +134,7 @@ class _LandingPageState extends ConsumerState<LandingPage>
                     SizedBox(height: 28),
                     Text(
                       'TeenPle',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.displayLarge.copyWith(
                         letterSpacing: -1.0,
                         color: c.textPrimary,
                       ),
@@ -144,10 +143,7 @@ class _LandingPageState extends ConsumerState<LandingPage>
                     Text(
                       '고등학생을 위한 로컬 커뮤니티',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.2,
+                      style: AppTextStyles.labelLarge.copyWith(
                         color: c.textBody,
                       ),
                     ),
@@ -155,8 +151,7 @@ class _LandingPageState extends ConsumerState<LandingPage>
                     Text(
                       '이야기하고, 연결되고, 나누는 공간',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: AppTextStyles.captionLarge.copyWith(
                         height: 1.5,
                         color: c.textSecondary,
                       ),

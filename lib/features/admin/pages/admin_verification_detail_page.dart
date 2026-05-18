@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/verification_status_model.dart';
 import '../provider/admin_verification_detail_provider.dart';
@@ -129,7 +130,7 @@ class _AdminVerificationDetailPageState
     return Scaffold(
       backgroundColor: c.pageBg,
       appBar: AppBar(
-        title: const Text('인증 요청 상세'),
+        title: Text('인증 요청 상세'),
         backgroundColor: c.pageBg,
         foregroundColor: c.textPrimary,
         elevation: 0,
@@ -174,7 +175,7 @@ class _AdminVerificationDetailPageState
                         ),
                         child: Text(
                           state.isActionLoading ? '처리 중...' : '승인',
-                          style: const TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
@@ -218,7 +219,7 @@ class _AdminVerificationDetailPageState
                         ),
                         child: Text(
                           state.isActionLoading ? '처리 중...' : '거절',
-                          style: const TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
@@ -236,7 +237,10 @@ class _AdminVerificationDetailPageState
           ? Center(
               child: Text(
                 state.errorMessage ?? '상세 정보를 불러오지 못했습니다.',
-                style: const TextStyle(fontSize: 12, color: Colors.red),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 12,
+                  color: Colors.red,
+                ),
               ),
             )
           : SingleChildScrollView(
@@ -300,7 +304,7 @@ class _AdminVerificationDetailPageState
                             children: [
                               Text(
                                 _statusLabel(detail.status),
-                                style: TextStyle(
+                                style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: _statusColor(detail.status),
@@ -309,7 +313,7 @@ class _AdminVerificationDetailPageState
                               const SizedBox(height: 3),
                               Text(
                                 _statusHelper(detail.status),
-                                style: const TextStyle(
+                                style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 11,
                                   height: 1.4,
                                   color: Color(0xFF4B5563),
@@ -338,7 +342,7 @@ class _AdminVerificationDetailPageState
                       children: [
                         Text(
                           detail.schoolName,
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: c.textPrimary,
@@ -378,7 +382,10 @@ class _AdminVerificationDetailPageState
                       onChanged: (_) => notifier.clearActionState(),
                       decoration: InputDecoration(
                         hintText: '승인 코멘트 또는 거절 사유를 입력해주세요.',
-                        hintStyle: TextStyle(fontSize: 12, color: c.textHint),
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 12,
+                          color: c.textHint,
+                        ),
                         filled: true,
                         fillColor: c.inputBg,
                         contentPadding: const EdgeInsets.all(14),
@@ -403,7 +410,10 @@ class _AdminVerificationDetailPageState
                       const SizedBox(height: 8),
                       Text(
                         state.actionErrorMessage!,
-                        style: const TextStyle(fontSize: 11, color: Colors.red),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
+                          color: Colors.red,
+                        ),
                       ),
                     ],
                   ],
@@ -432,13 +442,19 @@ class _InfoRow extends StatelessWidget {
             width: 52,
             child: Text(
               label,
-              style: TextStyle(fontSize: 11, color: c.textTertiary),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: c.textTertiary,
+              ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 12, color: c.textBody),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 12,
+                color: c.textBody,
+              ),
             ),
           ),
         ],
@@ -467,7 +483,13 @@ class _ImagePlaceholder extends StatelessWidget {
               color: c.iconSecondary,
             ),
             const SizedBox(height: 8),
-            Text(message, style: TextStyle(fontSize: 12, color: c.textMuted)),
+            Text(
+              message,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 12,
+                color: c.textMuted,
+              ),
+            ),
           ],
         ),
       ),

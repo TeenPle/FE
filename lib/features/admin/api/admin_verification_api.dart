@@ -25,13 +25,11 @@ class AdminVerificationApi {
 
   /// 학교 인증 요청 목록 조회
   Future<List<VerificationRequestListItemModel>> getRequestList(
-      VerificationStatusModel status,
-      ) async {
+    VerificationStatusModel status,
+  ) async {
     final response = await _dio.get(
       '/api/admin/verification-requests',
-      queryParameters: {
-        'status': status.toQueryValue,
-      },
+      queryParameters: {'status': status.toQueryValue},
     );
 
     final data = response.data;
@@ -51,9 +49,11 @@ class AdminVerificationApi {
     }
 
     return result
-        .map((e) => VerificationRequestListItemModel.fromJson(
-      e as Map<String, dynamic>,
-    ))
+        .map(
+          (e) => VerificationRequestListItemModel.fromJson(
+            e as Map<String, dynamic>,
+          ),
+        )
         .toList();
   }
 

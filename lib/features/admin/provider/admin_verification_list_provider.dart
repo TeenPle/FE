@@ -6,20 +6,21 @@ import '../models/verification_status_model.dart';
 import 'admin_verification_list_state.dart';
 
 /// 관리자 인증 요청 목록 provider
-final adminVerificationListProvider = StateNotifierProvider<
-    AdminVerificationListNotifier, AdminVerificationListState>(
-      (ref) {
-    final api = ref.read(adminVerificationApiProvider);
-    return AdminVerificationListNotifier(api);
-  },
-);
+final adminVerificationListProvider =
+    StateNotifierProvider<
+      AdminVerificationListNotifier,
+      AdminVerificationListState
+    >((ref) {
+      final api = ref.read(adminVerificationApiProvider);
+      return AdminVerificationListNotifier(api);
+    });
 
 class AdminVerificationListNotifier
     extends StateNotifier<AdminVerificationListState> {
   final AdminVerificationApi _api;
 
   AdminVerificationListNotifier(this._api)
-      : super(const AdminVerificationListState()) {
+    : super(const AdminVerificationListState()) {
     fetchList();
   }
 
@@ -36,10 +37,7 @@ class AdminVerificationListNotifier
     try {
       final result = await _api.getRequestList(targetStatus);
 
-      state = state.copyWith(
-        isLoading: false,
-        items: result,
-      );
+      state = state.copyWith(isLoading: false, items: result);
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/inquiry_provider.dart';
 
@@ -47,7 +48,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
         centerTitle: true,
         title: Text(
           '문의 작성',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -101,7 +102,9 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
             ),
             child: Text(
               state.isSubmitting ? '접수 중...' : '문의 접수',
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ),
@@ -152,7 +155,7 @@ class _FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: TextStyle(
+      style: AppTextStyles.bodyMedium.copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
@@ -165,7 +168,7 @@ InputDecoration _inputDecoration(BuildContext context, String hintText) {
   final c = context.colors;
   return InputDecoration(
     hintText: hintText,
-    hintStyle: TextStyle(color: c.textHint),
+    hintStyle: AppTextStyles.bodyMedium.copyWith(color: c.textHint),
     filled: true,
     fillColor: c.subtleBg,
     border: OutlineInputBorder(

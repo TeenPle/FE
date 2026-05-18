@@ -77,8 +77,9 @@ class ChatRoomListNotifier extends StateNotifier<ChatRoomListState> {
     _isRealtimeStarting = true;
     try {
       final accessToken = await _getFreshAccessToken();
-      final userId = _ref.read(authSessionProvider).userId
-          ?? await _ref.read(tokenStorageProvider).getUserId();
+      final userId =
+          _ref.read(authSessionProvider).userId ??
+          await _ref.read(tokenStorageProvider).getUserId();
 
       if (accessToken == null || accessToken.isEmpty || userId == null) {
         return;
@@ -136,10 +137,12 @@ class ChatRoomListNotifier extends StateNotifier<ChatRoomListState> {
       _stompClient?.deactivate();
       _stompClient = null;
 
-      final token =
-          await _getFreshAccessToken(refreshTokenFirst: refreshTokenFirst);
-      final userId = _ref.read(authSessionProvider).userId
-          ?? await _ref.read(tokenStorageProvider).getUserId();
+      final token = await _getFreshAccessToken(
+        refreshTokenFirst: refreshTokenFirst,
+      );
+      final userId =
+          _ref.read(authSessionProvider).userId ??
+          await _ref.read(tokenStorageProvider).getUserId();
       if (token == null || token.isEmpty || userId == null) return;
       await startRealtime();
     });
@@ -201,5 +204,5 @@ class ChatRoomListNotifier extends StateNotifier<ChatRoomListState> {
 
 final chatRoomListProvider =
     StateNotifierProvider<ChatRoomListNotifier, ChatRoomListState>((ref) {
-  return ChatRoomListNotifier(ref.read(chatApiProvider), ref);
-});
+      return ChatRoomListNotifier(ref.read(chatApiProvider), ref);
+    });

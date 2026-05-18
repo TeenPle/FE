@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
 import '../provider/timetable_provider.dart';
@@ -52,11 +53,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
         scrolledUnderElevation: 0,
         title: Text(
           '시간표',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
         ),
         centerTitle: true,
         actions: [
@@ -109,7 +106,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                             children: [
                               Text(
                                 '시간표 되돌리기',
-                                style: TextStyle(
+                                style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: c.textMuted,
@@ -172,9 +169,11 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
   }
 
   void _showMemoDialog(BuildContext context) {
-    showDialog<void>(
+    showModalBottomSheet<void>(
       context: context,
-      builder: (ctx) => _MemoDialogContent(onSubmit: _addMemo),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _MemoBottomSheet(onSubmit: _addMemo),
     );
   }
 
@@ -189,15 +188,14 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           ),
           title: Text(
             '시간표를 초기화할까요?',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: bc.textPrimary,
-            ),
+            style: AppTextStyles.titleSmall.copyWith(color: bc.textPrimary),
           ),
           content: Text(
             '직접 입력한 과목이 모두 사라지고,\n학교에서 제공한 시간표로 되돌아가요.',
-            style: TextStyle(fontSize: 11, color: bc.textBody, height: 1.55),
+            style: AppTextStyles.captionSmall.copyWith(
+              color: bc.textBody,
+              height: 1.55,
+            ),
           ),
           actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           actions: [
@@ -205,7 +203,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
               onPressed: () => Navigator.pop(ctx),
               child: Text(
                 '취소',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: bc.textMuted,
                   fontWeight: FontWeight.w600,
                 ),
@@ -228,9 +226,11 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   vertical: 10,
                 ),
               ),
-              child: const Text(
+              child: Text(
                 '초기화',
-                style: TextStyle(fontWeight: FontWeight.w700),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -274,9 +274,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 children: [
                   Text(
                     '${_weekdayLabel(day)}요일 $period교시',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.titleSmall.copyWith(
                       color: bc.textPrimary,
                     ),
                   ),
@@ -291,9 +289,9 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                         color: bc.tintBg,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Text(
+                      child: Text(
                         '수정됨',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF1E8CE8),
@@ -307,7 +305,10 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                 const SizedBox(height: 4),
                 Text(
                   'NEIS 원본: $neisSubject',
-                  style: TextStyle(fontSize: 10, color: bc.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 10,
+                    color: bc.textMuted,
+                  ),
                 ),
               ],
               const SizedBox(height: 16),
@@ -348,9 +349,9 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                             .clearOverride(day, period);
                         Navigator.pop(ctx);
                       },
-                      child: const Text(
+                      child: Text(
                         '원래대로',
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: Color(0xFFE05C5C),
                           fontWeight: FontWeight.w600,
                         ),
@@ -359,7 +360,12 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   const Spacer(),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: Text('취소', style: TextStyle(color: bc.textMuted)),
+                    child: Text(
+                      '취소',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: bc.textMuted,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -377,9 +383,11 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                         vertical: 11,
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       '저장',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -448,22 +456,27 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
   }
 }
 
-class _MemoDialogContent extends StatefulWidget {
+class _MemoBottomSheet extends StatefulWidget {
   final ValueChanged<String> onSubmit;
 
-  const _MemoDialogContent({required this.onSubmit});
+  const _MemoBottomSheet({required this.onSubmit});
 
   @override
-  State<_MemoDialogContent> createState() => _MemoDialogContentState();
+  State<_MemoBottomSheet> createState() => _MemoBottomSheetState();
 }
 
-class _MemoDialogContentState extends State<_MemoDialogContent> {
+class _MemoBottomSheetState extends State<_MemoBottomSheet> {
   late final TextEditingController _controller;
+  bool _hasText = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _controller.addListener(() {
+      final hasText = _controller.text.trim().isNotEmpty;
+      if (hasText != _hasText) setState(() => _hasText = hasText);
+    });
   }
 
   @override
@@ -479,29 +492,117 @@ class _MemoDialogContentState extends State<_MemoDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('오늘 메모', style: TextStyle(fontWeight: FontWeight.w800)),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        maxLength: 40,
-        decoration: const InputDecoration(
-          hintText: '예) 체육복 챙기기',
-          counterText: '',
-          border: OutlineInputBorder(),
-        ),
-        onSubmitted: (_) => _submit(),
+    final c = context.colors;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.popupBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('취소'),
-        ),
-        TextButton(
-          onPressed: _submit,
-          child: const Text('추가', style: TextStyle(color: Color(0xFF14A3F7))),
-        ),
-      ],
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 20 + bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: c.divider,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF7FF),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.edit_note_rounded,
+                  size: 18,
+                  color: Color(0xFF14A3F7),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '메모 추가',
+                style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            maxLength: 40,
+            style: AppTextStyles.titleMedium.copyWith(color: c.textBody),
+            decoration: InputDecoration(
+              hintText: '예) 체육복 챙기기',
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                color: c.textHint,
+                fontWeight: FontWeight.w400,
+              ),
+              counterText: '',
+              filled: true,
+              fillColor: c.inputBg,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(
+                  color: Color(0xFF14A3F7),
+                  width: 1.5,
+                ),
+              ),
+            ),
+            onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              decoration: BoxDecoration(
+                gradient: _hasText
+                    ? const LinearGradient(
+                        colors: [Color(0xFF14A3F7), Color(0xFF0D87D4)],
+                      )
+                    : null,
+                color: _hasText ? null : const Color(0xFFEAF7FF),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _hasText ? _submit : null,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Center(
+                    child: Text(
+                      '추가하기',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: _hasText
+                            ? Colors.white
+                            : const Color(0xFF14A3F7),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -554,7 +655,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
         border: Border.all(color: c.borderStrong),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
+            color: Colors.black.withValues(alpha: 0.07),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -586,16 +687,14 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                   children: [
                     Text(
                       '내 반을 입력해주세요',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
+                      style: AppTextStyles.labelMedium.copyWith(
                         color: c.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '학교 시간표를 불러올 때 사용돼요.',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         color: c.textMuted,
@@ -618,20 +717,16 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                 maxLength: 2,
                 autofocus: true,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
-                  color: c.textPrimary,
-                ),
+                style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
                 decoration: InputDecoration(
                   hintText: '3',
-                  hintStyle: TextStyle(
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: c.textHint,
                   ),
                   suffixText: '반',
-                  suffixStyle: TextStyle(
+                  suffixStyle: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: c.textSecondary,
@@ -667,7 +762,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
               Expanded(
                 child: Text(
                   '나중에 우측 상단 수정 버튼으로 변경할 수 있어요.',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
                     color: c.textMuted,
@@ -690,9 +785,12 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  child: const Text(
+                  child: Text(
                     '취소',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
@@ -709,9 +807,12 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  child: const Text(
+                  child: Text(
                     '시간표 보기',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -778,16 +879,15 @@ class _WeekNavigator extends ConsumerWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: c.textPrimary,
-                ),
+                style: AppTextStyles.labelMedium.copyWith(color: c.textPrimary),
               ),
               if (state.classRoom != null)
                 Text(
                   '${state.week?.grade ?? '?'}학년 ${state.classRoom}반',
-                  style: TextStyle(fontSize: 10, color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 10,
+                    color: c.textMuted,
+                  ),
                 ),
             ],
           ),
@@ -818,67 +918,112 @@ class _TodayMemoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: c.borderStrong),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              color: Color(0xFFEAF7FF),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.schedule_rounded,
-              size: 19,
-              color: Color(0xFF14A3F7),
-            ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF14A3F7).withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 10, 10),
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    color: c.textPrimary,
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4DC3FF), Color(0xFF14A3F7)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.edit_note_rounded,
+                    size: 16,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 8),
-                if (memos.isEmpty)
-                  Text(
-                    '오늘 메모 없음',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: c.textMuted,
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: c.textPrimary,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: onAdd,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
                     ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEAF7FF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.add_rounded,
+                          size: 13,
+                          color: Color(0xFF14A3F7),
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '추가',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF14A3F7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(height: 1, color: c.borderBlue),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+            child: memos.isEmpty
+                ? Row(
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline_rounded,
+                        size: 13,
+                        color: c.textDisabled,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '오늘 챙길 것들을 메모해보세요',
+                        style: AppTextStyles.captionSmall.copyWith(
+                          color: c.textDisabled,
+                        ),
+                      ),
+                    ],
                   )
-                else
-                  Column(
+                : Column(
                     children: [
                       for (int i = 0; i < memos.length; i++)
                         _MemoRow(memo: memos[i], onDelete: () => onDelete(i)),
                     ],
                   ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            color: const Color(0xFF14A3F7),
-            tooltip: '메모 추가',
-            visualDensity: VisualDensity.compact,
           ),
         ],
       ),
@@ -898,36 +1043,43 @@ class _MemoRow extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.only(left: 10, right: 4, top: 8, bottom: 8),
       decoration: BoxDecoration(
-        color: c.subtleBg,
+        color: c.tintBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: c.border),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              memo,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: c.textBody,
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(width: 3, color: const Color(0xFF14A3F7)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                child: Text(
+                  memo,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelSmall.copyWith(color: c.textBody),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 2),
-          InkWell(
-            onTap: onDelete,
-            borderRadius: BorderRadius.circular(999),
-            child: Padding(
-              padding: const EdgeInsets.all(3),
-              child: Icon(Icons.close_rounded, size: 14, color: c.textMuted),
+            InkWell(
+              onTap: onDelete,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 14,
+                  color: c.textTertiary,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1014,7 +1166,10 @@ class _TimetableGrid extends StatelessWidget {
                   '과목 칸을 꾹 누르면 직접 수정할 수 있어요',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10, color: c.textHint),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 10,
+                    color: c.textHint,
+                  ),
                 ),
               ),
             ],
@@ -1041,7 +1196,7 @@ class _TimetableGrid extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 10,
             fontWeight: FontWeight.w900,
             color: highlight ? const Color(0xFF14A3F7) : c.textMuted,
@@ -1063,7 +1218,7 @@ class _TimetableGrid extends StatelessWidget {
         ),
         child: Text(
           '$period',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 10,
             fontWeight: FontWeight.w900,
             color: c.textMuted,
@@ -1109,7 +1264,7 @@ class _TimetableGrid extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: fontSize,
                     fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
                     color: hasSubject ? c.textBody : Colors.transparent,
@@ -1171,20 +1326,14 @@ class _ClassRoomPrompt extends StatelessWidget {
               const SizedBox(height: 18),
               Text(
                 '시간표를 불러올게요',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
-                  color: c.textPrimary,
-                ),
+                style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
                 '내 반 번호를 입력하면 이번 주 시간표를 바로 확인할 수 있어요.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
+                style: AppTextStyles.labelSmall.copyWith(
                   height: 1.45,
-                  fontWeight: FontWeight.w600,
                   color: c.textMuted,
                 ),
               ),
@@ -1195,7 +1344,7 @@ class _ClassRoomPrompt extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: onSet,
                   icon: const Icon(Icons.edit_rounded, size: 18),
-                  label: const Text('반 입력하기'),
+                  label: Text('반 입력하기'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF14A3F7),
                     foregroundColor: Colors.white,
@@ -1203,7 +1352,7 @@ class _ClassRoomPrompt extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    textStyle: const TextStyle(
+                    textStyle: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1259,7 +1408,9 @@ class _ErrorState extends StatelessWidget {
     return Center(
       child: Text(
         message,
-        style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+        style: AppTextStyles.captionSmall.copyWith(
+          color: context.colors.textMuted,
+        ),
       ),
     );
   }
@@ -1279,16 +1430,15 @@ class _NeisNotConfigured extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             '시간표 서비스가 연결되지 않았어요',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: c.textPrimary,
-            ),
+            style: AppTextStyles.labelMedium.copyWith(color: c.textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
             '학교 NEIS 정보가 아직 등록되지 않았어요.',
-            style: TextStyle(fontSize: 10, color: c.textMuted),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10,
+              color: c.textMuted,
+            ),
           ),
         ],
       ),

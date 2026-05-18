@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 class FindEmailResultPage extends StatelessWidget {
   final String maskedEmail;
@@ -23,11 +24,7 @@ class FindEmailResultPage extends StatelessWidget {
         ),
         title: Text(
           '아이디 찾기',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -39,9 +36,7 @@ class FindEmailResultPage extends StatelessWidget {
             children: [
               Text(
                 '가입된 아이디를\n찾았어요.',
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.displaySmall.copyWith(
                   height: 1.35,
                   letterSpacing: -0.5,
                   color: c.textPrimary,
@@ -66,20 +61,16 @@ class FindEmailResultPage extends StatelessWidget {
                   children: [
                     Text(
                       '이메일 (아이디)',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.labelSmall.copyWith(
                         color: Color(0xFF4A67F2),
                       ),
                     ),
                     SizedBox(height: 6),
                     Text(
                       maskedEmail,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: c.textPrimary,
+                      style: AppTextStyles.titleLarge.copyWith(
                         letterSpacing: -0.3,
+                        color: c.textPrimary,
                       ),
                     ),
                   ],
@@ -90,7 +81,7 @@ class FindEmailResultPage extends StatelessWidget {
 
               Text(
                 '보안을 위해 이메일 일부는 가려져 있어요.',
-                style: TextStyle(fontSize: 11, color: c.textMuted),
+                style: AppTextStyles.captionSmall.copyWith(color: c.textMuted),
               ),
 
               const Spacer(),
@@ -108,10 +99,7 @@ class FindEmailResultPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: Text(
-                    '로그인하기',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                  ),
+                  child: Text('로그인하기', style: AppTextStyles.titleSmall),
                 ),
               ),
             ],

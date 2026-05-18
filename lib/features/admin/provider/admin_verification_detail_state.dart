@@ -32,8 +32,9 @@ class AdminVerificationDetailState {
       isLoading: isLoading ?? this.isLoading,
       isActionLoading: isActionLoading ?? this.isActionLoading,
       detail: detail ?? this.detail,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
       actionErrorMessage: clearActionErrorMessage
           ? null
           : (actionErrorMessage ?? this.actionErrorMessage),

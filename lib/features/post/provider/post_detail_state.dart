@@ -113,8 +113,9 @@ class PostDetailState {
       bookmarkedByMe: bookmarkedByMe ?? this.bookmarkedByMe,
       isBookmarking: isBookmarking ?? this.isBookmarking,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      successMessage:
-      clearSuccess ? null : (successMessage ?? this.successMessage),
+      successMessage: clearSuccess
+          ? null
+          : (successMessage ?? this.successMessage),
       shouldClosePage: shouldClosePage ?? this.shouldClosePage,
     );
   }

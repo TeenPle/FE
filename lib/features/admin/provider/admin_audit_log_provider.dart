@@ -76,7 +76,12 @@ class AdminAuditLogNotifier extends StateNotifier<AdminAuditLogState> {
     final nextAdminId = adminId ?? state.adminId;
     final nextFrom = from ?? state.from;
     final nextTo = to ?? state.to;
-    state = state.copyWith(page: 0, isLoading: true, hasMore: true, error: null);
+    state = state.copyWith(
+      page: 0,
+      isLoading: true,
+      hasMore: true,
+      error: null,
+    );
     try {
       final logs = await _api.getLogs(
         action: nextAction,
@@ -134,12 +139,15 @@ class AdminAuditLogNotifier extends StateNotifier<AdminAuditLogState> {
         hasMore: logs.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoadingMore: false, error: '추가 감사 로그를 불러오지 못했습니다.');
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: '추가 감사 로그를 불러오지 못했습니다.',
+      );
     }
   }
 }
 
 final adminAuditLogProvider =
     StateNotifierProvider<AdminAuditLogNotifier, AdminAuditLogState>((ref) {
-  return AdminAuditLogNotifier(ref.watch(adminAuditLogApiProvider));
-});
+      return AdminAuditLogNotifier(ref.watch(adminAuditLogApiProvider));
+    });

@@ -6,25 +6,22 @@ import 'signup_email_send_state.dart';
 
 /// 이메일 인증번호 전송 상태 provider
 final signupEmailSendProvider =
-StateNotifierProvider<SignupEmailSendNotifier, SignupEmailSendState>((ref) {
-  final emailApi = ref.read(emailApiProvider);
-  return SignupEmailSendNotifier(emailApi);
-});
+    StateNotifierProvider<SignupEmailSendNotifier, SignupEmailSendState>((ref) {
+      final emailApi = ref.read(emailApiProvider);
+      return SignupEmailSendNotifier(emailApi);
+    });
 
 class SignupEmailSendNotifier extends StateNotifier<SignupEmailSendState> {
   final EmailApi _emailApi;
 
-  SignupEmailSendNotifier(this._emailApi)
-      : super(const SignupEmailSendState());
+  SignupEmailSendNotifier(this._emailApi) : super(const SignupEmailSendState());
 
   /// 인증번호 전송
   Future<void> sendCode(String email) async {
     final trimmed = email.trim();
 
     if (trimmed.isEmpty) {
-      state = state.copyWith(
-        errorMessage: '이메일이 비어 있습니다.',
-      );
+      state = state.copyWith(errorMessage: '이메일이 비어 있습니다.');
       return;
     }
 
@@ -37,10 +34,7 @@ class SignupEmailSendNotifier extends StateNotifier<SignupEmailSendState> {
     try {
       await _emailApi.sendVerificationCode(trimmed);
 
-      state = state.copyWith(
-        isLoading: false,
-        isSuccess: true,
-      );
+      state = state.copyWith(isLoading: false, isSuccess: true);
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

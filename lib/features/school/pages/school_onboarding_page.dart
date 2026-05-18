@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 class SchoolOnboardingPage extends StatefulWidget {
   const SchoolOnboardingPage({super.key});
@@ -107,11 +108,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
       targets: targets,
       colorShadow: Colors.black,
       textSkip: '건너뛰기',
-      textStyleSkip: const TextStyle(
-        color: Colors.white70,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-      ),
+      textStyleSkip: AppTextStyles.labelMedium.copyWith(color: Colors.white70),
       paddingFocus: 10,
       opacityShadow: 0.85,
       onFinish: () {
@@ -155,10 +152,14 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
               color: const Color(0xFFD8E8F5),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.school_rounded, color: Color(0xFF229BF3), size: 26),
+            child: const Icon(
+              Icons.school_rounded,
+              color: Color(0xFF229BF3),
+              size: 26,
+            ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Row(
               children: [
                 Flexible(
@@ -166,22 +167,28 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                     '우리 학교',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF050505),
+                    style: AppTextStyles.titleLarge.copyWith(
+                      color: const Color(0xFF050505),
                     ),
                   ),
                 ),
-                SizedBox(width: 6),
-                Icon(Icons.verified_rounded, size: 18, color: Color(0xFF229BF3)),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.verified_rounded,
+                  size: 18,
+                  color: Color(0xFF229BF3),
+                ),
               ],
             ),
           ),
           const SizedBox(width: 12),
           const Icon(Icons.search_rounded, size: 29, color: Color(0xFF0B0B0B)),
           const SizedBox(width: 13),
-          const Icon(Icons.notifications_none_rounded, size: 29, color: Color(0xFF0B0B0B)),
+          const Icon(
+            Icons.notifications_none_rounded,
+            size: 29,
+            color: Color(0xFF0B0B0B),
+          ),
         ],
       ),
     );
@@ -194,9 +201,11 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          const Text(
+          Text(
             'D-DAY',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: const Color(0xFF229BF3),
+            ),
           ),
           const SizedBox(width: 10),
           _MockDDayChip(label: '수능', days: 'D-47'),
@@ -231,12 +240,10 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                     color: const Color(0xFF229BF3),
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       '피드',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.labelMedium.copyWith(
                         color: Colors.white,
                       ),
                     ),
@@ -247,26 +254,22 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                 child: Container(
                   key: _popularTabKey,
                   decoration: const BoxDecoration(),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       '인기',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF8C8F95),
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: const Color(0xFF8C8F95),
                       ),
                     ),
                   ),
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: Center(
                   child: Text(
                     '게시판',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF8C8F95),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: const Color(0xFF8C8F95),
                     ),
                   ),
                 ),
@@ -302,7 +305,11 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
                   ),
                 ],
               ),
-              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 24),
+              child: const Icon(
+                Icons.edit_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -323,8 +330,15 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _MockNavItem(icon: Icons.home_rounded, label: '홈', selected: true),
-                _MockNavItem(icon: Icons.chat_bubble_outline_rounded, label: '채팅'),
+                _MockNavItem(
+                  icon: Icons.home_rounded,
+                  label: '홈',
+                  selected: true,
+                ),
+                _MockNavItem(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  label: '채팅',
+                ),
                 _MockNavItem(
                   icon: Icons.restaurant_outlined,
                   label: '급식',
@@ -425,7 +439,11 @@ class _MockPostCard extends StatelessWidget {
         color: context.colors.cardBg,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 5)),
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 12,
+            offset: Offset(0, 5),
+          ),
         ],
       ),
       padding: const EdgeInsets.fromLTRB(18, 15, 18, 12),
@@ -441,28 +459,41 @@ class _MockPostCard extends StatelessWidget {
                   color: Color(0xFFE7EAEE),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_rounded, size: 17, color: Color(0xFF9AA1AA)),
+                child: const Icon(
+                  Icons.person_rounded,
+                  size: 17,
+                  color: Color(0xFF9AA1AA),
+                ),
               ),
               const SizedBox(width: 8),
               Text(
                 author,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF151515)),
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: const Color(0xFF151515),
+                ),
               ),
               const SizedBox(width: 10),
               Text(
                 time,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF8F9298)),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: const Color(0xFF8F9298),
+                ),
               ),
               const SizedBox(width: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: categoryColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   category,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: categoryColor),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: categoryColor,
+                  ),
                 ),
               ),
             ],
@@ -474,20 +505,16 @@ class _MockPostCard extends StatelessWidget {
             text: TextSpan(
               children: [
                 if (hot)
-                  const TextSpan(
+                  TextSpan(
                     text: 'HOT ',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFFFF6B35),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: const Color(0xFFFF6B35),
                     ),
                   ),
                 TextSpan(
                   text: title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF050505),
+                  style: AppTextStyles.titleSmall.copyWith(
+                    color: const Color(0xFF050505),
                   ),
                 ),
               ],
@@ -497,13 +524,31 @@ class _MockPostCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: Color(0xFF229BF3)),
+              const Icon(
+                Icons.chat_bubble_outline_rounded,
+                size: 18,
+                color: Color(0xFF229BF3),
+              ),
               const SizedBox(width: 4),
-              Text('$comments', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF229BF3))),
+              Text(
+                '$comments',
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: const Color(0xFF229BF3),
+                ),
+              ),
               const SizedBox(width: 18),
-              const Icon(Icons.favorite_border_rounded, size: 18, color: Color(0xFFFF5B6D)),
+              const Icon(
+                Icons.favorite_border_rounded,
+                size: 18,
+                color: Color(0xFFFF5B6D),
+              ),
               const SizedBox(width: 4),
-              Text('$likes', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFFF5B6D))),
+              Text(
+                '$likes',
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: const Color(0xFFFF5B6D),
+                ),
+              ),
             ],
           ),
         ],
@@ -531,12 +576,16 @@ class _MockDDayChip extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF444444)),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: const Color(0xFF444444),
+            ),
           ),
           const SizedBox(width: 6),
           Text(
             days,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF229BF3)),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: const Color(0xFF229BF3),
+            ),
           ),
         ],
       ),
@@ -570,7 +619,7 @@ class _MockNavItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 10,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
               color: color,
@@ -596,18 +645,13 @@ class _CoachContent extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
+          style: AppTextStyles.titleLarge.copyWith(color: Colors.white),
         ),
         const SizedBox(height: 8),
         Text(
           body,
-          style: const TextStyle(
+          style: AppTextStyles.captionLarge.copyWith(
             color: Colors.white70,
-            fontSize: 12,
             height: 1.5,
           ),
         ),

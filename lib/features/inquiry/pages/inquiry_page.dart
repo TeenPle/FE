@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/inquiry_model.dart';
@@ -37,7 +38,7 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
         centerTitle: true,
         title: Text(
           '문의하기',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
@@ -63,7 +64,7 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
             const SizedBox(height: 18),
             Text(
               '내 문의 내역',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: c.textMuted,
@@ -144,7 +145,7 @@ class _InquiryEntryCard extends StatelessWidget {
                   children: [
                     Text(
                       '새 문의 작성',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: c.textPrimary,
@@ -153,7 +154,10 @@ class _InquiryEntryCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '앱 이용 중 불편한 점을 남겨주세요.',
-                      style: TextStyle(fontSize: 12, color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 12,
+                        color: c.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -198,7 +202,7 @@ class _InquiryListTile extends StatelessWidget {
                       inquiry.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: c.textPrimary,
@@ -211,7 +215,10 @@ class _InquiryListTile extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           timeAgo(inquiry.createdAt),
-                          style: TextStyle(fontSize: 11, color: c.textTertiary),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 11,
+                            color: c.textTertiary,
+                          ),
                         ),
                       ],
                     ),
@@ -245,7 +252,7 @@ class _InquiryStatusBadge extends StatelessWidget {
       ),
       child: Text(
         inquiry.statusLabel,
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w800,
           color: answered ? const Color(0xFF14A3F7) : c.textMuted,
@@ -269,7 +276,10 @@ class _InquiryEmptyState extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 13, color: c.textMuted),
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 13,
+          color: c.textMuted,
+        ),
       ),
     );
   }

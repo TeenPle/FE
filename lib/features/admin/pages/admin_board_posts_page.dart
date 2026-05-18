@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
 
@@ -62,14 +63,20 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
         elevation: 0,
         title: Text(
           widget.boardTitle,
-          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.posts.isEmpty
           ? Center(
-              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
             )
           : RefreshIndicator(
               onRefresh: () => ref
@@ -155,13 +162,16 @@ class _BoardPostsHeader extends StatelessWidget {
                 Text(
                   schoolName ?? '지역/공통 게시판',
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textMuted,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   boardTitle,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
                     color: c.textPrimary,
@@ -221,12 +231,18 @@ class _PostTile extends StatelessWidget {
                     child: Text(
                       post.authorLabel,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 11, color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        color: c.textMuted,
+                      ),
                     ),
                   ),
                   Text(
                     _formatDate(post.createdAt),
-                    style: TextStyle(fontSize: 11, color: c.textTertiary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      color: c.textTertiary,
+                    ),
                   ),
                 ],
               ),
@@ -235,7 +251,7 @@ class _PostTile extends StatelessWidget {
                 post.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: c.textPrimary,
@@ -247,7 +263,7 @@ class _PostTile extends StatelessWidget {
                   post.contentPreview,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     height: 1.4,
                     color: c.textMuted,
@@ -317,7 +333,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         _label(status),
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: color,
@@ -358,11 +374,17 @@ class _CountPill extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(label, style: TextStyle(fontSize: 10, color: c.textMuted)),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10,
+              color: c.textMuted,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(
             '$value',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: color,
@@ -388,7 +410,13 @@ class _Metric extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: c.iconSecondary),
         const SizedBox(width: 4),
-        Text(value, style: TextStyle(fontSize: 11, color: c.textMuted)),
+        Text(
+          value,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 11,
+            color: c.textMuted,
+          ),
+        ),
       ],
     );
   }

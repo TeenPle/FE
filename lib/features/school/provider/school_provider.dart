@@ -15,10 +15,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
 
   /// 최초 학교 정보와 전체 게시판 최신글을 병렬로 불러옴 (전체 탭으로 시작)
   Future<void> loadInitialSchool(int schoolId) async {
-    state = state.copyWith(
-      isLoading: true,
-      clearError: true,
-    );
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       late final SchoolResponse detail;
@@ -26,11 +23,13 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
       late final List<PostSummary> topRecommendedPosts;
 
       await Future.wait([
+        repository.getSchoolDetail(schoolId: schoolId).then((v) => detail = v),
         repository
-            .getSchoolDetail(schoolId: schoolId)
-            .then((v) => detail = v),
-        repository
-            .getAllPostsBySchool(schoolId: schoolId, page: 0, size: state.pageSize)
+            .getAllPostsBySchool(
+              schoolId: schoolId,
+              page: 0,
+              size: state.pageSize,
+            )
             .then((v) => allPosts = v),
         repository
             .getTopRecommendedPosts(schoolId: schoolId, hours: 3, size: 3)
@@ -116,10 +115,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
 
   /// 당겨서 새로고침 — 전체 탭 / 개별 게시판 모두 지원
   Future<void> refreshPosts() async {
-    state = state.copyWith(
-      isRefreshing: true,
-      clearError: true,
-    );
+    state = state.copyWith(isRefreshing: true, clearError: true);
 
     try {
       final BoardPostPage pageResult;
@@ -176,10 +172,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
     if (!state.hasNext) return;
     if (state.isLoadingMore || state.isLoading || state.isRefreshing) return;
 
-    state = state.copyWith(
-      isLoadingMore: true,
-      clearError: true,
-    );
+    state = state.copyWith(isLoadingMore: true, clearError: true);
 
     try {
       final nextPage = state.currentPage + 1;
@@ -201,10 +194,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
       }
 
       state = state.copyWith(
-        posts: [
-          ...state.posts,
-          ..._filterVisiblePosts(pageResult.posts),
-        ],
+        posts: [...state.posts, ..._filterVisiblePosts(pageResult.posts)],
         currentPage: nextPage,
         hasNext: pageResult.hasNext,
         isLoadingMore: false,
@@ -226,13 +216,19 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
   void updatePostCommentCount(int postId, int commentCount) {
     state = state.copyWith(
       posts: state.posts
-          .map((p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p)
+          .map(
+            (p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p,
+          )
           .toList(),
       hotPosts: state.hotPosts
-          .map((p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p)
+          .map(
+            (p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p,
+          )
           .toList(),
       topRecommendedPosts: state.topRecommendedPosts
-          .map((p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p)
+          .map(
+            (p) => p.id == postId ? p.copyWith(commentCount: commentCount) : p,
+          )
           .toList(),
     );
   }
@@ -275,9 +271,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         clearError: true,
       );
     } catch (_) {
-      state = state.copyWith(
-        errorMessage: 'HOT 피드를 불러오지 못했습니다.',
-      );
+      state = state.copyWith(errorMessage: 'HOT 피드를 불러오지 못했습니다.');
     }
   }
 

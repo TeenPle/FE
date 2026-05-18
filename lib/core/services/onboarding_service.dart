@@ -33,7 +33,10 @@ class OnboardingService {
   }
 
   Future<void> resetTimetableForDebug() async {
-    assert(kDebugMode, 'resetTimetableForDebug must only be called in debug mode');
+    assert(
+      kDebugMode,
+      'resetTimetableForDebug must only be called in debug mode',
+    );
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyTimetableDone);
   }

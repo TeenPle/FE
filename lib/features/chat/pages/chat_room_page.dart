@@ -7,6 +7,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../../../core/active_page_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/chat_message_model.dart';
 import '../provider/chat_message_provider.dart';
@@ -329,19 +330,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                           children: [
                                             Text(
                                               '신고하기',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w800,
-                                                color: c.textPrimary,
-                                              ),
+                                              style: AppTextStyles.titleLarge
+                                                  .copyWith(
+                                                    color: c.textPrimary,
+                                                  ),
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
                                               '신고 카테고리를 선택해주세요.',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: c.textMuted,
-                                              ),
+                                              style: AppTextStyles.captionLarge
+                                                  .copyWith(color: c.textMuted),
                                             ),
                                           ],
                                         ),
@@ -410,9 +408,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     '신고 접수',
-                                    style: TextStyle(
+                                    style: AppTextStyles.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
@@ -494,13 +492,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('차단하기'),
-        content: const Text('이 사용자를 차단하면 더 이상 채팅을 주고받을 수 없습니다.'),
+        title: Text('차단하기'),
+        content: Text('이 사용자를 차단하면 더 이상 채팅을 주고받을 수 없습니다.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('취소')),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -517,7 +512,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 showAppSnackBar('차단되었습니다.');
               }
             },
-            child: const Text('차단', style: TextStyle(color: Color(0xFFF44336))),
+            child: Text(
+              '차단',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Color(0xFFF44336),
+              ),
+            ),
           ),
         ],
       ),
@@ -528,13 +528,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('차단 해제'),
-        content: const Text('차단을 해제하면 다시 메시지를 주고받을 수 있습니다.'),
+        title: Text('차단 해제'),
+        content: Text('차단을 해제하면 다시 메시지를 주고받을 수 있습니다.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('취소')),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -549,7 +546,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               ref.read(chatRoomListProvider.notifier).load();
               showAppSnackBar('차단이 해제되었습니다.');
             },
-            child: const Text('해제'),
+            child: Text('해제'),
           ),
         ],
       ),
@@ -560,13 +557,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('채팅방 나가기'),
-        content: const Text('채팅방을 나가면 목록에서 숨겨집니다.'),
+        title: Text('채팅방 나가기'),
+        content: Text('채팅방을 나가면 목록에서 숨겨집니다.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('취소')),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -583,7 +577,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               showAppSnackBar('채팅방을 나갔습니다.');
               if (mounted) context.pop();
             },
-            child: const Text('나가기'),
+            child: Text('나가기'),
           ),
         ],
       ),
@@ -643,13 +637,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               widget.displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: c.textPrimary,
-              ),
+              style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
             ),
-            Text('익명', style: TextStyle(fontSize: 11, color: c.textMuted)),
+            Text(
+              '익명',
+              style: AppTextStyles.captionSmall.copyWith(color: c.textMuted),
+            ),
           ],
         ),
         actions: [
@@ -701,7 +694,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   autofocus: true,
                   decoration: InputDecoration(
                     hintText: '메시지 검색',
-                    hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
+                    hintStyle: AppTextStyles.bodyMedium.copyWith(
+                      color: c.textMuted,
+                    ),
                     prefixIcon: Icon(
                       Icons.search_rounded,
                       color: c.textMuted,
@@ -715,7 +710,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
-                  style: TextStyle(fontSize: 13, color: c.textPrimary),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: c.textPrimary,
+                  ),
                 ),
               ),
             Expanded(
@@ -725,7 +722,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   ? Center(
                       child: Text(
                         isSearchFiltered ? '검색 결과가 없어요.' : '첫 메시지를 보내보세요!',
-                        style: TextStyle(fontSize: 13, color: c.textMuted),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textMuted,
+                        ),
                       ),
                     )
                   : ListView.builder(
@@ -815,8 +814,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 color: const Color(0xFFFFEBEE),
                 child: Text(
                   state.errorMessage!,
-                  style: const TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: Color(0xFFF44336),
                   ),
                 ),
@@ -969,9 +967,9 @@ class _ChatImageViewerPageState extends State<_ChatImageViewerPage> {
       widget.imageUrl,
       fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
-        return const Text(
+        return Text(
           '이미지를 불러올 수 없습니다',
-          style: TextStyle(color: Colors.white70),
+          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
         );
       },
     );
@@ -1063,9 +1061,7 @@ class _MessageBubble extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 4, left: 4),
                   child: Text(
                     '익명',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.labelSmall.copyWith(
                       color: c.textMuted,
                     ),
                   ),
@@ -1081,9 +1077,9 @@ class _MessageBubble extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           if (showUnread)
-                            const Text(
+                            Text(
                               '1',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFFFFD600),
@@ -1092,7 +1088,7 @@ class _MessageBubble extends StatelessWidget {
                           if (showMeta)
                             Text(
                               _formatTime(message.createdAt),
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 10,
                                 color: c.textMuted,
                               ),
@@ -1191,12 +1187,13 @@ class _MessageBubble extends StatelessWidget {
                                         const SizedBox(height: 4),
                                         Text(
                                           '이미지를 불러올 수 없습니다',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: isMe
-                                                ? Colors.white60
-                                                : ctx.colors.textMuted,
-                                          ),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                fontSize: 10,
+                                                color: isMe
+                                                    ? Colors.white60
+                                                    : ctx.colors.textMuted,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -1207,8 +1204,7 @@ class _MessageBubble extends StatelessWidget {
                           )
                         : Text(
                             message.content ?? '',
-                            style: TextStyle(
-                              fontSize: 13,
+                            style: AppTextStyles.bodyMedium.copyWith(
                               height: 1.4,
                               color: isMe ? Colors.white : c.textBody,
                             ),
@@ -1219,7 +1215,10 @@ class _MessageBubble extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 6, bottom: 2),
                       child: Text(
                         _formatTime(message.createdAt),
-                        style: TextStyle(fontSize: 10, color: c.textMuted),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 10,
+                          color: c.textMuted,
+                        ),
                       ),
                     ),
                 ],
@@ -1339,14 +1338,18 @@ class _MessageInputBar extends StatelessWidget {
                             ? '메시지 입력...'
                             : '사진 전송 대기 중',
                         counterText: '',
-                        hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textMuted,
+                        ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 10,
                         ),
                       ),
-                      style: TextStyle(fontSize: 13, color: c.textPrimary),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -1425,9 +1428,7 @@ class _PenaltyInputBar extends StatelessWidget {
               Expanded(
                 child: Text(
                   message,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.labelMedium.copyWith(
                     color: Color(0xFFD1432F),
                     height: 1.35,
                   ),
@@ -1486,11 +1487,7 @@ class _BlockedInputBar extends StatelessWidget {
                   blockedByOther && !blockedByMe
                       ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
                       : '차단한 사용자와는 채팅할 수 없습니다.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: c.textMuted,
-                  ),
+                  style: AppTextStyles.labelMedium.copyWith(color: c.textMuted),
                 ),
               ),
             ),
@@ -1498,9 +1495,11 @@ class _BlockedInputBar extends StatelessWidget {
               const SizedBox(width: 8),
               TextButton(
                 onPressed: onUnblock,
-                child: const Text(
+                child: Text(
                   '차단 해제',
-                  style: TextStyle(fontWeight: FontWeight.w800),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],
@@ -1535,11 +1534,7 @@ class _DeletedUserInputBar extends StatelessWidget {
           child: Text(
             '탈퇴한 사용자와는 채팅할 수 없습니다.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: c.textMuted,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.labelLarge.copyWith(color: c.textMuted),
           ),
         ),
       ),
@@ -1564,11 +1559,7 @@ class _DateSeparator extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             _formatDate(date),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: c.textMuted,
-            ),
+            style: AppTextStyles.captionSmall.copyWith(color: c.textMuted),
           ),
           const SizedBox(width: 12),
           Expanded(child: Divider(color: c.divider, thickness: 1)),
@@ -1604,11 +1595,7 @@ class _BottomSheetItem extends StatelessWidget {
       leading: Icon(icon, color: color),
       title: Text(
         label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
+        style: AppTextStyles.labelLarge.copyWith(color: color),
       ),
       onTap: onTap,
     );
@@ -1661,7 +1648,7 @@ class _ReportReasonTile extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 13,
                     height: 1.25,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
@@ -1700,11 +1687,11 @@ class _ChatNoticeBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
               '욕설·비방·음란물·폭력적 내용 등 부적절한 메시지에 대한 책임은 작성자 본인에게 있습니다. '
               '위반 시 신고를 통해 이용이 제한될 수 있습니다.',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 height: 1.5,
                 color: Color(0xFF92400E),

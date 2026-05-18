@@ -19,7 +19,9 @@ class LoginResponseModel {
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
       role: json['role'] as String,
-      schoolId: json['schoolId'] != null ? (json['schoolId'] as num).toInt() : null,
+      schoolId: json['schoolId'] != null
+          ? (json['schoolId'] as num).toInt()
+          : null,
     );
   }
 

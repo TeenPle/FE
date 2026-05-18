@@ -37,7 +37,9 @@ class AdminAuditLogModel {
       metadata: json['metadata'] as String?,
       ipAddress: json['ipAddress'] as String?,
       userAgent: json['userAgent'] as String?,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 }

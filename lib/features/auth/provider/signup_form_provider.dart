@@ -5,9 +5,9 @@ import 'signup_form_state.dart';
 
 /// 회원가입 전체 폼 상태를 관리하는 provider
 final signupFormProvider =
-StateNotifierProvider<SignupFormNotifier, SignupFormState>((ref) {
-  return SignupFormNotifier();
-});
+    StateNotifierProvider<SignupFormNotifier, SignupFormState>((ref) {
+      return SignupFormNotifier();
+    });
 
 class SignupFormNotifier extends StateNotifier<SignupFormState> {
   SignupFormNotifier() : super(const SignupFormState());

@@ -22,8 +22,8 @@ class VerificationReapplyApi {
 
   /// 반려 사유 조회
   Future<VerificationReapplyInfoResponseModel> getReapplyInfo(
-      VerificationReapplyInfoRequestModel request,
-      ) async {
+    VerificationReapplyInfoRequestModel request,
+  ) async {
     final response = await _dio.post(
       '/api/auth/verification/reapply-info',
       data: request.toJson(),
@@ -69,9 +69,7 @@ class VerificationReapplyApi {
     final response = await _dio.post(
       '/api/auth/verification/reapply',
       data: formData,
-      options: Options(
-        contentType: 'multipart/form-data',
-      ),
+      options: Options(contentType: 'multipart/form-data'),
     );
 
     final data = response.data;

@@ -42,7 +42,11 @@ class AdminReportApi {
     return ReportDetailModel.fromJson(res['result'] as Map<String, dynamic>);
   }
 
-  Future<void> approveReport(int reportId, int penaltyDays, String adminComment) async {
+  Future<void> approveReport(
+    int reportId,
+    int penaltyDays,
+    String adminComment,
+  ) async {
     await _client.post(
       '/api/admin/reports/$reportId/approve',
       body: {'penaltyDays': penaltyDays, 'adminComment': adminComment},

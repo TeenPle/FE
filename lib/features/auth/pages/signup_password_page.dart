@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
 
 /// 회원가입 6단계 비밀번호 설정 페이지
@@ -73,7 +74,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -141,10 +142,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Text(
-            '다음',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+          child: Text('다음', style: AppTextStyles.titleSmall),
         ),
       ),
       child: Column(
@@ -168,9 +166,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 단계 표시
           Text(
             '6/8',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textTertiary,
             ),
           ),
@@ -180,11 +176,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 페이지 성격 안내
           Text(
             '보안 설정',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF4A67F2),
-            ),
+            style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4A67F2)),
           ),
 
           SizedBox(height: 8),
@@ -192,9 +184,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 제목
           Text(
             '거의 다 왔어요!\n비밀번호를 설정해주세요',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.displayLarge.copyWith(
               height: 1.22,
               letterSpacing: -0.6,
               color: context.colors.textPrimary,
@@ -206,8 +196,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 보조 문구
           Text(
             'TeenPle에서 사용할 비밀번호를 입력해주세요.',
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodyMedium.copyWith(
               height: 1.5,
               color: context.colors.textBody,
             ),
@@ -218,9 +207,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 가입 이메일 라벨
           Text(
             '가입 이메일',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -249,15 +236,13 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                     signupFormState.email.isEmpty
                         ? '이메일 정보가 없습니다.'
                         : signupFormState.email,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: signupFormState.email.isEmpty
-                          ? FontWeight.w400
-                          : FontWeight.w600,
-                      color: signupFormState.email.isEmpty
-                          ? context.colors.textTertiary
-                          : context.colors.textPrimary,
-                    ),
+                    style: signupFormState.email.isEmpty
+                        ? AppTextStyles.captionLarge.copyWith(
+                            color: context.colors.textTertiary,
+                          )
+                        : AppTextStyles.labelMedium.copyWith(
+                            color: context.colors.textPrimary,
+                          ),
                   ),
                 ),
               ],
@@ -269,9 +254,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 비밀번호 라벨
           Text(
             '비밀번호',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -319,17 +302,21 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           if (password.isEmpty)
             Text(
               '영문, 숫자, 특수문자(@\$!%*#?&)를 포함해 8~20자로 입력해주세요.',
-              style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+              style: AppTextStyles.captionSmall.copyWith(
+                color: context.colors.textMuted,
+              ),
             )
           else if (!isPasswordValid)
             Text(
               '비밀번호는 영문, 숫자, 특수문자(@\$!%*#?&)를 포함한 8~20자여야 해요.',
-              style: TextStyle(fontSize: 11, color: Colors.red),
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
             )
           else
             Text(
               '사용 가능한 비밀번호 형식이에요.',
-              style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+              style: AppTextStyles.captionSmall.copyWith(
+                color: Color(0xFF4A67F2),
+              ),
             ),
 
           SizedBox(height: 20),
@@ -337,9 +324,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           /// 비밀번호 확인 라벨
           Text(
             '비밀번호 확인',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.labelSmall.copyWith(
               color: context.colors.textMuted,
             ),
           ),
@@ -389,14 +374,16 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
           if (passwordConfirm.isNotEmpty && password != passwordConfirm)
             Text(
               '비밀번호가 일치하지 않아요.',
-              style: TextStyle(fontSize: 11, color: Colors.red),
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
             )
           else if (passwordConfirm.isNotEmpty &&
               password == passwordConfirm &&
               isPasswordValid)
             Text(
               '비밀번호가 일치해요.',
-              style: TextStyle(fontSize: 11, color: Color(0xFF4A67F2)),
+              style: AppTextStyles.captionSmall.copyWith(
+                color: Color(0xFF4A67F2),
+              ),
             ),
         ],
       ),

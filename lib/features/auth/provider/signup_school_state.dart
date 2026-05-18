@@ -25,8 +25,9 @@ class SignupSchoolState {
       keyword: keyword ?? this.keyword,
       isLoading: isLoading ?? this.isLoading,
       schools: schools ?? this.schools,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

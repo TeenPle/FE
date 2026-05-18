@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/block_provider.dart';
 
@@ -33,7 +34,7 @@ class BlockSummaryTile extends ConsumerWidget {
           const SizedBox(width: 14),
           Text(
             '차단한 사용자',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
@@ -49,7 +50,7 @@ class BlockSummaryTile extends ConsumerWidget {
           else ...[
             Text(
               '$count명',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: c.textMuted,
@@ -66,9 +67,12 @@ class BlockSummaryTile extends ConsumerWidget {
                 foregroundColor: const Color(0xFFE05C5C),
                 disabledForegroundColor: c.iconSecondary,
               ),
-              child: const Text(
+              child: Text(
                 '전체 해제',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -81,19 +85,19 @@ class BlockSummaryTile extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('차단 전체 해제'),
-        content: const Text('차단한 모든 사용자의 차단을 해제하시겠습니까?'),
+        title: Text('차단 전체 해제'),
+        content: Text('차단한 모든 사용자의 차단을 해제하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFE05C5C),
             ),
-            child: const Text('전체 해제'),
+            child: Text('전체 해제'),
           ),
         ],
       ),

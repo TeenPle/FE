@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../../features/notification/provider/notification_provider.dart';
 import '../../../features/penalty/provider/penalty_provider.dart';
@@ -107,9 +108,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
                   Center(
                     child: Text(
                       currentBoardTitle,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
+                      style: AppTextStyles.titleLarge.copyWith(
                         color: c.textPrimary,
                       ),
                     ),
@@ -396,9 +395,7 @@ class _ModernBoardHeader extends ConsumerWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.titleLarge.copyWith(
                       color: context.colors.textPrimary,
                     ),
                   ),
@@ -427,10 +424,8 @@ class _ModernBoardHeader extends ConsumerWidget {
                 const SizedBox(width: 7),
                 Text(
                   postCount == 0 ? '게시글을 기다리는 중' : '최근 게시글 $postCount개 표시 중',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF6E7A86),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: const Color(0xFF6E7A86),
                   ),
                 ),
               ],
@@ -461,11 +456,7 @@ class _ModernBoardToolbar extends StatelessWidget {
         children: [
           Text(
             '게시글',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: c.textPrimary,
-            ),
+            style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
           ),
           const Spacer(),
           _SortSegment(
@@ -553,20 +544,17 @@ class _ModernEmptyBoardPostState extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             '아직 게시글이 없어요',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.titleSmall.copyWith(
               color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             '첫 게시글을 작성해서 이야기를 시작해보세요.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
+            style: AppTextStyles.captionSmall.copyWith(
+              color: const Color(0xFF7D8790),
               height: 1.5,
-              color: Color(0xFF7D8790),
             ),
           ),
         ],
@@ -603,9 +591,7 @@ class _SortSegment extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
+          style: AppTextStyles.labelSmall.copyWith(
             color: selected ? Colors.white : const Color(0xFF6E7A86),
           ),
         ),
@@ -685,7 +671,7 @@ class _ModernNotificationButton extends StatelessWidget {
                   child: Center(
                     child: Text(
                       unreadCount > 99 ? '99+' : '$unreadCount',
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 8,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -775,9 +761,7 @@ class _TodayLatestTile extends StatelessWidget {
                     post.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                    style: AppTextStyles.labelMedium.copyWith(
                       color: c.textBody,
                     ),
                   ),
@@ -792,10 +776,8 @@ class _TodayLatestTile extends StatelessWidget {
               const SizedBox(width: 3),
               Text(
                 post.likeCount > 99 ? '99+' : '${post.likeCount}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFFE05C5C),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: const Color(0xFFE05C5C),
                 ),
               ),
               const Spacer(),
@@ -845,7 +827,7 @@ class _BoardNotificationButton extends ConsumerWidget {
                   child: Center(
                     child: Text(
                       unreadCount > 99 ? '99+' : '$unreadCount',
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -887,10 +869,8 @@ class _SortDropdown extends StatelessWidget {
         children: [
           Text(
             selectedSortType == PostSortType.latest ? '최신순' : '인기순',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF5A5A5A),
+            style: AppTextStyles.captionLarge.copyWith(
+              color: const Color(0xFF5A5A5A),
             ),
           ),
           const SizedBox(width: 2),
@@ -924,16 +904,14 @@ class _SearchPill extends StatelessWidget {
           color: const Color(0xFFE1E1E1),
           borderRadius: BorderRadius.circular(999),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.search, size: 17, color: Color(0xFF6A6A6A)),
-            SizedBox(width: 4),
+            const Icon(Icons.search, size: 17, color: Color(0xFF6A6A6A)),
+            const SizedBox(width: 4),
             Text(
               '검색',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF6A6A6A),
+              style: AppTextStyles.labelSmall.copyWith(
+                color: const Color(0xFF6A6A6A),
               ),
             ),
           ],
@@ -957,20 +935,17 @@ class _EmptyBoardPostState extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             '아직 게시글이 없어요.',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
+            style: AppTextStyles.titleSmall.copyWith(
               color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             '첫 게시글을 작성해서 이야기를 시작해보세요.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
+            style: AppTextStyles.captionSmall.copyWith(
+              color: const Color(0xFF7D8790),
               height: 1.5,
-              color: Color(0xFF7D8790),
             ),
           ),
         ],
@@ -1001,15 +976,13 @@ class _LoadMoreSection extends StatelessWidget {
     }
 
     if (!hasNext) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Text(
             '마지막 게시글까지 확인했어요.',
-            style: TextStyle(
-              fontSize: 11,
-              color: Color(0xFF7D8790),
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: const Color(0xFF7D8790),
             ),
           ),
         ),
@@ -1027,12 +1000,10 @@ class _LoadMoreSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
         ),
-        child: const Text(
+        child: Text(
           '게시글 더보기',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF5C6975),
+          style: AppTextStyles.labelMedium.copyWith(
+            color: const Color(0xFF5C6975),
           ),
         ),
       ),

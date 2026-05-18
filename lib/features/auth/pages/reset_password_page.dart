@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../provider/reset_password_provider.dart';
 
 class ResetPasswordPage extends ConsumerStatefulWidget {
@@ -65,7 +66,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     final c = context.colors;
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: c.textHint, fontSize: 12),
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
       filled: true,
       fillColor: c.inputBg,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
@@ -126,10 +127,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                       color: Colors.white,
                     ),
                   )
-                : Text(
-                    '비밀번호 변경',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                  ),
+                : Text('비밀번호 변경', style: AppTextStyles.titleSmall),
           ),
         ),
       ),
@@ -153,9 +151,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               Text(
                 '비밀번호 재설정',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: Color(0xFF4A67F2),
                 ),
               ),
@@ -164,9 +160,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               Text(
                 '새 비밀번호를\n설정해주세요.',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.displaySmall.copyWith(
                   height: 1.3,
                   letterSpacing: -0.5,
                   color: context.colors.textPrimary,
@@ -177,8 +171,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               Text(
                 '영문, 숫자, 특수문자 포함 8~20자로 입력해주세요.',
-                style: TextStyle(
-                  fontSize: 13,
+                style: AppTextStyles.bodyMedium.copyWith(
                   height: 1.5,
                   color: context.colors.textBody,
                 ),
@@ -188,9 +181,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               Text(
                 '새 비밀번호',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.colors.textMuted,
                 ),
               ),
@@ -212,7 +203,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 SizedBox(height: 8),
                 Text(
                   '영문, 숫자, 특수문자를 포함한 8~20자로 입력해주세요.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 ),
               ],
 
@@ -220,9 +211,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
               Text(
                 '새 비밀번호 확인',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.labelSmall.copyWith(
                   color: context.colors.textMuted,
                 ),
               ),
@@ -248,7 +237,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 SizedBox(height: 8),
                 Text(
                   '비밀번호가 일치하지 않습니다.',
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 ),
               ],
 
@@ -256,7 +245,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 SizedBox(height: 12),
                 Text(
                   state.errorMessage!,
-                  style: TextStyle(fontSize: 11, color: Colors.red),
+                  style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 ),
               ],
             ],

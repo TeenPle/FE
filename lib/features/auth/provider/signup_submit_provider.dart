@@ -7,10 +7,10 @@ import 'signup_submit_state.dart';
 
 /// 회원가입 요청 상태 provider
 final signupSubmitProvider =
-StateNotifierProvider<SignupSubmitNotifier, SignupSubmitState>((ref) {
-  final signupApi = ref.read(signupApiProvider);
-  return SignupSubmitNotifier(signupApi);
-});
+    StateNotifierProvider<SignupSubmitNotifier, SignupSubmitState>((ref) {
+      final signupApi = ref.read(signupApiProvider);
+      return SignupSubmitNotifier(signupApi);
+    });
 
 class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
   final SignupApi _signupApi;
@@ -28,10 +28,7 @@ class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
     try {
       await _signupApi.signUp(formState);
 
-      state = state.copyWith(
-        isLoading: false,
-        isSuccess: true,
-      );
+      state = state.copyWith(isLoading: false, isSuccess: true);
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

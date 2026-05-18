@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 import 'package:flutter/services.dart';
 
 /// URL을 감지해 탭 시 외부 이동 경고 다이얼로그를 띄우는 텍스트 위젯.
@@ -21,10 +22,7 @@ class LinkableText extends StatefulWidget {
 }
 
 class _LinkableTextState extends State<LinkableText> {
-  static final _urlRegex = RegExp(
-    r'(https?://[^\s]+)',
-    caseSensitive: false,
-  );
+  static final _urlRegex = RegExp(r'(https?://[^\s]+)', caseSensitive: false);
 
   final List<TapGestureRecognizer> _recognizers = [];
 
@@ -66,15 +64,18 @@ class _LinkableTextState extends State<LinkableText> {
         ..onTap = () => _showExternalLinkWarning(context, url);
       _recognizers.add(recognizer);
 
-      spans.add(TextSpan(
-        text: url,
-        style: widget.linkStyle ??
-            const TextStyle(
-              color: Color(0xFF14A3F7),
-              decoration: TextDecoration.underline,
-            ),
-        recognizer: recognizer,
-      ));
+      spans.add(
+        TextSpan(
+          text: url,
+          style:
+              widget.linkStyle ??
+              AppTextStyles.bodyMedium.copyWith(
+                color: Color(0xFF14A3F7),
+                decoration: TextDecoration.underline,
+              ),
+          recognizer: recognizer,
+        ),
+      );
       cursor = m.end;
     }
     if (cursor < widget.text.length) {
@@ -83,8 +84,9 @@ class _LinkableTextState extends State<LinkableText> {
 
     return RichText(
       text: TextSpan(
-        style: widget.style ??
-            const TextStyle(
+        style:
+            widget.style ??
+            AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               height: 1.7,
               color: Color(0xFF2F3740),
@@ -111,7 +113,7 @@ void _showExternalLinkWarning(BuildContext context, String url) {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('아래 링크는 외부 사이트로 연결됩니다.\n유해한 콘텐츠가 포함될 수 있으니 주의하세요.'),
+          Text('아래 링크는 외부 사이트로 연결됩니다.\n유해한 콘텐츠가 포함될 수 있으니 주의하세요.'),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -121,7 +123,7 @@ void _showExternalLinkWarning(BuildContext context, String url) {
             ),
             child: Text(
               url,
-              style: const TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 11,
                 color: Color(0xFF5A8EA8),
               ),
@@ -132,10 +134,7 @@ void _showExternalLinkWarning(BuildContext context, String url) {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: const Text('취소'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(ctx), child: Text('취소')),
         TextButton(
           onPressed: () {
             Navigator.pop(ctx);
@@ -146,9 +145,9 @@ void _showExternalLinkWarning(BuildContext context, String url) {
               );
             }
           },
-          child: const Text(
+          child: Text(
             '링크 복사',
-            style: TextStyle(color: Color(0xFF14A3F7)),
+            style: AppTextStyles.bodyMedium.copyWith(color: Color(0xFF14A3F7)),
           ),
         ),
       ],

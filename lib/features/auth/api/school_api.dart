@@ -19,9 +19,7 @@ class SchoolApi {
   Future<List<SchoolModel>> searchSchools(String keyword) async {
     final response = await _dio.get(
       '/api/schools/search',
-      queryParameters: {
-        'keyword': keyword,
-      },
+      queryParameters: {'keyword': keyword},
     );
 
     /// 백엔드 응답에서 실제 리스트 추출

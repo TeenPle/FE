@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
 
@@ -47,14 +48,20 @@ class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
         elevation: 0,
         title: Text(
           widget.schoolName,
-          style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null
           ? Center(
-              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
             )
           : RefreshIndicator(
               onRefresh: () => ref
@@ -130,13 +137,16 @@ class _SchoolBoardsHeader extends StatelessWidget {
               children: [
                 Text(
                   '게시판 모니터링',
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textMuted,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   schoolName,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
                     color: c.textPrimary,
@@ -192,7 +202,7 @@ class _BoardTile extends StatelessWidget {
                     ),
                     child: Text(
                       board.scopeLabel,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: color,
@@ -202,14 +212,17 @@ class _BoardTile extends StatelessWidget {
                   const Spacer(),
                   Text(
                     '${board.postCount}개',
-                    style: TextStyle(fontSize: 11, color: c.textMuted),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 11,
+                      color: c.textMuted,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Text(
                 board.title,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: c.textPrimary,
@@ -219,7 +232,7 @@ class _BoardTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   board.description!,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     color: c.textMuted,
                     height: 1.4,
@@ -257,11 +270,17 @@ class _BoardCount extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(label, style: TextStyle(fontSize: 10, color: c.textMuted)),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10,
+              color: c.textMuted,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(
             '$value',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: accent,

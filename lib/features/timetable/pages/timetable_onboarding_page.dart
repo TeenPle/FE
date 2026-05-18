@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 /// 최초 접속 시 표시되는 온보딩 튜토리얼 페이지.
 /// 목 데이터로 시간표 화면을 재현하고, 고정 레이아웃에서 코치마크를 실행해
@@ -24,16 +25,41 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
   static const _mockTodayDow = 3;
 
   static const _mockSubjects = {
-    '1_1': '국어', '1_2': '수학', '1_3': '영어', '1_4': '과학',
-    '1_5': '체육', '1_6': '미술', '1_7': '수학',
-    '2_1': '영어', '2_2': '사회', '2_3': '수학', '2_4': '체육',
-    '2_5': '국어', '2_6': '음악', '2_7': '과학',
-    '3_1': '수학', '3_2': '국어', '3_3': '과학', '3_4': '영어',
-    '3_5': '사회', '3_6': '역사', '3_7': '도덕',
-    '4_1': '체육', '4_2': '영어', '4_3': '국어', '4_4': '수학',
-    '4_5': '과학', '4_6': '미술', '4_7': '음악',
-    '5_1': '영어', '5_2': '수학', '5_3': '사회', '5_4': '도덕',
-    '5_5': '체육', '5_6': '국어', '5_7': '과학',
+    '1_1': '국어',
+    '1_2': '수학',
+    '1_3': '영어',
+    '1_4': '과학',
+    '1_5': '체육',
+    '1_6': '미술',
+    '1_7': '수학',
+    '2_1': '영어',
+    '2_2': '사회',
+    '2_3': '수학',
+    '2_4': '체육',
+    '2_5': '국어',
+    '2_6': '음악',
+    '2_7': '과학',
+    '3_1': '수학',
+    '3_2': '국어',
+    '3_3': '과학',
+    '3_4': '영어',
+    '3_5': '사회',
+    '3_6': '역사',
+    '3_7': '도덕',
+    '4_1': '체육',
+    '4_2': '영어',
+    '4_3': '국어',
+    '4_4': '수학',
+    '4_5': '과학',
+    '4_6': '미술',
+    '4_7': '음악',
+    '5_1': '영어',
+    '5_2': '수학',
+    '5_3': '사회',
+    '5_4': '도덕',
+    '5_5': '체육',
+    '5_6': '국어',
+    '5_7': '과학',
   };
 
   @override
@@ -112,11 +138,7 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
       targets: targets,
       colorShadow: Colors.black,
       textSkip: '건너뛰기',
-      textStyleSkip: const TextStyle(
-        color: Colors.white70,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-      ),
+      textStyleSkip: AppTextStyles.labelMedium.copyWith(color: Colors.white70),
       paddingFocus: 8,
       opacityShadow: 0.85,
       onFinish: () {
@@ -145,11 +167,7 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
         ),
         title: Text(
           '시간표',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
         ),
         centerTitle: true,
         actions: const [
@@ -182,19 +200,19 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
                       vertical: 6,
                       horizontal: 2,
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           '시간표 되돌리기',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF7D8790),
                           ),
                         ),
-                        SizedBox(width: 4),
-                        Icon(
+                        const SizedBox(width: 4),
+                        const Icon(
                           Icons.history_rounded,
                           size: 16,
                           color: Color(0xFF7D8790),
@@ -242,15 +260,13 @@ class _MockWeekNavigator extends StatelessWidget {
             children: [
               Text(
                 '5월 5일 ~ 9일',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: c.textPrimary,
-                ),
+                style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
               ),
               Text(
                 '2학년 3반',
-                style: TextStyle(fontSize: 11, color: Color(0xFF9AA7B2)),
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: Color(0xFF9AA7B2),
+                ),
               ),
             ],
           ),
@@ -318,9 +334,7 @@ class _MockMemoCard extends StatelessWidget {
               children: [
                 Text(
                   '수요일 메모',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: c.textPrimary,
                   ),
                 ),
@@ -338,9 +352,9 @@ class _MockMemoCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: const Color(0xFFD6ECFA)),
                   ),
-                  child: const Text(
+                  child: Text(
                     '체육복 챙기기',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF26343D),
@@ -414,18 +428,21 @@ class _MockTimetableGrid extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.touch_app_rounded,
                 size: 13,
                 color: Color(0xFFB0BEC5),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 '과목 칸을 꾹 누르면 직접 수정할 수 있어요',
-                style: TextStyle(fontSize: 10, color: Color(0xFFB0BEC5)),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 10,
+                  color: Color(0xFFB0BEC5),
+                ),
               ),
             ],
           ),
@@ -446,7 +463,7 @@ class _MockTimetableGrid extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             fontWeight: FontWeight.w900,
             color: highlight
@@ -470,7 +487,7 @@ class _MockTimetableGrid extends StatelessWidget {
         ),
         child: Text(
           '$period',
-          style: const TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 11,
             fontWeight: FontWeight.w900,
             color: Color(0xFF9AA7B2),
@@ -496,9 +513,7 @@ class _MockTimetableGrid extends StatelessWidget {
           color: isToday ? const Color(0xFFEAF7FF) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isToday
-                ? const Color(0xFFBDE8FF)
-                : const Color(0xFFE8EEF4),
+            color: isToday ? const Color(0xFFBDE8FF) : const Color(0xFFE8EEF4),
           ),
         ),
         child: Stack(
@@ -509,7 +524,7 @@ class _MockTimetableGrid extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 11,
                   fontWeight: subject.isNotEmpty
                       ? FontWeight.w800
@@ -550,18 +565,13 @@ class _CoachContent extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
+          style: AppTextStyles.titleLarge.copyWith(color: Colors.white),
         ),
         const SizedBox(height: 8),
         Text(
           body,
-          style: const TextStyle(
+          style: AppTextStyles.captionLarge.copyWith(
             color: Colors.white70,
-            fontSize: 12,
             height: 1.5,
           ),
         ),

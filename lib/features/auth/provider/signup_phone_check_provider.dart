@@ -6,18 +6,18 @@ import 'signup_phone_check_state.dart';
 
 /// 전화번호 중복 확인 상태를 관리하는 provider
 final signupPhoneCheckProvider =
-StateNotifierProvider<SignupPhoneCheckNotifier, SignupPhoneCheckState>(
-      (ref) {
-    final phoneApi = ref.read(phoneApiProvider);
-    return SignupPhoneCheckNotifier(phoneApi);
-  },
-);
+    StateNotifierProvider<SignupPhoneCheckNotifier, SignupPhoneCheckState>((
+      ref,
+    ) {
+      final phoneApi = ref.read(phoneApiProvider);
+      return SignupPhoneCheckNotifier(phoneApi);
+    });
 
 class SignupPhoneCheckNotifier extends StateNotifier<SignupPhoneCheckState> {
   final PhoneApi _phoneApi;
 
   SignupPhoneCheckNotifier(this._phoneApi)
-      : super(const SignupPhoneCheckState());
+    : super(const SignupPhoneCheckState());
 
   /// 전화번호 중복 확인
   Future<void> checkPhone(String phoneNumber) async {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
@@ -61,14 +62,20 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
         elevation: 0,
         title: Text(
           '신고 상세',
-          style: TextStyle(fontWeight: FontWeight.w800, color: c.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
         ),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null && state.detail == null
           ? Center(
-              child: Text(state.error!, style: TextStyle(color: c.textMuted)),
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
+              ),
             )
           : state.detail == null
           ? const SizedBox()
@@ -139,7 +146,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                       detail.targetContent.isEmpty
                           ? '(내용 없음)'
                           : detail.targetContent,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 12,
                         color: c.textBody,
                         height: 1.55,
@@ -219,7 +226,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
                           Expanded(
                             child: Text(
                               '신고 승인 시 입력한 기간만큼 제재가 적용됩니다.',
-                              style: TextStyle(
+                              style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 11,
                                 color: c.textMuted,
                               ),
@@ -361,11 +368,16 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('취소', style: TextStyle(color: ctx.colors.textMuted)),
+            child: Text(
+              '취소',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: ctx.colors.textMuted,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('확인'),
+            child: Text('확인'),
           ),
         ],
       ),
@@ -433,13 +445,16 @@ class _ReportSummaryHeader extends StatelessWidget {
                   children: [
                     Text(
                       '${detail.targetTypeLabel} 신고',
-                      style: TextStyle(fontSize: 11, color: c.textMuted),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        color: c.textMuted,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       detail.reportReasonLabel,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
                         color: c.textPrimary,
@@ -493,7 +508,10 @@ class _ReportSummaryHeader extends StatelessWidget {
                 child: Text(
                   processedText,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 11,
+                    color: c.textMuted,
+                  ),
                 ),
               ),
             ],
@@ -528,12 +546,18 @@ class _HeaderMeta extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 10, color: c.textTertiary)),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10,
+              color: c.textTertiary,
+            ),
+          ),
           const SizedBox(height: 3),
           Text(
             value,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w900,
               color: accent ?? c.textPrimary,
@@ -587,7 +611,7 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 7),
         Text(
           title,
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w900,
             color: c.textPrimary,
@@ -616,13 +640,19 @@ class _InfoRow extends StatelessWidget {
             width: 78,
             child: Text(
               label,
-              style: TextStyle(fontSize: 11, color: c.textTertiary),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: c.textTertiary,
+              ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 12, color: c.textBody),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 12,
+                color: c.textBody,
+              ),
             ),
           ),
         ],
@@ -670,7 +700,10 @@ class _TappableInfoRow extends StatelessWidget {
             width: 78,
             child: Text(
               label,
-              style: TextStyle(fontSize: 11, color: c.textTertiary),
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: c.textTertiary,
+              ),
             ),
           ),
           Expanded(
@@ -678,7 +711,7 @@ class _TappableInfoRow extends StatelessWidget {
               onTap: onTap,
               child: Text(
                 value,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   color: Color(0xFF426C82),
                   fontWeight: FontWeight.w700,
@@ -716,7 +749,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: color,

@@ -41,12 +41,12 @@ class PostListSkeleton extends StatelessWidget {
 class _PostSkeletonItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Shimmer.fromColors(
       baseColor: isDark ? const Color(0xFF252D3A) : const Color(0xFFEEEEEE),
-      highlightColor:
-          isDark ? const Color(0xFF2E3848) : const Color(0xFFF8F8F8),
+      highlightColor: isDark
+          ? const Color(0xFF2E3848)
+          : const Color(0xFFF8F8F8),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
         child: LayoutBuilder(

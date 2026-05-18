@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../models/chat_room_model.dart';
 import '../provider/chat_room_list_provider.dart';
@@ -45,9 +46,11 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
   List<ChatRoomModel> _filtered(List<ChatRoomModel> rooms) {
     if (_searchQuery.isEmpty) return rooms;
     return rooms
-        .where((r) =>
-            r.displayName.toLowerCase().contains(_searchQuery) ||
-            r.lastPreview.toLowerCase().contains(_searchQuery))
+        .where(
+          (r) =>
+              r.displayName.toLowerCase().contains(_searchQuery) ||
+              r.lastPreview.toLowerCase().contains(_searchQuery),
+        )
         .toList();
   }
 
@@ -55,8 +58,10 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatRoomListProvider);
     final filtered = _filtered(state.rooms);
-    final chatUnreadCount =
-        state.rooms.fold(0, (sum, room) => sum + room.unreadCount);
+    final chatUnreadCount = state.rooms.fold(
+      0,
+      (sum, room) => sum + room.unreadCount,
+    );
 
     final c = context.colors;
     return Scaffold(
@@ -72,11 +77,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
         centerTitle: false,
         title: Text(
           '채팅',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+          style: AppTextStyles.displaySmall.copyWith(color: c.textPrimary),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -97,7 +98,9 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: '대화방 검색',
-                  hintStyle: TextStyle(fontSize: 13, color: c.textMuted),
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: c.textMuted,
+                  ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
                     color: c.textMuted,
@@ -106,7 +109,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 13),
                 ),
-                style: TextStyle(fontSize: 13, color: c.textPrimary),
+                style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
               ),
             ),
           ),
@@ -124,8 +127,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                             isSearch: _searchQuery.isNotEmpty,
                           )
                         : ListView.separated(
-                            padding:
-                                const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
                             itemCount: filtered.length,
                             separatorBuilder: (_, __) =>
                                 const SizedBox(height: 10),
@@ -133,8 +135,9 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                               return _ChatRoomItem(
                                 room: filtered[index],
                                 // 채팅방에서 돌아오면 목록 갱신해서 읽음 뱃지 제거
-                                onReturn: () =>
-                                    ref.read(chatRoomListProvider.notifier).load(),
+                                onReturn: () => ref
+                                    .read(chatRoomListProvider.notifier)
+                                    .load(),
                               );
                             },
                           ),
@@ -198,23 +201,14 @@ class _EmptyView extends StatelessWidget {
                 isSearch
                     ? '검색 결과가 없어요.'
                     : errorMessage != null
-                        ? '채팅 목록을 불러오지 못했습니다.'
-                        : '아직 채팅이 없어요.',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: c.textPrimary,
-                ),
+                    ? '채팅 목록을 불러오지 못했습니다.'
+                    : '아직 채팅이 없어요.',
+                style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
-                isSearch
-                    ? '다른 검색어를 입력해보세요.'
-                    : '게시글이나 댓글에서 채팅을 시작해보세요',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: c.textMuted,
-                ),
+                isSearch ? '다른 검색어를 입력해보세요.' : '게시글이나 댓글에서 채팅을 시작해보세요',
+                style: AppTextStyles.captionLarge.copyWith(color: c.textMuted),
               ),
             ],
           ),
@@ -236,17 +230,20 @@ class _ChatRoomItem extends ConsumerWidget {
     final c = context.colors;
     return GestureDetector(
       onTap: () async {
-        await context.push('/chat/rooms/${room.roomId}', extra: {
-          'otherUserId': room.otherUserId,
-          'displayName': room.displayName,
-          'blocked': room.blocked,
-          'blockedByMe': room.blockedByMe,
-          'blockedByOther': room.blockedByOther,
-          'otherUserDeleted': room.otherUserDeleted,
-          'canSendMessage': room.canSendMessage,
-          'canReport': room.canReport,
-          'canBlock': room.canBlock,
-        });
+        await context.push(
+          '/chat/rooms/${room.roomId}',
+          extra: {
+            'otherUserId': room.otherUserId,
+            'displayName': room.displayName,
+            'blocked': room.blocked,
+            'blockedByMe': room.blockedByMe,
+            'blockedByOther': room.blockedByOther,
+            'otherUserDeleted': room.otherUserDeleted,
+            'canSendMessage': room.canSendMessage,
+            'canReport': room.canReport,
+            'canBlock': room.canBlock,
+          },
+        );
         onReturn();
       },
       child: Container(
@@ -293,9 +290,7 @@ class _ChatRoomItem extends ConsumerWidget {
                           room.displayName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                          style: AppTextStyles.titleSmall.copyWith(
                             color: room.otherUserDeleted
                                 ? c.textMuted
                                 : c.textPrimary,
@@ -305,7 +300,10 @@ class _ChatRoomItem extends ConsumerWidget {
                       if (room.otherUserDeleted) ...[
                         const SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: c.subtleBg,
                             borderRadius: BorderRadius.circular(6),
@@ -313,7 +311,7 @@ class _ChatRoomItem extends ConsumerWidget {
                           ),
                           child: Text(
                             '탈퇴',
-                            style: TextStyle(
+                            style: AppTextStyles.bodyMedium.copyWith(
                               fontSize: 9,
                               fontWeight: FontWeight.w600,
                               color: c.textMuted,
@@ -336,26 +334,21 @@ class _ChatRoomItem extends ConsumerWidget {
                       if (room.otherUserDeleted)
                         Text(
                           '탈퇴한 사용자',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.labelSmall.copyWith(
                             color: c.textMuted,
                           ),
                         )
                       else
-                        const Text(
+                        Text(
                           '익명',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                          style: AppTextStyles.labelSmall.copyWith(
                             color: Color(0xFF1DA1F2),
                           ),
                         ),
                       if (room.lastPreview.isNotEmpty) ...[
                         Text(
                           '  ·  ',
-                          style: TextStyle(
-                            fontSize: 11,
+                          style: AppTextStyles.captionSmall.copyWith(
                             color: c.textMuted,
                           ),
                         ),
@@ -364,8 +357,7 @@ class _ChatRoomItem extends ConsumerWidget {
                             room.lastPreview,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: AppTextStyles.captionSmall.copyWith(
                               color: c.textMuted,
                             ),
                           ),
@@ -383,23 +375,24 @@ class _ChatRoomItem extends ConsumerWidget {
               children: [
                 Text(
                   _formatTime(room.lastMessageAt),
-                  style: TextStyle(
-                    fontSize: 11,
+                  style: AppTextStyles.captionSmall.copyWith(
                     color: c.textMuted,
                   ),
                 ),
                 const SizedBox(height: 4),
                 if (room.unreadCount > 0)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1DA1F2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       room.unreadCount > 99 ? '99+' : '${room.unreadCount}',
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -408,15 +401,17 @@ class _ChatRoomItem extends ConsumerWidget {
                   )
                 else if (room.blocked)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: c.subtleBg,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '차단',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: c.textTertiary,

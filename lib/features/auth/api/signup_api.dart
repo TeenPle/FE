@@ -64,10 +64,7 @@ class SignupApi {
       formState.verificationToken.trim().isNotEmpty,
       '이메일 인증 토큰 정보가 없습니다.',
     );
-    _require(
-      formState.studentCardFilePath.trim().isNotEmpty,
-      '학생증 이미지가 없습니다.',
-    );
+    _require(formState.studentCardFilePath.trim().isNotEmpty, '학생증 이미지가 없습니다.');
 
     /// gender 값 검증
     _require(
@@ -114,8 +111,7 @@ class SignupApi {
     });
 
     /// 파일명 추출
-    final fileName =
-        formState.studentCardFilePath.split(RegExp(r'[\\/]')).last;
+    final fileName = formState.studentCardFilePath.split(RegExp(r'[\\/]')).last;
 
     /// multipart/form-data 구성
     final formData = FormData.fromMap({
@@ -132,9 +128,7 @@ class SignupApi {
     final response = await _dio.post(
       '/api/auth/signup',
       data: formData,
-      options: Options(
-        contentType: 'multipart/form-data',
-      ),
+      options: Options(contentType: 'multipart/form-data'),
     );
 
     final data = response.data;

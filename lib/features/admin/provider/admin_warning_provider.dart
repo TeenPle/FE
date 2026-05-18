@@ -15,13 +15,12 @@ class AdminUserWarningState {
   });
 }
 
-class AdminUserWarningNotifier
-    extends StateNotifier<AdminUserWarningState> {
+class AdminUserWarningNotifier extends StateNotifier<AdminUserWarningState> {
   final AdminWarningApi _api;
   final int userId;
 
   AdminUserWarningNotifier(this._api, this.userId)
-      : super(const AdminUserWarningState());
+    : super(const AdminUserWarningState());
 
   Future<void> load() async {
     state = const AdminUserWarningState(isLoading: true);
@@ -37,7 +36,14 @@ class AdminUserWarningNotifier
   }
 }
 
-final adminUserWarningProvider = StateNotifierProvider.family<
-    AdminUserWarningNotifier, AdminUserWarningState, int>((ref, userId) {
-  return AdminUserWarningNotifier(ref.watch(adminWarningApiProvider), userId);
-});
+final adminUserWarningProvider =
+    StateNotifierProvider.family<
+      AdminUserWarningNotifier,
+      AdminUserWarningState,
+      int
+    >((ref, userId) {
+      return AdminUserWarningNotifier(
+        ref.watch(adminWarningApiProvider),
+        userId,
+      );
+    });

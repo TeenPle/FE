@@ -1,7 +1,7 @@
 class TimetablePeriod {
   final String date;
   final int dayOfWeek; // 1=월 ~ 5=금
-  final int period;   // 교시
+  final int period; // 교시
   final String subject;
 
   const TimetablePeriod({
@@ -48,8 +48,6 @@ class TimetableWeek {
 
   // [dayOfWeek][period] → subject 빠른 조회용 맵
   Map<String, String> get subjectMap {
-    return {
-      for (final p in periods) '${p.dayOfWeek}_${p.period}': p.subject,
-    };
+    return {for (final p in periods) '${p.dayOfWeek}_${p.period}': p.subject};
   }
 }

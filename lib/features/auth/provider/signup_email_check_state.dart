@@ -74,8 +74,9 @@ class SignupEmailCheckState {
       isLoading: isLoading ?? this.isLoading,
       isAvailable: clearAvailability ? null : (isAvailable ?? this.isAvailable),
       checkedEmail: checkedEmail ?? this.checkedEmail,
-      errorMessage:
-      clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

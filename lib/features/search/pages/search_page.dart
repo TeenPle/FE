@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../school/models/post_summary.dart';
 import '../provider/search_provider.dart';
@@ -124,7 +125,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         controller: _controller,
                         focusNode: _focusNode,
                         textInputAction: TextInputAction.search,
-                        style: TextStyle(fontSize: 13, color: c.textPrimary),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textPrimary,
+                        ),
                         onChanged: (value) {
                           notifier.setKeyword(value);
                           setState(() {});
@@ -134,9 +137,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         },
                         decoration: InputDecoration(
                           hintText: '제목, 본문으로 검색',
-                          hintStyle: TextStyle(
+                          hintStyle: AppTextStyles.captionLarge.copyWith(
                             color: c.textTertiary,
-                            fontSize: 12,
                           ),
                           prefixIcon: Icon(Icons.search, color: c.textMuted),
                           suffixIcon: _controller.text.isNotEmpty
@@ -164,9 +166,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     onPressed: state.isLoading ? null : _submitSearch,
                     child: Text(
                       '검색',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                      style: AppTextStyles.titleSmall.copyWith(
                         color: c.textPrimary,
                       ),
                     ),
@@ -186,11 +186,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               state.hasSearched
                   ? '"${state.keyword}" 검색 결과${state.scopeTitle == null ? '' : ' · ${state.scopeTitle}'}'
                   : '${state.scopeTitle ?? '전체 게시판'}에서 제목이나 본문 키워드를 검색해보세요.',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: c.textMuted,
-              ),
+              style: AppTextStyles.labelSmall.copyWith(color: c.textMuted),
             ),
           ),
           Expanded(
@@ -338,14 +334,11 @@ class _SearchResultCard extends StatelessWidget {
                     text: post.title,
                     keyword: keyword,
                     maxLines: 2,
-                    defaultStyle: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
+                    defaultStyle: AppTextStyles.titleSmall.copyWith(
                       color: c.textPrimary,
                       height: 1.2,
                     ),
-                    highlightStyle: const TextStyle(
-                      fontSize: 13,
+                    highlightStyle: AppTextStyles.titleSmall.copyWith(
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF0E9BFF),
                       height: 1.2,
@@ -356,15 +349,11 @@ class _SearchResultCard extends StatelessWidget {
                     text: post.content,
                     keyword: keyword,
                     maxLines: 3,
-                    defaultStyle: TextStyle(
-                      fontSize: 12,
+                    defaultStyle: AppTextStyles.captionLarge.copyWith(
                       color: c.textBody,
                       height: 1.35,
-                      fontWeight: FontWeight.w500,
                     ),
-                    highlightStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                    highlightStyle: AppTextStyles.labelMedium.copyWith(
                       color: Color(0xFF0E9BFF),
                       height: 1.35,
                     ),
@@ -374,24 +363,22 @@ class _SearchResultCard extends StatelessWidget {
                     children: [
                       Text(
                         _timeText,
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: AppTextStyles.captionSmall.copyWith(
                           color: c.textTertiary,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '|',
-                        style: TextStyle(fontSize: 11, color: c.borderSubtle),
+                        style: AppTextStyles.captionSmall.copyWith(
+                          color: c.borderSubtle,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         post.displayAuthorName,
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: AppTextStyles.captionSmall.copyWith(
                           color: c.textTertiary,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const Spacer(),
@@ -509,14 +496,7 @@ class _MetaText extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 2),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
+        Text(text, style: AppTextStyles.labelSmall.copyWith(color: color)),
       ],
     );
   }
@@ -556,22 +536,14 @@ class _RecentSearchSection extends StatelessWidget {
           children: [
             Text(
               '최근 검색어',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: c.textPrimary,
-              ),
+              style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
             ),
             const Spacer(),
             TextButton(
               onPressed: onClearAll,
               child: Text(
                 '전체 삭제',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: c.textMuted,
-                ),
+                style: AppTextStyles.labelSmall.copyWith(color: c.textMuted),
               ),
             ),
           ],
@@ -602,9 +574,7 @@ class _RecentSearchSection extends StatelessWidget {
                         Expanded(
                           child: Text(
                             keyword,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                            style: AppTextStyles.labelMedium.copyWith(
                               color: c.textPrimary,
                             ),
                           ),
@@ -642,7 +612,10 @@ class _SearchInitialState extends StatelessWidget {
         child: Text(
           '최근 검색어가 없어요.\n찾고 싶은 게시글의 제목이나 본문 키워드를 입력해보세요.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, height: 1.5, color: c.textMuted),
+          style: AppTextStyles.bodyMedium.copyWith(
+            height: 1.5,
+            color: c.textMuted,
+          ),
         ),
       ),
     );
@@ -661,11 +634,7 @@ class _SearchEmptyState extends StatelessWidget {
         child: Text(
           '검색 결과가 없어요.',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: c.textMuted,
-          ),
+          style: AppTextStyles.titleSmall.copyWith(color: c.textMuted),
         ),
       ),
     );
@@ -710,11 +679,7 @@ class _LoadMoreSection extends StatelessWidget {
         ),
         child: Text(
           '검색 결과 더보기',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: c.textSecondary,
-          ),
+          style: AppTextStyles.labelMedium.copyWith(color: c.textSecondary),
         ),
       ),
     );

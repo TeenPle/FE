@@ -49,25 +49,30 @@ class _PostSkeletonItem extends StatelessWidget {
           isDark ? const Color(0xFF2E3848) : const Color(0xFFF8F8F8),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _SkeletonBox(width: 180, height: 16),
-            const SizedBox(height: 8),
-            _SkeletonBox(width: double.infinity, height: 13),
-            const SizedBox(height: 4),
-            _SkeletonBox(width: 220, height: 13),
-            const SizedBox(height: 12),
-            Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SkeletonBox(width: 60, height: 11),
-                const SizedBox(width: 12),
-                _SkeletonBox(width: 40, height: 11),
-                const Spacer(),
-                _SkeletonBox(width: 36, height: 11),
+                _SkeletonBox(width: w * 0.55, height: 16),
+                const SizedBox(height: 8),
+                _SkeletonBox(width: double.infinity, height: 13),
+                const SizedBox(height: 4),
+                _SkeletonBox(width: w * 0.72, height: 13),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _SkeletonBox(width: w * 0.18, height: 11),
+                    const SizedBox(width: 12),
+                    _SkeletonBox(width: w * 0.12, height: 11),
+                    const Spacer(),
+                    _SkeletonBox(width: w * 0.11, height: 11),
+                  ],
+                ),
               ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

@@ -578,7 +578,7 @@ class _WriteHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      height: 64,
+      constraints: const BoxConstraints(minHeight: 64),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: c.border)),
@@ -800,7 +800,7 @@ class _WriteBottomToolbar extends StatelessWidget {
               onTap: () => onAnonymousChanged(!anonymous),
               borderRadius: BorderRadius.circular(999),
               child: Container(
-                height: 40,
+                constraints: const BoxConstraints(minHeight: 40),
                 padding: const EdgeInsets.only(left: 12, right: 8),
                 decoration: BoxDecoration(
                   color: context.colors.cardBg,
@@ -808,6 +808,7 @@ class _WriteBottomToolbar extends StatelessWidget {
                   border: Border.all(color: context.colors.border),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       '익명',

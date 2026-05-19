@@ -153,7 +153,16 @@ class FcmService {
       return;
     }
 
-    // 채팅 외 모든 알림(댓글·대댓글·좋아요 등)은 해당 게시글로 이동한다.
+    // 문의 답변 알림 — 해당 문의 상세 페이지로 이동한다.
+    if (data['type'] == 'INQUIRY' || data['targetType'] == 'INQUIRY') {
+      final inquiryId = int.tryParse(data['targetId'] ?? '');
+      if (inquiryId != null) {
+        router.push(AppRoutes.inquiryDetail(inquiryId));
+        return;
+      }
+    }
+
+    // 채팅·문의 외 알림(댓글·대댓글·좋아요 등)은 해당 게시글로 이동한다.
     final targetIdStr = data['targetId'];
     if (targetIdStr != null) {
       final postId = int.tryParse(targetIdStr);

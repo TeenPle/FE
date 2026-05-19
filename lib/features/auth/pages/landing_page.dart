@@ -1,12 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/network/base_url.dart';
 import '../../../core/storage/token_storage.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -18,6 +18,8 @@ class LandingPage extends ConsumerStatefulWidget {
 class _LandingPageState extends ConsumerState<LandingPage>
     with SingleTickerProviderStateMixin {
   static const Duration splashDelay = Duration(milliseconds: 1500);
+  static const String _landingAsset = 'assets/images/teenple_landing.png';
+  static const Size _landingImageSize = Size(941, 1672);
 
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
@@ -62,19 +64,54 @@ class _LandingPageState extends ConsumerState<LandingPage>
           accessToken.isNotEmpty &&
           refreshToken != null &&
           refreshToken.isNotEmpty) {
-        // 메모리 세션에 두 토큰 모두 복원
-        ref
-            .read(authSessionProvider.notifier)
-            .setTokens(accessToken, refreshToken, userId: userId);
+        // 서버 refresh 호출로 토큰 갱신 + 계정 상태 검증
+        // (탈퇴 유예 계정이면 USER4051을 반환하므로 여기서 잡아낼 수 있음)
+        try {
+          final plainDio = Dio(BaseOptions(baseUrl: apiBaseUrl));
+          final response = await plainDio.post(
+            '/api/auth/refresh',
+            data: {'refreshToken': refreshToken},
+          );
 
-        final role = await tokenStorage.getUserRole();
-        if (!mounted) return;
+          final result = response.data['result'] as Map<String, dynamic>;
+          final newAccessToken = result['accessToken'] as String;
+          final newRefreshToken = result['refreshToken'] as String;
 
-        if (role == 'ADMIN') {
-          context.go(AppRoutes.adminHome);
-        } else {
-          context.go(AppRoutes.school);
+          // 갱신된 토큰을 메모리 세션에 반영 (userId는 저장된 값 유지)
+          ref.read(authSessionProvider.notifier).setTokens(
+            newAccessToken,
+            newRefreshToken,
+            userId: userId,
+          );
+
+          // 자동로그인 유저이므로 디스크 토큰도 최신으로 갱신
+          await tokenStorage.saveAccessToken(newAccessToken);
+          await tokenStorage.saveRefreshToken(newRefreshToken);
+
+          final role = await tokenStorage.getUserRole();
+          if (!mounted) return;
+
+          if (role == 'ADMIN') {
+            context.go(AppRoutes.adminHome);
+          } else {
+            context.go(AppRoutes.school);
+          }
+          return;
+        } on DioException catch (e) {
+          // 탈퇴 유예 계정(USER4051) → 복구 화면으로 분기
+          if (_extractBackendCode(e.response?.data) == 'USER4051') {
+            if (!mounted) return;
+            context.go(AppRoutes.accountRecovery);
+            return;
+          }
+          // 그 외 refresh 실패(만료·서버 오류 등) → 토큰 정리 후 로그인
+        } catch (_) {
+          // 네트워크 오류 등 → 토큰 정리 후 로그인
         }
+
+        await tokenStorage.clearAll();
+        if (!mounted) return;
+        context.go(AppRoutes.login);
         return;
       }
 
@@ -86,6 +123,19 @@ class _LandingPageState extends ConsumerState<LandingPage>
     context.go(AppRoutes.login);
   }
 
+  /// 서버 응답 바디에서 백엔드 오류 코드를 추출한다.
+  String? _extractBackendCode(dynamic data) {
+    if (data is! Map<String, dynamic>) return null;
+    final direct = data['code'];
+    if (direct is String && direct.trim().isNotEmpty) return direct.trim();
+    final result = data['result'];
+    if (result is Map<String, dynamic>) {
+      final nested = result['code'];
+      if (nested is String && nested.trim().isNotEmpty) return nested.trim();
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -94,69 +144,38 @@ class _LandingPageState extends ConsumerState<LandingPage>
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
     return Scaffold(
-      backgroundColor: c.pageBg,
-      body: SafeArea(
-        child: Center(
+      backgroundColor: const Color(0xFFF7FBFF),
+      body: SizedBox.expand(
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFBFDFF), Color(0xFFEAF8FF)],
+            ),
+          ),
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: ScaleTransition(
               scale: _scaleAnimation,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 132,
-                      height: 132,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF5EC8F8,
-                            ).withValues(alpha: 0.18),
-                            blurRadius: 24,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Image.asset(
-                          'assets/images/Logo.png',
-                          fit: BoxFit.cover,
-                        ),
+              child: Center(
+                child: Semantics(
+                  label: 'TeenPle, 우리 학교와 동네를 잇는 학생 커뮤니티',
+                  image: true,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: _landingImageSize.width,
+                      height: _landingImageSize.height,
+                      child: Image.asset(
+                        _landingAsset,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
                       ),
                     ),
-                    SizedBox(height: 28),
-                    Text(
-                      'TeenPle',
-                      style: AppTextStyles.displayLarge.copyWith(
-                        letterSpacing: -1.0,
-                        color: c.textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '고등학생을 위한 로컬 커뮤니티',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: c.textBody,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '이야기하고, 연결되고, 나누는 공간',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.captionLarge.copyWith(
-                        height: 1.5,
-                        color: c.textSecondary,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

@@ -163,34 +163,9 @@ class SettingsPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _confirmDeleteAccount(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('회원 탈퇴'),
-        content: Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFE05C5C),
-            ),
-            child: Text('탈퇴하기'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await ref.read(profileProvider.notifier).deleteAccount();
-    }
+  void _confirmDeleteAccount(BuildContext context, WidgetRef ref) {
+    // 확인 문구 입력 + 유의사항 안내가 포함된 전용 페이지로 이동
+    context.push(AppRoutes.accountDeleteConfirm);
   }
 }
 

@@ -244,57 +244,81 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
         if (isPending)
           SafeArea(
             minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: state.isActing ? null : () => _onReject(context),
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                    label: Text(state.isActing ? '처리 중...' : '거절'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFE05C7B),
-                      side: const BorderSide(color: Color(0xFFE05C7B)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked = constraints.maxWidth < 360;
+                final buttons = [
+                  _AdminActionButton(
+                    child: OutlinedButton.icon(
+                      onPressed: state.isActing
+                          ? null
+                          : () => _onReject(context),
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      label: Text(state.isActing ? '처리 중...' : '거절'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFE05C7B),
+                        side: const BorderSide(color: Color(0xFFE05C7B)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: state.isActing ? null : () => _onWarn(context),
-                    icon: const Icon(Icons.warning_amber_rounded, size: 18),
-                    label: Text(state.isActing ? '처리 중...' : '경고'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFF59E0B),
-                      side: const BorderSide(color: Color(0xFFF59E0B)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                  _AdminActionButton(
+                    child: OutlinedButton.icon(
+                      onPressed: state.isActing ? null : () => _onWarn(context),
+                      icon: const Icon(Icons.warning_amber_rounded, size: 18),
+                      label: Text(state.isActing ? '처리 중...' : '경고'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFF59E0B),
+                        side: const BorderSide(color: Color(0xFFF59E0B)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: state.isActing
-                        ? null
-                        : () => _onApprove(context),
-                    icon: const Icon(Icons.check_rounded, size: 18),
-                    label: Text(state.isActing ? '처리 중...' : '승인'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1477F8),
-                      disabledBackgroundColor: const Color(0xFFBFC8FF),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                  _AdminActionButton(
+                    child: ElevatedButton.icon(
+                      onPressed: state.isActing
+                          ? null
+                          : () => _onApprove(context),
+                      icon: const Icon(Icons.check_rounded, size: 18),
+                      label: Text(state.isActing ? '처리 중...' : '승인'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1477F8),
+                        disabledBackgroundColor: const Color(0xFFBFC8FF),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ];
+
+                if (stacked) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < buttons.length; i++) ...[
+                        SizedBox(width: double.infinity, child: buttons[i]),
+                        if (i != buttons.length - 1) const SizedBox(height: 8),
+                      ],
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    for (var i = 0; i < buttons.length; i++) ...[
+                      Expanded(child: buttons[i]),
+                      if (i != buttons.length - 1) const SizedBox(width: 8),
+                    ],
+                  ],
+                );
+              },
             ),
           ),
       ],
@@ -389,6 +413,17 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   String _formatDate(DateTime dt) =>
       '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+}
+
+class _AdminActionButton extends StatelessWidget {
+  final Widget child;
+
+  const _AdminActionButton({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(height: 48, child: child);
+  }
 }
 
 class _ReportSummaryHeader extends StatelessWidget {

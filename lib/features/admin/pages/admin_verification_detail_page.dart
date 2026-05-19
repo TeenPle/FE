@@ -138,12 +138,11 @@ class _AdminVerificationDetailPageState
       bottomNavigationBar: isPending
           ? SafeArea(
               minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 52,
-                      child: ElevatedButton(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final stacked = constraints.maxWidth < 340;
+                  final approveButton = _VerificationActionButton(
+                    child: ElevatedButton(
                         onPressed: state.isActionLoading
                             ? null
                             : () async {
@@ -181,13 +180,9 @@ class _AdminVerificationDetailPageState
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 52,
-                      child: ElevatedButton(
+                  );
+                  final rejectButton = _VerificationActionButton(
+                    child: ElevatedButton(
                         onPressed: state.isActionLoading
                             ? null
                             : () async {
@@ -225,9 +220,27 @@ class _AdminVerificationDetailPageState
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
+                  );
+
+                  if (stacked) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: double.infinity, child: approveButton),
+                        const SizedBox(height: 8),
+                        SizedBox(width: double.infinity, child: rejectButton),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: approveButton),
+                      const SizedBox(width: 12),
+                      Expanded(child: rejectButton),
+                    ],
+                  );
+                },
               ),
             )
           : null,
@@ -421,6 +434,17 @@ class _AdminVerificationDetailPageState
               ),
             ),
     );
+  }
+}
+
+class _VerificationActionButton extends StatelessWidget {
+  final Widget child;
+
+  const _VerificationActionButton({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(height: 52, child: child);
   }
 }
 

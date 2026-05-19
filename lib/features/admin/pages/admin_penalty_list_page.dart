@@ -119,7 +119,10 @@ class _PenaltyCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -139,7 +142,6 @@ class _PenaltyCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -155,7 +157,6 @@ class _PenaltyCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              const Spacer(),
               Text(
                 _formatDate(penalty.createdAt),
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -166,36 +167,17 @@ class _PenaltyCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Icon(Icons.person_outline, size: 14, color: c.iconSecondary),
-              const SizedBox(width: 4),
-              Flexible(
-                child: GestureDetector(
-                  onTap: () => context.push(
-                    AppRoutes.adminUserHistory(penalty.userId),
-                    extra: {'nickname': penalty.userNickname},
-                  ),
-                  child: Text(
-                    penalty.userNickname,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
-                      color: Color(0xFF426C82),
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Icon(Icons.access_time_rounded, size: 14, color: c.iconSecondary),
-              const SizedBox(width: 4),
-              Text(
-                '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 11,
-                  color: c.textSecondary,
-                ),
+              _PenaltyUserLink(penalty: penalty, c: c),
+              _PenaltyMeta(
+                icon: Icons.access_time_rounded,
+                text:
+                    '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
+                c: c,
               ),
             ],
           ),
@@ -276,4 +258,78 @@ class _PenaltyCard extends ConsumerWidget {
   }
 
   String _formatDate(DateTime dt) => '${dt.month}/${dt.day}';
+}
+
+class _PenaltyUserLink extends StatelessWidget {
+  final PenaltySummaryModel penalty;
+  final AppColors c;
+
+  const _PenaltyUserLink({required this.penalty, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 190),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.person_outline, size: 14, color: c.iconSecondary),
+          const SizedBox(width: 4),
+          Flexible(
+            child: GestureDetector(
+              onTap: () => context.push(
+                AppRoutes.adminUserHistory(penalty.userId),
+                extra: {'nickname': penalty.userNickname},
+              ),
+              child: Text(
+                penalty.userNickname,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  color: const Color(0xFF426C82),
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PenaltyMeta extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final AppColors c;
+
+  const _PenaltyMeta({
+    required this.icon,
+    required this.text,
+    required this.c,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 220),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: c.iconSecondary),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: c.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

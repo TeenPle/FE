@@ -49,6 +49,34 @@ class LoginApi {
     return LoginResponseModel.fromJson(result);
   }
 
+  /// 탈퇴 유예 계정 복구 — 이메일·비밀번호로 본인 확인 후 ACTIVE 복구, 새 토큰 발급
+  ///
+  /// POST /api/auth/restore
+  Future<LoginResponseModel> restoreAccount({
+    required String email,
+    required String password,
+  }) async {
+    final response = await _dio.post(
+      '/api/auth/restore',
+      data: {'email': email, 'password': password},
+    );
+
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw Exception('응답 형식이 올바르지 않습니다.');
+    }
+    if (data['isSuccess'] != true) {
+      throw Exception(data['message'] ?? '복구에 실패했습니다.');
+    }
+
+    final result = data['result'];
+    if (result is! Map<String, dynamic>) {
+      throw Exception('복구 결과 형식이 올바르지 않습니다.');
+    }
+
+    return LoginResponseModel.fromJson(result);
+  }
+
   /// 로그아웃 - 서버에서 refresh token 무효화
   ///
   /// POST /api/auth/logout

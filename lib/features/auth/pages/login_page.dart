@@ -95,6 +95,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
+    // 탈퇴 유예 기간 중인 계정 → 복구 안내 화면으로 분기
+    if (latestState.blockedReason == LoginBlockedReason.pendingDeletion) {
+      context.go(AppRoutes.accountRecovery);
+      return;
+    }
+
     if (latestState.blockedReason != null) {
       context.go(AppRoutes.schoolVerificationWaiting);
       return;

@@ -265,38 +265,84 @@ class _FilterPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _DateButton(label: '시작일', date: from, onTap: onPickFrom),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _DateButton(label: '종료일', date: to, onTap: onPickTo),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 330;
+              if (stacked) {
+                return Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: _DateButton(
+                        label: '시작일',
+                        date: from,
+                        onTap: onPickFrom,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: _DateButton(
+                        label: '종료일',
+                        date: to,
+                        onTap: onPickTo,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(
+                    child: _DateButton(
+                      label: '시작일',
+                      date: from,
+                      onTap: onPickFrom,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _DateButton(label: '종료일', date: to, onTap: onPickTo),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onClearFilters,
-                  child: Text('초기화'),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 330;
+              final clearButton = OutlinedButton(
+                onPressed: onClearFilters,
+                child: Text('초기화'),
+              );
+              final applyButton = ElevatedButton(
+                onPressed: onApplyFilters,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4A67F2),
+                  foregroundColor: Colors.white,
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: onApplyFilters,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4A67F2),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: Text('필터 적용'),
-                ),
-              ),
-            ],
+                child: Text('필터 적용'),
+              );
+
+              if (stacked) {
+                return Column(
+                  children: [
+                    SizedBox(width: double.infinity, child: clearButton),
+                    const SizedBox(height: 8),
+                    SizedBox(width: double.infinity, child: applyButton),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: clearButton),
+                  const SizedBox(width: 10),
+                  Expanded(child: applyButton),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -322,6 +368,7 @@ class _DateButton extends StatelessWidget {
       icon: const Icon(Icons.calendar_today_outlined, size: 16),
       label: Text(
         date == null ? label : '${date!.year}.${date!.month}.${date!.day}',
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -346,7 +393,10 @@ class _AuditLogTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -363,7 +413,6 @@ class _AuditLogTile extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
               Text(
                 _formatDate(log.createdAt),
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -484,8 +533,9 @@ class _AuditLogTile extends StatelessWidget {
   Color _actionColor(String action) {
     if (action.contains('HIDE')) return const Color(0xFFE05C7B);
     if (action.contains('RESTORE')) return const Color(0xFF2F7D46);
-    if (action.contains('APPROVE') || action.contains('WARN'))
+    if (action.contains('APPROVE') || action.contains('WARN')) {
       return const Color(0xFFF59E0B);
+    }
     return const Color(0xFF426C82);
   }
 

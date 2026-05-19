@@ -19,17 +19,46 @@ class AdminVerificationApi {
   AdminVerificationApi(this._dio);
 
   Future<int> getPendingRequestCount() async {
-    final requests = await getRequestList(VerificationStatusModel.pending);
-    return requests.length;
+    final response = await _dio.get(
+      '/api/admin/verification-requests',
+      queryParameters: {
+        'status': VerificationStatusModel.pending.toQueryValue,
+        'page': '0',
+        'size': '1',
+      },
+    );
+
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw Exception('응답 형식이 올바르지 않습니다.');
+    }
+
+    final result = data['result'];
+    if (result is Map<String, dynamic>) {
+      return (result['totalElements'] as num?)?.toInt() ??
+          ((result['content'] as List<dynamic>?)?.length ?? 0);
+    }
+
+    if (result is List) {
+      return result.length;
+    }
+
+    throw Exception('목록 데이터 형식이 올바르지 않습니다.');
   }
 
   /// 학교 인증 요청 목록 조회
   Future<List<VerificationRequestListItemModel>> getRequestList(
-    VerificationStatusModel status,
-  ) async {
+    VerificationStatusModel status, {
+    int page = 0,
+    int size = 20,
+  }) async {
     final response = await _dio.get(
       '/api/admin/verification-requests',
-      queryParameters: {'status': status.toQueryValue},
+      queryParameters: {
+        'status': status.toQueryValue,
+        'page': '$page',
+        'size': '$size',
+      },
     );
 
     final data = response.data;
@@ -44,11 +73,14 @@ class AdminVerificationApi {
 
     final result = data['result'];
 
-    if (result is! List) {
+    // 배포 전환 중 기존 List 응답과 신규 Page 응답을 모두 읽는다.
+    final rawItems = result is Map<String, dynamic> ? result['content'] : result;
+
+    if (rawItems is! List) {
       throw Exception('목록 데이터 형식이 올바르지 않습니다.');
     }
 
-    return result
+    return rawItems
         .map(
           (e) => VerificationRequestListItemModel.fromJson(
             e as Map<String, dynamic>,

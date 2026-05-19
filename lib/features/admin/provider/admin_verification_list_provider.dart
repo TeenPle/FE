@@ -30,14 +30,22 @@ class AdminVerificationListNotifier
 
     state = state.copyWith(
       isLoading: true,
+      isLoadingMore: false,
+      hasMore: true,
+      currentPage: 0,
       selectedStatus: targetStatus,
+      items: const [],
       clearErrorMessage: true,
     );
 
     try {
-      final result = await _api.getRequestList(targetStatus);
+      final result = await _api.getRequestList(targetStatus, page: 0);
 
-      state = state.copyWith(isLoading: false, items: result);
+      state = state.copyWith(
+        isLoading: false,
+        items: result,
+        hasMore: result.length >= 20,
+      );
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -48,6 +56,37 @@ class AdminVerificationListNotifier
       state = state.copyWith(
         isLoading: false,
         items: const [],
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
+    }
+  }
+
+  Future<void> fetchMore() async {
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
+
+    state = state.copyWith(isLoadingMore: true, clearErrorMessage: true);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final result = await _api.getRequestList(
+        state.selectedStatus,
+        page: nextPage,
+      );
+
+      state = state.copyWith(
+        isLoadingMore: false,
+        currentPage: nextPage,
+        items: [...state.items, ...result],
+        hasMore: result.length >= 20,
+      );
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoadingMore: false,
+        errorMessage: e.message ?? '추가 목록 조회에 실패했습니다.',
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingMore: false,
         errorMessage: e.toString().replaceFirst('Exception: ', ''),
       );
     }

@@ -9,8 +9,39 @@ import '../models/verification_status_model.dart';
 import '../provider/admin_verification_list_provider.dart';
 
 /// 관리자 학교 인증 요청 목록 페이지
-class AdminVerificationListPage extends ConsumerWidget {
+class AdminVerificationListPage extends ConsumerStatefulWidget {
   const AdminVerificationListPage({super.key});
+
+  @override
+  ConsumerState<AdminVerificationListPage> createState() =>
+      _AdminVerificationListPageState();
+}
+
+class _AdminVerificationListPageState
+    extends ConsumerState<AdminVerificationListPage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 220) {
+      // 인증 요청도 상태별로 20개씩만 붙인다. 전체 목록 선로딩을 막기 위한 하단 감지 지점이다.
+      ref.read(adminVerificationListProvider.notifier).fetchMore();
+    }
+  }
 
   String _formatDate(DateTime? value) {
     if (value == null) {
@@ -26,7 +57,7 @@ class AdminVerificationListPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(adminVerificationListProvider);
     final c = context.colors;
 
@@ -217,11 +248,25 @@ class AdminVerificationListPage extends ConsumerWidget {
                             .fetchList(state.selectedStatus);
                       },
                       child: ListView.separated(
+                        controller: _scrollController,
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                        itemCount: state.items.length,
+                        itemCount:
+                            state.items.length +
+                            (state.isLoadingMore ? 1 : 0),
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
+                          if (index >= state.items.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          }
+
                           final item = state.items[index];
 
                           return Material(

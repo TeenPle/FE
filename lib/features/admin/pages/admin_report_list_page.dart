@@ -17,6 +17,8 @@ class AdminReportListPage extends ConsumerStatefulWidget {
 }
 
 class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
+  final _scrollController = ScrollController();
+
   static const _tabs = [
     ('PENDING', '대기 중'),
     ('RESOLVED', '처리 완료'),
@@ -29,6 +31,23 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
     Future.microtask(
       () => ref.read(adminReportListProvider.notifier).load(status: 'PENDING'),
     );
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 220) {
+      // 목록은 서버에서 20개씩만 가져온다. 하단 근처에 도달했을 때만 다음 페이지를 붙인다.
+      ref.read(adminReportListProvider.notifier).loadMore();
+    }
   }
 
   @override
@@ -131,25 +150,38 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
                     onRefresh: () =>
                         ref.read(adminReportListProvider.notifier).refresh(),
                     child: ListView.separated(
+                      controller: _scrollController,
                       padding: const EdgeInsets.all(16),
-                      itemCount: state.reports.length,
+                      itemCount:
+                          state.reports.length + (state.isLoadingMore ? 1 : 0),
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 8),
-                      itemBuilder: (context, index) => _ReportCard(
-                        report: state.reports[index],
-                        onTap: () async {
-                          final changed = await context.push<bool>(
-                            AppRoutes.adminReportDetail(
-                              state.reports[index].reportId,
+                      itemBuilder: (context, index) {
+                        if (index >= state.reports.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           );
-                          if (changed == true && context.mounted) {
-                            ref
-                                .read(adminReportListProvider.notifier)
-                                .refresh();
-                          }
-                        },
-                      ),
+                        }
+
+                        return _ReportCard(
+                          report: state.reports[index],
+                          onTap: () async {
+                            final changed = await context.push<bool>(
+                              AppRoutes.adminReportDetail(
+                                state.reports[index].reportId,
+                              ),
+                            );
+                            if (changed == true && context.mounted) {
+                              ref
+                                  .read(adminReportListProvider.notifier)
+                                  .refresh();
+                            }
+                          },
+                        );
+                      },
                     ),
                   ),
           ),
@@ -180,12 +212,13 @@ class _ReportCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 _TypeBadge(report.targetTypeLabel),
-                const SizedBox(width: 8),
                 _ReasonBadge(report.reportReasonLabel),
-                const Spacer(),
                 Text(
                   _formatDate(report.createdAt),
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -196,32 +229,20 @@ class _ReportCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            Row(
+            Wrap(
+              spacing: 12,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Icon(Icons.person_outline, size: 14, color: c.iconSecondary),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    '신고자: ${report.reporterNickname}',
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
-                      color: c.textSecondary,
-                    ),
-                  ),
+                _ReportMeta(
+                  icon: Icons.person_outline,
+                  text: '신고자: ${report.reporterNickname}',
+                  c: c,
                 ),
-                const SizedBox(width: 12),
-                Icon(Icons.gavel_rounded, size: 14, color: c.iconSecondary),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    '피신고자: ${report.reportedUserNickname}',
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
-                      color: c.textSecondary,
-                    ),
-                  ),
+                _ReportMeta(
+                  icon: Icons.gavel_rounded,
+                  text: '피신고자: ${report.reportedUserNickname}',
+                  c: c,
                 ),
               ],
             ),
@@ -242,6 +263,42 @@ class _ReportCard extends StatelessWidget {
 
   String _formatDate(DateTime dt) =>
       '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+}
+
+class _ReportMeta extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final AppColors c;
+
+  const _ReportMeta({
+    required this.icon,
+    required this.text,
+    required this.c,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 260),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: c.iconSecondary),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                color: c.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _TypeBadge extends StatelessWidget {

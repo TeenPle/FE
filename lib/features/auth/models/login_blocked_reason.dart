@@ -12,6 +12,9 @@ enum LoginBlockedReason {
 
   /// 학교 인증 상태가 비정상
   invalid,
+
+  /// 탈퇴 유예 기간 중 (7일 이내 복구 가능)
+  pendingDeletion,
 }
 
 extension LoginBlockedReasonX on LoginBlockedReason {
@@ -26,6 +29,8 @@ extension LoginBlockedReasonX on LoginBlockedReason {
         return '학교 인증이 필요해요.';
       case LoginBlockedReason.invalid:
         return '인증 상태를 확인할 수 없어요.';
+      case LoginBlockedReason.pendingDeletion:
+        return '탈퇴 대기 중인 계정이에요.';
     }
   }
 
@@ -40,6 +45,8 @@ extension LoginBlockedReasonX on LoginBlockedReason {
         return '학교 인증 정보가 아직 제출되지 않았어요.\n회원가입 후 학교 인증 절차를 완료해주세요.';
       case LoginBlockedReason.invalid:
         return '학교 인증 상태를 확인할 수 없어요.\n잠시 후 다시 시도하거나 관리자에게 문의해주세요.';
+      case LoginBlockedReason.pendingDeletion:
+        return '탈퇴 요청 후 7일 이내에 복구할 수 있어요.\n계속 이용하시려면 계정을 복구해주세요.';
     }
   }
 }

@@ -217,6 +217,7 @@ class _TitleLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -247,30 +248,22 @@ class _TitleLine extends StatelessWidget {
                     letterSpacing: 0,
                   ),
                 ),
+                if (hasPoll)
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.how_to_vote_outlined,
+                        size: 13,
+                        color: c.iconSecondary,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
-        if (hasPoll) ...[
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEDF5FF),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: const Color(0xFF229BF3), width: 1),
-            ),
-            child: Text(
-              '투표',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF229BF3),
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

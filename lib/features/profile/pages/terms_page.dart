@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 
 const _termsUrl = 'https://www.notion.so/7715bdc3bc8c479c859d6716aa4bfeac';
 
@@ -17,9 +18,7 @@ class TermsPage extends StatelessWidget {
 
     if (!context.mounted || opened) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('전체 이용약관을 열 수 없어요. 잠시 후 다시 시도해 주세요.')),
-    );
+    showContextSnackBar(context, '전체 이용약관을 열 수 없어요. 잠시 후 다시 시도해 주세요.');
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
+import 'package:teenple_frontend/core/widgets/app_snack_bar.dart';
 import 'package:flutter/services.dart';
 
 /// URL을 감지해 탭 시 외부 이동 경고 다이얼로그를 띄우는 텍스트 위젯.
@@ -140,9 +141,7 @@ void _showExternalLinkWarning(BuildContext context, String url) {
             Navigator.pop(ctx);
             Clipboard.setData(ClipboardData(text: url));
             if (context.mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('링크가 클립보드에 복사됐어요.')));
+              showContextSnackBar(context, '링크가 클립보드에 복사됐어요.');
             }
           },
           child: Text(

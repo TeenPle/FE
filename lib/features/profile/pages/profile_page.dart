@@ -97,7 +97,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    state.errorMessage ?? '프로필을 불러오지 못했습니다.',
+                    state.errorMessage ?? '프로필을 불러오지 못했어요.',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: c.textMuted,
                     ),
@@ -494,8 +494,8 @@ class _AvatarWidget extends StatelessWidget {
           width: 80,
           height: 80,
           fit: BoxFit.cover,
-          placeholder: (_, __) => _defaultAvatar(),
-          errorWidget: (_, __, ___) => _defaultAvatar(),
+          placeholder: (_, _) => _defaultAvatar(),
+          errorWidget: (_, _, _) => _defaultAvatar(),
         ),
       );
     }
@@ -818,7 +818,7 @@ class _ProfileNotificationSettingsCard extends ConsumerWidget {
           ),
         ],
       ),
-      error: (_, __) => const _ProfileSettingsCard(
+      error: (_, _) => const _ProfileSettingsCard(
         children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -885,7 +885,7 @@ class _ProfileNotificationSettingsCard extends ConsumerWidget {
         .updateSetting(patch)
         .catchError((_) {
           showAppSnackBar(
-            '설정 저장에 실패했습니다.',
+            '설정 저장에 실패했어요.',
             backgroundColor: const Color(0xFFE05C7B),
           );
         });
@@ -943,7 +943,7 @@ class _ProfileNotificationToggleTile extends StatelessWidget {
           Switch.adaptive(
             value: active,
             onChanged: enabled ? onChanged : null,
-            activeColor: const Color(0xFF14A3F7),
+            activeThumbColor: const Color(0xFF14A3F7),
           ),
         ],
       ),

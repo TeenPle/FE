@@ -119,7 +119,7 @@ class _PollOptionTile extends StatelessWidget {
               widthFactor: fillRatio,
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF14A3F7).withOpacity(0.16),
+                  color: const Color(0xFF14A3F7).withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),

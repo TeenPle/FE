@@ -24,23 +24,23 @@ class EmailApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('이메일 중복 확인에 실패했습니다.');
+      throw Exception('이메일 중복 확인에 실패했어요.');
     }
 
     final result = data['result'];
 
     if (result is! Map<String, dynamic>) {
-      throw Exception('result 형식이 올바르지 않습니다.');
+      throw Exception('result 형식이 올바르지 않아요.');
     }
 
     final exists = result['exists'];
 
     if (exists is! bool) {
-      throw Exception('exists 값이 올바르지 않습니다.');
+      throw Exception('exists 값이 올바르지 않아요.');
     }
 
     return exists;
@@ -56,11 +56,11 @@ class EmailApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('인증번호 전송에 실패했습니다.');
+      throw Exception('인증번호 전송에 실패했어요.');
     }
   }
 
@@ -79,23 +79,23 @@ class EmailApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('인증번호 확인에 실패했습니다.');
+      throw Exception('인증번호 확인에 실패했어요.');
     }
 
     final result = data['result'];
 
     if (result is! Map<String, dynamic>) {
-      throw Exception('result 형식이 올바르지 않습니다.');
+      throw Exception('result 형식이 올바르지 않아요.');
     }
 
     final verificationToken = result['verificationToken'];
 
     if (verificationToken is! String) {
-      throw Exception('verificationToken 형식이 올바르지 않습니다.');
+      throw Exception('verificationToken 형식이 올바르지 않아요.');
     }
 
     return verificationToken;

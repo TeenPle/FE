@@ -305,11 +305,11 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     final days = int.tryParse(_penaltyController.text.trim());
     final comment = _commentController.text.trim();
     if (days == null || days < 1) {
-      showAppSnackBar('제재 기간을 1일 이상 입력해주세요.');
+      showAppSnackBar('제재 기간을 1일 이상 입력해 주세요.');
       return;
     }
     if (comment.isEmpty) {
-      showAppSnackBar('처리 사유를 입력해주세요.');
+      showAppSnackBar('처리 사유를 입력해 주세요.');
       return;
     }
     _confirm(
@@ -325,7 +325,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   void _onReject(BuildContext context) {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      showAppSnackBar('처리 사유를 입력해주세요.');
+      showAppSnackBar('처리 사유를 입력해 주세요.');
       return;
     }
     _confirm(
@@ -341,7 +341,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
   void _onWarn(BuildContext context) {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
-      showAppSnackBar('처리 사유를 입력해주세요.');
+      showAppSnackBar('처리 사유를 입력해 주세요.');
       return;
     }
     _confirm(

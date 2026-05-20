@@ -46,7 +46,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
     } catch (_) {
       state = state.copyWith(
         isLoadingRecent: false,
-        errorMessage: '최근 검색어를 불러오지 못했습니다.',
+        errorMessage: '최근 검색어를 불러오지 못했어요.',
       );
     }
   }
@@ -121,7 +121,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
       debugPrint('검색 실패: $e');
       debugPrintStack(stackTrace: stackTrace);
 
-      state = state.copyWith(isLoading: false, errorMessage: '검색에 실패했습니다.');
+      state = state.copyWith(isLoading: false, errorMessage: '검색에 실패했어요.');
     }
   }
 
@@ -155,7 +155,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: '검색 결과를 더 불러오지 못했습니다.',
+        errorMessage: '검색 결과를 더 불러오지 못했어요.',
       );
     }
   }
@@ -167,7 +167,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
       state = state.copyWith(recentKeywords: recentKeywords);
     } catch (_) {
-      state = state.copyWith(errorMessage: '최근 검색어를 삭제하지 못했습니다.');
+      state = state.copyWith(errorMessage: '최근 검색어를 삭제하지 못했어요.');
     }
   }
 
@@ -178,7 +178,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
       state = state.copyWith(recentKeywords: recentKeywords);
     } catch (_) {
-      state = state.copyWith(errorMessage: '최근 검색어를 초기화하지 못했습니다.');
+      state = state.copyWith(errorMessage: '최근 검색어를 초기화하지 못했어요.');
     }
   }
 

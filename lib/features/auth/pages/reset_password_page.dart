@@ -193,7 +193,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 onChanged: (_) => setState(() {}),
                 decoration: _inputDecoration(
                   context,
-                  hintText: '새 비밀번호를 입력해주세요.',
+                  hintText: '새 비밀번호를 입력해 주세요.',
                   obscure: _obscureNew,
                   onToggle: () => setState(() => _obscureNew = !_obscureNew),
                 ),
@@ -236,7 +236,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               if (_confirmCtrl.text.isNotEmpty && !_isPasswordMatch) ...[
                 SizedBox(height: 8),
                 Text(
-                  '비밀번호가 일치하지 않습니다.',
+                  '비밀번호가 일치하지 않아요.',
                   style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 ),
               ],

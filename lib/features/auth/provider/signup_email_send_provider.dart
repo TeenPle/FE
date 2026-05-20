@@ -21,7 +21,7 @@ class SignupEmailSendNotifier extends StateNotifier<SignupEmailSendState> {
     final trimmed = email.trim();
 
     if (trimmed.isEmpty) {
-      state = state.copyWith(errorMessage: '이메일이 비어 있습니다.');
+      state = state.copyWith(errorMessage: '이메일이 비어 있어요.');
       return;
     }
 
@@ -39,13 +39,13 @@ class SignupEmailSendNotifier extends StateNotifier<SignupEmailSendState> {
       state = state.copyWith(
         isLoading: false,
         isSuccess: false,
-        errorMessage: e.message ?? '인증번호 전송에 실패했습니다.',
+        errorMessage: e.message ?? '인증번호 전송에 실패했어요.',
       );
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
         isSuccess: false,
-        errorMessage: '인증번호 전송에 실패했습니다.',
+        errorMessage: '인증번호 전송에 실패했어요.',
       );
     }
   }

@@ -35,21 +35,22 @@ class FindPasswordNotifier extends StateNotifier<FindPasswordState> {
       state = state.copyWith(isSendLoading: false, isSendSuccess: true);
     } on DioException catch (e) {
       final data = e.response?.data;
-      String message = '인증번호 발송에 실패했습니다.';
+      String message = '인증번호 발송에 실패했어요.';
 
       if (data is Map<String, dynamic>) {
         final code = data['code'];
-        if (code == 'USER4003')
-          message = '가입되지 않은 이메일입니다.';
-        else if (data['message'] is String)
+        if (code == 'USER4003') {
+          message = '가입되지 않은 이메일이에요.';
+        } else if (data['message'] is String) {
           message = data['message'] as String;
+        }
       }
 
       state = state.copyWith(isSendLoading: false, sendError: message);
     } catch (_) {
       state = state.copyWith(
         isSendLoading: false,
-        sendError: '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
+        sendError: '인증번호 발송에 실패했어요. 다시 시도해 주세요.',
       );
     }
   }
@@ -66,7 +67,7 @@ class FindPasswordNotifier extends StateNotifier<FindPasswordState> {
       state = state.copyWith(isVerifyLoading: false, verificationToken: token);
     } on DioException catch (e) {
       final data = e.response?.data;
-      String message = '인증번호가 올바르지 않습니다.';
+      String message = '인증번호가 올바르지 않아요.';
 
       if (data is Map<String, dynamic> && data['message'] is String) {
         message = data['message'] as String;
@@ -76,7 +77,7 @@ class FindPasswordNotifier extends StateNotifier<FindPasswordState> {
     } catch (_) {
       state = state.copyWith(
         isVerifyLoading: false,
-        verifyError: '인증 확인에 실패했습니다. 다시 시도해주세요.',
+        verifyError: '인증 확인에 실패했어요. 다시 시도해 주세요.',
       );
     }
   }

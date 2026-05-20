@@ -39,7 +39,7 @@ class InquiryListNotifier extends StateNotifier<InquiryListState> {
       final inquiries = await _api.getMyInquiries();
       state = state.copyWith(inquiries: inquiries, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '문의 내역을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '문의 내역을 불러오지 못했어요.');
     }
   }
 }
@@ -82,7 +82,7 @@ class InquiryDetailNotifier extends StateNotifier<InquiryDetailState> {
       final inquiry = await _api.getMyInquiry(inquiryId);
       state = state.copyWith(inquiry: inquiry, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '문의 내용을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '문의 내용을 불러오지 못했어요.');
     }
   }
 }
@@ -132,7 +132,7 @@ class InquiryCreateNotifier extends StateNotifier<InquiryCreateState> {
       await _api.createInquiry(title: title, content: content);
       state = state.copyWith(isSubmitting: false, submitted: true);
     } catch (_) {
-      state = state.copyWith(isSubmitting: false, error: '문의를 접수하지 못했습니다.');
+      state = state.copyWith(isSubmitting: false, error: '문의를 접수하지 못했어요.');
     }
   }
 

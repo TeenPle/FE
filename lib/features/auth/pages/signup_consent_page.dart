@@ -7,6 +7,7 @@ import 'auth_bottom_action_area.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/haptics.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 
 import '../../../app/routes.dart';
 
@@ -70,9 +71,7 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
 
     if (!mounted || opened) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('약관 페이지를 열 수 없습니다. 잠시 후 다시 시도해주세요.')),
-    );
+    showContextSnackBar(context, '약관 페이지를 열 수 없어요. 잠시 후 다시 시도해 주세요.');
   }
 
   @override

@@ -358,7 +358,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                         child: ListView.separated(
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           itemCount: searchState.schools.length,
-                          separatorBuilder: (_, __) => const Divider(
+                          separatorBuilder: (_, _) => const Divider(
                             height: 1,
                             thickness: 1,
                             color: Color(0xFFF5F6F8),

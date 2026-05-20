@@ -107,10 +107,10 @@ class BlockSummaryTile extends ConsumerWidget {
 
     try {
       await ref.read(blockSummaryProvider.notifier).unblockAll();
-      showAppSnackBar('차단이 모두 해제되었습니다.');
+      showAppSnackBar('차단을 모두 해제했어요.');
     } catch (_) {
       showAppSnackBar(
-        '차단 해제에 실패했습니다.',
+        '차단 해제에 실패했어요.',
         backgroundColor: const Color(0xFFE05C7B),
       );
     }

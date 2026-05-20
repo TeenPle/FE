@@ -48,7 +48,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        showAppSnackBar('회원가입을 완료했습니다.');
+        showAppSnackBar('회원가입을 완료했어요.');
       });
     }
 
@@ -60,13 +60,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        showAppSnackBar('비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.');
+        showAppSnackBar('비밀번호가 변경됐어요. 새 비밀번호로 로그인해 주세요.');
       });
     }
-  }
-
-  void _showComingSoonSnackBar(String label) {
-    showAppSnackBar('$label 기능은 준비 중입니다.');
   }
 
   Future<void> _submit() async {
@@ -203,7 +199,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             setState(() {});
                           },
                           decoration: InputDecoration(
-                            hintText: '이메일을 입력해주세요.',
+                            hintText: '이메일을 입력해 주세요.',
                             hintStyle: AppTextStyles.captionLarge.copyWith(
                               color: c.textHint,
                             ),
@@ -256,7 +252,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             setState(() {});
                           },
                           decoration: InputDecoration(
-                            hintText: '비밀번호를 입력해주세요.',
+                            hintText: '비밀번호를 입력해 주세요.',
                             hintStyle: AppTextStyles.captionLarge.copyWith(
                               color: c.textHint,
                             ),

@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 채팅방별 알림 OFF 목록을 로컬에 저장/불러오는 저장소.
-/// Set<int> 형태로 관리하며 roomId 단위로 on/off 를 기록한다.
+/// Set&lt;int&gt; 형태로 관리하며 roomId 단위로 on/off 를 기록한다.
 class MutedRoomsStorage {
   static const _key = 'muted_room_ids';
 

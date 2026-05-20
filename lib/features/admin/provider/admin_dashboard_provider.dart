@@ -63,7 +63,7 @@ class AdminDashboardNotifier extends StateNotifier<AdminDashboardState> {
         isLoading: false,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '관리자 대기 건수를 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '관리자 대기 건수를 불러오지 못했어요.');
     }
   }
 }

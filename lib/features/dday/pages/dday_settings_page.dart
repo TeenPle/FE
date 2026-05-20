@@ -38,7 +38,7 @@ class DDaySettingsPage extends ConsumerWidget {
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
               itemCount: ddays.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (ctx, i) => _DDayTile(
                 dday: ddays[i],
                 onEdit: () => _showEditSheet(context, notifier, ddays[i]),

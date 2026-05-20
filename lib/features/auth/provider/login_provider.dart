@@ -44,7 +44,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
     if (trimmedEmail.isEmpty) {
       state = state.copyWith(
-        errorMessage: '이메일을 입력해주세요.',
+        errorMessage: '이메일을 입력해 주세요.',
         clearLoginResponse: true,
         clearBlockedReason: true,
       );
@@ -53,7 +53,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
     if (trimmedPassword.isEmpty) {
       state = state.copyWith(
-        errorMessage: '비밀번호를 입력해주세요.',
+        errorMessage: '비밀번호를 입력해 주세요.',
         clearLoginResponse: true,
         clearBlockedReason: true,
       );
@@ -117,7 +117,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '로그인에 실패했습니다. 다시 시도해주세요.',
+        errorMessage: '로그인에 실패했어요. 다시 시도해 주세요.',
       );
     }
   }
@@ -159,29 +159,37 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }
 
   String? _extractBackendCode(dynamic data) {
-    if (data is! Map<String, dynamic>) return null;
+    if (data is! Map<String, dynamic>) {
+      return null;
+    }
     final directCode = data['code'];
-    if (directCode is String && directCode.trim().isNotEmpty)
+    if (directCode is String && directCode.trim().isNotEmpty) {
       return directCode.trim();
+    }
     final result = data['result'];
     if (result is Map<String, dynamic>) {
       final nestedCode = result['code'];
-      if (nestedCode is String && nestedCode.trim().isNotEmpty)
+      if (nestedCode is String && nestedCode.trim().isNotEmpty) {
         return nestedCode.trim();
+      }
     }
     return null;
   }
 
   String? _extractBackendMessage(dynamic data) {
-    if (data is! Map<String, dynamic>) return null;
+    if (data is! Map<String, dynamic>) {
+      return null;
+    }
     final directMessage = data['message'];
-    if (directMessage is String && directMessage.trim().isNotEmpty)
+    if (directMessage is String && directMessage.trim().isNotEmpty) {
       return directMessage.trim();
+    }
     final result = data['result'];
     if (result is Map<String, dynamic>) {
       final nestedMessage = result['message'];
-      if (nestedMessage is String && nestedMessage.trim().isNotEmpty)
+      if (nestedMessage is String && nestedMessage.trim().isNotEmpty) {
         return nestedMessage.trim();
+      }
     }
     return null;
   }
@@ -208,22 +216,22 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
     switch (code) {
       case 'USER4003':
-        return '존재하지 않는 이메일입니다.';
+        return '존재하지 않는 이메일이에요.';
       case 'USER4004':
-        return '비밀번호가 일치하지 않습니다.';
+        return '비밀번호가 일치하지 않아요.';
     }
 
     if (message != null && message.isNotEmpty) return message;
-    if (statusCode == 401) return '이메일 또는 비밀번호를 다시 확인해주세요.';
-    if (statusCode == 403) return '로그인이 제한된 계정입니다.';
-    if (statusCode == 500) return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    if (statusCode == 401) return '이메일 또는 비밀번호를 다시 확인해 주세요.';
+    if (statusCode == 403) return '로그인이 제한된 계정이에요.';
+    if (statusCode == 500) return '서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
 
     if (e.type == DioExceptionType.connectionError ||
         e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return '네트워크 상태를 확인한 뒤 다시 시도해주세요.';
+      return '네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
     }
 
-    return '로그인에 실패했습니다. 다시 시도해주세요.';
+    return '로그인에 실패했어요. 다시 시도해 주세요.';
   }
 }

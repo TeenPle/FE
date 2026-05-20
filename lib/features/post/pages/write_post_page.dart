@@ -154,7 +154,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   Future<void> _pickFiles() async {
     final remaining = _maxFiles - _attachedCount;
     if (remaining <= 0) {
-      showAppSnackBar('첨부파일은 최대 5개까지 가능합니다.');
+      showAppSnackBar('첨부파일은 최대 5개까지 가능해요.');
       return;
     }
 
@@ -172,7 +172,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         .map((f) => f.name)
         .toList();
     if (oversized.isNotEmpty && mounted) {
-      showAppSnackBar('10MB를 초과한 파일은 제외됩니다.\n${oversized.join(', ')}');
+      showAppSnackBar('10MB를 초과한 파일은 제외돼요.\n${oversized.join(', ')}');
     }
 
     final valid = result.files
@@ -249,7 +249,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     } catch (_) {
       if (!mounted) return;
       showAppSnackBar(
-        widget.isEditMode ? '게시글 수정에 실패했습니다.' : '게시글 등록에 실패했습니다.',
+        widget.isEditMode ? '게시글 수정에 실패했어요.' : '게시글 등록에 실패했어요.',
         backgroundColor: const Color(0xFFE05C7B),
       );
     } finally {
@@ -339,7 +339,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: widget.availableBoards.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       Divider(height: 1, color: context.colors.borderSubtle),
                   itemBuilder: (context, index) {
                     final board = widget.availableBoards[index];
@@ -393,6 +393,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   Widget build(BuildContext context) {
     final titleText = widget.isEditMode ? '게시글 수정' : '글 작성';
     final submitText = widget.isEditMode ? '수정' : '등록';
+    final navigator = Navigator.of(context);
 
     return PopScope(
       canPop: false,
@@ -400,7 +401,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         if (didPop) return;
         final canLeave = await _onWillPop();
         if (!mounted) return;
-        if (canLeave) Navigator.pop(context);
+        if (canLeave) navigator.pop();
       },
       child: Scaffold(
         backgroundColor: context.colors.pageBg,
@@ -412,7 +413,9 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 submitText: _isSubmitting ? '저장 중' : submitText,
                 canSubmit: _canSubmit,
                 onClose: () async {
-                  if (await _onWillPop() && mounted) Navigator.pop(context);
+                  if (await _onWillPop() && mounted) {
+                    navigator.pop();
+                  }
                 },
                 onSubmit: _submit,
               ),
@@ -903,7 +906,7 @@ class _AttachmentPreviewStrip extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: itemCount,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           if (index < existingMedia.length) {
             final media = existingMedia[index];
@@ -1216,9 +1219,9 @@ class _ExistingMediaThumb extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,
-              placeholder: (_, __) =>
+              placeholder: (_, _) =>
                   Container(color: context.colors.borderSubtle),
-              errorWidget: (_, __, ___) => const Icon(
+              errorWidget: (_, _, _) => const Icon(
                 Icons.broken_image_rounded,
                 color: Color(0xFF9AA7B2),
               ),
@@ -1290,7 +1293,7 @@ class _ThumbFrame extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(12),
                   bottomRight: Radius.circular(12),
@@ -1316,7 +1319,7 @@ class _ThumbFrame extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.55),
+                color: Colors.black.withValues(alpha: 0.55),
                 shape: BoxShape.circle,
               ),
               child: const Icon(

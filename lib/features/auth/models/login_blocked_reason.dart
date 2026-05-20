@@ -35,11 +35,11 @@ extension LoginBlockedReasonX on LoginBlockedReason {
       case LoginBlockedReason.pending:
         return '학교 인증이 아직 승인되지 않았어요.\n관리자 확인이 끝날 때까지 조금만 기다려주세요.';
       case LoginBlockedReason.rejected:
-        return '제출한 학교 인증 정보가 승인되지 않았어요.\n반려 사유를 확인하고 다시 인증을 요청해주세요.';
+        return '제출한 학교 인증 정보가 승인되지 않았어요.\n반려 사유를 확인하고 다시 인증을 요청해 주세요.';
       case LoginBlockedReason.required:
-        return '학교 인증 정보가 아직 제출되지 않았어요.\n회원가입 후 학교 인증 절차를 완료해주세요.';
+        return '학교 인증 정보가 아직 제출되지 않았어요.\n회원가입 후 학교 인증 절차를 완료해 주세요.';
       case LoginBlockedReason.invalid:
-        return '학교 인증 상태를 확인할 수 없어요.\n잠시 후 다시 시도하거나 관리자에게 문의해주세요.';
+        return '학교 인증 상태를 확인할 수 없어요.\n잠시 후 다시 시도하거나 관리자에게 문의해 주세요.';
     }
   }
 }

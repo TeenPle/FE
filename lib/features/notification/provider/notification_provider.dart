@@ -107,8 +107,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       await _api.markAllAsRead();
       state = state.copyWith(unreadCount: 0);
     } catch (e) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('[Notification] markAllAsReadServerOnly error: $e');
+      }
     }
   }
 

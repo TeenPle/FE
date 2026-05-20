@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
+import 'package:teenple_frontend/core/widgets/app_snack_bar.dart';
 import 'package:flutter/services.dart';
 
 /// 위기 키워드 감지 시 노출하는 위기상담 안내 배너.
@@ -70,9 +71,7 @@ class CrisisBanner extends StatelessWidget {
           GestureDetector(
             onTap: () {
               Clipboard.setData(const ClipboardData(text: '1393'));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('1393이 클립보드에 복사되었습니다.')),
-              );
+              showContextSnackBar(context, '1393이 클립보드에 복사됐어요.');
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

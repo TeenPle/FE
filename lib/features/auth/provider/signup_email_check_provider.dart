@@ -50,13 +50,13 @@ class SignupEmailCheckNotifier extends StateNotifier<SignupEmailCheckState> {
       state = state.copyWith(
         isLoading: false,
         checkedEmail: trimmed,
-        errorMessage: e.message ?? '이메일 확인에 실패했습니다.',
+        errorMessage: e.message ?? '이메일 확인에 실패했어요.',
       );
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
         checkedEmail: trimmed,
-        errorMessage: '이메일 확인에 실패했습니다.',
+        errorMessage: '이메일 확인에 실패했어요.',
       );
     }
   }

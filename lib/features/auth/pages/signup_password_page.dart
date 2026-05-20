@@ -195,7 +195,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
 
           /// 보조 문구
           Text(
-            'TeenPle에서 사용할 비밀번호를 입력해주세요.',
+            'TeenPle에서 사용할 비밀번호를 입력해 주세요.',
             style: AppTextStyles.bodyMedium.copyWith(
               height: 1.5,
               color: context.colors.textBody,
@@ -234,7 +234,7 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
                 Expanded(
                   child: Text(
                     signupFormState.email.isEmpty
-                        ? '이메일 정보가 없습니다.'
+                        ? '이메일 정보가 없어요.'
                         : signupFormState.email,
                     style: signupFormState.email.isEmpty
                         ? AppTextStyles.captionLarge.copyWith(

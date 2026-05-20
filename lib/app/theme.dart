@@ -131,8 +131,12 @@ ThemeData buildTeenpleLightTheme() {
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-      contentTextStyle: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+      backgroundColor: const Color(0xFF171A20),
+      contentTextStyle: AppTextStyles.labelMedium.copyWith(
+        color: const Color(0xFFE7ECF2),
+      ),
       behavior: SnackBarBehavior.floating,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -195,8 +199,12 @@ ThemeData buildTeenpleDarkTheme() {
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-      contentTextStyle: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+      backgroundColor: const Color(0xFF171A20),
+      contentTextStyle: AppTextStyles.labelMedium.copyWith(
+        color: const Color(0xFFE7ECF2),
+      ),
       behavior: SnackBarBehavior.floating,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     textButtonTheme: TextButtonThemeData(

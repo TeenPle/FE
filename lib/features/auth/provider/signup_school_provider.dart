@@ -45,13 +45,13 @@ class SignupSchoolNotifier extends StateNotifier<SignupSchoolState> {
       state = state.copyWith(
         isLoading: false,
         schools: const [],
-        errorMessage: e.message ?? '학교 검색에 실패했습니다.',
+        errorMessage: e.message ?? '학교 검색에 실패했어요.',
       );
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
         schools: const [],
-        errorMessage: '학교 검색에 실패했습니다.',
+        errorMessage: '학교 검색에 실패했어요.',
       );
     }
   }

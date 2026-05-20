@@ -225,7 +225,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                       onChanged: (_) => setState(() {}),
                       decoration: _inputDecoration(
                         context,
-                        hintText: '가입한 이메일을 입력해주세요.',
+                        hintText: '가입한 이메일을 입력해 주세요.',
                         icon: Icons.mail_outline_rounded,
                       ),
                     ),

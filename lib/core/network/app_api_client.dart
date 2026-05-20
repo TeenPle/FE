@@ -110,10 +110,7 @@ class AppApiClient {
           throw ApiException(message, statusCode: e.response?.statusCode);
         }
       }
-      throw ApiException(
-        '네트워크 오류가 발생했습니다.',
-        statusCode: e.response?.statusCode,
-      );
+      throw ApiException('네트워크 오류가 발생했어요.', statusCode: e.response?.statusCode);
     }
   }
 
@@ -130,7 +127,7 @@ class AppApiClient {
   Map<String, dynamic> _decodeResponse(Response<dynamic> response) {
     final data = response.data;
     if (data is! Map<String, dynamic>) {
-      throw ApiException('올바르지 않은 응답 형식입니다.', statusCode: response.statusCode);
+      throw ApiException('응답 형식이 올바르지 않아요.', statusCode: response.statusCode);
     }
     return data;
   }

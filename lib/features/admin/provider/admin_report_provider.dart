@@ -42,7 +42,7 @@ class AdminReportListNotifier extends StateNotifier<AdminReportListState> {
       final reports = await _api.getReports(status: status);
       state = state.copyWith(reports: reports, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '신고 목록을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '신고 목록을 불러오지 못했어요.');
     }
   }
 
@@ -99,7 +99,7 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
       final detail = await _api.getReportDetail(reportId);
       state = state.copyWith(detail: detail, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '신고 정보를 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '신고 정보를 불러오지 못했어요.');
     }
   }
 
@@ -107,10 +107,10 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
       await _api.approveReport(reportId, penaltyDays, adminComment);
-      state = state.copyWith(isActing: false, successMessage: '제재가 적용되었습니다.');
+      state = state.copyWith(isActing: false, successMessage: '제재를 적용했어요.');
       return true;
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '승인 처리에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '승인 처리에 실패했어요.');
       return false;
     }
   }
@@ -119,10 +119,10 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
       await _api.rejectReport(reportId, adminComment);
-      state = state.copyWith(isActing: false, successMessage: '신고를 거절했습니다.');
+      state = state.copyWith(isActing: false, successMessage: '신고를 거절했어요.');
       return true;
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '거절 처리에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '거절 처리에 실패했어요.');
       return false;
     }
   }
@@ -131,10 +131,10 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
       await _api.warnReport(reportId, adminComment);
-      state = state.copyWith(isActing: false, successMessage: '경고를 발령했습니다.');
+      state = state.copyWith(isActing: false, successMessage: '경고를 발령했어요.');
       return true;
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '경고 발령에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '경고 발령에 실패했어요.');
       return false;
     }
   }

@@ -35,17 +35,17 @@ class AdminVerificationApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('목록 조회에 실패했습니다.');
+      throw Exception('목록 조회에 실패했어요.');
     }
 
     final result = data['result'];
 
     if (result is! List) {
-      throw Exception('목록 데이터 형식이 올바르지 않습니다.');
+      throw Exception('목록 데이터 형식이 올바르지 않아요.');
     }
 
     return result
@@ -66,17 +66,17 @@ class AdminVerificationApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('상세 조회에 실패했습니다.');
+      throw Exception('상세 조회에 실패했어요.');
     }
 
     final result = data['result'];
 
     if (result is! Map<String, dynamic>) {
-      throw Exception('상세 데이터 형식이 올바르지 않습니다.');
+      throw Exception('상세 데이터 형식이 올바르지 않아요.');
     }
 
     return VerificationRequestDetailModel.fromJson(result);
@@ -95,11 +95,11 @@ class AdminVerificationApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('승인 처리에 실패했습니다.');
+      throw Exception('승인 처리에 실패했어요.');
     }
   }
 
@@ -116,11 +116,11 @@ class AdminVerificationApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('거절 처리에 실패했습니다.');
+      throw Exception('거절 처리에 실패했어요.');
     }
   }
 }

@@ -37,17 +37,17 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
     final confirm = _confirmCtrl.text.trim();
 
     if (current.isEmpty || newPw.isEmpty || confirm.isEmpty) {
-      showAppSnackBar('모든 항목을 입력해주세요.');
+      showAppSnackBar('모든 항목을 입력해 주세요.');
       return;
     }
 
     if (newPw != confirm) {
-      showAppSnackBar('새 비밀번호가 일치하지 않습니다.');
+      showAppSnackBar('새 비밀번호가 일치하지 않아요.');
       return;
     }
 
     if (newPw.length < 8) {
-      showAppSnackBar('비밀번호는 8자 이상이어야 합니다.');
+      showAppSnackBar('비밀번호는 8자 이상이어야 해요.');
       return;
     }
 
@@ -56,7 +56,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
         .updatePassword(currentPassword: current, newPassword: newPw);
 
     if (ok && mounted) {
-      showAppSnackBar('비밀번호가 변경되었습니다.');
+      showAppSnackBar('비밀번호가 변경됐어요.');
       context.pop();
     }
   }

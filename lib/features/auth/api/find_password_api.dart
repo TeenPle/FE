@@ -25,11 +25,11 @@ class FindPasswordApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('인증번호 발송에 실패했습니다.');
+      throw Exception('인증번호 발송에 실패했어요.');
     }
   }
 
@@ -51,11 +51,11 @@ class FindPasswordApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('비밀번호 재설정에 실패했습니다.');
+      throw Exception('비밀번호 재설정에 실패했어요.');
     }
   }
 }

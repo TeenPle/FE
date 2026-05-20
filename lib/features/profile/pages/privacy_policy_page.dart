@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 
 const _privacyPolicyUrl =
     'https://www.notion.so/72fe902f12d6402e8ba4c51733d9558f';
@@ -18,9 +19,7 @@ class PrivacyPolicyPage extends StatelessWidget {
 
     if (!context.mounted || opened) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('전체 개인정보처리방침을 열 수 없습니다. 잠시 후 다시 시도해주세요.')),
-    );
+    showContextSnackBar(context, '전체 개인정보처리방침을 열 수 없어요. 잠시 후 다시 시도해 주세요.');
   }
 
   @override

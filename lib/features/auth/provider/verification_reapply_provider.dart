@@ -32,7 +32,7 @@ class VerificationReapplyNotifier
     final trimmedPassword = password.trim();
 
     if (trimmedEmail.isEmpty || trimmedPassword.isEmpty) {
-      state = state.copyWith(errorMessage: '로그인 정보가 없어 반려 사유를 조회할 수 없습니다.');
+      state = state.copyWith(errorMessage: '로그인 정보가 없어 반려 사유를 조회할 수 없어요.');
       return;
     }
 
@@ -85,12 +85,12 @@ class VerificationReapplyNotifier
     }
 
     if (trimmedEmail.isEmpty || trimmedPassword.isEmpty) {
-      state = state.copyWith(submitErrorMessage: '로그인 정보가 없어 재요청할 수 없습니다.');
+      state = state.copyWith(submitErrorMessage: '로그인 정보가 없어 재요청할 수 없어요.');
       return;
     }
 
     if (state.selectedFilePath.trim().isEmpty) {
-      state = state.copyWith(submitErrorMessage: '학생증 이미지를 선택해주세요.');
+      state = state.copyWith(submitErrorMessage: '학생증 이미지를 선택해 주세요.');
       return;
     }
 
@@ -158,27 +158,27 @@ class VerificationReapplyNotifier
     }
 
     if (statusCode == 400) {
-      return '입력값을 다시 확인해주세요.';
+      return '입력값을 다시 확인해 주세요.';
     }
 
     if (statusCode == 404) {
-      return '사용자 또는 학교 정보를 찾을 수 없습니다.';
+      return '사용자 또는 학교 정보를 찾을 수 없어요.';
     }
 
     if (statusCode == 409) {
-      return '이미 심사중인 요청이 있습니다.';
+      return '이미 심사 중인 요청이 있어요.';
     }
 
     if (statusCode == 500) {
-      return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      return '서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
     }
 
     if (e.type == DioExceptionType.connectionError ||
         e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return '네트워크 상태를 확인한 뒤 다시 시도해주세요.';
+      return '네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
     }
 
-    return '처리에 실패했습니다. 다시 시도해주세요.';
+    return '처리에 실패했어요. 다시 시도해 주세요.';
   }
 }

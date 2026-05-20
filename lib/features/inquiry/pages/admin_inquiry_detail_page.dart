@@ -45,7 +45,7 @@ class _AdminInquiryDetailPageState
 
     ref.listen(adminInquiryDetailProvider(widget.inquiryId), (_, next) {
       if (next.answered) {
-        showAppSnackBar('답변을 등록했습니다.');
+        showAppSnackBar('답변을 등록했어요.');
         Navigator.of(context).pop(true);
       }
       if (next.error != null) {
@@ -74,7 +74,7 @@ class _AdminInquiryDetailPageState
           : inquiry == null
           ? Center(
               child: Text(
-                state.error ?? '문의 내용을 불러오지 못했습니다.',
+                state.error ?? '문의 내용을 불러오지 못했어요.',
                 style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
               ),
             )
@@ -242,7 +242,7 @@ class _AdminInquiryDetailPageState
   void _submit() {
     final answer = _answerController.text.trim();
     if (answer.isEmpty) {
-      showAppSnackBar('답변 내용을 입력해주세요.');
+      showAppSnackBar('답변 내용을 입력해 주세요.');
       return;
     }
     ref

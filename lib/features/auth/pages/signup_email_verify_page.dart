@@ -332,7 +332,7 @@ class _SignupEmailVerifyPageState extends ConsumerState<SignupEmailVerifyPage> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    hasEmail ? email : '이메일 정보가 없습니다.',
+                    hasEmail ? email : '이메일 정보가 없어요.',
                     style: hasEmail
                         ? AppTextStyles.labelMedium.copyWith(
                             color: context.colors.textPrimary,

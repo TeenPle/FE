@@ -101,7 +101,7 @@ class AdminAuditLogNotifier extends StateNotifier<AdminAuditLogState> {
         hasMore: logs.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '감사 로그를 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '감사 로그를 불러오지 못했어요.');
     }
   }
 
@@ -115,7 +115,7 @@ class AdminAuditLogNotifier extends StateNotifier<AdminAuditLogState> {
         hasMore: logs.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '감사 로그를 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '감사 로그를 불러오지 못했어요.');
     }
   }
 
@@ -141,7 +141,7 @@ class AdminAuditLogNotifier extends StateNotifier<AdminAuditLogState> {
     } catch (_) {
       state = state.copyWith(
         isLoadingMore: false,
-        error: '추가 감사 로그를 불러오지 못했습니다.',
+        error: '추가 감사 로그를 불러오지 못했어요.',
       );
     }
   }

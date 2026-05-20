@@ -28,11 +28,9 @@ class TeenpleApp extends ConsumerWidget {
       ],
       scaffoldMessengerKey: appScaffoldMessengerKey,
       builder: (context, child) {
-        // 앱 전체 기본 글자 크기 보정: 하드코딩된 fontSize 값들이 11–13px 중심이라
-        // 시스템 보통 상태에서도 읽기 편하도록 1.1배 기본 배수를 적용한다.
-        // 시스템 설정 반영: small(≈0.85) → ~0.94×, normal(1.0) → 1.1×, large(1.3) → 1.35× (상한)
+        // 시스템 글자 크기 설정은 반영하되 앱 자체 추가 확대는 적용하지 않는다.
         final systemScale = MediaQuery.textScalerOf(context).scale(1.0);
-        final effective = (systemScale * 1.1).clamp(0.85, 1.35);
+        final effective = systemScale.clamp(0.85, 1.35);
         final clamped = MediaQuery.of(
           context,
         ).copyWith(textScaler: TextScaler.linear(effective));

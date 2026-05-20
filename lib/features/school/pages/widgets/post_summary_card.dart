@@ -9,7 +9,6 @@ import '../../../../core/widgets/tap_scale.dart';
 import '../../models/post_summary.dart';
 
 const Color _likeAccentColor = Color(0xFFE2556F);
-const Color _viewAccentColor = Color(0xFFC9A24A);
 const Color _commentAccentColor = Color(0xFF2F80ED);
 
 class PostSummaryCard extends StatelessWidget {
@@ -67,7 +66,7 @@ class PostSummaryCard extends StatelessWidget {
                 },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 15, 18, 12),
+            padding: const EdgeInsets.fromLTRB(18, 12, 18, 10),
             child: Column(
               children: [
                 IntrinsicHeight(
@@ -84,32 +83,32 @@ class PostSummaryCard extends StatelessWidget {
                               hasPoll: post.hasPoll,
                               textPrimary: c.textPrimary,
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 4),
                             Text(
                               post.content,
                               maxLines: thumbnailUrl == null ? 3 : 2,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.bodyMedium.copyWith(
                                 fontSize: 12,
-                                height: 1.38,
+                                height: 1.3,
                                 fontWeight: FontWeight.w400,
                                 color: c.textSecondary,
                                 letterSpacing: 0,
                               ),
                             ),
-                            const SizedBox(height: 7),
+                            const SizedBox(height: 4),
                             _BoardMetaRow(
                               categoryLabel: categoryLabel,
                               timeLabel: _timeLabel,
                               color: c.textTertiary,
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                             Row(
                               children: [
                                 _StatChip(
                                   icon: Icons.remove_red_eye_outlined,
                                   text: _viewText,
-                                  color: _viewAccentColor,
+                                  color: c.iconOnCard,
                                   emphasized: post.viewCount > 0,
                                 ),
                                 const SizedBox(width: 10),
@@ -139,12 +138,12 @@ class PostSummaryCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: CachedNetworkImage(
                             imageUrl: thumbnailUrl,
-                            width: 90,
+                            width: 82,
                             fit: BoxFit.cover,
                             placeholder: (context, url) =>
-                                Container(width: 90, color: c.subtleBg),
+                                Container(width: 82, color: c.subtleBg),
                             errorWidget: (context, url, error) => Container(
-                              width: 90,
+                              width: 82,
                               color: c.border,
                               child: Icon(
                                 Icons.broken_image_rounded,
@@ -158,7 +157,7 @@ class PostSummaryCard extends StatelessWidget {
                   ),
                 ),
                 if (showDivider) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Divider(height: 1, color: c.divider),
                 ],
               ],
@@ -218,6 +217,7 @@ class _TitleLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -248,30 +248,22 @@ class _TitleLine extends StatelessWidget {
                     letterSpacing: 0,
                   ),
                 ),
+                if (hasPoll)
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.how_to_vote_outlined,
+                        size: 13,
+                        color: c.iconSecondary,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
-        if (hasPoll) ...[
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEDF5FF),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: const Color(0xFF229BF3), width: 1),
-            ),
-            child: Text(
-              '투표',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF229BF3),
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

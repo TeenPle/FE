@@ -1187,14 +1187,20 @@ class _TodayMemoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final memoBorderColor = isDark ? c.borderBlue : const Color(0xFFB9DCFF);
+    final addBorderColor = isDark ? c.borderBlue : const Color(0xFF14A3F7);
+    final addColor = isDark ? const Color(0xFF4DB8FF) : const Color(0xFF14A3F7);
     return Container(
       decoration: BoxDecoration(
         color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFB9DCFF), width: 0.9),
+        border: Border.all(color: memoBorderColor, width: 0.9),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14A3F7).withValues(alpha: 0.04),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.18)
+                : const Color(0xFF14A3F7).withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -1243,26 +1249,19 @@ class _TodayMemoCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: const Color(0xFF14A3F7),
-                        width: 1,
-                      ),
+                      border: Border.all(color: addBorderColor, width: 1),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.add_rounded,
-                          size: 13,
-                          color: Color(0xFF14A3F7),
-                        ),
+                        Icon(Icons.add_rounded, size: 13, color: addColor),
                         const SizedBox(width: 2),
                         Text(
                           '추가',
                           style: AppTextStyles.captionSmall.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF14A3F7),
+                            color: addColor,
                           ),
                         ),
                       ],
@@ -1322,14 +1321,20 @@ class _MemoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final rowBorderColor = isDark ? c.borderBlue : const Color(0xFF9DCEFF);
+    final timeColor = isDark
+        ? const Color(0xFF4DB8FF)
+        : const Color(0xFF1498F3);
+    final dividerColor = isDark ? c.dividerBlue : const Color(0xFFCBE6FF);
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(bottom: isLast ? 0 : 7),
       padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
       decoration: BoxDecoration(
-        color: c.cardBg,
+        color: isDark ? c.inputBg : c.cardBg,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: const Color(0xFF9DCEFF), width: 0.9),
+        border: Border.all(color: rowBorderColor, width: 0.9),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1342,12 +1347,12 @@ class _MemoRow extends StatelessWidget {
               style: AppTextStyles.labelSmall.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                color: const Color(0xFF1498F3),
+                color: timeColor,
               ),
             ),
           ),
           const SizedBox(width: 8),
-          Container(width: 1, height: 14, color: const Color(0xFFCBE6FF)),
+          Container(width: 1, height: 14, color: dividerColor),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1384,27 +1389,6 @@ class _TimetableGrid extends StatelessWidget {
 
   static const _days = ['월', '화', '수', '목', '금'];
   static const _totalPeriods = 7;
-  static const _subjectPalettes = [
-    _SubjectPalette(Color(0xFFEAF4FF), Color(0xFFDCEEFF)),
-    _SubjectPalette(Color(0xFFE8F7F3), Color(0xFFD9F0EA)),
-    _SubjectPalette(Color(0xFFFFF3DF), Color(0xFFFFEBC8)),
-    _SubjectPalette(Color(0xFFF1EEFF), Color(0xFFE6E0FF)),
-    _SubjectPalette(Color(0xFFFFECE7), Color(0xFFFFDDD5)),
-    _SubjectPalette(Color(0xFFEFF8E8), Color(0xFFE0F1D6)),
-    _SubjectPalette(Color(0xFFE8F7F8), Color(0xFFD8F0F2)),
-    _SubjectPalette(Color(0xFFF8EFFA), Color(0xFFEEDFF4)),
-    _SubjectPalette(Color(0xFFF1F5FF), Color(0xFFE0E9FF)),
-    _SubjectPalette(Color(0xFFFFF0F3), Color(0xFFFFDDE6)),
-    _SubjectPalette(Color(0xFFEAF2E6), Color(0xFFDDEBD7)),
-    _SubjectPalette(Color(0xFFFFF7D8), Color(0xFFFFF0B8)),
-    _SubjectPalette(Color(0xFFE6F3FF), Color(0xFFCFE7FA)),
-    _SubjectPalette(Color(0xFFFCEDE2), Color(0xFFF8DDCA)),
-    _SubjectPalette(Color(0xFFEDEBFA), Color(0xFFDED9F3)),
-    _SubjectPalette(Color(0xFFE9F6EE), Color(0xFFD7EDDF)),
-    _SubjectPalette(Color(0xFFFFEEF5), Color(0xFFFAD7E6)),
-    _SubjectPalette(Color(0xFFE5F7FB), Color(0xFFCDEDF4)),
-  ];
-
   const _TimetableGrid({
     required this.state,
     required this.selectedWeekday,
@@ -1417,7 +1401,6 @@ class _TimetableGrid extends StatelessWidget {
     final c = context.colors;
     final subjectMap = state.week?.subjectMap ?? {};
     final overrides = state.overrides;
-    final paletteIndexes = _buildSubjectPaletteIndexes(subjectMap, overrides);
     final todayDow = DateTime.now().weekday; // 1=월~5=금
 
     return Container(
@@ -1464,7 +1447,6 @@ class _TimetableGrid extends StatelessWidget {
                           _subjectCell(
                             neisSubject: subjectMap['${d}_$p'] ?? '',
                             override: overrides['${d}_$p'],
-                            paletteIndexes: paletteIndexes,
                             isToday: d == selectedWeekday,
                             height: cellHeight,
                             fontSize: subjectFontSize,
@@ -1565,7 +1547,6 @@ class _TimetableGrid extends StatelessWidget {
   Widget _subjectCell({
     required String neisSubject,
     String? override,
-    required Map<String, int> paletteIndexes,
     required bool isToday,
     required double height,
     required double fontSize,
@@ -1575,7 +1556,6 @@ class _TimetableGrid extends StatelessWidget {
     final displaySubject = override ?? neisSubject;
     final hasOverride = override != null;
     final hasSubject = displaySubject.isNotEmpty;
-    final palette = _paletteForSubject(displaySubject, paletteIndexes);
 
     return Padding(
       padding: const EdgeInsets.all(3),
@@ -1588,14 +1568,7 @@ class _TimetableGrid extends StatelessWidget {
           height: height,
           padding: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
-            gradient: hasSubject
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [palette.start, palette.end],
-                  )
-                : null,
-            color: hasSubject ? null : (isToday ? c.tintBg : c.subtleBg),
+            color: isToday ? c.tintBg : c.subtleBg,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isToday ? c.borderBlue : c.border,
@@ -1613,9 +1586,7 @@ class _TimetableGrid extends StatelessWidget {
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: fontSize,
                     fontWeight: hasSubject ? FontWeight.w800 : FontWeight.w400,
-                    color: hasSubject
-                        ? const Color(0xFF172232)
-                        : Colors.transparent,
+                    color: hasSubject ? c.textPrimary : Colors.transparent,
                   ),
                 ),
               ),
@@ -1634,50 +1605,6 @@ class _TimetableGrid extends StatelessWidget {
       ),
     );
   }
-
-  Map<String, int> _buildSubjectPaletteIndexes(
-    Map<String, String> subjectMap,
-    Map<String, String> overrides,
-  ) {
-    final indexes = <String, int>{};
-    for (int d = 1; d <= _days.length; d++) {
-      for (int p = 1; p <= _totalPeriods; p++) {
-        final key = '${d}_$p';
-        final subject = overrides[key] ?? subjectMap[key] ?? '';
-        final normalized = _normalizeSubjectKey(subject);
-        if (normalized.isEmpty || indexes.containsKey(normalized)) continue;
-        indexes[normalized] = indexes.length % _subjectPalettes.length;
-      }
-    }
-    return indexes;
-  }
-
-  _SubjectPalette _paletteForSubject(
-    String subject,
-    Map<String, int> paletteIndexes,
-  ) {
-    final normalized = _normalizeSubjectKey(subject);
-    if (normalized.isEmpty) return _subjectPalettes.first;
-    final indexedPalette = paletteIndexes[normalized];
-    if (indexedPalette != null) return _subjectPalettes[indexedPalette];
-
-    var hash = 0;
-    for (final codeUnit in normalized.codeUnits) {
-      hash = (hash * 31 + codeUnit) & 0x7fffffff;
-    }
-    return _subjectPalettes[hash % _subjectPalettes.length];
-  }
-
-  String _normalizeSubjectKey(String subject) {
-    return subject.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-  }
-}
-
-class _SubjectPalette {
-  final Color start;
-  final Color end;
-
-  const _SubjectPalette(this.start, this.end);
 }
 
 class _ClassRoomPrompt extends StatelessWidget {

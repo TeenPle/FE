@@ -51,10 +51,11 @@ class _HotBoardPageState extends ConsumerState<HotBoardPage> {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       onPressed: () {
-                        if (context.canPop())
+                        if (context.canPop()) {
                           context.pop();
-                        else
+                        } else {
                           context.go('/school');
+                        }
                       },
                       icon: Icon(
                         Icons.arrow_back_ios_new_rounded,

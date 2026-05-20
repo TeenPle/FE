@@ -270,7 +270,7 @@ class _PenaltyCard extends ConsumerWidget {
         .read(adminPenaltyListProvider.notifier)
         .cancel(penalty.penaltyId);
     showAppSnackBar(
-      success ? '제재가 취소되었습니다.' : '제재 취소에 실패했습니다.',
+      success ? '제재를 취소했어요.' : '제재 취소에 실패했어요.',
       backgroundColor: success ? null : const Color(0xFFE05C7B),
     );
   }

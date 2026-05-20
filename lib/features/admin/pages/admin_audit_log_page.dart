@@ -484,8 +484,9 @@ class _AuditLogTile extends StatelessWidget {
   Color _actionColor(String action) {
     if (action.contains('HIDE')) return const Color(0xFFE05C7B);
     if (action.contains('RESTORE')) return const Color(0xFF2F7D46);
-    if (action.contains('APPROVE') || action.contains('WARN'))
+    if (action.contains('APPROVE') || action.contains('WARN')) {
       return const Color(0xFFF59E0B);
+    }
     return const Color(0xFF426C82);
   }
 

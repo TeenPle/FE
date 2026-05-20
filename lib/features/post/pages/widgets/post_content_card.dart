@@ -106,8 +106,8 @@ class _SingleImage extends StatelessWidget {
           imageUrl: url,
           width: double.infinity,
           fit: BoxFit.cover,
-          placeholder: (_, __) => _imagePlaceholder(context),
-          errorWidget: (_, __, ___) => _imagePlaceholder(context),
+          placeholder: (_, _) => _imagePlaceholder(context),
+          errorWidget: (_, _, _) => _imagePlaceholder(context),
         ),
       ),
     );
@@ -130,7 +130,7 @@ class _ImageRow extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: urls.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, i) {
               return GestureDetector(
                 onTap: () => _openImageViewer(context, urls[i]),
@@ -141,12 +141,12 @@ class _ImageRow extends StatelessWidget {
                     width: tileSize,
                     height: tileSize,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: tileSize,
                       height: tileSize,
                       color: placeholderColor,
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: tileSize,
                       height: tileSize,
                       color: placeholderColor,
@@ -256,13 +256,13 @@ void _openImageViewer(BuildContext context, String url) {
             child: CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.contain,
-              placeholder: (_, __) => const Center(
+              placeholder: (_, _) => const Center(
                 child: CircularProgressIndicator(
                   color: Colors.white54,
                   strokeWidth: 2,
                 ),
               ),
-              errorWidget: (_, __, ___) => const Center(
+              errorWidget: (_, _, _) => const Center(
                 child: Icon(
                   Icons.broken_image_rounded,
                   color: Colors.white54,
@@ -301,11 +301,11 @@ class _PostMetaRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: showNetworkAvatar
               ? Image.network(
-                  profileUrl!,
+                  profileUrl,
                   width: 36,
                   height: 36,
                   fit: BoxFit.cover,
-                  errorBuilder: (ctx, _, __) => _defaultAvatar(ctx),
+                  errorBuilder: (ctx, _, _) => _defaultAvatar(ctx),
                 )
               : _defaultAvatar(context),
         ),

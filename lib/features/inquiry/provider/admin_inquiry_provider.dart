@@ -42,7 +42,7 @@ class AdminInquiryListNotifier extends StateNotifier<AdminInquiryListState> {
       final inquiries = await _api.getInquiries(status: status);
       state = state.copyWith(inquiries: inquiries, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '문의 목록을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '문의 목록을 불러오지 못했어요.');
     }
   }
 
@@ -103,7 +103,7 @@ class AdminInquiryDetailNotifier
       final inquiry = await _api.getInquiry(inquiryId);
       state = state.copyWith(inquiry: inquiry, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '문의 내용을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '문의 내용을 불러오지 못했어요.');
     }
   }
 
@@ -113,7 +113,7 @@ class AdminInquiryDetailNotifier
       await _api.answerInquiry(inquiryId, answer);
       state = state.copyWith(isAnswering: false, answered: true);
     } catch (_) {
-      state = state.copyWith(isAnswering: false, error: '답변을 등록하지 못했습니다.');
+      state = state.copyWith(isAnswering: false, error: '답변을 등록하지 못했어요.');
     }
   }
 }

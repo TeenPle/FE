@@ -384,7 +384,7 @@ class _PostDetailBody extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (reasonController.text.trim().isEmpty) {
-                showAppSnackBar('처리 사유를 입력해주세요.');
+                showAppSnackBar('처리 사유를 입력해 주세요.');
                 return;
               }
               Navigator.of(ctx).pop(true);

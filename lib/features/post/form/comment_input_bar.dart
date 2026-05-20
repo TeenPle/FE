@@ -85,15 +85,17 @@ class _CommentInputBarState extends State<CommentInputBar> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? const Color(0xFF6EA8D8) : const Color(0xFF14A3F7);
     return SafeArea(
       top: false,
       child: Container(
         color: c.pageBg,
         padding: EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          MediaQuery.of(context).viewInsets.bottom + 14,
+          12,
+          6,
+          12,
+          MediaQuery.of(context).viewInsets.bottom + 8,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -123,7 +125,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF14A3F7),
+                          color: accent,
                         ),
                       ),
                     ),
@@ -139,7 +141,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                 ),
               ),
             Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
               decoration: BoxDecoration(
                 color: c.cardBg,
                 borderRadius: BorderRadius.circular(20),
@@ -151,28 +153,35 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   InkWell(
                     onTap: () => widget.onAnonymousChanged(!widget.anonymous),
                     borderRadius: BorderRadius.circular(999),
-                    child: Container(
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                        horizontal: 8,
+                        vertical: 6,
                       ),
-                      decoration: BoxDecoration(
-                        color: widget.anonymous ? c.tintBg : c.subtleBg,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        '익명',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: widget.anonymous
-                              ? const Color(0xFF14A3F7)
-                              : c.textMuted,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            widget.anonymous
+                                ? Icons.check_circle_rounded
+                                : Icons.radio_button_unchecked_rounded,
+                            size: 15,
+                            color: widget.anonymous ? accent : c.textMuted,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '익명',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: widget.anonymous ? accent : c.textMuted,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: TextField(
                       controller: _controller,
@@ -184,30 +193,35 @@ class _CommentInputBarState extends State<CommentInputBar> {
                             ? const Color(0xFFE05C5C)
                             : c.textBody,
                         fontSize: 13,
-                        height: 1.4,
+                        height: 1.25,
                       ),
                       decoration: InputDecoration(
                         hintText: '댓글을 입력하세요',
                         hintStyle: AppTextStyles.bodyMedium.copyWith(
                           color: c.textTertiary,
                           fontSize: 13,
-                          height: 1.4,
+                          height: 1.25,
                         ),
+                        filled: false,
+                        fillColor: Colors.transparent,
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
                         isCollapsed: true,
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   InkWell(
                     onTap: (widget.isSubmitting || _isOverLimit)
                         ? null
                         : _submit,
                     borderRadius: BorderRadius.circular(999),
                     child: Container(
-                      width: 40,
-                      height: 40,
+                      width: 34,
+                      height: 34,
                       decoration: BoxDecoration(
                         color: (widget.isSubmitting || _isOverLimit)
                             ? c.tintBg
@@ -217,7 +231,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                       child: const Icon(
                         Icons.arrow_upward_rounded,
                         color: Colors.white,
-                        size: 20,
+                        size: 18,
                       ),
                     ),
                   ),

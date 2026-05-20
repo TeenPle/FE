@@ -8,7 +8,6 @@ import '../models/post_detail.dart';
 import '../provider/post_detail_provider.dart';
 import '../provider/post_detail_providers.dart';
 import '../../../core/widgets/app_snack_bar.dart';
-import '../../chat/api/chat_api.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
 import '../../penalty/provider/penalty_provider.dart';
 import '../../profile/provider/block_provider.dart';
@@ -34,6 +33,8 @@ class PostDetailPage extends ConsumerStatefulWidget {
 class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   late final PostDetailNotifier _detailNotifier;
   late final StateController<ActivePage> _activePageNotifier;
+  final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _commentKeys = {};
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     Future<void>(() {
       if (_detailNotifier.mounted) {
         _detailNotifier.cancelReply();
@@ -140,7 +142,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
                 if (updated == true) {
                   await notifier.loadPostDetail();
-                  showAppSnackBar('게시글이 수정되었습니다.');
+                  showAppSnackBar('게시글을 수정했어요.');
                 }
               } else if (value == 'delete') {
                 final confirmed = await _showDeleteConfirmDialog(
@@ -159,11 +161,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   return;
                 }
                 if (post.isMine) {
-                  showAppSnackBar('자신의 게시글에는 채팅할 수 없습니다.');
+                  showAppSnackBar('자신의 게시글에는 채팅할 수 없어요.');
                 } else if (post.authorDeleted ||
                     !post.canChatWithAuthor ||
                     post.authorId == null) {
-                  showAppSnackBar('채팅을 시작할 수 없습니다.');
+                  showAppSnackBar('채팅을 시작할 수 없어요.');
                 } else {
                   await _startChat(
                     context: context,
@@ -185,6 +187,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   post != null &&
                   post.canBlockAuthor &&
                   post.authorUserId != null) {
+                final router = GoRouter.of(context);
                 final confirmed = await _showBlockConfirmDialog(context);
                 if (confirmed == true && mounted) {
                   try {
@@ -192,13 +195,13 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                         .read(blockActionProvider)
                         .block(post.authorUserId!);
                     if (mounted) {
-                      showAppSnackBar('해당 사용자를 차단했습니다.');
-                      context.pop(true);
+                      showAppSnackBar('해당 사용자를 차단했어요.');
+                      router.pop(true);
                     }
                   } catch (_) {
                     if (mounted) {
                       showAppSnackBar(
-                        '차단 처리에 실패했습니다.',
+                        '차단 처리에 실패했어요.',
                         backgroundColor: const Color(0xFFE05C7B),
                       );
                     }
@@ -262,13 +265,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           : post == null
           ? Center(
               child: Text(
-                state.errorMessage ?? '게시글을 불러오지 못했습니다.',
+                state.errorMessage ?? '게시글을 불러오지 못했어요.',
                 style: AppTextStyles.bodyMedium.copyWith(color: c.textBody),
               ),
             )
           : RefreshIndicator(
               onRefresh: notifier.refresh,
               child: ListView(
+                controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 120),
                 children: [
@@ -311,8 +315,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   const SizedBox(height: 4),
                   const SchoolMainAdCard(fullBleed: true),
                   const SizedBox(height: 8),
-                  Container(height: 1, color: c.divider),
-                  const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: _CommentSectionHeader(
@@ -332,6 +334,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             return;
                           }
                           notifier.startReply(commentId, isReply: isReply);
+                          _scrollReplyTargetIntoView(commentId);
                         },
                         onCommentLikeTap: (commentId) {
                           if (isPenalized) {
@@ -347,13 +350,13 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             return;
                           }
                           if (comment.isMine) {
-                            showAppSnackBar('자신의 댓글에는 채팅할 수 없습니다.');
+                            showAppSnackBar('자신의 댓글에는 채팅할 수 없어요.');
                             return;
                           }
                           if (!comment.canChatWithAuthor ||
-                              comment.authorUserId == null ||
-                              post == null)
+                              comment.authorUserId == null) {
                             return;
+                          }
                           await _startChat(
                             context: context,
                             ref: ref,
@@ -408,13 +411,13 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                   .read(blockActionProvider)
                                   .block(authorUserId);
                               if (mounted) {
-                                showAppSnackBar('해당 사용자를 차단했습니다.');
+                                showAppSnackBar('해당 사용자를 차단했어요.');
                                 await notifier.loadPostDetail();
                               }
                             } catch (_) {
                               if (mounted) {
                                 showAppSnackBar(
-                                  '차단 처리에 실패했습니다.',
+                                  '차단 처리에 실패했어요.',
                                   backgroundColor: const Color(0xFFE05C7B),
                                 );
                               }
@@ -472,24 +475,66 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
       return Column(
         children: [
-          CommentItem(
-            comment: parent,
-            replies: replies,
-            likedByMe: likedCommentIds.contains(parent.commentId),
-            isReplyTarget: replyingToCommentId == parent.commentId,
-            onReplyTap: () => onReplyTap(parent.commentId, false),
-            onLikeTap: () => onCommentLikeTap(parent.commentId),
-            onChatTap: onCommentChatTap,
-            onReportTap: onCommentReportTap,
-            onEditTap: onCommentEditTap,
-            onDeleteTap: onCommentDeleteTap,
-            onBlockTap: onCommentBlockTap,
+          KeyedSubtree(
+            key: _commentKeys.putIfAbsent(parent.commentId, () => GlobalKey()),
+            child: CommentItem(
+              comment: parent,
+              replies: replies,
+              likedByMe: likedCommentIds.contains(parent.commentId),
+              isReplyTarget: replyingToCommentId == parent.commentId,
+              onReplyTap: () => onReplyTap(parent.commentId, false),
+              onLikeTap: () => onCommentLikeTap(parent.commentId),
+              onReplyLikeTap: onCommentLikeTap,
+              onChatTap: onCommentChatTap,
+              onReportTap: onCommentReportTap,
+              onEditTap: onCommentEditTap,
+              onDeleteTap: onCommentDeleteTap,
+              onBlockTap: onCommentBlockTap,
+            ),
           ),
           if (index != parents.length - 1)
             Divider(height: 1, thickness: 1, color: context.colors.dividerBlue),
         ],
       );
     }).toList();
+  }
+
+  void _scrollReplyTargetIntoView(int commentId) {
+    Future<void>.delayed(const Duration(milliseconds: 220), () {
+      if (!mounted) return;
+      _liftCommentAboveKeyboard(commentId);
+    });
+  }
+
+  void _liftCommentAboveKeyboard(int commentId) {
+    final targetContext = _commentKeys[commentId]?.currentContext;
+    if (targetContext == null || !_scrollController.hasClients) return;
+
+    final renderObject = targetContext.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final media = MediaQuery.of(context);
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    final keyboardTop = media.size.height - media.viewInsets.bottom;
+    final reservedInputHeight = media.viewInsets.bottom > 0 ? 104.0 : 72.0;
+    final visibleBottom = keyboardTop - reservedInputHeight;
+    final overflow = bottom - visibleBottom;
+
+    if (overflow <= 0) return;
+
+    final position = _scrollController.position;
+    final targetOffset = (position.pixels + overflow + 10).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+    if ((targetOffset - position.pixels).abs() < 1) return;
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   // 채팅방 생성/조회 후 이동
@@ -528,7 +573,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
       }
     } catch (e) {
       showAppSnackBar(
-        '채팅을 시작할 수 없습니다: $e',
+        '채팅을 시작할 수 없어요: $e',
         backgroundColor: const Color(0xFFE05C7B),
       );
     }

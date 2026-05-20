@@ -64,23 +64,23 @@ class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
     }
 
     if (statusCode == 400) {
-      return '서버에서 요청을 거부했습니다. 입력값 형식을 다시 확인해주세요.';
+      return '서버에서 요청을 거부했어요. 입력값 형식을 다시 확인해 주세요.';
     }
 
     if (statusCode == 401) {
-      return '인증 정보가 올바르지 않습니다.';
+      return '인증 정보가 올바르지 않아요.';
     }
 
     if (statusCode == 500) {
-      return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      return '서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
     }
 
     if (e.type == DioExceptionType.connectionError ||
         e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return '네트워크 상태를 확인한 뒤 다시 시도해주세요.';
+      return '네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
     }
 
-    return '회원가입에 실패했습니다.';
+    return '회원가입에 실패했어요.';
   }
 }

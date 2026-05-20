@@ -116,7 +116,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
     if (title.isEmpty || content.isEmpty) {
-      showAppSnackBar('제목과 내용을 모두 입력해주세요.');
+      showAppSnackBar('제목과 내용을 모두 입력해 주세요.');
       return;
     }
     FocusScope.of(context).unfocus();

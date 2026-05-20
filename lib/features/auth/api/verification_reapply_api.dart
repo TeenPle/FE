@@ -32,17 +32,17 @@ class VerificationReapplyApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('반려 사유 조회에 실패했습니다.');
+      throw Exception('반려 사유 조회에 실패했어요.');
     }
 
     final result = data['result'];
 
     if (result is! Map<String, dynamic>) {
-      throw Exception('반려 사유 데이터 형식이 올바르지 않습니다.');
+      throw Exception('반려 사유 데이터 형식이 올바르지 않아요.');
     }
 
     return VerificationReapplyInfoResponseModel.fromJson(result);
@@ -75,16 +75,16 @@ class VerificationReapplyApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('재요청에 실패했습니다.');
+      throw Exception('재요청에 실패했어요.');
     }
 
     final result = data['result'];
     if (result is! num) {
-      throw Exception('재요청 결과 형식이 올바르지 않습니다.');
+      throw Exception('재요청 결과 형식이 올바르지 않아요.');
     }
 
     return result.toInt();

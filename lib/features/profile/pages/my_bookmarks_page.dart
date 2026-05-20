@@ -93,7 +93,7 @@ class _MyBookmarksPageState extends ConsumerState<MyBookmarksPage> {
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       itemCount: state.items.length + (state.hasMore ? 1 : 0),
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (ctx, i) {
         if (i == state.items.length) {
           return const Padding(

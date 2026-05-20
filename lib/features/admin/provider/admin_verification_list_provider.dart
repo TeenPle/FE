@@ -42,7 +42,7 @@ class AdminVerificationListNotifier
       state = state.copyWith(
         isLoading: false,
         items: const [],
-        errorMessage: e.message ?? '목록 조회에 실패했습니다.',
+        errorMessage: e.message ?? '목록 조회에 실패했어요.',
       );
     } catch (e) {
       state = state.copyWith(

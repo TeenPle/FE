@@ -140,9 +140,9 @@ void _showExternalLinkWarning(BuildContext context, String url) {
             Navigator.pop(ctx);
             Clipboard.setData(ClipboardData(text: url));
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('링크가 클립보드에 복사되었습니다.')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('링크가 클립보드에 복사됐어요.')));
             }
           },
           child: Text(

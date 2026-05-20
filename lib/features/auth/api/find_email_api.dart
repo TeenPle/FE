@@ -28,23 +28,23 @@ class FindEmailApi {
     final data = response.data;
 
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     if (data['isSuccess'] != true) {
-      throw Exception('이메일 찾기에 실패했습니다.');
+      throw Exception('이메일 찾기에 실패했어요.');
     }
 
     final result = data['result'];
 
     if (result is! Map<String, dynamic>) {
-      throw Exception('result 형식이 올바르지 않습니다.');
+      throw Exception('result 형식이 올바르지 않아요.');
     }
 
     final maskedEmail = result['maskedEmail'];
 
     if (maskedEmail is! String) {
-      throw Exception('maskedEmail 형식이 올바르지 않습니다.');
+      throw Exception('maskedEmail 형식이 올바르지 않아요.');
     }
 
     return maskedEmail;

@@ -283,7 +283,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
           if (_isDisposed) return;
           state = state.copyWith(
             isConnected: false,
-            errorMessage: '서버 연결에 실패했습니다.',
+            errorMessage: '서버 연결에 실패했어요.',
           );
           _scheduleReconnect(refreshTokenFirst: true);
         },
@@ -399,7 +399,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
           if (_isDisposed || !mounted) return;
           state = state.copyWith(
             isSending: false,
-            errorMessage: resultMap['message'] as String? ?? '메시지를 보낼 수 없습니다.',
+            errorMessage: resultMap['message'] as String? ?? '메시지를 보낼 수 없어요.',
           );
           // 차단 직후 이벤트를 놓쳤더라도 서버 거절을 받으면 방 상태를 다시 맞춘다.
           loadMessages();
@@ -465,11 +465,11 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       return;
     }
     if (state.isBlocked) {
-      state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.');
+      state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없어요.');
       return;
     }
     if (!state.canSendMessage || state.otherUserDeleted) {
-      state = state.copyWith(errorMessage: '탈퇴한 사용자와는 채팅할 수 없습니다.');
+      state = state.copyWith(errorMessage: '탈퇴한 사용자와는 채팅할 수 없어요.');
       return;
     }
     state = state.copyWith(isSending: true, errorMessage: null);
@@ -488,7 +488,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         isSending: false,
         errorMessage: e is ApiException
             ? e.message
-            : '메시지를 보낼 수 없습니다. 상대방이 차단했거나 채팅방을 사용할 수 없습니다.',
+            : '메시지를 보낼 수 없어요. 상대방이 차단했거나 채팅방을 사용할 수 없어요.',
       );
     }
   }
@@ -499,7 +499,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       return false;
     }
     if (state.isBlocked) {
-      state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.');
+      state = state.copyWith(errorMessage: '현재 이 채팅방에서는 메시지를 보낼 수 없어요.');
       return false;
     }
     state = state.copyWith(isSending: true, errorMessage: null);
@@ -517,7 +517,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         isSending: false,
         errorMessage: e is ApiException
             ? e.message
-            : '이미지를 보낼 수 없습니다. 파일 형식 또는 이미지 내용을 확인해주세요.',
+            : '이미지를 보낼 수 없어요. 파일 형식 또는 이미지 내용을 확인해 주세요.',
       );
       return false;
     }
@@ -526,14 +526,14 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   String _penaltyMessage() {
     final expiresAt = state.penaltyExpiresAt;
     if (expiresAt == null) {
-      return '현재 정지 중이라 채팅을 사용할 수 없습니다.';
+      return '현재 정지 중이라 채팅을 사용할 수 없어요.';
     }
     final local = expiresAt.toLocal();
     final month = local.month.toString().padLeft(2, '0');
     final day = local.day.toString().padLeft(2, '0');
     final hour = local.hour.toString().padLeft(2, '0');
     final minute = local.minute.toString().padLeft(2, '0');
-    return '현재 정지 중이라 채팅을 사용할 수 없습니다. 해제: $month.$day $hour:$minute';
+    return '현재 정지 중이라 채팅을 사용할 수 없어요. 해제: $month.$day $hour:$minute';
   }
 
   Future<void> blockRoom() async {

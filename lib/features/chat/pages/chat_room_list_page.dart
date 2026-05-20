@@ -129,7 +129,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
                             itemCount: filtered.length,
-                            separatorBuilder: (_, __) =>
+                            separatorBuilder: (_, _) =>
                                 const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               return _ChatRoomItem(
@@ -201,7 +201,7 @@ class _EmptyView extends StatelessWidget {
                 isSearch
                     ? '검색 결과가 없어요.'
                     : errorMessage != null
-                    ? '채팅 목록을 불러오지 못했습니다.'
+                    ? '채팅 목록을 불러오지 못했어요.'
                     : '아직 채팅이 없어요.',
                 style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
               ),

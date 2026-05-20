@@ -39,7 +39,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       state = state.copyWith(
         isLoading: false,
         isRefreshing: false,
-        errorMessage: '게시글을 불러오지 못했습니다.',
+        errorMessage: '게시글을 불러오지 못했어요.',
       );
     }
   }
@@ -79,7 +79,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     } catch (_) {
       state = state.copyWith(
         isSubmittingReaction: false,
-        errorMessage: '공감 처리에 실패했습니다.',
+        errorMessage: '공감 처리에 실패했어요.',
       );
     }
   }
@@ -104,6 +104,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           commentId: comment.commentId,
           authorUserId: comment.authorUserId,
           isMine: comment.isMine,
+          isPostAuthor: comment.isPostAuthor,
+          authorDeleted: comment.authorDeleted,
+          canChatWithAuthor: comment.canChatWithAuthor,
+          canReportAuthor: comment.canReportAuthor,
+          canBlockAuthor: comment.canBlockAuthor,
           commentStatus: comment.commentStatus,
           content: comment.content,
           author: comment.author,
@@ -136,7 +141,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     } catch (_) {
       state = state.copyWith(
         isSubmittingReaction: false,
-        errorMessage: '댓글 공감 처리에 실패했습니다.',
+        errorMessage: '댓글 공감 처리에 실패했어요.',
       );
     }
   }
@@ -194,12 +199,12 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       state = state.copyWith(
         isSubmittingComment: false,
         clearReplying: true,
-        successMessage: '댓글이 등록되었습니다.',
+        successMessage: '댓글을 등록했어요.',
       );
     } catch (_) {
       state = state.copyWith(
         isSubmittingComment: false,
-        errorMessage: '댓글 작성에 실패했습니다.',
+        errorMessage: '댓글 작성에 실패했어요.',
       );
     }
   }
@@ -217,13 +222,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.reportPost(state.postId, reportReason);
 
-      state = state.copyWith(
-        isReporting: false,
-        successMessage: '게시글을 신고했습니다.',
-      );
+      state = state.copyWith(isReporting: false, successMessage: '게시글을 신고했어요.');
     } catch (e, st) {
       debugPrint('reportPost error: $e\n$st');
-      final message = e is ApiException ? e.message : '게시글 신고에 실패했습니다.';
+      final message = e is ApiException ? e.message : '게시글 신고에 실패했어요.';
       state = state.copyWith(isReporting: false, errorMessage: message);
     }
   }
@@ -241,10 +243,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.reportComment(commentId, reportReason);
 
-      state = state.copyWith(isReporting: false, successMessage: '댓글을 신고했습니다.');
+      state = state.copyWith(isReporting: false, successMessage: '댓글을 신고했어요.');
     } catch (e, st) {
       debugPrint('reportComment error: $e\n$st');
-      final message = e is ApiException ? e.message : '댓글 신고에 실패했습니다.';
+      final message = e is ApiException ? e.message : '댓글 신고에 실패했어요.';
       state = state.copyWith(isReporting: false, errorMessage: message);
     }
   }
@@ -275,15 +277,9 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       await loadPostDetail();
 
-      state = state.copyWith(
-        isUpdating: false,
-        successMessage: '게시글이 수정되었습니다.',
-      );
+      state = state.copyWith(isUpdating: false, successMessage: '게시글을 수정했어요.');
     } catch (_) {
-      state = state.copyWith(
-        isUpdating: false,
-        errorMessage: '게시글 수정에 실패했습니다.',
-      );
+      state = state.copyWith(isUpdating: false, errorMessage: '게시글 수정에 실패했어요.');
     }
   }
 
@@ -302,14 +298,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       state = state.copyWith(
         isDeleting: false,
-        successMessage: '게시글이 삭제되었습니다.',
+        successMessage: '게시글을 삭제했어요.',
         shouldClosePage: true,
       );
     } catch (_) {
-      state = state.copyWith(
-        isDeleting: false,
-        errorMessage: '게시글 삭제에 실패했습니다.',
-      );
+      state = state.copyWith(isDeleting: false, errorMessage: '게시글 삭제에 실패했어요.');
     }
   }
 
@@ -335,9 +328,9 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       await loadPostDetail();
 
-      state = state.copyWith(isUpdating: false, successMessage: '댓글이 수정되었습니다.');
+      state = state.copyWith(isUpdating: false, successMessage: '댓글을 수정했어요.');
     } catch (_) {
-      state = state.copyWith(isUpdating: false, errorMessage: '댓글 수정에 실패했습니다.');
+      state = state.copyWith(isUpdating: false, errorMessage: '댓글 수정에 실패했어요.');
     }
   }
 
@@ -355,9 +348,9 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       await repository.deleteComment(commentId);
       await loadPostDetail();
 
-      state = state.copyWith(isDeleting: false, successMessage: '댓글이 삭제되었습니다.');
+      state = state.copyWith(isDeleting: false, successMessage: '댓글을 삭제했어요.');
     } catch (_) {
-      state = state.copyWith(isDeleting: false, errorMessage: '댓글 삭제에 실패했습니다.');
+      state = state.copyWith(isDeleting: false, errorMessage: '댓글 삭제에 실패했어요.');
     }
   }
 
@@ -386,12 +379,12 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       state = state.copyWith(
         bookmarkedByMe: bookmarked,
         isBookmarking: false,
-        successMessage: bookmarked ? '북마크에 추가되었습니다.' : '북마크가 해제되었습니다.',
+        successMessage: bookmarked ? '북마크에 추가했어요.' : '북마크를 해제했어요.',
       );
     } catch (_) {
       state = state.copyWith(
         isBookmarking: false,
-        errorMessage: '북마크 처리에 실패했습니다.',
+        errorMessage: '북마크 처리에 실패했어요.',
       );
     }
   }
@@ -417,7 +410,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     } catch (_) {
       state = state.copyWith(
         isSubmittingReaction: false,
-        errorMessage: '투표 처리에 실패했습니다.',
+        errorMessage: '투표 처리에 실패했어요.',
       );
     }
   }

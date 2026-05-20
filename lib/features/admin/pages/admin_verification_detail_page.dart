@@ -155,7 +155,7 @@ class _AdminVerificationDetailPageState
                                 );
                                 if (!context.mounted) return;
                                 if (latest.isActionSuccess) {
-                                  showAppSnackBar('인증 요청을 승인했습니다.');
+                                  showAppSnackBar('인증 요청을 승인했어요.');
                                   Navigator.of(context).pop(true);
                                 } else if (latest.actionErrorMessage != null) {
                                   showAppSnackBar(
@@ -199,7 +199,7 @@ class _AdminVerificationDetailPageState
                                 );
                                 if (!context.mounted) return;
                                 if (latest.isActionSuccess) {
-                                  showAppSnackBar('인증 요청을 거절했습니다.');
+                                  showAppSnackBar('인증 요청을 거절했어요.');
                                   Navigator.of(context).pop(true);
                                 } else if (latest.actionErrorMessage != null) {
                                   showAppSnackBar(
@@ -236,7 +236,7 @@ class _AdminVerificationDetailPageState
           : detail == null
           ? Center(
               child: Text(
-                state.errorMessage ?? '상세 정보를 불러오지 못했습니다.',
+                state.errorMessage ?? '상세 정보를 불러오지 못했어요.',
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   color: Colors.red,
@@ -260,7 +260,7 @@ class _AdminVerificationDetailPageState
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: imageUrl.isEmpty
-                          ? _ImagePlaceholder(c: c, message: '학생증 이미지가 없습니다.')
+                          ? _ImagePlaceholder(c: c, message: '학생증 이미지가 없어요.')
                           : InteractiveViewer(
                               child: CachedNetworkImage(
                                 imageUrl: imageUrl,
@@ -271,7 +271,7 @@ class _AdminVerificationDetailPageState
                                 errorWidget: (context, url, error) =>
                                     _ImagePlaceholder(
                                       c: c,
-                                      message: '이미지를 불러오지 못했습니다.',
+                                      message: '이미지를 불러오지 못했어요.',
                                     ),
                               ),
                             ),
@@ -381,7 +381,7 @@ class _AdminVerificationDetailPageState
                       maxLines: 4,
                       onChanged: (_) => notifier.clearActionState(),
                       decoration: InputDecoration(
-                        hintText: '승인 코멘트 또는 거절 사유를 입력해주세요.',
+                        hintText: '승인 코멘트 또는 거절 사유를 입력해 주세요.',
                         hintStyle: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 12,
                           color: c.textHint,

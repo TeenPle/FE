@@ -310,7 +310,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
           ),
         ],
       ),
-      error: (_, __) => const _SettingsCard(
+      error: (_, _) => const _SettingsCard(
         children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -377,7 +377,7 @@ class _NotificationSettingsCard extends ConsumerWidget {
         .updateSetting(patch)
         .catchError((_) {
           showAppSnackBar(
-            '설정 저장에 실패했습니다.',
+            '설정 저장에 실패했어요.',
             backgroundColor: const Color(0xFFE05C7B),
           );
         });
@@ -435,7 +435,7 @@ class _NotificationToggleTile extends StatelessWidget {
           Switch.adaptive(
             value: active,
             onChanged: enabled ? onChanged : null,
-            activeColor: const Color(0xFF14A3F7),
+            activeThumbColor: const Color(0xFF14A3F7),
           ),
         ],
       ),

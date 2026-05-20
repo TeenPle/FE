@@ -337,7 +337,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              '신고 카테고리를 선택해주세요.',
+                                              '신고 카테고리를 선택해 주세요.',
                                               style: AppTextStyles.captionLarge
                                                   .copyWith(color: c.textMuted),
                                             ),
@@ -398,7 +398,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                           )).notifier,
                                         )
                                         .reportRoom(selectedReason);
-                                    showAppSnackBar('신고가 접수되었습니다.');
+                                    showAppSnackBar('신고가 접수됐어요.');
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF14A3F7),
@@ -509,7 +509,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   .blockRoom();
               if (mounted) {
                 ref.read(chatRoomListProvider.notifier).load();
-                showAppSnackBar('차단되었습니다.');
+                showAppSnackBar('차단했어요.');
               }
             },
             child: Text(
@@ -544,7 +544,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   )
                   .unblockRoom();
               ref.read(chatRoomListProvider.notifier).load();
-              showAppSnackBar('차단이 해제되었습니다.');
+              showAppSnackBar('차단을 해제했어요.');
             },
             child: Text('해제'),
           ),
@@ -574,7 +574,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   .leaveRoom();
               // 채팅 목록 갱신
               ref.read(chatRoomListProvider.notifier).load();
-              showAppSnackBar('채팅방을 나갔습니다.');
+              showAppSnackBar('채팅방을 나갔어요.');
               if (mounted) context.pop();
             },
             child: Text('나가기'),
@@ -950,10 +950,10 @@ class _ChatImageViewerPageState extends State<_ChatImageViewerPage> {
         'mimeType': mimeType,
       });
 
-      showAppSnackBar('이미지를 저장했습니다.');
+      showAppSnackBar('이미지를 저장했어요.');
     } catch (_) {
       showAppSnackBar(
-        '이미지 저장에 실패했습니다.',
+        '이미지 저장에 실패했어요.',
         backgroundColor: const Color(0xFFE05C7B),
       );
     } finally {
@@ -1400,8 +1400,8 @@ class _PenaltyInputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = expiresAt == null
-        ? '현재 정지 중이라 채팅을 사용할 수 없습니다.'
-        : '현재 정지 중이라 채팅을 사용할 수 없습니다.\n해제: ${_formatExpiresAt(expiresAt!)}';
+        ? '현재 정지 중이라 채팅을 사용할 수 없어요.'
+        : '현재 정지 중이라 채팅을 사용할 수 없어요.\n해제: ${_formatExpiresAt(expiresAt!)}';
 
     return SafeArea(
       top: false,
@@ -1485,8 +1485,8 @@ class _BlockedInputBar extends StatelessWidget {
                 ),
                 child: Text(
                   blockedByOther && !blockedByMe
-                      ? '현재 이 채팅방에서는 메시지를 보낼 수 없습니다.'
-                      : '차단한 사용자와는 채팅할 수 없습니다.',
+                      ? '현재 이 채팅방에서는 메시지를 보낼 수 없어요.'
+                      : '차단한 사용자와는 채팅할 수 없어요.',
                   style: AppTextStyles.labelMedium.copyWith(color: c.textMuted),
                 ),
               ),
@@ -1532,7 +1532,7 @@ class _DeletedUserInputBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '탈퇴한 사용자와는 채팅할 수 없습니다.',
+            '탈퇴한 사용자와는 채팅할 수 없어요.',
             textAlign: TextAlign.center,
             style: AppTextStyles.labelLarge.copyWith(color: c.textMuted),
           ),

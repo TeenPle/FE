@@ -36,12 +36,12 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
       state = state.copyWith(isLoading: false, isSuccess: true);
     } on DioException catch (e) {
       final data = e.response?.data;
-      String message = '비밀번호 재설정에 실패했습니다.';
+      String message = '비밀번호 재설정에 실패했어요.';
 
       if (data is Map<String, dynamic>) {
         final code = data['code'];
         if (code == 'USER4007') {
-          message = '현재 비밀번호와 동일합니다. 다른 비밀번호를 입력해주세요.';
+          message = '현재 비밀번호와 같아요. 다른 비밀번호를 입력해 주세요.';
         } else if (data['message'] is String) {
           message = data['message'] as String;
         }
@@ -51,7 +51,7 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '비밀번호 재설정에 실패했습니다. 다시 시도해주세요.',
+        errorMessage: '비밀번호 재설정에 실패했어요. 다시 시도해 주세요.',
       );
     }
   }

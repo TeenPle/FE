@@ -19,7 +19,7 @@ class PrivacyPolicyPage extends StatelessWidget {
     if (!context.mounted || opened) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('전체 개인정보처리방침을 열 수 없습니다. 잠시 후 다시 시도해주세요.')),
+      const SnackBar(content: Text('전체 개인정보처리방침을 열 수 없어요. 잠시 후 다시 시도해 주세요.')),
     );
   }
 

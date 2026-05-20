@@ -59,7 +59,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
-        errorMessage: '학교 정보를 불러오지 못했습니다.',
+        errorMessage: '학교 정보를 불러오지 못했어요.',
       );
     }
   }
@@ -162,7 +162,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
     } catch (_) {
       state = state.copyWith(
         isRefreshing: false,
-        errorMessage: '게시글 목록을 새로고침하지 못했습니다.',
+        errorMessage: '게시글 목록을 새로고침하지 못했어요.',
       );
     }
   }
@@ -202,7 +202,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
     } catch (_) {
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: '추가 게시글을 불러오지 못했습니다.',
+        errorMessage: '추가 게시글을 불러오지 못했어요.',
       );
     }
   }
@@ -252,7 +252,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
     } catch (_) {
       state = state.copyWith(
         isLoadingHot: false,
-        errorMessage: 'HOT 게시글을 불러오지 못했습니다.',
+        errorMessage: 'HOT 게시글을 불러오지 못했어요.',
       );
     }
   }
@@ -271,7 +271,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         clearError: true,
       );
     } catch (_) {
-      state = state.copyWith(errorMessage: 'HOT 피드를 불러오지 못했습니다.');
+      state = state.copyWith(errorMessage: 'HOT 피드를 불러오지 못했어요.');
     }
   }
 
@@ -312,7 +312,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
-        errorMessage: '게시글 목록을 불러오지 못했습니다.',
+        errorMessage: '게시글 목록을 불러오지 못했어요.',
       );
     }
   }
@@ -341,7 +341,7 @@ class SchoolNotifier extends StateNotifier<SchoolState> {
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
-        errorMessage: '게시글 목록을 불러오지 못했습니다.',
+        errorMessage: '게시글 목록을 불러오지 못했어요.',
       );
     }
   }

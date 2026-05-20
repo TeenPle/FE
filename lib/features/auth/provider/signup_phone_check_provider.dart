@@ -56,7 +56,7 @@ class SignupPhoneCheckNotifier extends StateNotifier<SignupPhoneCheckState> {
       state = state.copyWith(
         isLoading: false,
         checkedPhoneNumber: trimmed,
-        errorMessage: '전화번호 확인에 실패했습니다.',
+        errorMessage: '전화번호 확인에 실패했어요.',
       );
     }
   }
@@ -80,15 +80,15 @@ class SignupPhoneCheckNotifier extends StateNotifier<SignupPhoneCheckState> {
     }
 
     if (statusCode == 400) {
-      return '전화번호 형식이 올바르지 않습니다.';
+      return '전화번호 형식이 올바르지 않아요.';
     }
 
     if (e.type == DioExceptionType.connectionError ||
         e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return '네트워크 상태를 확인한 뒤 다시 시도해주세요.';
+      return '네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
     }
 
-    return '전화번호 확인에 실패했습니다.';
+    return '전화번호 확인에 실패했어요.';
   }
 }

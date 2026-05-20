@@ -71,7 +71,7 @@ class CrisisBanner extends StatelessWidget {
             onTap: () {
               Clipboard.setData(const ClipboardData(text: '1393'));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('1393이 클립보드에 복사되었습니다.')),
+                const SnackBar(content: Text('1393이 클립보드에 복사됐어요.')),
               );
             },
             child: Container(

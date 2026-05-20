@@ -45,7 +45,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       state = state.copyWith(
         isSaving: false,
         profile: updated,
-        successMessage: '닉네임이 변경되었습니다.',
+        successMessage: '닉네임이 변경됐어요.',
       );
       return true;
     } catch (e) {
@@ -67,7 +67,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
-      state = state.copyWith(isSaving: false, successMessage: '비밀번호가 변경되었습니다.');
+      state = state.copyWith(isSaving: false, successMessage: '비밀번호가 변경됐어요.');
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -81,12 +81,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   Future<bool> updateProfileImage(File imageFile) async {
     state = state.copyWith(isSaving: true, clearError: true);
     try {
-      final url = await _api.updateProfileImage(imageFile);
+      await _api.updateProfileImage(imageFile);
       final updated = await _api.getMyProfile();
       state = state.copyWith(
         isSaving: false,
         profile: updated,
-        successMessage: '프로필 사진이 변경되었습니다.',
+        successMessage: '프로필 사진이 변경됐어요.',
       );
       return true;
     } catch (e) {

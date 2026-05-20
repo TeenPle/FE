@@ -64,7 +64,7 @@ class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
         hasMore: schools.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '학교 목록을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '학교 목록을 불러오지 못했어요.');
     }
   }
 
@@ -86,7 +86,7 @@ class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
     } catch (_) {
       state = state.copyWith(
         isLoadingMore: false,
-        error: '추가 학교 목록을 불러오지 못했습니다.',
+        error: '추가 학교 목록을 불러오지 못했어요.',
       );
     }
   }
@@ -134,7 +134,7 @@ class AdminBoardListNotifier extends StateNotifier<AdminBoardListState> {
       final boards = await _api.getBoardsBySchool(schoolId);
       state = state.copyWith(boards: boards, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '게시판 목록을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '게시판 목록을 불러오지 못했어요.');
     }
   }
 }
@@ -209,7 +209,7 @@ class AdminPostListNotifier extends StateNotifier<AdminPostListState> {
         hasMore: posts.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '게시글 목록을 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '게시글 목록을 불러오지 못했어요.');
     }
   }
 
@@ -226,10 +226,7 @@ class AdminPostListNotifier extends StateNotifier<AdminPostListState> {
         hasMore: more.length == 20,
       );
     } catch (_) {
-      state = state.copyWith(
-        isLoadingMore: false,
-        error: '추가 게시글을 불러오지 못했습니다.',
-      );
+      state = state.copyWith(isLoadingMore: false, error: '추가 게시글을 불러오지 못했어요.');
     }
   }
 }
@@ -288,7 +285,7 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
       final post = await _api.getPostDetail(postId);
       state = state.copyWith(post: post, isLoading: false);
     } catch (_) {
-      state = state.copyWith(isLoading: false, error: '게시글 상세를 불러오지 못했습니다.');
+      state = state.copyWith(isLoading: false, error: '게시글 상세를 불러오지 못했어요.');
     }
   }
 
@@ -300,10 +297,10 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
       state = state.copyWith(
         post: post,
         isActing: false,
-        successMessage: '게시글을 숨김 처리했습니다.',
+        successMessage: '게시글을 숨김 처리했어요.',
       );
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '게시글 숨김 처리에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '게시글 숨김 처리에 실패했어요.');
     }
   }
 
@@ -315,10 +312,10 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
       state = state.copyWith(
         post: post,
         isActing: false,
-        successMessage: '게시글을 복구했습니다.',
+        successMessage: '게시글을 복구했어요.',
       );
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '게시글 복구에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '게시글 복구에 실패했어요.');
     }
   }
 
@@ -330,10 +327,10 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
       state = state.copyWith(
         post: post,
         isActing: false,
-        successMessage: '댓글을 숨김 처리했습니다.',
+        successMessage: '댓글을 숨김 처리했어요.',
       );
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '댓글 숨김 처리에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '댓글 숨김 처리에 실패했어요.');
     }
   }
 
@@ -345,10 +342,10 @@ class AdminPostDetailNotifier extends StateNotifier<AdminPostDetailState> {
       state = state.copyWith(
         post: post,
         isActing: false,
-        successMessage: '댓글을 복구했습니다.',
+        successMessage: '댓글을 복구했어요.',
       );
     } catch (_) {
-      state = state.copyWith(isActing: false, error: '댓글 복구에 실패했습니다.');
+      state = state.copyWith(isActing: false, error: '댓글 복구에 실패했어요.');
     }
   }
 }

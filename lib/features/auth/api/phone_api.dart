@@ -39,26 +39,26 @@ class PhoneApi {
 
     /// 응답 최상위 타입 검사
     if (data is! Map<String, dynamic>) {
-      throw Exception('응답 형식이 올바르지 않습니다.');
+      throw Exception('응답 형식이 올바르지 않아요.');
     }
 
     /// API 성공 여부 확인
     if (data['isSuccess'] != true) {
-      throw Exception('전화번호 확인에 실패했습니다.');
+      throw Exception('전화번호 확인에 실패했어요.');
     }
 
     final result = data['result'];
 
     /// result 타입 검사
     if (result is! Map<String, dynamic>) {
-      throw Exception('result 형식이 올바르지 않습니다.');
+      throw Exception('result 형식이 올바르지 않아요.');
     }
 
     final exists = result['exists'];
 
     /// exists 타입 검사
     if (exists is! bool) {
-      throw Exception('exists 값이 올바르지 않습니다.');
+      throw Exception('exists 값이 올바르지 않아요.');
     }
 
     return exists;

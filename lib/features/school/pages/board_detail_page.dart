@@ -1051,7 +1051,7 @@ class _WriteFab extends ConsumerWidget {
 
           if (!context.mounted) return;
 
-          showAppSnackBar('게시글이 등록되었습니다.');
+          showAppSnackBar('게시글을 등록했어요.');
         }
       },
       backgroundColor: const Color(0xFF12A8FF),

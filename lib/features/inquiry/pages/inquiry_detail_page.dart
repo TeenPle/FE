@@ -52,7 +52,7 @@ class _InquiryDetailPageState extends ConsumerState<InquiryDetailPage> {
           : inquiry == null
           ? Center(
               child: Text(
-                state.error ?? '문의 내용을 불러오지 못했습니다.',
+                state.error ?? '문의 내용을 불러오지 못했어요.',
                 style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
               ),
             )

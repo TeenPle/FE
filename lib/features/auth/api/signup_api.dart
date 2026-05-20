@@ -50,7 +50,10 @@ class SignupApi {
   /// multipart/form-data
   /// - data: JSON
   /// - studentCard: 이미지 파일
-  Future<void> signUp(SignupFormState formState) async {
+  Future<void> signUp(
+    SignupFormState formState, {
+    required String password,
+  }) async {
     /// 필수값 체크
     _require(formState.selectedSchool != null, '학교 정보가 없습니다.');
     _require(formState.grade != null, '학년 정보가 없습니다.');
@@ -58,7 +61,7 @@ class SignupApi {
     _require(formState.nickname.trim().isNotEmpty, '닉네임 정보가 없습니다.');
     _require(formState.gender.trim().isNotEmpty, '성별 정보가 없습니다.');
     _require(formState.email.trim().isNotEmpty, '이메일 정보가 없습니다.');
-    _require(formState.password.trim().isNotEmpty, '비밀번호 정보가 없습니다.');
+    _require(password.trim().isNotEmpty, '비밀번호 정보가 없습니다.');
     _require(formState.phoneNumber.trim().isNotEmpty, '전화번호 정보가 없습니다.');
     _require(
       formState.verificationToken.trim().isNotEmpty,
@@ -77,7 +80,7 @@ class SignupApi {
       r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$',
     );
     _require(
-      passwordRegex.hasMatch(formState.password.trim()),
+      passwordRegex.hasMatch(password.trim()),
       '비밀번호는 영문, 숫자, 특수문자를 포함한 8~20자여야 합니다.',
     );
 
@@ -101,7 +104,7 @@ class SignupApi {
     final dataJson = jsonEncode({
       'school': formState.selectedSchool!.name,
       'username': formState.username.trim(),
-      'password': formState.password.trim(),
+      'password': password.trim(),
       'email': formState.email.trim(),
       'nickname': formState.nickname.trim(),
       'gender': formState.gender.trim(),

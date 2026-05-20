@@ -126,6 +126,7 @@ class _InquiryHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Center(
       child: ConstrainedBox(
@@ -137,13 +138,17 @@ class _InquiryHeroCard extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(18, compact ? 18 : 20, 18, 18),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFF4FAFF), Color(0xFFEAF6FF)],
+                  colors: isDark
+                      ? const [Color(0xFF182334), Color(0xFF132033)]
+                      : const [Color(0xFFF4FAFF), Color(0xFFEAF6FF)],
                 ),
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: const Color(0xFFDCEEFF)),
+                border: Border.all(
+                  color: isDark ? c.borderBlue : const Color(0xFFDCEEFF),
+                ),
               ),
               child: Column(
                 children: [
@@ -325,7 +330,7 @@ class _InquiryEntryCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: c.cardBg,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFDDE9F5)),
+            border: Border.all(color: c.border),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.035),
@@ -557,6 +562,7 @@ class _InquiryNoticeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Center(
       child: ConstrainedBox(
@@ -564,9 +570,11 @@ class _InquiryNoticeCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF2F9FF),
+            color: isDark ? c.cardBg : const Color(0xFFF2F9FF),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFDDEEFF)),
+            border: Border.all(
+              color: isDark ? c.border : const Color(0xFFDDEEFF),
+            ),
           ),
           child: Row(
             children: [
@@ -624,13 +632,18 @@ class _InquiryStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final answered = inquiry.isAnswered;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: answered ? const Color(0xFFEAF8F0) : const Color(0xFFFFF4E5),
+        color: answered
+            ? (isDark ? const Color(0xFF12352F) : const Color(0xFFEAF8F0))
+            : (isDark ? const Color(0xFF3A2A13) : const Color(0xFFFFF4E5)),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: answered ? const Color(0xFFB7E4C7) : const Color(0xFFFFD8A8),
+          color: answered
+              ? (isDark ? const Color(0xFF1F6F62) : const Color(0xFFB7E4C7))
+              : (isDark ? const Color(0xFF73521E) : const Color(0xFFFFD8A8)),
         ),
       ),
       child: Text(
@@ -638,7 +651,9 @@ class _InquiryStatusBadge extends StatelessWidget {
         style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w800,
-          color: answered ? const Color(0xFF1F8F4D) : const Color(0xFFD97706),
+          color: answered
+              ? (isDark ? const Color(0xFF5FE0CF) : const Color(0xFF1F8F4D))
+              : (isDark ? const Color(0xFFFFC46B) : const Color(0xFFD97706)),
         ),
       ),
     );

@@ -675,8 +675,14 @@ class _SettingsSection extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(loginProvider.notifier).logout();
-      if (context.mounted) context.go(AppRoutes.login);
+      // 로그아웃 정리 작업은 네트워크 요청이 포함될 수 있으므로, 사용자는
+      // 즉시 로그인 화면으로 보내고 로컬/서버 세션 정리는 이어서 완료한다.
+      final logoutFuture = ref.read(loginProvider.notifier).logout();
+      if (context.mounted) {
+        context.go(AppRoutes.login);
+        showAppSnackBar('로그아웃되었습니다.');
+      }
+      await logoutFuture;
     }
   }
 

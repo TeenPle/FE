@@ -7,6 +7,7 @@ import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
+import '../provider/signup_secret_store.dart';
 
 /// 회원가입 6단계 비밀번호 설정 페이지
 class SignupPasswordPage extends ConsumerStatefulWidget {
@@ -33,12 +34,12 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
   void initState() {
     super.initState();
 
-    /// 기존 입력값이 있으면 복원
-    final formState = ref.read(signupFormProvider);
-
-    _passwordController = TextEditingController(text: formState.password);
+    /// 비밀번호는 Riverpod State에 올리지 않고 전용 임시 저장소에서만 복원한다.
+    _passwordController = TextEditingController(
+      text: SignupSecretStore.password,
+    );
     _passwordConfirmController = TextEditingController(
-      text: formState.passwordConfirm,
+      text: SignupSecretStore.passwordConfirm,
     );
   }
 
@@ -120,13 +121,10 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
         child: ElevatedButton(
           onPressed: canProceed
               ? () {
-                  /// 입력값 저장
-                  ref
-                      .read(signupFormProvider.notifier)
-                      .updatePassword(password);
-                  ref
-                      .read(signupFormProvider.notifier)
-                      .updatePasswordConfirm(passwordConfirm);
+                  SignupSecretStore.savePassword(
+                    password: password,
+                    passwordConfirm: passwordConfirm,
+                  );
 
                   /// 다음 단계인 전화번호 입력 페이지로 이동
                   context.push(AppRoutes.signupPhone);
@@ -269,8 +267,6 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
             autocorrect: false,
             enableSuggestions: false,
             onChanged: (value) {
-              /// provider에 즉시 반영
-              ref.read(signupFormProvider.notifier).updatePassword(value);
               setState(() {});
             },
             decoration: _inputDecoration(
@@ -339,10 +335,6 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
             autocorrect: false,
             enableSuggestions: false,
             onChanged: (value) {
-              /// provider에 즉시 반영
-              ref
-                  .read(signupFormProvider.notifier)
-                  .updatePasswordConfirm(value);
               setState(() {});
             },
             decoration: _inputDecoration(

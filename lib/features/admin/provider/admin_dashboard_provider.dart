@@ -51,15 +51,15 @@ class AdminDashboardNotifier extends StateNotifier<AdminDashboardState> {
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final results = await Future.wait<int>([
+      final countResults = await Future.wait<int>([
         _verificationApi.getPendingRequestCount(),
         _reportApi.getPendingReportCount(),
         _inquiryApi.getPendingInquiryCount(),
       ]);
       state = state.copyWith(
-        pendingVerificationCount: results[0],
-        pendingReportCount: results[1],
-        pendingInquiryCount: results[2],
+        pendingVerificationCount: countResults[0],
+        pendingReportCount: countResults[1],
+        pendingInquiryCount: countResults[2],
         isLoading: false,
       );
     } catch (_) {

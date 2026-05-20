@@ -117,18 +117,19 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                             height: 1.55,
                             color: c.textPrimary,
                           ),
-                          decoration: _inputDecoration(
-                            context,
-                            '문의 내용을 자세히 작성해주세요',
-                          ).copyWith(
-                            counterText: '',
-                            contentPadding: const EdgeInsets.fromLTRB(
-                              14,
-                              14,
-                              14,
-                              42,
-                            ),
-                          ),
+                          decoration:
+                              _inputDecoration(
+                                context,
+                                '문의 내용을 자세히 작성해주세요',
+                              ).copyWith(
+                                counterText: '',
+                                contentPadding: const EdgeInsets.fromLTRB(
+                                  14,
+                                  14,
+                                  14,
+                                  42,
+                                ),
+                              ),
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 8),
@@ -223,6 +224,7 @@ class _InquiryWriteHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -231,11 +233,13 @@ class _InquiryWriteHero extends StatelessWidget {
         return Container(
           constraints: BoxConstraints(minHeight: compact ? 188 : 210),
           padding: EdgeInsets.fromLTRB(22, compact ? 20 : 24, 22, 20),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFFFFFFF), Color(0xFFF1F7FF)],
+              colors: isDark
+                  ? const [Color(0xFF182334), Color(0xFF132033)]
+                  : const [Color(0xFFFFFFFF), Color(0xFFF1F7FF)],
             ),
           ),
           child: Stack(
@@ -304,6 +308,8 @@ class _InquiryWriteBubbleScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SizedBox(
       width: 190,
       height: 160,
@@ -318,7 +324,8 @@ class _InquiryWriteBubbleScene extends StatelessWidget {
                 width: 90,
                 height: 128,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.42),
+                  color: (isDark ? const Color(0xFF314158) : Colors.white)
+                      .withValues(alpha: 0.42),
                   borderRadius: BorderRadius.circular(18),
                 ),
               ),
@@ -383,14 +390,16 @@ class _InquiryWriteTip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFEAF3FF),
+          color: isDark ? c.cardBg : const Color(0xFFEAF3FF),
           borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: isDark ? c.border : Colors.transparent),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

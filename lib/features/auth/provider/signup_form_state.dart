@@ -26,12 +26,6 @@ class SignupFormState {
   /// 이메일 인증 성공 후 내려오는 토큰
   final String verificationToken;
 
-  /// 사용자가 입력한 비밀번호
-  final String password;
-
-  /// 사용자가 입력한 비밀번호 확인값
-  final String passwordConfirm;
-
   /// 사용자가 입력한 휴대폰 번호
   final String phoneNumber;
 
@@ -46,8 +40,6 @@ class SignupFormState {
     this.gender = '',
     this.email = '',
     this.verificationToken = '',
-    this.password = '',
-    this.passwordConfirm = '',
     this.phoneNumber = '',
     this.studentCardFilePath = '',
   });
@@ -60,8 +52,6 @@ class SignupFormState {
     String? gender,
     String? email,
     String? verificationToken,
-    String? password,
-    String? passwordConfirm,
     String? phoneNumber,
     String? studentCardFilePath,
     bool clearSelectedSchool = false,
@@ -76,8 +66,6 @@ class SignupFormState {
       gender: gender ?? this.gender,
       email: email ?? this.email,
       verificationToken: verificationToken ?? this.verificationToken,
-      password: password ?? this.password,
-      passwordConfirm: passwordConfirm ?? this.passwordConfirm,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       studentCardFilePath: studentCardFilePath ?? this.studentCardFilePath,
     );

@@ -19,10 +19,11 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      if (!mounted) return;
-      ref.read(adminDashboardProvider.notifier).load();
-    });
+    Future.microtask(_reloadDashboard);
+  }
+
+  Future<void> _reloadDashboard() {
+    return ref.read(adminDashboardProvider.notifier).load();
   }
 
   @override
@@ -31,167 +32,129 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
     final c = context.colors;
 
     return Scaffold(
-      backgroundColor: c.pageBg,
-      appBar: AppBar(backgroundColor: c.pageBg, toolbarHeight: 0, elevation: 0),
+      backgroundColor: c.cardBg,
+      appBar: AppBar(backgroundColor: c.cardBg, toolbarHeight: 0, elevation: 0),
       body: SafeArea(
         top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(12, 14, 12, 22),
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: _AdminSurface(
+        child: RefreshIndicator(
+          color: const Color(0xFF1477F8),
+          onRefresh: _reloadDashboard,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 760),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _AdminHero(
-                        onRefresh: () =>
-                            ref.read(adminDashboardProvider.notifier).load(),
+                      _AdminHeader(
+                        onRefresh: _reloadDashboard,
                         onLogout: () => _confirmLogout(context, ref),
                       ),
-                      const SizedBox(height: 18),
-                      const _SectionTitle('처리 대기 현황'),
-                      const SizedBox(height: 14),
-                      _PendingSummaryGrid(
-                        items: [
-                          _PendingSummaryItem(
-                            icon: Icons.verified_user_outlined,
-                            label: '인증',
-                            count: dashboard.pendingVerificationCount,
-                            iconColor: const Color(0xFF1477F8),
-                            tintColor: const Color(0xFFEAF3FF),
-                            onTap: () =>
-                                context.push(AppRoutes.adminVerificationList),
-                          ),
-                          _PendingSummaryItem(
-                            icon: Icons.flag_outlined,
-                            label: '신고',
-                            count: dashboard.pendingReportCount,
-                            iconColor: const Color(0xFF16A979),
-                            tintColor: const Color(0xFFE8F8F0),
-                            onTap: () async {
-                              await context.push(AppRoutes.adminReportList);
-                              if (context.mounted) {
-                                ref
-                                    .read(adminDashboardProvider.notifier)
-                                    .load();
-                              }
-                            },
-                          ),
-                          _PendingSummaryItem(
-                            icon: Icons.support_agent_rounded,
-                            label: '문의',
-                            count: dashboard.pendingInquiryCount,
-                            iconColor: const Color(0xFF7D41B8),
-                            tintColor: const Color(0xFFF2EAFB),
-                            onTap: () async {
-                              await context.push(AppRoutes.adminInquiries);
-                              if (context.mounted) {
-                                ref
-                                    .read(adminDashboardProvider.notifier)
-                                    .load();
-                              }
-                            },
-                          ),
-                        ],
-                      ),
                       const SizedBox(height: 24),
-                      const _SectionTitle('관리 메뉴'),
-                      const SizedBox(height: 14),
-                      _AdminMenuPanel(
+                      Text(
+                        '관리자 콘솔',
+                        style: AppTextStyles.displayLarge.copyWith(
+                          color: c.textPrimary,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 21,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '미처리 요청 현황을 확인하세요',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textSecondary,
+                          fontSize: 12,
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _TodayStatusCard(dashboard: dashboard),
+                      const SizedBox(height: 22),
+                      const _SectionTitle('빠른 작업'),
+                      const SizedBox(height: 10),
+                      _QuickActionPanel(
                         children: [
-                          _AdminMenuTile(
+                          _QuickActionTile(
                             icon: Icons.verified_user_outlined,
                             title: '인증 요청',
                             subtitle: '학생증 인증 승인/거절',
-                            iconColor: const Color(0xFF1477F8),
-                            tintColor: const Color(0xFFEAF3FF),
+                            color: const Color(0xFF1477F8),
                             badgeCount: dashboard.pendingVerificationCount,
                             onTap: () =>
                                 context.push(AppRoutes.adminVerificationList),
                           ),
-                          const _MenuDivider(),
-                          _AdminMenuTile(
+                          _QuickActionTile(
                             icon: Icons.flag_outlined,
                             title: '신고 관리',
                             subtitle: '신고 콘텐츠 검토 및 처리',
-                            iconColor: const Color(0xFF16A979),
-                            tintColor: const Color(0xFFE8F8F0),
+                            color: const Color(0xFF1477F8),
                             badgeCount: dashboard.pendingReportCount,
-                            onTap: () async {
-                              await context.push(AppRoutes.adminReportList);
-                              if (context.mounted) {
-                                ref
-                                    .read(adminDashboardProvider.notifier)
-                                    .load();
-                              }
-                            },
+                            onTap: () =>
+                                _pushAndRefresh(AppRoutes.adminReportList),
                           ),
-                          const _MenuDivider(),
-                          _AdminMenuTile(
-                            icon: Icons.support_agent_rounded,
+                          _QuickActionTile(
+                            icon: Icons.chat_bubble_outline_rounded,
                             title: '문의 관리',
                             subtitle: '사용자 문의 답변',
-                            iconColor: const Color(0xFF7D41B8),
-                            tintColor: const Color(0xFFF2EAFB),
+                            color: const Color(0xFF1477F8),
                             badgeCount: dashboard.pendingInquiryCount,
-                            onTap: () async {
-                              await context.push(AppRoutes.adminInquiries);
-                              if (context.mounted) {
-                                ref
-                                    .read(adminDashboardProvider.notifier)
-                                    .load();
-                              }
-                            },
+                            onTap: () =>
+                                _pushAndRefresh(AppRoutes.adminInquiries),
                           ),
-                          const _MenuDivider(),
-                          _AdminMenuTile(
+                          _QuickActionTile(
                             icon: Icons.gavel_rounded,
                             title: '제재 이력',
                             subtitle: '활성/과거 제재 확인',
-                            iconColor: const Color(0xFFF08A24),
-                            tintColor: const Color(0xFFFFF0E1),
+                            color: const Color(0xFF1477F8),
                             onTap: () =>
                                 context.push(AppRoutes.adminPenaltyList),
                           ),
-                          const _MenuDivider(),
-                          _AdminMenuTile(
+                          _QuickActionTile(
                             icon: Icons.account_balance_rounded,
                             title: '학교 모니터링',
                             subtitle: '학교별 게시판과 게시글 확인',
-                            iconColor: const Color(0xFF317CEB),
-                            tintColor: const Color(0xFFEAF3FF),
+                            color: const Color(0xFF1477F8),
                             onTap: () => context.push(AppRoutes.adminSchools),
                           ),
-                          const _MenuDivider(),
-                          _AdminMenuTile(
+                          _QuickActionTile(
                             icon: Icons.receipt_long_outlined,
                             title: '감사 로그',
                             subtitle: '운영 조치 기록 확인',
-                            iconColor: const Color(0xFF0C9C9A),
-                            tintColor: const Color(0xFFE5F7F6),
+                            color: const Color(0xFF1477F8),
                             onTap: () => context.push(AppRoutes.adminAuditLogs),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 20),
+                      _FooterNote(),
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _pushAndRefresh(String route) async {
+    await context.push(route);
+    if (!mounted) return;
+    await _reloadDashboard();
   }
 
   void _confirmLogout(BuildContext context, WidgetRef ref) {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('로그아웃'),
-        content: Text('관리자 계정에서 로그아웃할까요?'),
+        title: const Text('로그아웃'),
+        content: const Text('관리자 계정에서 로그아웃할까요?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -207,7 +170,7 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
             child: Text(
               '로그아웃',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: Color(0xFFE05C7B),
+                color: const Color(0xFFE05C7B),
               ),
             ),
           ),
@@ -223,337 +186,103 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
   }
 }
 
-class _AdminSurface extends StatelessWidget {
-  final Widget child;
-
-  const _AdminSurface({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 18),
-      decoration: BoxDecoration(
-        color: c.cardBg,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: c.borderSubtle),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0B2447).withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
-class _AdminHero extends StatelessWidget {
+class _AdminHeader extends StatelessWidget {
   final VoidCallback onRefresh;
   final VoidCallback onLogout;
 
-  const _AdminHero({required this.onRefresh, required this.onLogout});
+  const _AdminHeader({required this.onRefresh, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF1E72FF), Color(0xFF0A46C2)],
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1477F8),
+            borderRadius: BorderRadius.circular(13),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1477F8).withValues(alpha: 0.24),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.admin_panel_settings_rounded,
+            color: Colors.white,
+            size: 21,
           ),
         ),
-        child: Stack(
-          children: [
-            // 오른쪽 배경 장식: 크고 부드러운 반투명 원
-            Positioned(
-              right: -32,
-              top: -32,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'TeenPle Admin',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.titleMedium.copyWith(
+              color: const Color(0xFF1477F8),
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
             ),
-            Positioned(
-              right: 48,
-              bottom: -18,
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 14, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 브랜드 행: 로고 + 서비스명 + 액션 버튼
-                  Row(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(9),
-                        ),
-                        child: const Icon(
-                          Icons.admin_panel_settings_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'TeenPle Admin',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xCCFFFFFF),
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
-                      _HeaderIconButton(
-                        icon: Icons.refresh_rounded,
-                        tooltip: '새로고침',
-                        onTap: onRefresh,
-                      ),
-                      const SizedBox(width: 8),
-                      _HeaderIconButton(
-                        icon: Icons.logout_rounded,
-                        tooltip: '로그아웃',
-                        onTap: onLogout,
-                        danger: true,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // 메인 타이틀
-                  Text(
-                    '관리자 콘솔',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '오늘의 처리 현황을 확인하세요',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xAAFFFFFF),
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        _HeaderButton(
+          icon: Icons.refresh_rounded,
+          tooltip: '새로고침',
+          onTap: onRefresh,
+        ),
+        const SizedBox(width: 10),
+        _HeaderButton(
+          icon: Icons.logout_rounded,
+          tooltip: '로그아웃',
+          onTap: onLogout,
+        ),
+      ],
     );
   }
 }
 
-class _HeaderIconButton extends StatelessWidget {
+class _HeaderButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
-  final bool danger;
 
-  const _HeaderIconButton({
+  const _HeaderButton({
     required this.icon,
     required this.tooltip,
     required this.onTap,
-    this.danger = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 파란 그라디언트 헤더 위에 배치되므로 반투명 흰색 배경 사용
-    final bgColor = danger
-        ? Colors.white.withValues(alpha: 0.15)
-        : Colors.white.withValues(alpha: 0.20);
-    final iconColor = danger ? const Color(0xFFFFB3C6) : Colors.white;
+    final c = context.colors;
     return Tooltip(
       message: tooltip,
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           child: Container(
-            width: 38,
-            height: 38,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 20, color: iconColor),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PendingSummaryGrid extends StatelessWidget {
-  final List<_PendingSummaryItem> items;
-
-  const _PendingSummaryGrid({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final stacked = constraints.maxWidth < 300;
-        if (stacked) {
-          return Column(
-            children: [
-              for (var i = 0; i < items.length; i++) ...[
-                _PendingSummaryCard(item: items[i], compact: false),
-                if (i != items.length - 1) const SizedBox(height: 10),
+              color: c.subtleBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: c.borderBlue),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
               ],
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            for (var i = 0; i < items.length; i++) ...[
-              Expanded(
-                child: _PendingSummaryCard(
-                  item: items[i],
-                  compact: constraints.maxWidth < 520,
-                ),
-              ),
-              if (i != items.length - 1) const SizedBox(width: 8),
-            ],
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _PendingSummaryItem {
-  final IconData icon;
-  final String label;
-  final int? count;
-  final Color iconColor;
-  final Color tintColor;
-  final VoidCallback onTap;
-
-  const _PendingSummaryItem({
-    required this.icon,
-    required this.label,
-    required this.count,
-    required this.iconColor,
-    required this.tintColor,
-    required this.onTap,
-  });
-}
-
-class _PendingSummaryCard extends StatelessWidget {
-  final _PendingSummaryItem item;
-  final bool compact;
-
-  const _PendingSummaryCard({required this.item, required this.compact});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final count = item.count;
-    final label = count == null
-        ? '-'
-        : count > 99
-        ? '99+'
-        : '$count';
-
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(13),
-      child: InkWell(
-        onTap: item.onTap,
-        borderRadius: BorderRadius.circular(13),
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: compact ? 8 : 10,
-            vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(13),
-            border: Border.all(color: c.borderStrong),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0B2447).withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: item.tintColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(item.icon, size: 17, color: item.iconColor),
-              ),
-              const SizedBox(height: 5),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 20,
-                    height: 1,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1477F8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                item.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
-                  height: 1.1,
-                  fontWeight: FontWeight.w700,
-                  color: c.textSecondary,
-                ),
-              ),
-            ],
+            ),
+            child: Icon(icon, size: 22, color: const Color(0xFF1477F8)),
           ),
         ),
       ),
@@ -561,47 +290,221 @@ class _PendingSummaryCard extends StatelessWidget {
   }
 }
 
-class _AdminMenuPanel extends StatelessWidget {
-  final List<Widget> children;
+class _TodayStatusCard extends StatelessWidget {
+  final AdminDashboardState dashboard;
 
-  const _AdminMenuPanel({required this.children});
+  const _TodayStatusCard({required this.dashboard});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final totalPending =
+        (dashboard.pendingVerificationCount ?? 0) +
+        (dashboard.pendingReportCount ?? 0) +
+        (dashboard.pendingInquiryCount ?? 0);
+    final metrics = [
+      _StatusMetric(
+        icon: Icons.verified_user_outlined,
+        label: '인증',
+        value: dashboard.pendingVerificationCount,
+      ),
+      _StatusMetric(
+        icon: Icons.flag_outlined,
+        label: '신고',
+        value: dashboard.pendingReportCount,
+        muted: true,
+      ),
+      _StatusMetric(
+        icon: Icons.chat_bubble_outline_rounded,
+        label: '문의',
+        value: dashboard.pendingInquiryCount,
+      ),
+      _StatusMetric(
+        icon: Icons.check_circle_outline_rounded,
+        label: '합계',
+        value: totalPending,
+        muted: true,
+      ),
+    ];
+
     return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: c.borderStrong),
+        color: c.subtleBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.borderBlue),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0B2447).withValues(alpha: 0.06),
+            color: const Color(0xFF0B2447).withValues(alpha: 0.04),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(children: children),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.calendar_month_rounded,
+                color: Color(0xFF1477F8),
+                size: 19,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '미처리 현황',
+                  style: AppTextStyles.titleSmall.copyWith(
+                    color: c.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              Text(
+                '실시간',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: const Color(0xFF1477F8),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              for (var i = 0; i < metrics.length; i++) ...[
+                Expanded(child: _StatusMetricView(metric: metrics[i])),
+                if (i != metrics.length - 1)
+                  Container(width: 1, height: 46, color: c.dividerBlue),
+              ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _AdminMenuTile extends StatelessWidget {
+class _StatusMetric {
+  final IconData icon;
+  final String label;
+  final int? value;
+  final bool muted;
+
+  const _StatusMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.muted = false,
+  });
+}
+
+class _StatusMetricView extends StatelessWidget {
+  final _StatusMetric metric;
+
+  const _StatusMetricView({required this.metric});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final value = metric.value == null
+        ? '-'
+        : metric.value! > 99
+        ? '99+'
+        : '${metric.value}';
+
+    return Column(
+      children: [
+        Icon(
+          metric.icon,
+          color: metric.muted ? c.iconOnCard : const Color(0xFF1477F8),
+          size: 21,
+        ),
+        const SizedBox(height: 9),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            maxLines: 1,
+            style: AppTextStyles.displaySmall.copyWith(
+              color: const Color(0xFF1477F8),
+              fontWeight: FontWeight.w900,
+              fontSize: 15,
+              height: 1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          metric.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: c.textSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActionPanel extends StatelessWidget {
+  final List<Widget> children;
+
+  const _QuickActionPanel({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.subtleBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderStrong),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            children[i],
+            if (i != children.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: 82,
+                color: c.borderSubtle,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActionTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final Color iconColor;
-  final Color tintColor;
+  final Color color;
   final int? badgeCount;
   final VoidCallback onTap;
 
-  const _AdminMenuTile({
+  const _QuickActionTile({
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.iconColor,
-    required this.tintColor,
+    required this.color,
     this.badgeCount,
     required this.onTap,
   });
@@ -614,98 +517,55 @@ class _AdminMenuTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
-        // LayoutBuilder로 할당된 실제 너비를 기준으로 크기 조절
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final compact = constraints.maxWidth < 300;
-            final iconSize = compact ? 40.0 : 46.0;
-            final iconInner = compact ? 22.0 : 26.0;
-            final hPad = compact ? 14.0 : 16.0;
-            final vPad = compact ? 13.0 : 16.0;
-            final titleSize = compact ? 14.0 : 16.0;
-            final subtitleSize = compact ? 11.0 : 13.0;
-            final gap = compact ? 4.0 : 6.0;
-
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
-              child: Row(
-                children: [
-                  Container(
-                    width: iconSize,
-                    height: iconSize,
-                    decoration: BoxDecoration(
-                      color: tintColor,
-                      shape: BoxShape.circle,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+          child: Row(
+            children: [
+              _TintIcon(icon: icon, color: color, size: 42, iconSize: 24),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: c.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        height: 1.2,
+                      ),
                     ),
-                    child: Icon(icon, size: iconInner, color: iconColor),
-                  ),
-                  SizedBox(width: compact ? 12 : 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: titleSize,
-                            height: 1.15,
-                            fontWeight: FontWeight.w900,
-                            color: c.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: gap),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: subtitleSize,
-                            height: 1.2,
-                            fontWeight: FontWeight.w500,
-                            color: c.textMuted,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textSecondary,
+                        fontSize: 11,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                  if (badgeCount != null && badgeCount! > 0) ...[
-                    SizedBox(width: compact ? 6 : 10),
-                    _PendingBadge(count: badgeCount!),
                   ],
-                  SizedBox(width: compact ? 6 : 8),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: compact ? 22 : 26,
-                    color: c.iconSecondary,
-                  ),
-                ],
+                ),
               ),
-            );
-          },
+              if (badgeCount != null && badgeCount! > 0) ...[
+                const SizedBox(width: 10),
+                _PendingBadge(count: badgeCount!),
+              ],
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: c.iconSecondary,
+                size: 24,
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-}
-
-class _MenuDivider extends StatelessWidget {
-  const _MenuDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // 좌측 여백을 타일 아이콘 끝선에 맞춤 (compact 기준 동기화)
-        final indent = constraints.maxWidth < 300 ? 66.0 : 76.0;
-        return Divider(
-          height: 1,
-          thickness: 1,
-          indent: indent,
-          color: context.colors.borderSubtle,
-        );
-      },
     );
   }
 }
@@ -717,16 +577,41 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final fontSize = screenWidth < 360 ? 15.0 : 17.0;
     return Text(
       title,
-      style: AppTextStyles.bodyMedium.copyWith(
-        fontSize: fontSize,
-        height: 1.2,
-        fontWeight: FontWeight.w900,
+      style: AppTextStyles.titleMedium.copyWith(
         color: context.colors.textPrimary,
+        fontSize: 13,
+        fontWeight: FontWeight.w900,
+        height: 1.2,
       ),
+    );
+  }
+}
+
+class _TintIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final double size;
+  final double? iconSize;
+
+  const _TintIcon({
+    required this.icon,
+    required this.color,
+    required this.size,
+    this.iconSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(size * 0.22),
+      ),
+      child: Icon(icon, color: color, size: iconSize ?? size * 0.52),
     );
   }
 }
@@ -740,20 +625,60 @@ class _PendingBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = count > 99 ? '99+' : '$count';
     return Container(
-      constraints: const BoxConstraints(minWidth: 34, minHeight: 28),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      constraints: const BoxConstraints(minWidth: 30, minHeight: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFF1477F8),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Text(
         label,
         textAlign: TextAlign.center,
         style: AppTextStyles.bodyMedium.copyWith(
-          fontSize: 12,
+          fontSize: 11,
           height: 1.1,
           fontWeight: FontWeight.w900,
           color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _FooterNote extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: c.subtleBg,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: c.borderBlue),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.verified_user_outlined,
+              color: Color(0xFF1477F8),
+              size: 15,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                '안전한 TeenPle 운영에 감사드립니다.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: c.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

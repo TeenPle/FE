@@ -158,8 +158,14 @@ class SettingsPage extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(loginProvider.notifier).logout();
-      if (context.mounted) context.go(AppRoutes.login);
+      // 로그아웃 API가 지연돼도 프로필/설정 화면에 머물지 않도록
+      // 로그인 화면으로 먼저 이동시키고 세션 정리는 이어서 완료한다.
+      final logoutFuture = ref.read(loginProvider.notifier).logout();
+      if (context.mounted) {
+        context.go(AppRoutes.login);
+        showAppSnackBar('로그아웃되었습니다.');
+      }
+      await logoutFuture;
     }
   }
 

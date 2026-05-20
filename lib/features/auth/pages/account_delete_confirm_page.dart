@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/login_provider.dart';
 import '../../profile/provider/profile_provider.dart';
 
@@ -38,16 +39,31 @@ class _AccountDeleteConfirmPageState
     if (!mounted) return;
 
     if (success) {
-      // 탈퇴 요청 성공 → 세션 초기화 후 로그인 화면으로 이동
-      await ref.read(loginProvider.notifier).logout();
-      if (mounted) context.go(AppRoutes.login);
+      // 탈퇴 요청이 접수되면 사용자를 즉시 로그인 화면으로 보내고,
+      // 서버 로그아웃 및 로컬 세션 정리는 이어서 완료한다.
+      final logoutFuture = ref.read(loginProvider.notifier).logout();
+      context.go(AppRoutes.login);
+      showAppSnackBar('탈퇴 요청이 접수되었습니다.');
+      await logoutFuture;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final isLoading = ref.watch(profileProvider).isLoading;
+    final profileState = ref.watch(profileProvider);
+    final isLoading = profileState.isSaving;
+
+    ref.listen(profileProvider, (prev, next) {
+      if (next.errorMessage != null &&
+          next.errorMessage != prev?.errorMessage) {
+        showAppSnackBar(
+          next.errorMessage!,
+          backgroundColor: const Color(0xFFE05C7B),
+        );
+        ref.read(profileProvider.notifier).clearMessages();
+      }
+    });
 
     return Scaffold(
       backgroundColor: c.pageBg,
@@ -66,74 +82,28 @@ class _AccountDeleteConfirmPageState
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: const BoxConstraints(maxWidth: 560),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 경고 헤더 카드
                   _WarningCard(c: c),
-                  const SizedBox(height: 24),
-
-                  // 탈퇴 시 유의 사항
+                  const SizedBox(height: 16),
                   _NoticeList(c: c),
-                  const SizedBox(height: 28),
-
-                  // 확인 문구 입력 안내
-                  Text(
-                    '탈퇴하려면 아래에 "$_confirmText"를 입력해주세요.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
+                  const SizedBox(height: 16),
+                  _ConfirmInputCard(
+                    c: c,
                     controller: _controller,
-                    onChanged: (_) => setState(() {}),
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 14,
-                      color: c.textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _confirmText,
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 14,
-                        color: c.textHint,
-                      ),
-                      filled: true,
-                      fillColor: c.cardBg,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: c.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: c.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFE05C7B),
-                          width: 1.2,
-                        ),
-                      ),
-                    ),
+                    confirmText: _confirmText,
+                    onChanged: () => setState(() {}),
                   ),
-                  const SizedBox(height: 32),
-
-                  // 탈퇴 버튼: 확인 문구 입력 전까지 비활성화
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
-                    height: 52,
+                    height: 50,
                     child: ElevatedButton(
                       onPressed: (_canDelete && !isLoading) ? _submit : null,
                       style: ElevatedButton.styleFrom(
@@ -149,20 +119,18 @@ class _AccountDeleteConfirmPageState
                       child: Text(
                         isLoading ? '처리 중...' : '탈퇴하기',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
-
-                  // 취소 버튼
+                  const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 46,
                     child: TextButton(
-                      onPressed: () => context.pop(),
+                      onPressed: isLoading ? null : () => context.pop(),
                       style: TextButton.styleFrom(
                         foregroundColor: c.textSecondary,
                         shape: RoundedRectangleBorder(
@@ -197,11 +165,18 @@ class _WarningCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF0F3),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFCDD6)),
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: c.border),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF234160).withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,14 +186,14 @@ class _WarningCard extends StatelessWidget {
               Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE05C7B),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE05C7B).withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.warning_rounded,
                   size: 20,
-                  color: Colors.white,
+                  color: Color(0xFFE05C7B),
                 ),
               ),
               const SizedBox(width: 12),
@@ -226,9 +201,9 @@ class _WarningCard extends StatelessWidget {
                 child: Text(
                   '정말 탈퇴하시겠어요?',
                   style: AppTextStyles.displaySmall.copyWith(
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFFB03358),
+                    color: c.textPrimary,
                   ),
                 ),
               ),
@@ -238,9 +213,94 @@ class _WarningCard extends StatelessWidget {
           Text(
             '탈퇴 후 7일 이내에는 계정을 복구할 수 있어요.\n7일이 지나면 모든 개인정보가 영구적으로 삭제됩니다.',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 12,
               height: 1.6,
-              color: const Color(0xFF8C3252),
+              color: c.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConfirmInputCard extends StatelessWidget {
+  final AppColors c;
+  final TextEditingController controller;
+  final String confirmText;
+  final VoidCallback onChanged;
+
+  const _ConfirmInputCard({
+    required this.c,
+    required this.controller,
+    required this.confirmText,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '확인 문구 입력',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: c.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '탈퇴하려면 아래에 "$confirmText"를 정확히 입력해주세요.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              height: 1.5,
+              color: c.textMuted,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: controller,
+            onChanged: (_) => onChanged(),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              color: c.textPrimary,
+            ),
+            decoration: InputDecoration(
+              hintText: confirmText,
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textHint,
+              ),
+              filled: true,
+              fillColor: c.subtleBg,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 13,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: c.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: c.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE05C7B),
+                  width: 1.2,
+                ),
+              ),
             ),
           ),
         ],
@@ -263,11 +323,13 @@ class _NoticeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: c.subtleBg,
-        borderRadius: BorderRadius.circular(14),
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: c.border),
       ),
       child: Column(
@@ -276,7 +338,7 @@ class _NoticeList extends StatelessWidget {
           Text(
             '탈퇴 전 꼭 확인해주세요',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: c.textPrimary,
             ),
@@ -288,15 +350,18 @@ class _NoticeList extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5),
-                    child: Container(
-                      width: 4,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: c.textMuted,
-                        shape: BoxShape.circle,
-                      ),
+                  Container(
+                    width: 20,
+                    height: 20,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isDark ? c.tintBg : const Color(0xFFEAF6FF),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      size: 14,
+                      color: Color(0xFF2B83F6),
                     ),
                   ),
                   const SizedBox(width: 10),

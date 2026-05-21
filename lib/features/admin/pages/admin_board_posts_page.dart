@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminBoardPostsPage extends ConsumerStatefulWidget {
   final int boardId;
@@ -82,38 +83,40 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
               onRefresh: () => ref
                   .read(adminPostListProvider(widget.boardId).notifier)
                   .load(),
-              child: ListView.separated(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount:
-                    state.posts.length + 1 + (state.isLoadingMore ? 1 : 0),
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _BoardPostsHeader(
-                      boardTitle: widget.boardTitle,
-                      schoolName: widget.schoolName,
-                      totalCount: state.posts.length,
-                      hiddenCount: state.posts
-                          .where((post) => post.postStatus == 'HIDDEN')
-                          .length,
+              child: AdminContentFrame(
+                child: ListView.separated(
+                  controller: _scrollController,
+                  padding: AdminLayout.pagePadding(context),
+                  itemCount:
+                      state.posts.length + 1 + (state.isLoadingMore ? 1 : 0),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return _BoardPostsHeader(
+                        boardTitle: widget.boardTitle,
+                        schoolName: widget.schoolName,
+                        totalCount: state.posts.length,
+                        hiddenCount: state.posts
+                            .where((post) => post.postStatus == 'HIDDEN')
+                            .length,
+                      );
+                    }
+                    final postIndex = index - 1;
+                    if (postIndex >= state.posts.length) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    final post = state.posts[postIndex];
+                    return _PostTile(
+                      post: post,
+                      onTap: () =>
+                          context.push(AppRoutes.adminPostDetail(post.postId)),
                     );
-                  }
-                  final postIndex = index - 1;
-                  if (postIndex >= state.posts.length) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  final post = state.posts[postIndex];
-                  return _PostTile(
-                    post: post,
-                    onTap: () =>
-                        context.push(AppRoutes.adminPostDetail(post.postId)),
-                  );
-                },
+                  },
+                ),
               ),
             ),
     );

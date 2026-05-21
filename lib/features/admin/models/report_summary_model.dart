@@ -10,6 +10,7 @@ class ReportSummaryModel {
   final String status;
   final DateTime createdAt;
   final DateTime? processedAt;
+  final int? penaltyDays;
 
   const ReportSummaryModel({
     required this.reportId,
@@ -23,6 +24,7 @@ class ReportSummaryModel {
     required this.status,
     required this.createdAt,
     this.processedAt,
+    this.penaltyDays,
   });
 
   factory ReportSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class ReportSummaryModel {
       processedAt: json['processedAt'] != null
           ? DateTime.parse(json['processedAt'] as String)
           : null,
+      penaltyDays: (json['penaltyDays'] as num?)?.toInt(),
     );
   }
 
@@ -83,6 +86,7 @@ class ReportDetailModel extends ReportSummaryModel {
     required super.status,
     required super.createdAt,
     super.processedAt,
+    super.penaltyDays,
   });
 
   factory ReportDetailModel.fromJson(Map<String, dynamic> json) {
@@ -104,6 +108,7 @@ class ReportDetailModel extends ReportSummaryModel {
       processedAt: json['processedAt'] != null
           ? DateTime.parse(json['processedAt'] as String)
           : null,
+      penaltyDays: (json['penaltyDays'] as num?)?.toInt(),
     );
   }
 }

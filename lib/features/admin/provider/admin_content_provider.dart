@@ -45,10 +45,12 @@ class AdminSchoolListState {
 
 class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
   final AdminContentApi _api;
+  int _loadToken = 0;
 
   AdminSchoolListNotifier(this._api) : super(const AdminSchoolListState());
 
   Future<void> load({String keyword = ''}) async {
+    final token = ++_loadToken;
     state = state.copyWith(
       keyword: keyword,
       page: 0,
@@ -58,25 +60,29 @@ class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
     );
     try {
       final schools = await _api.searchSchools(keyword: keyword);
+      if (token != _loadToken) return;
       state = state.copyWith(
         schools: schools,
         isLoading: false,
         hasMore: schools.length == 20,
       );
     } catch (_) {
+      if (token != _loadToken) return;
       state = state.copyWith(isLoading: false, error: '학교 목록을 불러오지 못했습니다.');
     }
   }
 
   Future<void> loadMore() async {
-    if (state.isLoadingMore || !state.hasMore) return;
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
     final nextPage = state.page + 1;
+    final token = _loadToken;
     state = state.copyWith(isLoadingMore: true, error: null);
     try {
       final more = await _api.searchSchools(
         keyword: state.keyword,
         page: nextPage,
       );
+      if (token != _loadToken) return;
       state = state.copyWith(
         schools: [...state.schools, ...more],
         page: nextPage,
@@ -84,6 +90,7 @@ class AdminSchoolListNotifier extends StateNotifier<AdminSchoolListState> {
         hasMore: more.length == 20,
       );
     } catch (_) {
+      if (token != _loadToken) return;
       state = state.copyWith(
         isLoadingMore: false,
         error: '추가 학교 목록을 불러오지 못했습니다.',

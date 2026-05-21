@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminReportListPage extends ConsumerStatefulWidget {
   const AdminReportListPage({super.key});
@@ -22,6 +23,7 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
   static const _tabs = [
     ('PENDING', '대기 중'),
     ('RESOLVED', '처리 완료'),
+    ('WARNED', '경고'),
     ('REJECTED', '거절됨'),
   ];
 
@@ -70,122 +72,116 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF2F6),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: _tabs.map((tab) {
-                  final isActive = tab.$1 == state.activeStatus;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => ref
-                          .read(adminReportListProvider.notifier)
-                          .load(status: tab.$1),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOut,
-                        height: 44,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? const Color(0xFF4A67F2)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: isActive
-                              ? const [
-                                  BoxShadow(
-                                    color: Color(0x14000000),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Text(
-                          tab.$2,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: isActive
-                                ? Colors.white
-                                : const Color(0xFF333333),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+      body: AdminContentFrame(
+        child: Column(
+          children: [
+            Padding(
+              padding: AdminLayout.pagePadding(context, top: 12, bottom: 4),
+              child: _ReportStatusTabs(
+                tabs: _tabs,
+                activeStatus: state.activeStatus,
+                onChanged: (status) => ref
+                    .read(adminReportListProvider.notifier)
+                    .load(status: status),
               ),
             ),
-          ),
-          Expanded(
-            child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : state.error != null
-                ? Center(
-                    child: Text(
-                      state.error!,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textMuted,
+            Expanded(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : state.error != null
+                  ? Center(
+                      child: Text(
+                        state.error!,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textMuted,
+                        ),
                       ),
-                    ),
-                  )
-                : state.reports.isEmpty
-                ? Center(
-                    child: Text(
-                      '신고 내역이 없어요.',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textMuted,
-                      ),
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () =>
-                        ref.read(adminReportListProvider.notifier).refresh(),
-                    child: ListView.separated(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount:
-                          state.reports.length + (state.isLoadingMore ? 1 : 0),
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 8),
-                      itemBuilder: (context, index) {
-                        if (index >= state.reports.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 14),
-                            child: Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : state.reports.isEmpty
+                  ? Center(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 26,
+                        ),
+                        decoration: BoxDecoration(
+                          color: c.cardBg,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: c.borderBlue),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: c.tintBg,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.flag_outlined,
+                                color: Color(0xFF1477F8),
+                              ),
                             ),
-                          );
-                        }
-
-                        return _ReportCard(
-                          report: state.reports[index],
-                          onTap: () async {
-                            final changed = await context.push<bool>(
-                              AppRoutes.adminReportDetail(
-                                state.reports[index].reportId,
+                            const SizedBox(height: 12),
+                            Text(
+                              '신고 내역이 없어요.',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                color: c.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () =>
+                          ref.read(adminReportListProvider.notifier).refresh(),
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        padding: AdminLayout.pagePadding(context),
+                        itemCount:
+                            state.reports.length +
+                            (state.isLoadingMore ? 1 : 0),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 7),
+                        itemBuilder: (context, index) {
+                          if (index >= state.reports.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               ),
                             );
-                            if (changed == true && context.mounted) {
-                              ref
-                                  .read(adminReportListProvider.notifier)
-                                  .refresh();
-                            }
-                          },
-                        );
-                      },
+                          }
+
+                          return _ReportCard(
+                            report: state.reports[index],
+                            onTap: () async {
+                              final changed = await context.push<bool>(
+                                AppRoutes.adminReportDetail(
+                                  state.reports[index].reportId,
+                                ),
+                              );
+                              if (changed == true && context.mounted) {
+                                ref
+                                    .read(adminReportListProvider.notifier)
+                                    .refresh();
+                              }
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -200,62 +196,109 @@ class _ReportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: c.cardBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: c.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _TypeBadge(report.targetTypeLabel),
-                _ReasonBadge(report.reportReasonLabel),
-                Text(
-                  _formatDate(report.createdAt),
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 11,
-                    color: c.textTertiary,
-                  ),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: c.cardBg,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: c.borderBlue),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _statusColor(report.status).withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 12,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                _ReportMeta(
-                  icon: Icons.person_outline,
-                  text: '신고자: ${report.reporterNickname}',
-                  c: c,
+                child: Icon(
+                  _statusIcon(report.status),
+                  size: 20,
+                  color: _statusColor(report.status),
                 ),
-                _ReportMeta(
-                  icon: Icons.gavel_rounded,
-                  text: '피신고자: ${report.reportedUserNickname}',
-                  c: c,
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            report.reportReasonLabel,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: c.textPrimary,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _StatusBadge(status: report.status),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    Wrap(
+                      spacing: 7,
+                      runSpacing: 6,
+                      children: [
+                        _TypeBadge(report.targetTypeLabel),
+                        _ReasonBadge(report.reportReasonLabel),
+                      ],
+                    ),
+                    const SizedBox(height: 9),
+                    _ReportMeta(
+                      icon: Icons.person_outline,
+                      text: '신고자 ${report.reporterNickname}',
+                    ),
+                    const SizedBox(height: 6),
+                    _ReportMeta(
+                      icon: Icons.gavel_rounded,
+                      text: '피신고자 ${report.reportedUserNickname}',
+                    ),
+                    const SizedBox(height: 6),
+                    _ReportMeta(
+                      icon: Icons.schedule_rounded,
+                      text: _formatDate(report.createdAt),
+                    ),
+                    if (report.penaltyDays != null) ...[
+                      const SizedBox(height: 6),
+                      _ReportMeta(
+                        icon: Icons.timer_outlined,
+                        text: '${report.penaltyDays}일 제재',
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Icon(
+              ),
+              const SizedBox(width: 6),
+              Icon(
                 Icons.chevron_right_rounded,
-                size: 18,
+                size: 23,
                 color: c.iconSecondary,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -268,38 +311,145 @@ class _ReportCard extends StatelessWidget {
 class _ReportMeta extends StatelessWidget {
   final IconData icon;
   final String text;
-  final AppColors c;
 
-  const _ReportMeta({
-    required this.icon,
-    required this.text,
-    required this.c,
+  const _ReportMeta({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: c.iconSecondary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: c.textSecondary,
+              height: 1.2,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReportStatusTabs extends StatelessWidget {
+  final List<(String, String)> tabs;
+  final String activeStatus;
+  final ValueChanged<String> onChanged;
+
+  const _ReportStatusTabs({
+    required this.tabs,
+    required this.activeStatus,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 260),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: c.iconSecondary),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              text,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
-                color: c.textSecondary,
-              ),
-            ),
+    final c = context.colors;
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B2447).withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 7),
           ),
         ],
+      ),
+      child: Row(
+        children: tabs.map((tab) {
+          final isActive = tab.$1 == activeStatus;
+          final color = _statusColor(tab.$1);
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(tab.$1),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
+                height: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isActive ? color : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  tab.$2,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isActive ? Colors.white : c.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 }
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _statusColor(status);
+    final label = switch (status) {
+      'PENDING' => '대기',
+      'RESOLVED' => '완료',
+      'REJECTED' => '거절',
+      'WARNED' => '경고',
+      _ => status,
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          color: color,
+          height: 1,
+        ),
+      ),
+    );
+  }
+}
+
+Color _statusColor(String status) => switch (status) {
+  'PENDING' => const Color(0xFF1477F8),
+  'RESOLVED' => const Color(0xFF2F7D46),
+  'REJECTED' => const Color(0xFFE05C7B),
+  'WARNED' => const Color(0xFFF59E0B),
+  _ => const Color(0xFF7D8790),
+};
+
+IconData _statusIcon(String status) => switch (status) {
+  'PENDING' => Icons.flag_outlined,
+  'RESOLVED' => Icons.check_circle_outline_rounded,
+  'REJECTED' => Icons.cancel_outlined,
+  'WARNED' => Icons.warning_amber_rounded,
+  _ => Icons.flag_outlined,
+};
 
 class _TypeBadge extends StatelessWidget {
   final String label;

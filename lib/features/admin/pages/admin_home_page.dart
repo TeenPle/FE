@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../auth/provider/login_provider.dart';
 import '../provider/admin_dashboard_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminHomePage extends ConsumerStatefulWidget {
   const AdminHomePage({super.key});
@@ -41,99 +42,95 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
           onRefresh: _reloadDashboard,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            padding: AdminLayout.pagePadding(context, top: 20, bottom: 28),
             children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _AdminHeader(
-                        onRefresh: _reloadDashboard,
-                        onLogout: () => _confirmLogout(context, ref),
+              AdminContentFrame(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _AdminHeader(
+                      onRefresh: _reloadDashboard,
+                      onLogout: () => _confirmLogout(context, ref),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      '관리자 콘솔',
+                      style: AppTextStyles.displayLarge.copyWith(
+                        color: c.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 21,
+                        height: 1.1,
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        '관리자 콘솔',
-                        style: AppTextStyles.displayLarge.copyWith(
-                          color: c.textPrimary,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 21,
-                          height: 1.1,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '미처리 요청 현황을 확인하세요',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textSecondary,
+                        fontSize: 12,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _TodayStatusCard(dashboard: dashboard),
+                    const SizedBox(height: 22),
+                    const _SectionTitle('빠른 작업'),
+                    const SizedBox(height: 10),
+                    _QuickActionPanel(
+                      children: [
+                        _QuickActionTile(
+                          icon: Icons.verified_user_outlined,
+                          title: '인증 요청',
+                          subtitle: '학생증 인증 승인/거절',
+                          color: const Color(0xFF1477F8),
+                          badgeCount: dashboard.pendingVerificationCount,
+                          onTap: () =>
+                              context.push(AppRoutes.adminVerificationList),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '미처리 요청 현황을 확인하세요',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: c.textSecondary,
-                          fontSize: 12,
-                          height: 1.25,
+                        _QuickActionTile(
+                          icon: Icons.flag_outlined,
+                          title: '신고 관리',
+                          subtitle: '신고 콘텐츠 검토 및 처리',
+                          color: const Color(0xFF1477F8),
+                          badgeCount: dashboard.pendingReportCount,
+                          onTap: () =>
+                              _pushAndRefresh(AppRoutes.adminReportList),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      _TodayStatusCard(dashboard: dashboard),
-                      const SizedBox(height: 22),
-                      const _SectionTitle('빠른 작업'),
-                      const SizedBox(height: 10),
-                      _QuickActionPanel(
-                        children: [
-                          _QuickActionTile(
-                            icon: Icons.verified_user_outlined,
-                            title: '인증 요청',
-                            subtitle: '학생증 인증 승인/거절',
-                            color: const Color(0xFF1477F8),
-                            badgeCount: dashboard.pendingVerificationCount,
-                            onTap: () =>
-                                context.push(AppRoutes.adminVerificationList),
-                          ),
-                          _QuickActionTile(
-                            icon: Icons.flag_outlined,
-                            title: '신고 관리',
-                            subtitle: '신고 콘텐츠 검토 및 처리',
-                            color: const Color(0xFF1477F8),
-                            badgeCount: dashboard.pendingReportCount,
-                            onTap: () =>
-                                _pushAndRefresh(AppRoutes.adminReportList),
-                          ),
-                          _QuickActionTile(
-                            icon: Icons.chat_bubble_outline_rounded,
-                            title: '문의 관리',
-                            subtitle: '사용자 문의 답변',
-                            color: const Color(0xFF1477F8),
-                            badgeCount: dashboard.pendingInquiryCount,
-                            onTap: () =>
-                                _pushAndRefresh(AppRoutes.adminInquiries),
-                          ),
-                          _QuickActionTile(
-                            icon: Icons.gavel_rounded,
-                            title: '제재 이력',
-                            subtitle: '활성/과거 제재 확인',
-                            color: const Color(0xFF1477F8),
-                            onTap: () =>
-                                context.push(AppRoutes.adminPenaltyList),
-                          ),
-                          _QuickActionTile(
-                            icon: Icons.account_balance_rounded,
-                            title: '학교 모니터링',
-                            subtitle: '학교별 게시판과 게시글 확인',
-                            color: const Color(0xFF1477F8),
-                            onTap: () => context.push(AppRoutes.adminSchools),
-                          ),
-                          _QuickActionTile(
-                            icon: Icons.receipt_long_outlined,
-                            title: '감사 로그',
-                            subtitle: '운영 조치 기록 확인',
-                            color: const Color(0xFF1477F8),
-                            onTap: () => context.push(AppRoutes.adminAuditLogs),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      _FooterNote(),
-                    ],
-                  ),
+                        _QuickActionTile(
+                          icon: Icons.chat_bubble_outline_rounded,
+                          title: '문의 관리',
+                          subtitle: '사용자 문의 답변',
+                          color: const Color(0xFF1477F8),
+                          badgeCount: dashboard.pendingInquiryCount,
+                          onTap: () =>
+                              _pushAndRefresh(AppRoutes.adminInquiries),
+                        ),
+                        _QuickActionTile(
+                          icon: Icons.gavel_rounded,
+                          title: '제재 이력',
+                          subtitle: '활성/과거 제재 확인',
+                          color: const Color(0xFF1477F8),
+                          onTap: () => context.push(AppRoutes.adminPenaltyList),
+                        ),
+                        _QuickActionTile(
+                          icon: Icons.account_balance_rounded,
+                          title: '학교 모니터링',
+                          subtitle: '학교별 게시판과 게시글 확인',
+                          color: const Color(0xFF1477F8),
+                          onTap: () => context.push(AppRoutes.adminSchools),
+                        ),
+                        _QuickActionTile(
+                          icon: Icons.receipt_long_outlined,
+                          title: '감사 로그',
+                          subtitle: '운영 조치 기록 확인',
+                          color: const Color(0xFF1477F8),
+                          onTap: () => context.push(AppRoutes.adminAuditLogs),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _FooterNote(),
+                  ],
                 ),
               ),
             ],

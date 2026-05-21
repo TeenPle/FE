@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminSchoolListPage extends ConsumerStatefulWidget {
   const AdminSchoolListPage({super.key});
@@ -17,8 +20,11 @@ class AdminSchoolListPage extends ConsumerStatefulWidget {
 }
 
 class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
+  static const _searchDebounceDuration = Duration(milliseconds: 250);
+
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -29,6 +35,7 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -60,118 +67,126 @@ class _AdminSchoolListPageState extends ConsumerState<AdminSchoolListPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-            child: _SchoolSearchHeader(
-              keyword: state.keyword,
-              child: TextField(
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                onSubmitted: _search,
-                decoration: InputDecoration(
-                  hintText: '학교명 검색',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () {
-                      _searchController.clear();
-                      ref.read(adminSchoolListProvider.notifier).load();
-                      // 검색 초기화 시 목록 상단으로 복귀
-                      if (_scrollController.hasClients) {
-                        _scrollController.jumpTo(0);
-                      }
-                    },
-                  ),
-                  filled: true,
-                  fillColor: c.subtleBg,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
+      body: AdminContentFrame(
+        child: Column(
+          children: [
+            Padding(
+              padding: AdminLayout.pagePadding(context, top: 8, bottom: 6),
+              child: _SchoolSearchHeader(
+                keyword: state.keyword,
+                child: TextField(
+                  controller: _searchController,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: _search,
+                  onChanged: _onSearchChanged,
+                  decoration: InputDecoration(
+                    hintText: '학교명 검색',
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () {
+                        _searchController.clear();
+                        _search('');
+                      },
+                    ),
+                    filled: true,
+                    fillColor: c.subtleBg,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : state.error != null && state.schools.isEmpty
-                ? Center(
-                    child: Text(
-                      state.error!,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textMuted,
+            Expanded(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : state.error != null && state.schools.isEmpty
+                  ? Center(
+                      child: Text(
+                        state.error!,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textMuted,
+                        ),
                       ),
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () => ref
-                        .read(adminSchoolListProvider.notifier)
-                        .load(keyword: state.keyword),
-                    child: state.schools.isEmpty
-                        // 검색 결과 없음 안내 (pull-to-refresh 작동을 위해 ListView 사용)
-                        ? ListView(
-                            children: [
-                              SizedBox(
-                                height: 200,
-                                child: Center(
-                                  child: Text(
-                                    '검색 결과가 없습니다.',
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: c.textMuted,
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () => ref
+                          .read(adminSchoolListProvider.notifier)
+                          .load(keyword: state.keyword),
+                      child: state.schools.isEmpty
+                          // 검색 결과 없음 안내 (pull-to-refresh 작동을 위해 ListView 사용)
+                          ? ListView(
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  child: Center(
+                                    child: Text(
+                                      '검색 결과가 없습니다.',
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: c.textMuted,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : ListView.separated(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.all(16),
-                            itemCount:
-                                state.schools.length +
-                                (state.isLoadingMore ? 1 : 0),
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 10),
-                            itemBuilder: (context, index) {
-                              if (index >= state.schools.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
+                              ],
+                            )
+                          : ListView.separated(
+                              controller: _scrollController,
+                              padding: AdminLayout.pagePadding(context),
+                              itemCount:
+                                  state.schools.length +
+                                  (state.isLoadingMore ? 1 : 0),
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                if (index >= state.schools.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                return _SchoolTile(
+                                  school: state.schools[index],
+                                  onTap: () => context.push(
+                                    AppRoutes.adminSchoolBoards(
+                                      state.schools[index].id,
+                                    ),
+                                    extra: {
+                                      'schoolName': state.schools[index].name,
+                                    },
                                   ),
                                 );
-                              }
-                              return _SchoolTile(
-                                school: state.schools[index],
-                                onTap: () => context.push(
-                                  AppRoutes.adminSchoolBoards(
-                                    state.schools[index].id,
-                                  ),
-                                  extra: {
-                                    'schoolName': state.schools[index].name,
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-          ),
-        ],
+                              },
+                            ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _search(String keyword) {
+    _searchDebounce?.cancel();
     ref.read(adminSchoolListProvider.notifier).load(keyword: keyword.trim());
     // 검색 결과가 바뀌면 목록 상단으로 이동해야 빈 화면처럼 보이지 않는다.
     if (_scrollController.hasClients) _scrollController.jumpTo(0);
+  }
+
+  void _onSearchChanged(String keyword) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(_searchDebounceDuration, () {
+      if (!mounted) return;
+      _search(keyword);
+    });
   }
 }
 

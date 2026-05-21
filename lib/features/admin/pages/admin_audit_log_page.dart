@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../models/admin_audit_log_model.dart';
 import '../provider/admin_audit_log_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminAuditLogPage extends ConsumerStatefulWidget {
   const AdminAuditLogPage({super.key});
@@ -63,63 +64,65 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
       ),
       body: RefreshIndicator(
         onRefresh: _applyFilters,
-        child: ListView.separated(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16),
-          // 로그 없을 때도 빈 상태 아이템 1개를 포함시켜 안내 문구를 표시한다.
-          itemCount:
-              (state.isLoading
-                  ? 1
-                  : (state.logs.isEmpty ? 1 : state.logs.length)) +
-              1 +
-              (state.isLoadingMore ? 1 : 0),
-          separatorBuilder: (context, index) => const SizedBox(height: 10),
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return _FilterPanel(
-                action: _action,
-                targetType: _targetType,
-                adminIdController: _adminIdController,
-                from: _from,
-                to: _to,
-                onActionChanged: (value) => setState(() => _action = value),
-                onTargetTypeChanged: (value) =>
-                    setState(() => _targetType = value),
-                onPickFrom: () => _pickDate(isFrom: true),
-                onPickTo: () => _pickDate(isFrom: false),
-                onClearFilters: _clearFilters,
-                onApplyFilters: _applyFilters,
-              );
-            }
-            if (state.isLoading) {
-              return const Padding(
-                padding: EdgeInsets.only(top: 120),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            // 로그 없음 안내
-            if (state.logs.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 60),
-                child: Center(
-                  child: Text(
-                    '로그가 없습니다.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textMuted,
+        child: AdminContentFrame(
+          child: ListView.separated(
+            controller: _scrollController,
+            padding: AdminLayout.pagePadding(context),
+            // 로그 없을 때도 빈 상태 아이템 1개를 포함시켜 안내 문구를 표시한다.
+            itemCount:
+                (state.isLoading
+                    ? 1
+                    : (state.logs.isEmpty ? 1 : state.logs.length)) +
+                1 +
+                (state.isLoadingMore ? 1 : 0),
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _FilterPanel(
+                  action: _action,
+                  targetType: _targetType,
+                  adminIdController: _adminIdController,
+                  from: _from,
+                  to: _to,
+                  onActionChanged: (value) => setState(() => _action = value),
+                  onTargetTypeChanged: (value) =>
+                      setState(() => _targetType = value),
+                  onPickFrom: () => _pickDate(isFrom: true),
+                  onPickTo: () => _pickDate(isFrom: false),
+                  onClearFilters: _clearFilters,
+                  onApplyFilters: _applyFilters,
+                );
+              }
+              if (state.isLoading) {
+                return const Padding(
+                  padding: EdgeInsets.only(top: 120),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              // 로그 없음 안내
+              if (state.logs.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: Center(
+                    child: Text(
+                      '로그가 없습니다.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textMuted,
+                      ),
                     ),
                   ),
-                ),
-              );
-            }
-            final logIndex = index - 1;
-            if (logIndex >= state.logs.length) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            return _AuditLogTile(log: state.logs[logIndex]);
-          },
+                );
+              }
+              final logIndex = index - 1;
+              if (logIndex >= state.logs.length) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              return _AuditLogTile(log: state.logs[logIndex]);
+            },
+          ),
         ),
       ),
     );
@@ -445,7 +448,7 @@ class _AuditLogTile extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '처리자: ${log.adminNickname} (${log.adminId})',
+            '처리자: ${log.adminNickname}',
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               color: c.textMuted,
@@ -481,16 +484,6 @@ class _AuditLogTile extends StatelessWidget {
                 fontSize: 12,
                 color: c.textBody,
                 height: 1.45,
-              ),
-            ),
-          ],
-          if (log.metadata != null && log.metadata!.trim().isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              log.metadata!,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
-                color: c.textTertiary,
               ),
             ),
           ],

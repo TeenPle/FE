@@ -156,7 +156,9 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
       );
     } catch (_) {
       if (!mounted) return;
-      state = state.copyWith(isPenalized: false, clearPenaltyExpiresAt: true);
+      // 제재 조회 실패 시 이전 상태를 유지한다.
+      // false로 초기화하면 제재 중인 유저가 서버 측 오류 상황을 이용해 차단을 우회할 수 있다.
+      // 서버는 전송 시 독립적으로 제재를 재검증하지만, FE 상태도 안전하게 유지한다.
     }
   }
 

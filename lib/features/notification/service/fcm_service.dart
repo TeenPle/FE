@@ -322,16 +322,28 @@ class FcmService {
   }
 
   Future<void> _registerToken() async {
+    if (kDebugMode) debugPrint('[FCM] 토큰 요청 중...');
+    String? token;
     try {
-      if (kDebugMode) debugPrint('[FCM] 토큰 요청 중...');
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token == null) return;
-
-      final platform = Platform.isIOS ? 'IOS' : 'ANDROID';
-      await _api.registerPushToken(token, platform);
-      if (kDebugMode) debugPrint('[FCM] 서버 토큰 등록 완료');
+      token = await FirebaseMessaging.instance.getToken();
     } catch (e) {
-      if (kDebugMode) debugPrint('[FCM ERROR] $e');
+      if (kDebugMode) debugPrint('[FCM ERROR] 토큰 발급 실패: $e');
+      return;
+    }
+    if (token == null) return;
+
+    final platform = Platform.isIOS ? 'IOS' : 'ANDROID';
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _api.registerPushToken(token, platform);
+        if (kDebugMode) debugPrint('[FCM] 서버 토큰 등록 완료 (시도 $attempt)');
+        return;
+      } catch (e) {
+        if (kDebugMode) debugPrint('[FCM ERROR] 서버 등록 실패 (시도 $attempt): $e');
+        if (attempt < 3) {
+          await Future.delayed(Duration(seconds: attempt * 2));
+        }
+      }
     }
   }
 

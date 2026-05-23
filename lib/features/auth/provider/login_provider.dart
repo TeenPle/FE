@@ -216,9 +216,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
     switch (code) {
       case 'USER4003':
-        return '존재하지 않는 이메일이에요.';
       case 'USER4004':
-        return '비밀번호가 일치하지 않아요.';
+        // 이메일 존재 여부를 노출하지 않기 위해 두 케이스를 동일한 메시지로 처리한다.
+        return '이메일 또는 비밀번호를 다시 확인해 주세요.';
     }
 
     if (message != null && message.isNotEmpty) return message;

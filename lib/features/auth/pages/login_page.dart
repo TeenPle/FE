@@ -27,10 +27,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _hasShownSignupSuccessMessage = false;
 
   @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_refreshSubmitState);
+    _passwordController.addListener(_refreshSubmitState);
+  }
+
+  @override
   void dispose() {
+    _emailController.removeListener(_refreshSubmitState);
+    _passwordController.removeListener(_refreshSubmitState);
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _refreshSubmitState() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -112,12 +125,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final loginState = ref.watch(loginProvider);
-
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    final canLogin =
-        email.isNotEmpty && password.isNotEmpty && !loginState.isLoading;
 
     final c = context.colors;
 
@@ -211,6 +218,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
+                            autofillHints: const [AutofillHints.email],
                             autocorrect: false,
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: c.textPrimary,
@@ -260,6 +268,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             autocorrect: false,
+                            autofillHints: const [AutofillHints.password],
                             enableSuggestions: false,
                             textInputAction: TextInputAction.done,
                             style: AppTextStyles.bodyMedium.copyWith(
@@ -424,7 +433,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           SizedBox(
                             height: 52,
                             child: ElevatedButton(
-                              onPressed: canLogin ? _submit : null,
+                              onPressed: loginState.isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4A67F2),
                                 disabledBackgroundColor: const Color(

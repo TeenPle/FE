@@ -662,12 +662,9 @@ final GoRouter router = GoRouter(
 
 Future<String?> _adminOnly(BuildContext context, GoRouterState state) async {
   final storage = TokenStorage();
-  // 로그인 여부: userId와 accessToken이 모두 존재해야 유효한 세션
+  // 로그인 직후 세션 토큰은 메모리에만 있을 수 있으므로 저장된 사용자와 역할로 가드를 판단한다.
   final userId = await storage.getUserId();
   if (userId == null) return AppRoutes.login;
-  final accessToken = await storage.getAccessToken();
-  if (accessToken == null) return AppRoutes.login;
-  // 역할 검증: ADMIN이 아니면 로그인 화면으로 돌려보낸다
   final role = await storage.getUserRole();
   if (role != 'ADMIN') return AppRoutes.login;
   return null;

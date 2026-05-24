@@ -621,19 +621,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                             ),
                             child: Row(
                               children: [
-                                Container(
-                                  width: 38,
-                                  height: 38,
-                                  decoration: BoxDecoration(
-                                    color: visual.color.withValues(alpha: 0.11),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    visual.icon,
-                                    color: visual.color,
-                                    size: 22,
-                                  ),
-                                ),
+                                _BoardIcon(visual: visual),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
@@ -704,56 +692,56 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 }
 
 class _BoardVisual {
-  final IconData icon;
+  final _BoardIconKind kind;
   final Color color;
 
-  const _BoardVisual({required this.icon, required this.color});
+  const _BoardVisual({required this.kind, required this.color});
 
   static _BoardVisual fromBoard(BoardModel board) {
     switch (board.type) {
       case 'FREE':
         return const _BoardVisual(
-          icon: Icons.forum_rounded,
-          color: Color(0xFF1477F8),
+          kind: _BoardIconKind.free,
+          color: Color(0xFF4C7CF3),
         );
       case 'QUESTION':
         return const _BoardVisual(
-          icon: Icons.help_rounded,
-          color: Color(0xFF00A884),
+          kind: _BoardIconKind.question,
+          color: Color(0xFF10B896),
         );
       case 'GRADE_1':
         return const _BoardVisual(
-          icon: Icons.looks_one_rounded,
-          color: Color(0xFF10A37F),
+          kind: _BoardIconKind.grade1,
+          color: Color(0xFF7B5AF8),
         );
       case 'GRADE_2':
         return const _BoardVisual(
-          icon: Icons.looks_two_rounded,
-          color: Color(0xFF2563EB),
+          kind: _BoardIconKind.grade2,
+          color: Color(0xFF3F63F4),
         );
       case 'GRADE_3':
         return const _BoardVisual(
-          icon: Icons.looks_3_rounded,
-          color: Color(0xFFD97706),
+          kind: _BoardIconKind.grade3,
+          color: Color(0xFFFF9F26),
         );
       case 'ACADEMIC':
         return const _BoardVisual(
-          icon: Icons.assignment_turned_in_rounded,
-          color: Color(0xFF2563EB),
+          kind: _BoardIconKind.academic,
+          color: Color(0xFF3882F6),
         );
       case 'CONCERN':
         return const _BoardVisual(
-          icon: Icons.favorite_rounded,
-          color: Color(0xFFE11D48),
+          kind: _BoardIconKind.concern,
+          color: Color(0xFFEC4899),
         );
       case 'PROMOTION':
         return const _BoardVisual(
-          icon: Icons.campaign_rounded,
-          color: Color(0xFFEA580C),
+          kind: _BoardIconKind.promotion,
+          color: Color(0xFFFBBF24),
         );
       case 'GRADUATE':
         return const _BoardVisual(
-          icon: Icons.school_rounded,
+          kind: _BoardIconKind.graduate,
           color: Color(0xFF475569),
         );
     }
@@ -761,57 +749,297 @@ class _BoardVisual {
     final normalizedTitle = board.title.replaceAll(' ', '');
     if (normalizedTitle.contains('질문')) {
       return const _BoardVisual(
-        icon: Icons.help_rounded,
-        color: Color(0xFF00A884),
+        kind: _BoardIconKind.question,
+        color: Color(0xFF10B896),
       );
     }
     if (normalizedTitle.contains('1학년')) {
       return const _BoardVisual(
-        icon: Icons.looks_one_rounded,
-        color: Color(0xFF10A37F),
+        kind: _BoardIconKind.grade1,
+        color: Color(0xFF7B5AF8),
       );
     }
     if (normalizedTitle.contains('2학년')) {
       return const _BoardVisual(
-        icon: Icons.looks_two_rounded,
-        color: Color(0xFF2563EB),
+        kind: _BoardIconKind.grade2,
+        color: Color(0xFF3F63F4),
       );
     }
     if (normalizedTitle.contains('3학년')) {
       return const _BoardVisual(
-        icon: Icons.looks_3_rounded,
-        color: Color(0xFFD97706),
+        kind: _BoardIconKind.grade3,
+        color: Color(0xFFFF9F26),
       );
     }
     if (normalizedTitle.contains('시험') || normalizedTitle.contains('수행')) {
       return const _BoardVisual(
-        icon: Icons.assignment_turned_in_rounded,
-        color: Color(0xFF2563EB),
+        kind: _BoardIconKind.academic,
+        color: Color(0xFF3882F6),
       );
     }
     if (normalizedTitle.contains('고민')) {
       return const _BoardVisual(
-        icon: Icons.favorite_rounded,
-        color: Color(0xFFE11D48),
+        kind: _BoardIconKind.concern,
+        color: Color(0xFFEC4899),
       );
     }
     if (normalizedTitle.contains('홍보')) {
       return const _BoardVisual(
-        icon: Icons.campaign_rounded,
-        color: Color(0xFFEA580C),
+        kind: _BoardIconKind.promotion,
+        color: Color(0xFFFBBF24),
       );
     }
     if (normalizedTitle.contains('졸업')) {
       return const _BoardVisual(
-        icon: Icons.school_rounded,
+        kind: _BoardIconKind.graduate,
         color: Color(0xFF475569),
       );
     }
 
     return const _BoardVisual(
-      icon: Icons.forum_rounded,
-      color: Color(0xFF1477F8),
+      kind: _BoardIconKind.free,
+      color: Color(0xFF4C7CF3),
     );
+  }
+}
+
+enum _BoardIconKind {
+  free,
+  question,
+  grade1,
+  grade2,
+  grade3,
+  academic,
+  concern,
+  promotion,
+  graduate,
+}
+
+class _BoardIcon extends StatelessWidget {
+  final _BoardVisual visual;
+
+  const _BoardIcon({required this.visual});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: visual.color.withValues(alpha: isDark ? 0.12 : 0.09),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(
+          color: visual.color.withValues(alpha: isDark ? 0.22 : 0.16),
+        ),
+      ),
+      child: CustomPaint(painter: _BoardIconPainter(visual.kind, visual.color)),
+    );
+  }
+}
+
+class _BoardIconPainter extends CustomPainter {
+  final _BoardIconKind kind;
+  final Color color;
+
+  const _BoardIconPainter(this.kind, this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.25
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final fill = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    switch (kind) {
+      case _BoardIconKind.free:
+        _drawFree(canvas, size, stroke, fill);
+      case _BoardIconKind.question:
+        _drawQuestion(canvas, size, stroke);
+      case _BoardIconKind.grade1:
+        _drawGrade(canvas, size, stroke, '1');
+      case _BoardIconKind.grade2:
+        _drawGrade(canvas, size, stroke, '2');
+      case _BoardIconKind.grade3:
+        _drawGrade(canvas, size, stroke, '3');
+      case _BoardIconKind.academic:
+        _drawAcademic(canvas, size, stroke);
+      case _BoardIconKind.concern:
+        _drawConcern(canvas, size, stroke);
+      case _BoardIconKind.promotion:
+        _drawPromotion(canvas, size, stroke);
+      case _BoardIconKind.graduate:
+        _drawGraduate(canvas, size, stroke);
+    }
+  }
+
+  void _drawFree(Canvas canvas, Size size, Paint stroke, Paint fill) {
+    final w = size.width;
+    final h = size.height;
+    final path = Path()
+      ..moveTo(w * 0.27, h * 0.65)
+      ..cubicTo(w * 0.18, h * 0.56, w * 0.18, h * 0.38, w * 0.29, h * 0.29)
+      ..cubicTo(w * 0.42, h * 0.17, w * 0.66, h * 0.17, w * 0.78, h * 0.31)
+      ..cubicTo(w * 0.91, h * 0.47, w * 0.82, h * 0.70, w * 0.60, h * 0.74)
+      ..cubicTo(w * 0.49, h * 0.76, w * 0.39, h * 0.74, w * 0.31, h * 0.69)
+      ..lineTo(w * 0.21, h * 0.73)
+      ..lineTo(w * 0.24, h * 0.62);
+    canvas.drawPath(path, stroke);
+    for (final x in [0.40, 0.52, 0.64]) {
+      canvas.drawCircle(Offset(w * x, h * 0.47), 1.7, fill);
+    }
+  }
+
+  void _drawQuestion(Canvas canvas, Size size, Paint stroke) {
+    final w = size.width;
+    final h = size.height;
+    final path = Path()
+      ..moveTo(w * 0.31, h * 0.68)
+      ..cubicTo(w * 0.21, h * 0.58, w * 0.20, h * 0.39, w * 0.31, h * 0.29)
+      ..cubicTo(w * 0.45, h * 0.16, w * 0.68, h * 0.18, w * 0.78, h * 0.33)
+      ..cubicTo(w * 0.89, h * 0.49, w * 0.79, h * 0.70, w * 0.60, h * 0.73)
+      ..cubicTo(w * 0.50, h * 0.75, w * 0.41, h * 0.73, w * 0.34, h * 0.69)
+      ..lineTo(w * 0.24, h * 0.73)
+      ..lineTo(w * 0.27, h * 0.63);
+    canvas.drawPath(path, stroke);
+    _drawCenteredText(canvas, size, '?', color, 24, FontWeight.w700);
+  }
+
+  void _drawGrade(Canvas canvas, Size size, Paint stroke, String label) {
+    canvas.drawCircle(size.center(Offset.zero), size.width * 0.28, stroke);
+    _drawCenteredText(canvas, size, label, color, 21, FontWeight.w700);
+  }
+
+  void _drawAcademic(Canvas canvas, Size size, Paint stroke) {
+    final w = size.width;
+    final h = size.height;
+    final body = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.28, h * 0.25, w * 0.44, h * 0.54),
+      Radius.circular(w * 0.07),
+    );
+    canvas.drawRRect(body, stroke);
+    final clip = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.42, h * 0.18, w * 0.16, h * 0.11),
+      Radius.circular(w * 0.04),
+    );
+    canvas.drawRRect(clip, stroke);
+    for (final y in [0.40, 0.54, 0.67]) {
+      final check = Path()
+        ..moveTo(w * 0.36, h * y)
+        ..lineTo(w * 0.40, h * (y + 0.04))
+        ..lineTo(w * 0.47, h * (y - 0.04));
+      canvas.drawPath(check, stroke);
+      canvas.drawLine(Offset(w * 0.53, h * y), Offset(w * 0.64, h * y), stroke);
+    }
+  }
+
+  void _drawConcern(Canvas canvas, Size size, Paint stroke) {
+    final w = size.width;
+    final h = size.height;
+    final path = Path()
+      ..moveTo(w * 0.50, h * 0.75)
+      ..cubicTo(w * 0.26, h * 0.58, w * 0.20, h * 0.43, w * 0.29, h * 0.32)
+      ..cubicTo(w * 0.38, h * 0.22, w * 0.49, h * 0.29, w * 0.50, h * 0.39)
+      ..cubicTo(w * 0.51, h * 0.29, w * 0.62, h * 0.22, w * 0.71, h * 0.32)
+      ..cubicTo(w * 0.80, h * 0.43, w * 0.74, h * 0.58, w * 0.50, h * 0.75);
+    canvas.drawPath(path, stroke);
+  }
+
+  void _drawPromotion(Canvas canvas, Size size, Paint stroke) {
+    final w = size.width;
+    final h = size.height;
+    final horn = Path()
+      ..moveTo(w * 0.43, h * 0.42)
+      ..lineTo(w * 0.73, h * 0.27)
+      ..lineTo(w * 0.73, h * 0.67)
+      ..lineTo(w * 0.43, h * 0.57)
+      ..close();
+    canvas.drawPath(horn, stroke);
+    final mouth = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.24, h * 0.40, w * 0.19, h * 0.19),
+      Radius.circular(w * 0.08),
+    );
+    canvas.drawRRect(mouth, stroke);
+    canvas.drawLine(
+      Offset(w * 0.33, h * 0.60),
+      Offset(w * 0.33, h * 0.76),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(w * 0.40, h * 0.59),
+      Offset(w * 0.43, h * 0.73),
+      stroke,
+    );
+    canvas.drawArc(
+      Rect.fromLTWH(w * 0.70, h * 0.40, w * 0.10, h * 0.17),
+      -1.15,
+      2.3,
+      false,
+      stroke,
+    );
+  }
+
+  void _drawGraduate(Canvas canvas, Size size, Paint stroke) {
+    final w = size.width;
+    final h = size.height;
+    final cap = Path()
+      ..moveTo(w * 0.20, h * 0.40)
+      ..lineTo(w * 0.50, h * 0.24)
+      ..lineTo(w * 0.80, h * 0.40)
+      ..lineTo(w * 0.50, h * 0.56)
+      ..close();
+    canvas.drawPath(cap, stroke);
+    final band = Path()
+      ..moveTo(w * 0.33, h * 0.48)
+      ..lineTo(w * 0.33, h * 0.61)
+      ..cubicTo(w * 0.42, h * 0.70, w * 0.58, h * 0.70, w * 0.67, h * 0.61)
+      ..lineTo(w * 0.67, h * 0.48);
+    canvas.drawPath(band, stroke);
+    canvas.drawLine(
+      Offset(w * 0.73, h * 0.43),
+      Offset(w * 0.73, h * 0.63),
+      stroke,
+    );
+    canvas.drawCircle(Offset(w * 0.73, h * 0.67), 1.4, stroke);
+  }
+
+  void _drawCenteredText(
+    Canvas canvas,
+    Size size,
+    String text,
+    Color color,
+    double fontSize,
+    FontWeight fontWeight,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          height: 1,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(
+      canvas,
+      Offset(
+        (size.width - painter.width) / 2,
+        (size.height - painter.height) / 2,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _BoardIconPainter oldDelegate) {
+    return oldDelegate.kind != kind || oldDelegate.color != color;
   }
 }
 

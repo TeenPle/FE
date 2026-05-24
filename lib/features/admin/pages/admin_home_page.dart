@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,10 +19,21 @@ class AdminHomePage extends ConsumerStatefulWidget {
 }
 
 class _AdminHomePageState extends ConsumerState<AdminHomePage> {
+  Timer? _refreshTimer;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(_reloadDashboard);
+    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (mounted) _reloadDashboard();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _reloadDashboard() {
@@ -73,6 +86,11 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
                     ),
                     const SizedBox(height: 20),
                     _TodayStatusCard(dashboard: dashboard),
+                    const SizedBox(height: 18),
+                    _RecentAdminEventsCard(
+                      events: dashboard.recentEvents,
+                      onTap: (route) => _pushAndRefresh(route),
+                    ),
                     const SizedBox(height: 22),
                     const _SectionTitle('빠른 작업'),
                     const SizedBox(height: 10),
@@ -447,6 +465,183 @@ class _StatusMetricView extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _RecentAdminEventsCard extends StatelessWidget {
+  final List<AdminDashboardEvent> events;
+  final ValueChanged<String> onTap;
+
+  const _RecentAdminEventsCard({required this.events, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.subtleBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B2447).withValues(alpha: 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.notifications_active_outlined,
+                  color: Color(0xFF1477F8),
+                  size: 19,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    '최근 대기 항목',
+                    style: AppTextStyles.titleSmall.copyWith(
+                      color: c.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (events.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '새로 처리할 항목이 없습니다.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: c.textMuted,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            )
+          else
+            for (var i = 0; i < events.length; i++) ...[
+              if (i > 0)
+                Divider(height: 1, thickness: 1, color: c.borderSubtle),
+              _RecentAdminEventTile(event: events[i], onTap: onTap),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentAdminEventTile extends StatelessWidget {
+  final AdminDashboardEvent event;
+  final ValueChanged<String> onTap;
+
+  const _RecentAdminEventTile({required this.event, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final color = _eventColor(event.type);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onTap(event.route),
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 11, 14, 11),
+          child: Row(
+            children: [
+              _TintIcon(
+                icon: _eventIcon(event.type),
+                color: color,
+                size: 34,
+                iconSize: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      event.subtitle.isEmpty ? '내용 없음' : event.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textSecondary,
+                        fontSize: 11,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _formatRelativeTime(event.createdAt),
+                style: AppTextStyles.captionSmall.copyWith(
+                  color: c.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: c.iconSecondary,
+                size: 22,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _eventColor(AdminDashboardEventType type) {
+    return switch (type) {
+      AdminDashboardEventType.verification => const Color(0xFF1477F8),
+      AdminDashboardEventType.report => const Color(0xFFE05C7B),
+      AdminDashboardEventType.inquiry => const Color(0xFF0E9F6E),
+    };
+  }
+
+  IconData _eventIcon(AdminDashboardEventType type) {
+    return switch (type) {
+      AdminDashboardEventType.verification => Icons.verified_user_outlined,
+      AdminDashboardEventType.report => Icons.flag_outlined,
+      AdminDashboardEventType.inquiry => Icons.chat_bubble_outline_rounded,
+    };
+  }
+
+  String _formatRelativeTime(DateTime value) {
+    final diff = DateTime.now().difference(value);
+    if (diff.inMinutes < 1) return '방금';
+    if (diff.inHours < 1) return '${diff.inMinutes}분 전';
+    if (diff.inDays < 1) return '${diff.inHours}시간 전';
+    return '${diff.inDays}일 전';
   }
 }
 

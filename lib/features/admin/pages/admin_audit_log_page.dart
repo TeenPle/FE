@@ -18,7 +18,6 @@ class AdminAuditLogPage extends ConsumerStatefulWidget {
 
 class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
   final _scrollController = ScrollController();
-  final _adminIdController = TextEditingController();
   String? _action;
   String? _targetType;
   DateTime? _from;
@@ -39,7 +38,6 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _adminIdController.dispose();
     super.dispose();
   }
 
@@ -50,78 +48,67 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
 
     return Scaffold(
       backgroundColor: c.pageBg,
-      appBar: AppBar(
-        title: Text(
-          '감사 로그',
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
-        ),
-        backgroundColor: c.pageBg,
-        foregroundColor: c.textPrimary,
-        elevation: 0,
-      ),
-      body: RefreshIndicator(
-        onRefresh: _applyFilters,
+      body: SafeArea(
         child: AdminContentFrame(
-          child: ListView.separated(
-            controller: _scrollController,
-            padding: AdminLayout.pagePadding(context),
-            // 로그 없을 때도 빈 상태 아이템 1개를 포함시켜 안내 문구를 표시한다.
-            itemCount:
-                (state.isLoading
-                    ? 1
-                    : (state.logs.isEmpty ? 1 : state.logs.length)) +
-                1 +
-                (state.isLoadingMore ? 1 : 0),
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return _FilterPanel(
-                  action: _action,
-                  targetType: _targetType,
-                  adminIdController: _adminIdController,
-                  from: _from,
-                  to: _to,
-                  onActionChanged: (value) => setState(() => _action = value),
-                  onTargetTypeChanged: (value) =>
-                      setState(() => _targetType = value),
-                  onPickFrom: () => _pickDate(isFrom: true),
-                  onPickTo: () => _pickDate(isFrom: false),
-                  onClearFilters: _clearFilters,
-                  onApplyFilters: _applyFilters,
-                );
-              }
-              if (state.isLoading) {
-                return const Padding(
-                  padding: EdgeInsets.only(top: 120),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              // 로그 없음 안내
-              if (state.logs.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 60),
-                  child: Center(
-                    child: Text(
-                      '로그가 없습니다.',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textMuted,
-                      ),
-                    ),
+          child: Column(
+            children: [
+              const AdminPageHeader(
+                title: '감사 로그',
+                subtitle: '관리자 처리 이력과 열람 기록을 확인합니다.',
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _applyFilters,
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    padding: AdminLayout.pagePadding(context, top: 16),
+                    itemCount:
+                        (state.isLoading
+                            ? 1
+                            : (state.logs.isEmpty ? 1 : state.logs.length)) +
+                        1 +
+                        (state.isLoadingMore ? 1 : 0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return _FilterPanel(
+                          action: _action,
+                          targetType: _targetType,
+                          from: _from,
+                          to: _to,
+                          onActionChanged: (value) =>
+                              setState(() => _action = value),
+                          onTargetTypeChanged: (value) =>
+                              setState(() => _targetType = value),
+                          onPickFrom: () => _pickDate(isFrom: true),
+                          onPickTo: () => _pickDate(isFrom: false),
+                          onClearFilters: _clearFilters,
+                          onApplyFilters: _applyFilters,
+                        );
+                      }
+                      if (state.isLoading) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 120),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (state.logs.isEmpty) {
+                        return const _AuditEmptyCard();
+                      }
+                      final logIndex = index - 1;
+                      if (logIndex >= state.logs.length) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return _AuditLogTile(log: state.logs[logIndex]);
+                    },
                   ),
-                );
-              }
-              final logIndex = index - 1;
-              if (logIndex >= state.logs.length) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              return _AuditLogTile(log: state.logs[logIndex]);
-            },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -131,13 +118,7 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
   Future<void> _applyFilters() {
     return ref
         .read(adminAuditLogProvider.notifier)
-        .load(
-          action: _action,
-          targetType: _targetType,
-          adminId: int.tryParse(_adminIdController.text.trim()),
-          from: _from,
-          to: _to,
-        );
+        .load(action: _action, targetType: _targetType, from: _from, to: _to);
   }
 
   Future<void> _clearFilters() {
@@ -146,7 +127,6 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
       _targetType = null;
       _from = null;
       _to = null;
-      _adminIdController.clear();
     });
     return ref.read(adminAuditLogProvider.notifier).clearFilters();
   }
@@ -172,7 +152,6 @@ class _AdminAuditLogPageState extends ConsumerState<AdminAuditLogPage> {
 class _FilterPanel extends StatelessWidget {
   final String? action;
   final String? targetType;
-  final TextEditingController adminIdController;
   final DateTime? from;
   final DateTime? to;
   final ValueChanged<String?> onActionChanged;
@@ -185,7 +164,6 @@ class _FilterPanel extends StatelessWidget {
   const _FilterPanel({
     required this.action,
     required this.targetType,
-    required this.adminIdController,
     required this.from,
     required this.to,
     required this.onActionChanged,
@@ -200,17 +178,67 @@ class _FilterPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: c.border),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1477F8).withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.manage_search_rounded,
+                  color: Color(0xFF1477F8),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '로그 필터',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '액션, 대상, 기간으로 운영 기록을 좁혀봅니다.',
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        color: c.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
           DropdownButtonFormField<String>(
             initialValue: action,
-            decoration: const InputDecoration(labelText: '액션'),
+            decoration: _inputDecoration(context, '액션'),
             items: const [
               DropdownMenuItem(value: 'VIEW_POST_DETAIL', child: Text('상세 열람')),
               DropdownMenuItem(value: 'HIDE_POST', child: Text('게시글 숨김')),
@@ -244,7 +272,7 @@ class _FilterPanel extends StatelessWidget {
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             initialValue: targetType,
-            decoration: const InputDecoration(labelText: '대상'),
+            decoration: _inputDecoration(context, '대상'),
             items: const [
               DropdownMenuItem(value: 'POST', child: Text('게시글')),
               DropdownMenuItem(value: 'COMMENT', child: Text('댓글')),
@@ -257,15 +285,6 @@ class _FilterPanel extends StatelessWidget {
               DropdownMenuItem(value: 'INQUIRY', child: Text('문의')),
             ],
             onChanged: onTargetTypeChanged,
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: adminIdController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: '관리자 ID',
-              prefixIcon: Icon(Icons.person_search_outlined),
-            ),
           ),
           const SizedBox(height: 10),
           LayoutBuilder(
@@ -317,13 +336,26 @@ class _FilterPanel extends StatelessWidget {
               final stacked = constraints.maxWidth < 330;
               final clearButton = OutlinedButton(
                 onPressed: onClearFilters,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(46),
+                  side: BorderSide(color: c.borderBlue),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  foregroundColor: c.textSecondary,
+                ),
                 child: Text('초기화'),
               );
               final applyButton = ElevatedButton(
                 onPressed: onApplyFilters,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4A67F2),
+                  minimumSize: const Size.fromHeight(46),
+                  backgroundColor: const Color(0xFF1477F8),
                   foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 child: Text('필터 적용'),
               );
@@ -351,6 +383,33 @@ class _FilterPanel extends StatelessWidget {
       ),
     );
   }
+
+  InputDecoration _inputDecoration(
+    BuildContext context,
+    String label, {
+    IconData? icon,
+  }) {
+    final c = context.colors;
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: icon == null ? null : Icon(icon),
+      filled: true,
+      fillColor: c.subtleBg,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: c.borderBlue),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: c.borderBlue),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF1477F8), width: 1.4),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    );
+  }
 }
 
 class _DateButton extends StatelessWidget {
@@ -366,13 +425,89 @@ class _DateButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return OutlinedButton.icon(
       onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(46),
+        side: BorderSide(color: c.borderBlue),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        foregroundColor: c.textSecondary,
+      ),
       icon: const Icon(Icons.calendar_today_outlined, size: 16),
       label: Text(
         date == null ? label : '${date!.year}.${date!.month}.${date!.day}',
         overflow: TextOverflow.ellipsis,
       ),
+    );
+  }
+}
+
+class _AuditEmptyCard extends StatelessWidget {
+  const _AuditEmptyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      margin: const EdgeInsets.only(top: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.history_toggle_off_rounded,
+            size: 28,
+            color: c.iconSecondary,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '로그가 없습니다.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: c.textBody,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AuditMeta extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final int maxLines;
+
+  const _AuditMeta({required this.icon, required this.text, this.maxLines = 1});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 15, color: c.iconSecondary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: c.textSecondary,
+              height: 1.25,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -386,108 +521,131 @@ class _AuditLogTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final color = _actionColor(log.action);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: c.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: c.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  _actionLabel(log.action),
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: color,
+    return Material(
+      color: Colors.transparent,
+      child: Ink(
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: c.cardBg,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: c.borderBlue),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(_actionIcon(log.action), color: color, size: 20),
+            ),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          _actionLabel(log.action),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: color,
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        _formatDate(log.createdAt),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
+                          color: c.textTertiary,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              Text(
-                _formatDate(log.createdAt),
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 11,
-                  color: c.textTertiary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${_targetLabel(log.targetType)} #${log.targetId}',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: c.textPrimary,
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${_targetLabel(log.targetType)} #${log.targetId}',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                      ),
+                      if (_canOpenTarget(log))
+                        TextButton.icon(
+                          onPressed: () => _openTarget(context, log),
+                          icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                          label: Text('이동'),
+                        ),
+                    ],
                   ),
-                ),
-              ),
-              if (_canOpenTarget(log))
-                TextButton.icon(
-                  onPressed: () => _openTarget(context, log),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                  label: Text('이동'),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '처리자: ${log.adminNickname}',
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 11,
-              color: c.textMuted,
-            ),
-          ),
-          if (log.ipAddress != null && log.ipAddress!.trim().isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              'IP: ${log.ipAddress}',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
-                color: c.textMuted,
-              ),
-            ),
-          ],
-          if (log.userAgent != null && log.userAgent!.trim().isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              'User-Agent: ${log.userAgent}',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
-                color: c.textMuted,
+                  const SizedBox(height: 6),
+                  _AuditMeta(
+                    icon: Icons.person_outline_rounded,
+                    text: '처리자: ${log.adminNickname}',
+                  ),
+                  if (log.ipAddress != null &&
+                      log.ipAddress!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    _AuditMeta(
+                      icon: Icons.language_rounded,
+                      text: 'IP: ${log.ipAddress}',
+                    ),
+                  ],
+                  if (log.userAgent != null &&
+                      log.userAgent!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    _AuditMeta(
+                      icon: Icons.devices_rounded,
+                      text: 'User-Agent: ${log.userAgent}',
+                      maxLines: 2,
+                    ),
+                  ],
+                  if (log.reason != null && log.reason!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      log.reason!,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 12,
+                        color: c.textBody,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
-          if (log.reason != null && log.reason!.trim().isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              log.reason!,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 12,
-                color: c.textBody,
-                height: 1.45,
-              ),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -530,6 +688,16 @@ class _AuditLogTile extends StatelessWidget {
       return const Color(0xFFF59E0B);
     }
     return const Color(0xFF426C82);
+  }
+
+  IconData _actionIcon(String action) {
+    if (action.contains('HIDE')) return Icons.visibility_off_outlined;
+    if (action.contains('RESTORE')) return Icons.restore_rounded;
+    if (action.contains('APPROVE')) return Icons.check_circle_outline_rounded;
+    if (action.contains('REJECT')) return Icons.block_rounded;
+    if (action.contains('WARN')) return Icons.warning_amber_rounded;
+    if (action.contains('VIEW')) return Icons.visibility_outlined;
+    return Icons.history_rounded;
   }
 
   String _actionLabel(String action) => switch (action) {

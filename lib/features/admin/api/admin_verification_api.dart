@@ -49,6 +49,7 @@ class AdminVerificationApi {
   /// 학교 인증 요청 목록 조회
   Future<List<VerificationRequestListItemModel>> getRequestList(
     VerificationStatusModel status, {
+    String? keyword,
     int page = 0,
     int size = 20,
   }) async {
@@ -58,6 +59,8 @@ class AdminVerificationApi {
         'status': status.toQueryValue,
         'page': '$page',
         'size': '$size',
+        if (keyword != null && keyword.trim().isNotEmpty)
+          'keyword': keyword.trim(),
       },
     );
 
@@ -74,7 +77,9 @@ class AdminVerificationApi {
     final result = data['result'];
 
     // 배포 전환 중 기존 List 응답과 신규 Page 응답을 모두 읽는다.
-    final rawItems = result is Map<String, dynamic> ? result['content'] : result;
+    final rawItems = result is Map<String, dynamic>
+        ? result['content']
+        : result;
 
     if (rawItems is! List) {
       throw Exception('목록 데이터 형식이 올바르지 않습니다.');

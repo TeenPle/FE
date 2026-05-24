@@ -9,6 +9,7 @@ class AdminVerificationListState {
   final int currentPage;
   final VerificationStatusModel selectedStatus;
   final List<VerificationRequestListItemModel> items;
+  final String keyword;
   final String? errorMessage;
 
   const AdminVerificationListState({
@@ -18,6 +19,7 @@ class AdminVerificationListState {
     this.currentPage = 0,
     this.selectedStatus = VerificationStatusModel.pending,
     this.items = const [],
+    this.keyword = '',
     this.errorMessage,
   });
 
@@ -28,6 +30,7 @@ class AdminVerificationListState {
     int? currentPage,
     VerificationStatusModel? selectedStatus,
     List<VerificationRequestListItemModel>? items,
+    String? keyword,
     String? errorMessage,
     bool clearErrorMessage = false,
   }) {
@@ -38,6 +41,7 @@ class AdminVerificationListState {
       currentPage: currentPage ?? this.currentPage,
       selectedStatus: selectedStatus ?? this.selectedStatus,
       items: items ?? this.items,
+      keyword: keyword ?? this.keyword,
       errorMessage: clearErrorMessage
           ? null
           : (errorMessage ?? this.errorMessage),

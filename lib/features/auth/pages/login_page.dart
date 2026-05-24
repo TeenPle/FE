@@ -66,6 +66,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _submit() async {
+    if (ref.read(loginProvider).isLoading) return;
+
+    FocusManager.instance.primaryFocus?.unfocus();
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -260,7 +266,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               color: c.textPrimary,
                             ),
                             onSubmitted: (_) {
-                              if (canLogin) _submit();
+                              _submit();
                             },
                             onChanged: (_) {
                               ref

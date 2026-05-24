@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 class AdminLayout {
   static const double maxContentWidth = 760;
@@ -36,6 +40,62 @@ class AdminContentFrame extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: child,
+      ),
+    );
+  }
+}
+
+class AdminPageHeader extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+
+  const AdminPageHeader({super.key, required this.title, this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: context.canPop() ? () => context.pop() : null,
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                splashRadius: 22,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                subtitle!,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: c.textMuted,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

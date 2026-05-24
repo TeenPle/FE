@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +24,8 @@ class AdminVerificationListPage extends ConsumerStatefulWidget {
 class _AdminVerificationListPageState
     extends ConsumerState<AdminVerificationListPage> {
   final _scrollController = ScrollController();
+  final _searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -31,6 +35,8 @@ class _AdminVerificationListPageState
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -43,6 +49,20 @@ class _AdminVerificationListPageState
       // 인증 요청도 상태별로 20개씩만 붙인다. 전체 목록 선로딩을 막기 위한 하단 감지 지점이다.
       ref.read(adminVerificationListProvider.notifier).fetchMore();
     }
+  }
+
+  void _search(String keyword) {
+    _searchDebounce?.cancel();
+    ref.read(adminVerificationListProvider.notifier).search(keyword);
+    if (_scrollController.hasClients) _scrollController.jumpTo(0);
+  }
+
+  void _onSearchChanged(String keyword) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      _search(keyword);
+    });
   }
 
   String _formatDate(DateTime? value) {
@@ -132,6 +152,18 @@ class _AdminVerificationListPageState
 
               const SizedBox(height: 16),
 
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: _VerificationSearchField(
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
+                  onClear: () {
+                    _searchController.clear();
+                    _search('');
+                  },
+                ),
+              ),
+
               /// 상태 필터
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -150,7 +182,7 @@ class _AdminVerificationListPageState
                           onTap: () {
                             ref
                                 .read(adminVerificationListProvider.notifier)
-                                .fetchList(status);
+                                .fetchList(status, state.keyword);
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 180),
@@ -248,7 +280,7 @@ class _AdminVerificationListPageState
                         onRefresh: () async {
                           await ref
                               .read(adminVerificationListProvider.notifier)
-                              .fetchList(state.selectedStatus);
+                              .fetchList(state.selectedStatus, state.keyword);
                         },
                         child: ListView.separated(
                           controller: _scrollController,
@@ -289,7 +321,10 @@ class _AdminVerificationListPageState
                                       .read(
                                         adminVerificationListProvider.notifier,
                                       )
-                                      .fetchList(state.selectedStatus);
+                                      .fetchList(
+                                        state.selectedStatus,
+                                        state.keyword,
+                                      );
                                 }
                               },
                             );
@@ -410,6 +445,55 @@ class _VerificationRequestCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _VerificationSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _VerificationSearchField({
+    required this.controller,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return TextField(
+      controller: controller,
+      textInputAction: TextInputAction.search,
+      onSubmitted: onChanged,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        hintText: '학교명, 이름, 이메일 검색',
+        prefixIcon: const Icon(Icons.search_rounded),
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          onPressed: onClear,
+        ),
+        filled: true,
+        fillColor: c.subtleBg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.borderBlue),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.borderBlue),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF1477F8), width: 1.4),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
         ),
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,11 +22,33 @@ class AdminInquiryListPage extends ConsumerStatefulWidget {
 
 class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
   static const _tabs = [('PENDING', '답변 대기'), ('ANSWERED', '답변 완료')];
+  final _searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(adminInquiryListProvider.notifier).load());
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _search(String keyword) {
+    _searchDebounce?.cancel();
+    ref.read(adminInquiryListProvider.notifier).search(keyword);
+  }
+
+  void _onSearchChanged(String keyword) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      _search(keyword);
+    });
   }
 
   @override
@@ -34,74 +58,135 @@ class _AdminInquiryListPageState extends ConsumerState<AdminInquiryListPage> {
 
     return Scaffold(
       backgroundColor: c.pageBg,
-      appBar: AppBar(
-        backgroundColor: c.pageBg,
-        foregroundColor: c.textPrimary,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          '문의 관리',
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
+      body: SafeArea(
+        child: AdminContentFrame(
+          child: Column(
+            children: [
+              const AdminPageHeader(
+                title: '문의 관리',
+                subtitle: '사용자 문의를 확인하고 답변을 등록합니다.',
+              ),
+              Padding(
+                padding: AdminLayout.pagePadding(context, top: 16, bottom: 4),
+                child: Column(
+                  children: [
+                    _AdminSearchField(
+                      controller: _searchController,
+                      hintText: '제목, 내용, 사용자, 학교 검색',
+                      onChanged: _onSearchChanged,
+                      onClear: () {
+                        _searchController.clear();
+                        _search('');
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _InquiryTabs(
+                      tabs: _tabs,
+                      activeStatus: state.activeStatus,
+                      onChanged: (status) => ref
+                          .read(adminInquiryListProvider.notifier)
+                          .load(status: status),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: state.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : state.error != null
+                    ? Center(
+                        child: Text(
+                          state.error!,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: c.textMuted,
+                          ),
+                        ),
+                      )
+                    : state.inquiries.isEmpty
+                    ? const _InquiryEmptyState()
+                    : RefreshIndicator(
+                        onRefresh: () => ref
+                            .read(adminInquiryListProvider.notifier)
+                            .refresh(),
+                        child: ListView.separated(
+                          padding: AdminLayout.pagePadding(context),
+                          itemCount: state.inquiries.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 7),
+                          itemBuilder: (context, index) {
+                            final inquiry = state.inquiries[index];
+                            return _AdminInquiryTile(
+                              inquiry: inquiry,
+                              onTap: () async {
+                                final changed = await context.push<bool>(
+                                  AppRoutes.adminInquiryDetail(
+                                    inquiry.inquiryId,
+                                  ),
+                                );
+                                if (changed == true && context.mounted) {
+                                  ref
+                                      .read(adminInquiryListProvider.notifier)
+                                      .refresh();
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ),
+              ),
+            ],
           ),
         ),
       ),
-      body: AdminContentFrame(
-        child: Column(
-          children: [
-            Padding(
-              padding: AdminLayout.pagePadding(context, top: 12, bottom: 4),
-              child: _InquiryTabs(
-                tabs: _tabs,
-                activeStatus: state.activeStatus,
-                onChanged: (status) => ref
-                    .read(adminInquiryListProvider.notifier)
-                    .load(status: status),
-              ),
-            ),
-            Expanded(
-              child: state.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : state.error != null
-                  ? Center(
-                      child: Text(
-                        state.error!,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: c.textMuted,
-                        ),
-                      ),
-                    )
-                  : state.inquiries.isEmpty
-                  ? Center(child: _InquiryEmptyState(c: c))
-                  : RefreshIndicator(
-                      onRefresh: () =>
-                          ref.read(adminInquiryListProvider.notifier).refresh(),
-                      child: ListView.separated(
-                        padding: AdminLayout.pagePadding(context),
-                        itemCount: state.inquiries.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 7),
-                        itemBuilder: (context, index) {
-                          final inquiry = state.inquiries[index];
-                          return _AdminInquiryTile(
-                            inquiry: inquiry,
-                            onTap: () async {
-                              final changed = await context.push<bool>(
-                                AppRoutes.adminInquiryDetail(inquiry.inquiryId),
-                              );
-                              if (changed == true && context.mounted) {
-                                ref
-                                    .read(adminInquiryListProvider.notifier)
-                                    .refresh();
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    ),
-            ),
-          ],
+    );
+  }
+}
+
+class _AdminSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _AdminSearchField({
+    required this.controller,
+    required this.hintText,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return TextField(
+      controller: controller,
+      textInputAction: TextInputAction.search,
+      onSubmitted: onChanged,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: const Icon(Icons.search_rounded),
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          onPressed: onClear,
+        ),
+        filled: true,
+        fillColor: c.subtleBg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.borderBlue),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.borderBlue),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF1477F8), width: 1.4),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
         ),
       ),
     );
@@ -283,45 +368,35 @@ class _InquiryTabs extends StatelessWidget {
 }
 
 class _InquiryEmptyState extends StatelessWidget {
-  final AppColors c;
-
-  const _InquiryEmptyState({required this.c});
+  const _InquiryEmptyState();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
-      decoration: BoxDecoration(
-        color: c.cardBg,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: c.borderBlue),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: c.tintBg,
-              borderRadius: BorderRadius.circular(14),
+    final c = context.colors;
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+        decoration: BoxDecoration(
+          color: c.cardBg,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: c.border),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.support_agent_rounded, size: 28, color: c.iconSecondary),
+            const SizedBox(height: 10),
+            Text(
+              '문의 내역이 없어요.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: c.textBody,
+              ),
             ),
-            child: const Icon(
-              Icons.support_agent_rounded,
-              color: Color(0xFF1477F8),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '문의 내역이 없어요.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: c.textPrimary,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -363,20 +438,21 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: answered ? c.tintBg : c.subtleBg,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: answered ? c.borderBlue : c.border),
+        color: answered
+            ? const Color(0xFF1477F8).withValues(alpha: 0.10)
+            : const Color(0xFFF59E0B).withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         answered ? '답변 완료' : '답변 대기',
         style: AppTextStyles.bodyMedium.copyWith(
           fontSize: 10,
-          fontWeight: FontWeight.w800,
-          color: answered ? const Color(0xFF14A3F7) : c.textMuted,
+          fontWeight: FontWeight.w900,
+          color: answered ? const Color(0xFF1477F8) : const Color(0xFFF59E0B),
+          height: 1,
         ),
       ),
     );

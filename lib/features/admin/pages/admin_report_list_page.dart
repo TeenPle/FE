@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +21,8 @@ class AdminReportListPage extends ConsumerStatefulWidget {
 
 class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
   final _scrollController = ScrollController();
+  final _searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   static const _tabs = [
     ('PENDING', '대기 중'),
@@ -38,6 +42,8 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -52,6 +58,20 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
     }
   }
 
+  void _search(String keyword) {
+    _searchDebounce?.cancel();
+    ref.read(adminReportListProvider.notifier).search(keyword);
+    if (_scrollController.hasClients) _scrollController.jumpTo(0);
+  }
+
+  void _onSearchChanged(String keyword) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      _search(keyword);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(adminReportListProvider);
@@ -59,126 +79,181 @@ class _AdminReportListPageState extends ConsumerState<AdminReportListPage> {
 
     return Scaffold(
       backgroundColor: c.pageBg,
-      appBar: AppBar(
-        backgroundColor: c.pageBg,
-        foregroundColor: c.textPrimary,
-        elevation: 0,
-        title: Text(
-          '신고 관리',
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontWeight: FontWeight.w700,
-            color: c.textPrimary,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: AdminContentFrame(
-        child: Column(
-          children: [
-            Padding(
-              padding: AdminLayout.pagePadding(context, top: 12, bottom: 4),
-              child: _ReportStatusTabs(
-                tabs: _tabs,
-                activeStatus: state.activeStatus,
-                onChanged: (status) => ref
-                    .read(adminReportListProvider.notifier)
-                    .load(status: status),
+      body: SafeArea(
+        child: AdminContentFrame(
+          child: Column(
+            children: [
+              const AdminPageHeader(
+                title: '신고 관리',
+                subtitle: '신고 콘텐츠를 검토하고 운영 조치를 처리합니다.',
               ),
-            ),
-            Expanded(
-              child: state.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : state.error != null
-                  ? Center(
-                      child: Text(
-                        state.error!,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: c.textMuted,
+              Padding(
+                padding: AdminLayout.pagePadding(context, top: 16, bottom: 4),
+                child: Column(
+                  children: [
+                    _AdminSearchField(
+                      controller: _searchController,
+                      hintText: '신고자, 피신고자, 상세 사유 검색',
+                      onChanged: _onSearchChanged,
+                      onClear: () {
+                        _searchController.clear();
+                        _search('');
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _ReportStatusTabs(
+                      tabs: _tabs,
+                      activeStatus: state.activeStatus,
+                      onChanged: (status) => ref
+                          .read(adminReportListProvider.notifier)
+                          .load(status: status),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: state.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : state.error != null
+                    ? Center(
+                        child: Text(
+                          state.error!,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: c.textMuted,
+                          ),
                         ),
-                      ),
-                    )
-                  : state.reports.isEmpty
-                  ? Center(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 22,
-                          vertical: 26,
-                        ),
-                        decoration: BoxDecoration(
-                          color: c.cardBg,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: c.borderBlue),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                color: c.tintBg,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: const Icon(
-                                Icons.flag_outlined,
-                                color: Color(0xFF1477F8),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '신고 내역이 없어요.',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                                color: c.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () =>
-                          ref.read(adminReportListProvider.notifier).refresh(),
-                      child: ListView.separated(
-                        controller: _scrollController,
-                        padding: AdminLayout.pagePadding(context),
-                        itemCount:
-                            state.reports.length +
-                            (state.isLoadingMore ? 1 : 0),
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 7),
-                        itemBuilder: (context, index) {
-                          if (index >= state.reports.length) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 14),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            );
-                          }
-
-                          return _ReportCard(
-                            report: state.reports[index],
-                            onTap: () async {
-                              final changed = await context.push<bool>(
-                                AppRoutes.adminReportDetail(
-                                  state.reports[index].reportId,
+                      )
+                    : state.reports.isEmpty
+                    ? const _ReportEmptyState()
+                    : RefreshIndicator(
+                        onRefresh: () => ref
+                            .read(adminReportListProvider.notifier)
+                            .refresh(),
+                        child: ListView.separated(
+                          controller: _scrollController,
+                          padding: AdminLayout.pagePadding(context),
+                          itemCount:
+                              state.reports.length +
+                              (state.isLoadingMore ? 1 : 0),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 7),
+                          itemBuilder: (context, index) {
+                            if (index >= state.reports.length) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               );
-                              if (changed == true && context.mounted) {
-                                ref
-                                    .read(adminReportListProvider.notifier)
-                                    .refresh();
-                              }
-                            },
-                          );
-                        },
+                            }
+
+                            return _ReportCard(
+                              report: state.reports[index],
+                              onTap: () async {
+                                final changed = await context.push<bool>(
+                                  AppRoutes.adminReportDetail(
+                                    state.reports[index].reportId,
+                                  ),
+                                );
+                                if (changed == true && context.mounted) {
+                                  ref
+                                      .read(adminReportListProvider.notifier)
+                                      .refresh();
+                                }
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AdminSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _AdminSearchField({
+    required this.controller,
+    required this.hintText,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return TextField(
+      controller: controller,
+      textInputAction: TextInputAction.search,
+      onSubmitted: onChanged,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: const Icon(Icons.search_rounded),
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          onPressed: onClear,
+        ),
+        filled: true,
+        fillColor: c.subtleBg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.borderBlue),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.borderBlue),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF1477F8), width: 1.4),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportEmptyState extends StatelessWidget {
+  const _ReportEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+        decoration: BoxDecoration(
+          color: c.cardBg,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: c.border),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.flag_outlined, size: 28, color: c.iconSecondary),
+            const SizedBox(height: 10),
+            Text(
+              '신고 내역이 없어요.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: c.textBody,
+              ),
             ),
           ],
         ),

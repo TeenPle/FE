@@ -84,8 +84,9 @@ class FcmService {
     if (_initialized) return;
     _initialized = true;
 
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint('[FCM] init() called, platform: $defaultTargetPlatform');
+    }
     if (!_isMobile) {
       if (kDebugMode) debugPrint('[FCM] 모바일 아님 — 종료');
       return;
@@ -96,8 +97,9 @@ class FcmService {
     await _registerToken();
 
     FirebaseMessaging.onMessage.listen((message) async {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('[FCM] onMessage fired: ${message.notification?.title}');
+      }
 
       // 알림 OFF된 채팅방이면 목록만 갱신하고 종료
       if (_isMutedChatRoom(message.data)) {
@@ -143,6 +145,10 @@ class FcmService {
   /// FCM data 맵을 기반으로 적절한 페이지로 이동한다.
   /// 포그라운드 로컬 알림 탭과 백그라운드/종료 알림 탭 모두 이 함수를 사용한다.
   Future<void> _navigateFromData(Map<String, dynamic> data) async {
+    if (await _navigateAdminNotification(data)) {
+      return;
+    }
+
     if (_isChatMessage(data)) {
       final roomId = int.tryParse(data['targetId'] ?? '');
       if (roomId != null) {
@@ -173,6 +179,44 @@ class FcmService {
     }
 
     router.push(AppRoutes.notifications);
+  }
+
+  Future<bool> _navigateAdminNotification(Map<String, dynamic> data) async {
+    final role = await TokenStorage().getUserRole();
+    if (role != 'ADMIN') return false;
+
+    final type = data['type'];
+    final targetType = data['targetType'];
+    final targetId = int.tryParse(data['targetId'] ?? '');
+
+    if (type == 'ADMIN_REPORT' || targetType == 'REPORT') {
+      if (targetId != null) {
+        router.push(AppRoutes.adminReportDetail(targetId));
+      } else {
+        router.push(AppRoutes.adminReportList);
+      }
+      return true;
+    }
+
+    if (type == 'ADMIN_VERIFICATION' || targetType == 'VERIFICATION_REQUEST') {
+      if (targetId != null) {
+        router.push('${AppRoutes.adminVerificationList}/$targetId');
+      } else {
+        router.push(AppRoutes.adminVerificationList);
+      }
+      return true;
+    }
+
+    if (type == 'ADMIN_INQUIRY') {
+      if (targetId != null) {
+        router.push(AppRoutes.adminInquiryDetail(targetId));
+      } else {
+        router.push(AppRoutes.adminInquiries);
+      }
+      return true;
+    }
+
+    return false;
   }
 
   /// roomId로 채팅방을 찾아 해당 채팅방 페이지로 이동한다.
@@ -306,8 +350,9 @@ class FcmService {
         playSound: true,
       ),
     );
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint('[FCM] notification channel created: $_channelId');
+    }
   }
 
   Future<void> _requestPermission() async {

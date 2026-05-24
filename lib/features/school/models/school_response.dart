@@ -19,13 +19,20 @@ class SchoolResponse {
   });
 
   factory SchoolResponse.fromJson(Map<String, dynamic> json) {
+    final boards =
+        (json['boards'] as List<dynamic>? ?? [])
+            .map((e) => BoardModel.fromJson(e as Map<String, dynamic>))
+            .toList()
+          ..sort((a, b) {
+            final byOrder = a.sortOrder.compareTo(b.sortOrder);
+            return byOrder != 0 ? byOrder : a.id.compareTo(b.id);
+          });
+
     return SchoolResponse(
       schoolId: (json['schoolId'] as num).toInt(),
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      boards: (json['boards'] as List<dynamic>? ?? [])
-          .map((e) => BoardModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      boards: boards,
       posts: (json['posts'] as List<dynamic>? ?? [])
           .map((e) => PostSummary.fromJson(e as Map<String, dynamic>))
           .toList(),

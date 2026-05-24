@@ -10,6 +10,7 @@ import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../provider/signup_form_provider.dart';
+import '../provider/signup_secret_store.dart';
 import '../provider/signup_submit_provider.dart';
 
 /// 회원가입 마지막 단계 - 학생증 업로드 페이지
@@ -53,7 +54,10 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
         : studentCardFilePath.split(RegExp(r'[\\/]')).last;
 
     /// 다음 버튼 활성화 조건
-    final canProceed = studentCardFilePath.isNotEmpty && !submitState.isLoading;
+    final canProceed =
+        studentCardFilePath.isNotEmpty &&
+        SignupSecretStore.hasPassword &&
+        !submitState.isLoading;
 
     return AuthStepLayout(
       bottom: SizedBox(
@@ -64,12 +68,16 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
                   /// 회원가입 요청
                   await ref
                       .read(signupSubmitProvider.notifier)
-                      .submit(signupFormState);
+                      .submit(
+                        signupFormState,
+                        password: SignupSecretStore.password,
+                      );
 
                   final latestSubmitState = ref.read(signupSubmitProvider);
 
                   /// 성공 시 로그인 화면 이동
                   if (latestSubmitState.isSuccess && context.mounted) {
+                    SignupSecretStore.clear();
                     context.go('${AppRoutes.login}?signup=success');
                   }
                 }

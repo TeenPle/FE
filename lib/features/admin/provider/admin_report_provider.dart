@@ -7,12 +7,20 @@ class AdminReportListState {
   final List<ReportSummaryModel> reports;
   final String activeStatus;
   final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final int currentPage;
+  final String keyword;
   final String? error;
 
   const AdminReportListState({
     this.reports = const [],
     this.activeStatus = 'PENDING',
     this.isLoading = false,
+    this.isLoadingMore = false,
+    this.hasMore = true,
+    this.currentPage = 0,
+    this.keyword = '',
     this.error,
   });
 
@@ -20,12 +28,20 @@ class AdminReportListState {
     List<ReportSummaryModel>? reports,
     String? activeStatus,
     bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMore,
+    int? currentPage,
+    String? keyword,
     String? error,
   }) {
     return AdminReportListState(
       reports: reports ?? this.reports,
       activeStatus: activeStatus ?? this.activeStatus,
       isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMore: hasMore ?? this.hasMore,
+      currentPage: currentPage ?? this.currentPage,
+      keyword: keyword ?? this.keyword,
       error: error,
     );
   }
@@ -36,17 +52,66 @@ class AdminReportListNotifier extends StateNotifier<AdminReportListState> {
 
   AdminReportListNotifier(this._api) : super(const AdminReportListState());
 
-  Future<void> load({String status = 'PENDING'}) async {
-    state = state.copyWith(isLoading: true, activeStatus: status, error: null);
+  Future<void> load({String status = 'PENDING', String? keyword}) async {
+    final nextKeyword = keyword ?? state.keyword;
+    state = state.copyWith(
+      reports: const [],
+      isLoading: true,
+      isLoadingMore: false,
+      hasMore: true,
+      currentPage: 0,
+      activeStatus: status,
+      keyword: nextKeyword,
+      error: null,
+    );
     try {
-      final reports = await _api.getReports(status: status);
-      state = state.copyWith(reports: reports, isLoading: false);
+      final reports = await _api.getReports(
+        status: status,
+        keyword: nextKeyword,
+        page: 0,
+      );
+      state = state.copyWith(
+        reports: reports,
+        isLoading: false,
+        hasMore: reports.length >= 20,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false, error: '신고 목록을 불러오지 못했어요.');
     }
   }
 
   Future<void> refresh() => load(status: state.activeStatus);
+
+  Future<void> search(String keyword) {
+    return load(status: state.activeStatus, keyword: keyword.trim());
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
+
+    state = state.copyWith(isLoadingMore: true, error: null);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final reports = await _api.getReports(
+        status: state.activeStatus,
+        keyword: state.keyword,
+        page: nextPage,
+      );
+
+      state = state.copyWith(
+        reports: [...state.reports, ...reports],
+        isLoadingMore: false,
+        currentPage: nextPage,
+        hasMore: reports.length >= 20,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: '추가 신고 목록을 불러오지 못했습니다.',
+      );
+    }
+  }
 }
 
 final adminReportListProvider =

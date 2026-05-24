@@ -24,10 +24,18 @@ class AdminInquiryApi {
 
   Future<List<InquirySummaryModel>> getInquiries({
     required String status,
+    String? keyword,
+    int size = 50,
   }) async {
     final res = await _client.get(
       '/api/admin/inquiries',
-      queryParameters: {'status': status, 'page': '0', 'size': '50'},
+      queryParameters: {
+        'status': status,
+        'page': '0',
+        'size': '$size',
+        if (keyword != null && keyword.trim().isNotEmpty)
+          'keyword': keyword.trim(),
+      },
     );
     final content = res['result']['content'] as List<dynamic>? ?? [];
     return content

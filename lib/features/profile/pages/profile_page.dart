@@ -61,7 +61,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         showAppSnackBar(next.successMessage!);
         ref.read(profileProvider.notifier).clearMessages();
       }
-      if (next.shouldGoToLogin) {
+      // shouldGoToLogin이 false → true로 전환될 때만 반응한다.
+      // 이전 상태에서 이미 true였던 경우(복구 후 재진입 등)는 무시해야 오염된 상태로
+      // 정상 세션이 지워지는 것을 막을 수 있다.
+      if (next.shouldGoToLogin && !(prev?.shouldGoToLogin ?? false)) {
         ref.read(authSessionProvider.notifier).clearTokens();
         ref.read(tokenStorageProvider).clearAll();
         context.go(AppRoutes.login);
@@ -672,39 +675,19 @@ class _SettingsSection extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(loginProvider.notifier).logout();
-      if (context.mounted) context.go(AppRoutes.login);
+      // 로그아웃 정리 작업은 네트워크 요청이 포함될 수 있으므로, 사용자는
+      // 즉시 로그인 화면으로 보내고 로컬/서버 세션 정리는 이어서 완료한다.
+      final logoutFuture = ref.read(loginProvider.notifier).logout();
+      if (context.mounted) {
+        context.go(AppRoutes.login);
+        showAppSnackBar('로그아웃되었습니다.');
+      }
+      await logoutFuture;
     }
   }
 
-  Future<void> _confirmDeleteAccount(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('회원 탈퇴'),
-        content: Text('탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFE05C5C),
-            ),
-            child: Text('탈퇴하기'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await ref.read(profileProvider.notifier).deleteAccount();
-    }
+  void _confirmDeleteAccount(BuildContext context, WidgetRef ref) {
+    context.push(AppRoutes.accountDeleteConfirm);
   }
 }
 

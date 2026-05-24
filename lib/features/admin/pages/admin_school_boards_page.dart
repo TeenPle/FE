@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminSchoolBoardsPage extends ConsumerStatefulWidget {
   final int schoolId;
@@ -67,30 +68,32 @@ class _AdminSchoolBoardsPageState extends ConsumerState<AdminSchoolBoardsPage> {
               onRefresh: () => ref
                   .read(adminBoardListProvider(widget.schoolId).notifier)
                   .load(),
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: visibleBoards.length + 1,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _SchoolBoardsHeader(
-                      schoolName: widget.schoolName,
-                      boardCount: visibleBoards.length,
+              child: AdminContentFrame(
+                child: ListView.separated(
+                  padding: AdminLayout.pagePadding(context),
+                  itemCount: visibleBoards.length + 1,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return _SchoolBoardsHeader(
+                        schoolName: widget.schoolName,
+                        boardCount: visibleBoards.length,
+                      );
+                    }
+                    final board = visibleBoards[index - 1];
+                    return _BoardTile(
+                      board: board,
+                      onTap: () => context.push(
+                        AppRoutes.adminBoardPosts(board.id),
+                        extra: {
+                          'boardTitle': board.title,
+                          'schoolName': widget.schoolName,
+                        },
+                      ),
                     );
-                  }
-                  final board = visibleBoards[index - 1];
-                  return _BoardTile(
-                    board: board,
-                    onTap: () => context.push(
-                      AppRoutes.adminBoardPosts(board.id),
-                      extra: {
-                        'boardTitle': board.title,
-                        'schoolName': widget.schoolName,
-                      },
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
             ),
     );

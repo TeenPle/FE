@@ -116,6 +116,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   void clearMessages() {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
+
+  /// 로그아웃 또는 계정 복구 후 상태를 완전히 초기화한다.
+  /// shouldGoToLogin 플래그를 비롯한 모든 상태를 리셋해 다음 세션에서 오염을 방지한다.
+  void reset() {
+    state = const ProfileState();
+  }
 }
 
 // ─────────────────────────────────────────────

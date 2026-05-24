@@ -7,6 +7,7 @@ import '../models/penalty_summary_model.dart';
 import '../models/warning_history_model.dart';
 import '../provider/admin_penalty_provider.dart';
 import '../provider/admin_warning_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminUserHistoryPage extends ConsumerStatefulWidget {
   final int userId;
@@ -119,11 +120,13 @@ class _PenaltyTab extends ConsumerWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-      itemCount: state.penalties.length,
-      itemBuilder: (context, index) =>
-          _UserPenaltyCard(penalty: state.penalties[index]),
+    return AdminContentFrame(
+      child: ListView.builder(
+        padding: AdminLayout.pagePadding(context, top: 12, bottom: 40),
+        itemCount: state.penalties.length,
+        itemBuilder: (context, index) =>
+            _UserPenaltyCard(penalty: state.penalties[index]),
+      ),
     );
   }
 }
@@ -260,11 +263,13 @@ class _WarningTab extends ConsumerWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-      itemCount: state.items.length,
-      itemBuilder: (context, index) =>
-          _UserWarningCard(warning: state.items[index]),
+    return AdminContentFrame(
+      child: ListView.builder(
+        padding: AdminLayout.pagePadding(context, top: 12, bottom: 40),
+        itemCount: state.items.length,
+        itemBuilder: (context, index) =>
+            _UserWarningCard(warning: state.items[index]),
+      ),
     );
   }
 }

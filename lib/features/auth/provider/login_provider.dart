@@ -5,6 +5,7 @@ import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
 import '../../notification/service/fcm_service.dart';
+import '../../profile/provider/profile_provider.dart';
 import '../api/login_api.dart';
 import '../models/login_blocked_reason.dart';
 import '../models/login_request_model.dart';
@@ -122,6 +123,11 @@ class LoginNotifier extends StateNotifier<LoginState> {
     }
   }
 
+  /// 복구 페이지에서 직접 입력한 비밀번호로 attemptedPassword를 갱신한다.
+  void updateAttemptedPassword(String password) {
+    state = state.copyWith(attemptedPassword: password);
+  }
+
   void clearTransientState() {
     state = state.copyWith(
       clearErrorMessage: true,
@@ -141,6 +147,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
     } catch (_) {}
     // 로그아웃 후에도 유저별 채팅 목록 STOMP 구독이 남지 않도록 정리한다.
     _ref.read(chatRoomListProvider.notifier).stopRealtime();
+    // shouldGoToLogin 등 profileProvider의 잔여 상태를 초기화한다.
+    // 초기화 없이 재로그인 시 오염된 플래그가 정상 세션을 방해할 수 있다.
+    _ref.read(profileProvider.notifier).reset();
 
     // 서버에 refresh token 무효화 (실패해도 로컬은 반드시 초기화)
     if (refreshToken != null) {
@@ -204,8 +213,57 @@ class LoginNotifier extends StateNotifier<LoginState> {
         return LoginBlockedReason.rejected;
       case 'USER5001':
         return LoginBlockedReason.invalid;
+      case 'USER4051':
+        // 탈퇴 유예 기간 중 — 복구 화면으로 분기
+        return LoginBlockedReason.pendingDeletion;
       default:
         return null;
+    }
+  }
+
+  /// 탈퇴 유예 계정 복구.
+  /// loginState에 저장된 이메일·비밀번호를 사용해 서버에 복구 요청하고, 성공 시 정상 로그인 처리한다.
+  Future<void> restoreAccount({required bool keepLoggedIn}) async {
+    final email = state.attemptedEmail;
+    final password = state.attemptedPassword;
+
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+
+    try {
+      final result = await _loginApi.restoreAccount(email: email, password: password);
+
+      _authSession.setTokens(
+        result.accessToken,
+        result.refreshToken,
+        userId: result.userId,
+      );
+
+      await _tokenStorage.saveUserId(result.userId);
+      await _tokenStorage.saveUserRole(result.role);
+
+      if (keepLoggedIn) {
+        await _tokenStorage.saveAccessToken(result.accessToken);
+        await _tokenStorage.saveRefreshToken(result.refreshToken);
+        await _tokenStorage.saveAutoLogin(true);
+      } else {
+        await _tokenStorage.saveAutoLogin(false);
+      }
+
+      if (result.schoolId != null) {
+        await _tokenStorage.saveSchoolId(result.schoolId!);
+      }
+
+      state = state.copyWith(isLoading: false, loginResponse: result, clearBlockedReason: true);
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _mapDioErrorToMessage(e),
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '복구에 실패했습니다. 다시 시도해주세요.',
+      );
     }
   }
 

@@ -8,6 +8,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/report_summary_model.dart';
 import '../provider/admin_report_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminReportDetailPage extends ConsumerStatefulWidget {
   final int reportId;
@@ -55,6 +56,7 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     });
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: c.pageBg,
       appBar: AppBar(
         backgroundColor: c.pageBg,
@@ -91,210 +93,277 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     return Column(
       children: [
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _ReportSummaryHeader(
-                detail: detail,
-                onOpenUserHistory: () => context.push(
-                  AppRoutes.adminUserHistory(detail.reportedUserId),
-                  extra: {'nickname': detail.reportedUserNickname},
+          child: AdminContentFrame(
+            child: ListView(
+              padding: AdminLayout.pagePadding(context),
+              children: [
+                _ReportSummaryHeader(
+                  detail: detail,
+                  onOpenUserHistory: () => context.push(
+                    AppRoutes.adminUserHistory(detail.reportedUserId),
+                    extra: {'nickname': detail.reportedUserNickname},
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _Panel(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _SectionHeader(
-                      icon: Icons.receipt_long_outlined,
-                      title: '신고 정보',
-                    ),
-                    const SizedBox(height: 12),
-                    _InfoRow('대상', detail.targetTypeLabel),
-                    _InfoRow('신고 카테고리', detail.reportReasonLabel),
-                    _InfoRow('신고자', detail.reporterNickname),
-                    _TappableInfoRow(
-                      label: '피신고자',
-                      value: detail.reportedUserNickname,
-                      onTap: () => context.push(
-                        AppRoutes.adminUserHistory(detail.reportedUserId),
-                        extra: {'nickname': detail.reportedUserNickname},
-                      ),
-                    ),
-                    if (detail.schoolName != null)
-                      _InfoRow('학교', detail.schoolName!),
-                    if (detail.boardTitle != null)
-                      _InfoRow('게시판', detail.boardTitle!),
-                    _InfoRow('신고 일시', _formatDate(detail.createdAt)),
-                    if (detail.processedAt != null)
-                      _InfoRow('처리 일시', _formatDate(detail.processedAt!)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              _Panel(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _SectionHeader(
-                      icon: Icons.flag_outlined,
-                      title: '신고 대상 내용',
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      detail.targetContent.isEmpty
-                          ? '(내용 없음)'
-                          : detail.targetContent,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12,
-                        color: c.textBody,
-                        height: 1.55,
-                      ),
-                    ),
-                    if (detail.postId != null) ...[
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () => context.push(
-                            AppRoutes.adminPostDetail(detail.postId!),
-                            extra: detail.targetType == 'COMMENT'
-                                ? {'focusCommentId': detail.targetId}
-                                : null,
-                          ),
-                          icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                          label: Text(
-                            detail.targetType == 'COMMENT'
-                                ? '게시글에서 댓글 확인'
-                                : '관리자 게시글 상세 보기',
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF426C82),
-                            side: const BorderSide(color: Color(0xFF426C82)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (isPending) ...[
                 const SizedBox(height: 12),
                 _Panel(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _SectionHeader(
-                        icon: Icons.edit_note_rounded,
-                        title: '처리 입력',
+                        icon: Icons.receipt_long_outlined,
+                        title: '신고 정보',
                       ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _commentController,
-                        maxLines: 4,
-                        maxLength: 500,
-                        decoration: InputDecoration(
-                          hintText: '승인, 거절, 경고 처리 사유를 입력하세요.',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          contentPadding: const EdgeInsets.all(12),
+                      const SizedBox(height: 12),
+                      _InfoRow('대상', detail.targetTypeLabel),
+                      _InfoRow('신고 카테고리', detail.reportReasonLabel),
+                      _InfoRow('신고자', detail.reporterNickname),
+                      _TappableInfoRow(
+                        label: '피신고자',
+                        value: detail.reportedUserNickname,
+                        onTap: () => context.push(
+                          AppRoutes.adminUserHistory(detail.reportedUserId),
+                          extra: {'nickname': detail.reportedUserNickname},
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 96,
-                            child: TextField(
-                              controller: _penaltyController,
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              decoration: InputDecoration(
-                                labelText: '제재 일수',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                      if (detail.schoolName != null)
+                        _InfoRow('학교', detail.schoolName!),
+                      if (detail.boardTitle != null)
+                        _InfoRow('게시판', detail.boardTitle!),
+                      _InfoRow('신고 일시', _formatDate(detail.createdAt)),
+                      if (detail.processedAt != null)
+                        _InfoRow('처리 일시', _formatDate(detail.processedAt!)),
+                      if (detail.penaltyDays != null)
+                        _InfoRow('제재 기간', '${detail.penaltyDays}일'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _Panel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SectionHeader(
+                        icon: Icons.flag_outlined,
+                        title: '신고 대상 내용',
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        detail.targetContent.isEmpty
+                            ? '(내용 없음)'
+                            : detail.targetContent,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 12,
+                          color: c.textBody,
+                          height: 1.55,
+                        ),
+                      ),
+                      if (detail.postId != null) ...[
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => context.push(
+                              AppRoutes.adminPostDetail(detail.postId!),
+                              extra: detail.targetType == 'COMMENT'
+                                  ? {'focusCommentId': detail.targetId}
+                                  : null,
+                            ),
+                            icon: const Icon(
+                              Icons.open_in_new_rounded,
+                              size: 18,
+                            ),
+                            label: Text(
+                              detail.targetType == 'COMMENT'
+                                  ? '게시글에서 댓글 확인'
+                                  : '관리자 게시글 상세 보기',
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF426C82),
+                              side: const BorderSide(color: Color(0xFF426C82)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (isPending) ...[
+                  const SizedBox(height: 12),
+                  _Panel(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(
+                          icon: Icons.edit_note_rounded,
+                          title: '처리 입력',
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _commentController,
+                          maxLines: 4,
+                          maxLength: 500,
+                          decoration: InputDecoration(
+                            hintText: '승인, 거절, 경고 처리 사유를 입력하세요.',
+                            filled: true,
+                            fillColor: c.inputBg,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(color: c.border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(color: c.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF1477F8),
+                                width: 1.2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.all(12),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 96,
+                              child: TextField(
+                                controller: _penaltyController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  labelText: '제재 일수',
+                                  filled: true,
+                                  fillColor: c.inputBg,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(color: c.border),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF1477F8),
+                                      width: 1.2,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              '신고 승인 시 입력한 기간만큼 제재가 적용됩니다.',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 11,
-                                color: c.textMuted,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                '신고 승인 시 입력한 기간만큼 제재가 적용됩니다.',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontSize: 11,
+                                  color: c.textMuted,
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (isPending)
+          AnimatedPadding(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: c.pageBg,
+                border: Border(top: BorderSide(color: c.borderSubtle)),
+              ),
+              child: SafeArea(
+                top: false,
+                minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                child: AdminBottomActionFrame(
+                  child: AdminResponsiveActions(
+                    children: [
+                      AdminActionButtonBox(
+                        child: OutlinedButton.icon(
+                          onPressed: state.isActing
+                              ? null
+                              : () => _onReject(context),
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          label: Text(state.isActing ? '처리 중...' : '거절'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFE05C7B),
+                            side: const BorderSide(color: Color(0xFFE05C7B)),
+                            textStyle: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
-                        ],
+                        ),
+                      ),
+                      AdminActionButtonBox(
+                        child: OutlinedButton.icon(
+                          onPressed: state.isActing
+                              ? null
+                              : () => _onWarn(context),
+                          icon: const Icon(
+                            Icons.warning_amber_rounded,
+                            size: 18,
+                          ),
+                          label: Text(state.isActing ? '처리 중...' : '경고'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFF59E0B),
+                            side: const BorderSide(color: Color(0xFFF59E0B)),
+                            textStyle: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      AdminActionButtonBox(
+                        child: ElevatedButton.icon(
+                          onPressed: state.isActing
+                              ? null
+                              : () => _onApprove(context),
+                          icon: const Icon(Icons.check_rounded, size: 18),
+                          label: Text(state.isActing ? '처리 중...' : '승인'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1477F8),
+                            disabledBackgroundColor: const Color(0xFFBFC8FF),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            textStyle: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ],
-          ),
-        ),
-        if (isPending)
-          SafeArea(
-            minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: state.isActing ? null : () => _onReject(context),
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                    label: Text(state.isActing ? '처리 중...' : '거절'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFE05C7B),
-                      side: const BorderSide(color: Color(0xFFE05C7B)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: state.isActing ? null : () => _onWarn(context),
-                    icon: const Icon(Icons.warning_amber_rounded, size: 18),
-                    label: Text(state.isActing ? '처리 중...' : '경고'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFF59E0B),
-                      side: const BorderSide(color: Color(0xFFF59E0B)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: state.isActing
-                        ? null
-                        : () => _onApprove(context),
-                    icon: const Icon(Icons.check_rounded, size: 18),
-                    label: Text(state.isActing ? '처리 중...' : '승인'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1477F8),
-                      disabledBackgroundColor: const Color(0xFFBFC8FF),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
       ],
@@ -405,7 +474,9 @@ class _ReportSummaryHeader extends StatelessWidget {
     final c = context.colors;
     final processedText = detail.processedAt == null
         ? '아직 처리되지 않은 신고입니다.'
-        : '처리 완료 ${_formatDate(detail.processedAt!)}';
+        : detail.penaltyDays == null
+        ? '처리 완료 ${_formatDate(detail.processedAt!)}'
+        : '${detail.penaltyDays}일 제재로 처리 완료';
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -581,13 +652,13 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: c.borderStrong),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),

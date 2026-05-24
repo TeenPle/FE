@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/school_model.dart';
 import 'signup_form_state.dart';
+import 'signup_secret_store.dart';
 
 /// 회원가입 전체 폼 상태를 관리하는 provider
 final signupFormProvider =
@@ -48,16 +49,6 @@ class SignupFormNotifier extends StateNotifier<SignupFormState> {
     state = state.copyWith(verificationToken: token);
   }
 
-  /// 비밀번호 저장
-  void updatePassword(String value) {
-    state = state.copyWith(password: value);
-  }
-
-  /// 비밀번호 확인값 저장
-  void updatePasswordConfirm(String value) {
-    state = state.copyWith(passwordConfirm: value);
-  }
-
   /// 휴대폰 번호 저장
   void updatePhoneNumber(String value) {
     state = state.copyWith(phoneNumber: value);
@@ -70,6 +61,7 @@ class SignupFormNotifier extends StateNotifier<SignupFormState> {
 
   /// 회원가입 입력값 전체 초기화
   void clear() {
+    SignupSecretStore.clear();
     state = const SignupFormState();
   }
 }

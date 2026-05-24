@@ -24,12 +24,19 @@ class AdminReportApi {
 
   Future<List<ReportSummaryModel>> getReports({
     required String status,
+    String? keyword,
     int page = 0,
     int size = 20,
   }) async {
     final res = await _client.get(
       '/api/admin/reports',
-      queryParameters: {'status': status, 'page': '$page', 'size': '$size'},
+      queryParameters: {
+        'status': status,
+        'page': '$page',
+        'size': '$size',
+        if (keyword != null && keyword.trim().isNotEmpty)
+          'keyword': keyword.trim(),
+      },
     );
     final content = (res['result']['content'] as List<dynamic>? ?? []);
     return content

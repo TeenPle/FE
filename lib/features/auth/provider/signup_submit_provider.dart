@@ -18,7 +18,10 @@ class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
   SignupSubmitNotifier(this._signupApi) : super(const SignupSubmitState());
 
   /// 회원가입 요청
-  Future<void> submit(SignupFormState formState) async {
+  Future<void> submit(
+    SignupFormState formState, {
+    required String password,
+  }) async {
     state = state.copyWith(
       isLoading: true,
       isSuccess: false,
@@ -26,7 +29,7 @@ class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
     );
 
     try {
-      await _signupApi.signUp(formState);
+      await _signupApi.signUp(formState, password: password);
 
       state = state.copyWith(isLoading: false, isSuccess: true);
     } on DioException catch (e) {

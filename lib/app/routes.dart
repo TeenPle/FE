@@ -27,6 +27,8 @@ import '../features/auth/pages/reset_password_page.dart';
 import '../features/auth/pages/landing_page.dart';
 import '../features/auth/pages/login_page.dart';
 import '../features/auth/pages/signup_consent_page.dart';
+import '../features/auth/pages/account_delete_confirm_page.dart';
+import '../features/auth/pages/account_recovery_page.dart';
 import '../features/auth/pages/school_verification_rejected_page.dart';
 import '../features/auth/pages/school_verification_waiting_page.dart';
 import '../features/auth/pages/signup_email_verify_page.dart';
@@ -99,6 +101,8 @@ class AppRoutes {
 
   /// ?숆탳 ?몄쬆 ?湲??꾩닔/?곹깭?댁긽 ?덈궡 ?섏씠吏
   static const schoolVerificationWaiting = '/auth/school-verification-waiting';
+  static const accountRecovery = '/auth/account-recovery';
+  static const accountDeleteConfirm = '/profile/account-delete-confirm';
 
   /// ?숆탳 ?몄쬆 諛섎젮 ?섏씠吏
   static const schoolVerificationRejected =
@@ -297,6 +301,16 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.schoolVerificationRejected,
       builder: (context, state) => const SchoolVerificationRejectedPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.accountRecovery,
+      builder: (context, state) => const AccountRecoveryPage(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.accountDeleteConfirm,
+      builder: (context, state) => const AccountDeleteConfirmPage(),
     ),
 
     GoRoute(

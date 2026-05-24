@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../../../core/widgets/app_snack_bar.dart';
+import '../../admin/widgets/admin_responsive.dart';
 import '../provider/admin_inquiry_provider.dart';
 
 class AdminInquiryDetailPage extends ConsumerStatefulWidget {
@@ -56,6 +57,7 @@ class _AdminInquiryDetailPageState
     final isPending = inquiry?.status == 'PENDING';
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: c.pageBg,
       appBar: AppBar(
         backgroundColor: c.pageBg,
@@ -78,163 +80,199 @@ class _AdminInquiryDetailPageState
                 style: AppTextStyles.bodyMedium.copyWith(color: c.textMuted),
               ),
             )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              children: [
-                _InquirySummaryHeader(
-                  answered: inquiry.isAnswered,
-                  title: inquiry.title,
-                  userLine: _userLine(
-                    inquiry.userName,
-                    inquiry.userNickname,
-                    inquiry.schoolName,
+          : AdminContentFrame(
+              child: ListView(
+                padding: AdminLayout.pagePadding(context, top: 8, bottom: 32),
+                children: [
+                  _InquirySummaryHeader(
+                    answered: inquiry.isAnswered,
+                    title: inquiry.title,
+                    createdText: timeAgo(inquiry.createdAt),
+                    userLine: _userLine(
+                      inquiry.userName,
+                      inquiry.userNickname,
+                      inquiry.schoolName,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                _Panel(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          _StatusBadge(answered: inquiry.isAnswered),
-                          const Spacer(),
-                          Text(
-                            timeAgo(inquiry.createdAt),
+                  const SizedBox(height: 12),
+                  _Panel(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(
+                          icon: Icons.person_outline_rounded,
+                          title: '문의자 정보',
+                        ),
+                        const SizedBox(height: 12),
+                        _MetaRow(label: '실명', value: inquiry.userName ?? ''),
+                        const SizedBox(height: 7),
+                        _MetaRow(
+                          label: '닉네임',
+                          value: inquiry.userNickname ?? '',
+                        ),
+                        const SizedBox(height: 7),
+                        _MetaRow(label: '학교', value: inquiry.schoolName ?? ''),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _Panel(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionHeader(
+                          icon: Icons.chat_bubble_outline_rounded,
+                          title: '문의 내용',
+                        ),
+                        const SizedBox(height: 13),
+                        Text(
+                          inquiry.title,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: c.textPrimary,
+                            height: 1.25,
+                          ),
+                        ),
+                        const SizedBox(height: 13),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(13),
+                          decoration: BoxDecoration(
+                            color: c.subtleBg,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: c.borderSubtle),
+                          ),
+                          child: Text(
+                            inquiry.content,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 11,
-                              color: c.textTertiary,
+                              fontSize: 13,
+                              height: 1.55,
+                              color: c.textBody,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _MetaRow(label: '실명', value: inquiry.userName ?? ''),
-                      const SizedBox(height: 7),
-                      _MetaRow(label: '닉네임', value: inquiry.userNickname ?? ''),
-                      const SizedBox(height: 7),
-                      _MetaRow(label: '학교', value: inquiry.schoolName ?? ''),
-                      const SizedBox(height: 12),
-                      Text(
-                        inquiry.title,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: c.textPrimary,
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        inquiry.content,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 13,
-                          height: 1.55,
-                          color: c.textBody,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                _Panel(
-                  child: isPending
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '답변 작성',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: c.textPrimary,
+                  const SizedBox(height: 12),
+                  _Panel(
+                    child: isPending
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _SectionHeader(
+                                icon: Icons.edit_note_rounded,
+                                title: '답변 작성',
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: _answerController,
-                              minLines: 6,
-                              maxLines: 10,
-                              maxLength: 2000,
-                              decoration: InputDecoration(
-                                hintText: '사용자에게 전달할 답변을 입력하세요.',
-                                filled: true,
-                                fillColor: c.subtleBg,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                contentPadding: const EdgeInsets.all(13),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 52,
-                              child: ElevatedButton(
-                                onPressed: state.isAnswering ? null : _submit,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1477F8),
-                                  disabledBackgroundColor: const Color(
-                                    0xFFBFC8FF,
-                                  ),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _answerController,
+                                minLines: 6,
+                                maxLines: 10,
+                                maxLength: 2000,
+                                decoration: InputDecoration(
+                                  hintText: '사용자에게 전달할 답변을 입력하세요.',
+                                  filled: true,
+                                  fillColor: c.inputBg,
+                                  border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(color: c.border),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(color: c.border),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF1477F8),
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.all(13),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 52,
+                                child: ElevatedButton(
+                                  onPressed: state.isAnswering ? null : _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1477F8),
+                                    disabledBackgroundColor: const Color(
+                                      0xFFBFC8FF,
+                                    ),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (state.isAnswering) ...[
+                                        const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ] else ...[
+                                        const Icon(
+                                          Icons.send_rounded,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      Text(
+                                        state.isAnswering ? '등록 중...' : '답변 등록',
+                                        style: AppTextStyles.bodyMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.w900,
+                                            ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (state.isAnswering) ...[
-                                      const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                    ] else ...[
-                                      const Icon(Icons.send_rounded, size: 18),
-                                      const SizedBox(width: 8),
-                                    ],
-                                    Text(
-                                      state.isAnswering ? '등록 중...' : '답변 등록',
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ],
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _SectionHeader(
+                                icon: Icons.mark_email_read_outlined,
+                                title: '등록된 답변',
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(13),
+                                decoration: BoxDecoration(
+                                  color: c.subtleBg,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(color: c.borderSubtle),
+                                ),
+                                child: Text(
+                                  inquiry.adminAnswer ?? '',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontSize: 13,
+                                    height: 1.55,
+                                    color: c.textBody,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '등록된 답변',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: c.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              inquiry.adminAnswer ?? '',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 13,
-                                height: 1.55,
-                                color: c.textBody,
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-              ],
+                            ],
+                          ),
+                  ),
+                ],
+              ),
             ),
     );
   }
@@ -265,11 +303,13 @@ class _AdminInquiryDetailPageState
 class _InquirySummaryHeader extends StatelessWidget {
   final bool answered;
   final String title;
+  final String createdText;
   final String userLine;
 
   const _InquirySummaryHeader({
     required this.answered,
     required this.title,
+    required this.createdText,
     required this.userLine,
   });
 
@@ -284,8 +324,8 @@ class _InquirySummaryHeader extends StatelessWidget {
         border: Border.all(color: c.borderBlue),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1477F8).withValues(alpha: 0.06),
-            blurRadius: 16,
+            color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+            blurRadius: 18,
             offset: const Offset(0, 8),
           ),
         ],
@@ -293,15 +333,19 @@ class _InquirySummaryHeader extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
-              color: c.tintBg,
+              color: answered ? c.tintBg : const Color(0xFFFFFBEB),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.support_agent_rounded,
-              color: Color(0xFF1477F8),
+            child: Icon(
+              answered
+                  ? Icons.mark_email_read_outlined
+                  : Icons.mark_email_unread_outlined,
+              color: answered
+                  ? const Color(0xFF1477F8)
+                  : const Color(0xFFF59E0B),
             ),
           ),
           const SizedBox(width: 12),
@@ -310,7 +354,7 @@ class _InquirySummaryHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  userLine,
+                  '$userLine · $createdText',
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
@@ -323,9 +367,10 @@ class _InquirySummaryHeader extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w900,
                     color: c.textPrimary,
+                    height: 1.25,
                   ),
                 ),
               ],
@@ -351,10 +396,43 @@ class _Panel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: c.borderStrong),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.borderBlue),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B2447).withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: child,
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  const _SectionHeader({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF1477F8)),
+        const SizedBox(width: 7),
+        Text(
+          title,
+          style: AppTextStyles.titleMedium.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: c.textPrimary,
+          ),
+        ),
+      ],
     );
   }
 }

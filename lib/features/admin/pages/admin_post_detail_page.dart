@@ -8,6 +8,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/admin_content_model.dart';
 import '../provider/admin_content_provider.dart';
+import '../widgets/admin_responsive.dart';
 
 class AdminPostDetailPage extends ConsumerStatefulWidget {
   final int postId;
@@ -109,227 +110,229 @@ class _PostDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _PostSummaryHeader(post: post),
-        const SizedBox(height: 12),
-        _Panel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionHeader(
-                icon: Icons.article_outlined,
-                title: '게시글 내용',
-                trailing: Text(
-                  _formatDate(post.createdAt),
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 11,
-                    color: c.textTertiary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                post.title,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: c.textPrimary,
-                  height: 1.25,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                post.content,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
-                  color: c.textBody,
-                  height: 1.6,
-                ),
-              ),
-              if (post.mediaList.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                _MediaGrid(mediaList: post.mediaList),
-              ],
-              const SizedBox(height: 18),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children: [
-                  _InfoChip(
-                    Icons.school_outlined,
-                    post.schoolName ?? post.regionName ?? '학교/지역 없음',
-                    c: c,
-                  ),
-                  _InfoChip(Icons.dashboard_outlined, post.boardTitle, c: c),
-                  _InfoChip(Icons.person_outline, post.authorLabel, c: c),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 14,
-                children: [
-                  _Metric(
-                    icon: Icons.visibility_outlined,
-                    value: '조회 ${post.viewCount}',
-                    c: c,
-                  ),
-                  _Metric(
-                    icon: Icons.thumb_up_alt_outlined,
-                    value: '공감 ${post.likeCount}',
-                    c: c,
-                  ),
-                  _Metric(
-                    icon: Icons.thumb_down_alt_outlined,
-                    value: '비공감 ${post.dislikeCount}',
-                    c: c,
-                  ),
-                  _Metric(
-                    icon: Icons.mode_comment_outlined,
-                    value: '댓글 ${post.commentCount}',
-                    c: c,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        _Panel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _SectionHeader(
-                icon: Icons.admin_panel_settings_outlined,
-                title: '운영 액션',
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () => context.push(
-                    AppRoutes.adminUserHistory(post.authorUserId),
-                    extra: {'nickname': post.authorLabel},
-                  ),
-                  icon: const Icon(Icons.history_rounded, size: 18),
-                  label: Text('작성자 이력'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF426C82),
-                    side: const BorderSide(color: Color(0xFF426C82)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: post.postStatus == 'HIDDEN'
-                    ? ElevatedButton.icon(
-                        onPressed: isActing
-                            ? null
-                            : () => _confirmAction(
-                                context,
-                                title: '게시글 복구',
-                                message: '숨김 처리된 게시글을 다시 노출할까요?',
-                                confirmText: '복구',
-                                onConfirm: onRestorePost,
-                              ),
-                        icon: const Icon(Icons.undo_rounded, size: 18),
-                        label: Text('게시글 복구'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2F7D46),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      )
-                    : OutlinedButton.icon(
-                        onPressed: isActing
-                            ? null
-                            : () => _confirmAction(
-                                context,
-                                title: '게시글 숨김',
-                                message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
-                                confirmText: '숨김 처리',
-                                onConfirm: onHidePost,
-                              ),
-                        icon: const Icon(
-                          Icons.visibility_off_outlined,
-                          size: 18,
-                        ),
-                        label: Text('게시글 숨김'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFE05C7B),
-                          side: const BorderSide(color: Color(0xFFE05C7B)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        _Panel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionHeader(
-                icon: Icons.mode_comment_outlined,
-                title: '댓글',
-                trailing: Text(
-                  '${post.comments.length}개',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: c.textSecondary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (post.comments.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    '댓글이 없습니다.',
+    return AdminContentFrame(
+      child: ListView(
+        padding: AdminLayout.pagePadding(context),
+        children: [
+          _PostSummaryHeader(post: post),
+          const SizedBox(height: 12),
+          _Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionHeader(
+                  icon: Icons.article_outlined,
+                  title: '게시글 내용',
+                  trailing: Text(
+                    _formatDate(post.createdAt),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.iconSecondary,
-                    ),
-                  ),
-                )
-              else
-                ...post.comments.map(
-                  (comment) => _CommentTile(
-                    comment: comment,
-                    highlighted: comment.commentId == focusCommentId,
-                    isActing: isActing,
-                    onHide: () => _confirmAction(
-                      context,
-                      title: '댓글 숨김',
-                      message: '이 댓글을 사용자 화면에서 숨김 처리할까요?',
-                      confirmText: '숨김 처리',
-                      onConfirm: (reason) =>
-                          onHideComment(comment.commentId, reason),
-                    ),
-                    onRestore: () => _confirmAction(
-                      context,
-                      title: '댓글 복구',
-                      message: '숨김 처리된 댓글을 다시 노출할까요?',
-                      confirmText: '복구',
-                      onConfirm: (reason) =>
-                          onRestoreComment(comment.commentId, reason),
+                      fontSize: 11,
+                      color: c.textTertiary,
                     ),
                   ),
                 ),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  post.title,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: c.textPrimary,
+                    height: 1.25,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  post.content,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 13,
+                    color: c.textBody,
+                    height: 1.6,
+                  ),
+                ),
+                if (post.mediaList.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _MediaGrid(mediaList: post.mediaList),
+                ],
+                const SizedBox(height: 18),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    _InfoChip(
+                      Icons.school_outlined,
+                      post.schoolName ?? post.regionName ?? '학교/지역 없음',
+                      c: c,
+                    ),
+                    _InfoChip(Icons.dashboard_outlined, post.boardTitle, c: c),
+                    _InfoChip(Icons.person_outline, post.authorLabel, c: c),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 14,
+                  children: [
+                    _Metric(
+                      icon: Icons.visibility_outlined,
+                      value: '조회 ${post.viewCount}',
+                      c: c,
+                    ),
+                    _Metric(
+                      icon: Icons.thumb_up_alt_outlined,
+                      value: '공감 ${post.likeCount}',
+                      c: c,
+                    ),
+                    _Metric(
+                      icon: Icons.thumb_down_alt_outlined,
+                      value: '비공감 ${post.dislikeCount}',
+                      c: c,
+                    ),
+                    _Metric(
+                      icon: Icons.mode_comment_outlined,
+                      value: '댓글 ${post.commentCount}',
+                      c: c,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+          _Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionHeader(
+                  icon: Icons.admin_panel_settings_outlined,
+                  title: '운영 액션',
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push(
+                      AppRoutes.adminUserHistory(post.authorUserId),
+                      extra: {'nickname': post.authorLabel},
+                    ),
+                    icon: const Icon(Icons.history_rounded, size: 18),
+                    label: Text('작성자 이력'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF426C82),
+                      side: const BorderSide(color: Color(0xFF426C82)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: post.postStatus == 'HIDDEN'
+                      ? ElevatedButton.icon(
+                          onPressed: isActing
+                              ? null
+                              : () => _confirmAction(
+                                  context,
+                                  title: '게시글 복구',
+                                  message: '숨김 처리된 게시글을 다시 노출할까요?',
+                                  confirmText: '복구',
+                                  onConfirm: onRestorePost,
+                                ),
+                          icon: const Icon(Icons.undo_rounded, size: 18),
+                          label: Text('게시글 복구'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2F7D46),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        )
+                      : OutlinedButton.icon(
+                          onPressed: isActing
+                              ? null
+                              : () => _confirmAction(
+                                  context,
+                                  title: '게시글 숨김',
+                                  message: '이 게시글을 사용자 화면에서 숨김 처리할까요?',
+                                  confirmText: '숨김 처리',
+                                  onConfirm: onHidePost,
+                                ),
+                          icon: const Icon(
+                            Icons.visibility_off_outlined,
+                            size: 18,
+                          ),
+                          label: Text('게시글 숨김'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFE05C7B),
+                            side: const BorderSide(color: Color(0xFFE05C7B)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionHeader(
+                  icon: Icons.mode_comment_outlined,
+                  title: '댓글',
+                  trailing: Text(
+                    '${post.comments.length}개',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: c.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (post.comments.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      '댓글이 없습니다.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.iconSecondary,
+                      ),
+                    ),
+                  )
+                else
+                  ...post.comments.map(
+                    (comment) => _CommentTile(
+                      comment: comment,
+                      highlighted: comment.commentId == focusCommentId,
+                      isActing: isActing,
+                      onHide: () => _confirmAction(
+                        context,
+                        title: '댓글 숨김',
+                        message: '이 댓글을 사용자 화면에서 숨김 처리할까요?',
+                        confirmText: '숨김 처리',
+                        onConfirm: (reason) =>
+                            onHideComment(comment.commentId, reason),
+                      ),
+                      onRestore: () => _confirmAction(
+                        context,
+                        title: '댓글 복구',
+                        message: '숨김 처리된 댓글을 다시 노출할까요?',
+                        confirmText: '복구',
+                        onConfirm: (reason) =>
+                            onRestoreComment(comment.commentId, reason),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -554,8 +557,7 @@ class _SectionHeader extends StatelessWidget {
             color: c.textPrimary,
           ),
         ),
-        const Spacer(),
-        ?trailing,
+        if (trailing != null) ...[const Spacer(), trailing!],
       ],
     );
   }

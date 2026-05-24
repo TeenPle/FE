@@ -145,6 +145,10 @@ class FcmService {
   /// FCM data 맵을 기반으로 적절한 페이지로 이동한다.
   /// 포그라운드 로컬 알림 탭과 백그라운드/종료 알림 탭 모두 이 함수를 사용한다.
   Future<void> _navigateFromData(Map<String, dynamic> data) async {
+    if (await _navigateAdminNotification(data)) {
+      return;
+    }
+
     if (_isChatMessage(data)) {
       final roomId = int.tryParse(data['targetId'] ?? '');
       if (roomId != null) {
@@ -155,7 +159,16 @@ class FcmService {
       return;
     }
 
-    // 채팅 외 모든 알림(댓글·대댓글·좋아요 등)은 해당 게시글로 이동한다.
+    // 문의 답변 알림 — 해당 문의 상세 페이지로 이동한다.
+    if (data['type'] == 'INQUIRY' || data['targetType'] == 'INQUIRY') {
+      final inquiryId = int.tryParse(data['targetId'] ?? '');
+      if (inquiryId != null) {
+        router.push(AppRoutes.inquiryDetail(inquiryId));
+        return;
+      }
+    }
+
+    // 채팅·문의 외 알림(댓글·대댓글·좋아요 등)은 해당 게시글로 이동한다.
     final targetIdStr = data['targetId'];
     if (targetIdStr != null) {
       final postId = int.tryParse(targetIdStr);
@@ -166,6 +179,44 @@ class FcmService {
     }
 
     router.push(AppRoutes.notifications);
+  }
+
+  Future<bool> _navigateAdminNotification(Map<String, dynamic> data) async {
+    final role = await TokenStorage().getUserRole();
+    if (role != 'ADMIN') return false;
+
+    final type = data['type'];
+    final targetType = data['targetType'];
+    final targetId = int.tryParse(data['targetId'] ?? '');
+
+    if (type == 'ADMIN_REPORT' || targetType == 'REPORT') {
+      if (targetId != null) {
+        router.push(AppRoutes.adminReportDetail(targetId));
+      } else {
+        router.push(AppRoutes.adminReportList);
+      }
+      return true;
+    }
+
+    if (type == 'ADMIN_VERIFICATION' || targetType == 'VERIFICATION_REQUEST') {
+      if (targetId != null) {
+        router.push('${AppRoutes.adminVerificationList}/$targetId');
+      } else {
+        router.push(AppRoutes.adminVerificationList);
+      }
+      return true;
+    }
+
+    if (type == 'ADMIN_INQUIRY') {
+      if (targetId != null) {
+        router.push(AppRoutes.adminInquiryDetail(targetId));
+      } else {
+        router.push(AppRoutes.adminInquiries);
+      }
+      return true;
+    }
+
+    return false;
   }
 
   /// roomId로 채팅방을 찾아 해당 채팅방 페이지로 이동한다.

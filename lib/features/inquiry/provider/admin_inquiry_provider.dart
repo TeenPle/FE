@@ -7,12 +7,14 @@ class AdminInquiryListState {
   final List<InquirySummaryModel> inquiries;
   final String activeStatus;
   final bool isLoading;
+  final String keyword;
   final String? error;
 
   const AdminInquiryListState({
     this.inquiries = const [],
     this.activeStatus = 'PENDING',
     this.isLoading = false,
+    this.keyword = '',
     this.error,
   });
 
@@ -20,12 +22,14 @@ class AdminInquiryListState {
     List<InquirySummaryModel>? inquiries,
     String? activeStatus,
     bool? isLoading,
+    String? keyword,
     String? error,
   }) {
     return AdminInquiryListState(
       inquiries: inquiries ?? this.inquiries,
       activeStatus: activeStatus ?? this.activeStatus,
       isLoading: isLoading ?? this.isLoading,
+      keyword: keyword ?? this.keyword,
       error: error,
     );
   }
@@ -36,10 +40,19 @@ class AdminInquiryListNotifier extends StateNotifier<AdminInquiryListState> {
 
   AdminInquiryListNotifier(this._api) : super(const AdminInquiryListState());
 
-  Future<void> load({String status = 'PENDING'}) async {
-    state = state.copyWith(isLoading: true, activeStatus: status, error: null);
+  Future<void> load({String status = 'PENDING', String? keyword}) async {
+    final nextKeyword = keyword ?? state.keyword;
+    state = state.copyWith(
+      isLoading: true,
+      activeStatus: status,
+      keyword: nextKeyword,
+      error: null,
+    );
     try {
-      final inquiries = await _api.getInquiries(status: status);
+      final inquiries = await _api.getInquiries(
+        status: status,
+        keyword: nextKeyword,
+      );
       state = state.copyWith(inquiries: inquiries, isLoading: false);
     } catch (_) {
       state = state.copyWith(isLoading: false, error: '문의 목록을 불러오지 못했어요.');
@@ -47,6 +60,10 @@ class AdminInquiryListNotifier extends StateNotifier<AdminInquiryListState> {
   }
 
   Future<void> refresh() => load(status: state.activeStatus);
+
+  Future<void> search(String keyword) {
+    return load(status: state.activeStatus, keyword: keyword.trim());
+  }
 }
 
 final adminInquiryListProvider =

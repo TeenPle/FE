@@ -79,7 +79,7 @@ class _BoardDetailPageState extends ConsumerState<BoardDetailPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(64),
         child: Container(
-          color: c.cardBg,
+          color: c.pageBg,
           child: SafeArea(
             bottom: false,
             child: SizedBox(
@@ -373,7 +373,7 @@ class _ModernBoardHeader extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(8, 8, 12, 12),
       decoration: BoxDecoration(
-        color: context.colors.cardBg,
+        color: context.colors.pageBg,
         border: const Border(bottom: BorderSide(color: Color(0xFFE4EEF7))),
       ),
       child: Column(

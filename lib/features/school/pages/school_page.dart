@@ -585,6 +585,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
           separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final board = visibleBoards[index];
+            final visual = _BoardVisual.fromBoard(board);
             return AnimationConfiguration.staggeredList(
               position: index,
               duration: const Duration(milliseconds: 380),
@@ -624,12 +625,12 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
                                   width: 38,
                                   height: 38,
                                   decoration: BoxDecoration(
-                                    color: c.tintBg,
+                                    color: visual.color.withValues(alpha: 0.11),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
-                                    Icons.tag_rounded,
-                                    color: Color(0xFF14A3F7),
+                                  child: Icon(
+                                    visual.icon,
+                                    color: visual.color,
                                     size: 22,
                                   ),
                                 ),
@@ -699,6 +700,118 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
     await ref.read(schoolProvider.notifier).refreshPosts();
     if (!mounted) return;
     showAppSnackBar('게시글을 등록했어요.');
+  }
+}
+
+class _BoardVisual {
+  final IconData icon;
+  final Color color;
+
+  const _BoardVisual({required this.icon, required this.color});
+
+  static _BoardVisual fromBoard(BoardModel board) {
+    switch (board.type) {
+      case 'FREE':
+        return const _BoardVisual(
+          icon: Icons.forum_rounded,
+          color: Color(0xFF1477F8),
+        );
+      case 'QUESTION':
+        return const _BoardVisual(
+          icon: Icons.help_rounded,
+          color: Color(0xFF00A884),
+        );
+      case 'GRADE_1':
+        return const _BoardVisual(
+          icon: Icons.looks_one_rounded,
+          color: Color(0xFF10A37F),
+        );
+      case 'GRADE_2':
+        return const _BoardVisual(
+          icon: Icons.looks_two_rounded,
+          color: Color(0xFF2563EB),
+        );
+      case 'GRADE_3':
+        return const _BoardVisual(
+          icon: Icons.looks_3_rounded,
+          color: Color(0xFFD97706),
+        );
+      case 'ACADEMIC':
+        return const _BoardVisual(
+          icon: Icons.assignment_turned_in_rounded,
+          color: Color(0xFF2563EB),
+        );
+      case 'CONCERN':
+        return const _BoardVisual(
+          icon: Icons.favorite_rounded,
+          color: Color(0xFFE11D48),
+        );
+      case 'PROMOTION':
+        return const _BoardVisual(
+          icon: Icons.campaign_rounded,
+          color: Color(0xFFEA580C),
+        );
+      case 'GRADUATE':
+        return const _BoardVisual(
+          icon: Icons.school_rounded,
+          color: Color(0xFF475569),
+        );
+    }
+
+    final normalizedTitle = board.title.replaceAll(' ', '');
+    if (normalizedTitle.contains('질문')) {
+      return const _BoardVisual(
+        icon: Icons.help_rounded,
+        color: Color(0xFF00A884),
+      );
+    }
+    if (normalizedTitle.contains('1학년')) {
+      return const _BoardVisual(
+        icon: Icons.looks_one_rounded,
+        color: Color(0xFF10A37F),
+      );
+    }
+    if (normalizedTitle.contains('2학년')) {
+      return const _BoardVisual(
+        icon: Icons.looks_two_rounded,
+        color: Color(0xFF2563EB),
+      );
+    }
+    if (normalizedTitle.contains('3학년')) {
+      return const _BoardVisual(
+        icon: Icons.looks_3_rounded,
+        color: Color(0xFFD97706),
+      );
+    }
+    if (normalizedTitle.contains('시험') || normalizedTitle.contains('수행')) {
+      return const _BoardVisual(
+        icon: Icons.assignment_turned_in_rounded,
+        color: Color(0xFF2563EB),
+      );
+    }
+    if (normalizedTitle.contains('고민')) {
+      return const _BoardVisual(
+        icon: Icons.favorite_rounded,
+        color: Color(0xFFE11D48),
+      );
+    }
+    if (normalizedTitle.contains('홍보')) {
+      return const _BoardVisual(
+        icon: Icons.campaign_rounded,
+        color: Color(0xFFEA580C),
+      );
+    }
+    if (normalizedTitle.contains('졸업')) {
+      return const _BoardVisual(
+        icon: Icons.school_rounded,
+        color: Color(0xFF475569),
+      );
+    }
+
+    return const _BoardVisual(
+      icon: Icons.forum_rounded,
+      color: Color(0xFF1477F8),
+    );
   }
 }
 

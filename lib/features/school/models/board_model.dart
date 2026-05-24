@@ -3,8 +3,10 @@ class BoardModel {
   final String title;
   final String description;
   final bool active;
-  // 게시판 범위: 'SCHOOL'(학교 게시판) 또는 'REGION'(지역 게시판)
   final String scope;
+  final String? type;
+  final bool defaultBoard;
+  final int sortOrder;
 
   const BoardModel({
     required this.id,
@@ -12,9 +14,11 @@ class BoardModel {
     required this.description,
     required this.active,
     this.scope = 'SCHOOL',
+    this.type,
+    this.defaultBoard = false,
+    this.sortOrder = 999,
   });
 
-  // 지역 게시판 여부
   bool get isRegion => scope == 'REGION';
 
   factory BoardModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,9 @@ class BoardModel {
       description: json['description'] as String? ?? '',
       active: json['active'] as bool? ?? true,
       scope: json['scope'] as String? ?? 'SCHOOL',
+      type: json['type'] as String?,
+      defaultBoard: json['defaultBoard'] as bool? ?? false,
+      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 999,
     );
   }
 }

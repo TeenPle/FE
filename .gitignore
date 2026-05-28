@@ -10,6 +10,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.iml
+.claude/
 
 # Flutter / Dart / Pub
 .dart_tool/
@@ -64,4 +65,6 @@ test_driver/failure_screenshots/
 coverage/
 
 # Firebase — contains hardcoded API keys, must not be committed to public repos
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart

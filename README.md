@@ -92,19 +92,30 @@ lib
 ├─ core                        # 공통 네트워크, 인증, 저장소, 위젯, 테마
 │  ├─ auth                     # 인증 세션 상태
 │  ├─ network                  # Dio, API 클라이언트, 예외 처리
+│  ├─ services                 # 온보딩 등 공통 서비스
 │  ├─ storage                  # 토큰 및 로컬 저장소
 │  ├─ theme                    # 컬러, 텍스트 스타일, 다크모드
+│  ├─ utils                    # 공통 유틸리티
 │  └─ widgets                  # 공통 UI 컴포넌트
 │
 ├─ features                    # 기능 단위 화면/상태/API 모듈
 │  ├─ admin                    # 관리자 화면
 │  ├─ auth                     # 로그인, 회원가입, 계정 복구
+│  ├─ board                    # 게시판 공통 기능
 │  ├─ chat                     # 채팅방, 메시지, WebSocket
+│  ├─ dday                     # D-Day 설정 및 표시
+│  ├─ inquiry                  # 1:1 문의 및 관리자 답변
+│  ├─ meal                     # 급식 정보
 │  ├─ notification             # 알림 목록, FCM 연동
+│  ├─ penalty                  # 제재 상태 및 이력
 │  ├─ post                     # 게시글 상세, 댓글, 공감, 신고
 │  ├─ profile                  # 마이페이지, 프로필, 설정
+│  ├─ region                   # 지역 데이터
+│  ├─ report                   # 신고 관련 기능
 │  ├─ school                   # 학교 메인, 게시판, 인기글
-│  └─ search                   # 게시글 검색
+│  ├─ search                   # 게시글 검색
+│  ├─ timetable                # 시간표
+│  └─ warning                  # 경고 알림 및 이력
 │
 └─ main.dart                   # 앱 진입점
 ```

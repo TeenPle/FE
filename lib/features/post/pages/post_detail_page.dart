@@ -42,8 +42,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     _detailNotifier = ref.read(postDetailProvider(widget.postId).notifier);
     _activePageNotifier = ref.read(activePageProvider.notifier);
 
-    debugPrint('PostDetailPage 진입 postId = ${widget.postId}');
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 이 게시글을 보고 있음을 알림 억제 로직에 알린다.
@@ -307,9 +305,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                         }
                         notifier.toggleLike();
                       },
-                      onShareTap: () {
-                        debugPrint('share post: ${post.postId}');
-                      },
+                      onShareTap: () {},
                     ),
                   ),
                   const SizedBox(height: 4),

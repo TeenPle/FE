@@ -92,15 +92,21 @@ class ChatRoomListNotifier extends StateNotifier<ChatRoomListState> {
           reconnectDelay: Duration.zero,
           onConnect: (_) => _subscribeUserRooms(userId),
           onDisconnect: (_) {
-            debugPrint('[CHAT ROOMS] realtime disconnected');
+            if (kDebugMode) debugPrint('[CHAT ROOMS] realtime disconnected');
             _scheduleReconnect();
           },
           onStompError: (frame) {
-            debugPrint('[CHAT ROOMS] stomp error: ${frame.body}');
+            if (kDebugMode) {
+              debugPrint('[CHAT ROOMS] stomp error: ${frame.body}');
+            }
             _scheduleReconnect(refreshTokenFirst: true);
           },
           onWebSocketError: (error) {
-            debugPrint('[CHAT ROOMS] ws error: ${error.runtimeType} / $error');
+            if (kDebugMode) {
+              debugPrint(
+                '[CHAT ROOMS] ws error: ${error.runtimeType} / $error',
+              );
+            }
             _scheduleReconnect(refreshTokenFirst: true);
           },
         ),
@@ -173,7 +179,7 @@ class ChatRoomListNotifier extends StateNotifier<ChatRoomListState> {
         _scheduleRealtimeReload();
       }
     } catch (e) {
-      debugPrint('[CHAT ROOMS] event parse error: $e');
+      if (kDebugMode) debugPrint('[CHAT ROOMS] event parse error: $e');
     }
   }
 

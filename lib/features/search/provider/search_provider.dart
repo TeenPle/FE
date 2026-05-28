@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/app_api_client.dart';
 import '../../../core/network/dio_provider.dart';
@@ -118,8 +118,10 @@ class SearchNotifier extends StateNotifier<SearchState> {
         isLoading: false,
       );
     } catch (e, stackTrace) {
-      debugPrint('검색 실패: $e');
-      debugPrintStack(stackTrace: stackTrace);
+      if (kDebugMode) {
+        debugPrint('검색 실패: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
 
       state = state.copyWith(isLoading: false, errorMessage: '검색에 실패했어요.');
     }
@@ -150,8 +152,10 @@ class SearchNotifier extends StateNotifier<SearchState> {
         isLoadingMore: false,
       );
     } catch (e, stackTrace) {
-      debugPrint('검색 더보기 실패: $e');
-      debugPrintStack(stackTrace: stackTrace);
+      if (kDebugMode) {
+        debugPrint('검색 더보기 실패: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
 
       state = state.copyWith(
         isLoadingMore: false,

@@ -1,4 +1,4 @@
-# 🌿 TeenPle(Teenage Place) — Frontend
+ # 🌿 TeenPle(Teenage Place) — Frontend
 
 고등학생이 자신의 학교를 인증하고 참여할 수 있는  
 **학교 전용 익명 커뮤니티 TeenPle**(Teenage Place)의 **Flutter 모바일 앱 레포지토리**입니다.

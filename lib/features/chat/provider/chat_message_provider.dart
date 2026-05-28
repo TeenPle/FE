@@ -274,14 +274,16 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
           _scheduleReconnect();
         },
         onStompError: (StompFrame frame) {
-          debugPrint('[STOMP] error: ${frame.body}');
+          if (kDebugMode) debugPrint('[STOMP] error: ${frame.body}');
           if (_isDisposed) return;
           state = state.copyWith(isConnected: false);
           _scheduleReconnect(refreshTokenFirst: true);
         },
         onWebSocketError: (dynamic error) {
           // Flutter Web에서는 WebSocket 오류가 JS Event로 전달되어 [object Event]로 출력됨
-          debugPrint('[STOMP] ws error: ${error.runtimeType} / $error');
+          if (kDebugMode) {
+            debugPrint('[STOMP] ws error: ${error.runtimeType} / $error');
+          }
           if (_isDisposed) return;
           state = state.copyWith(
             isConnected: false,
@@ -375,7 +377,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         loadMessages(markAsRead: false);
       }
     } catch (e) {
-      debugPrint('[STOMP] room event parse error: $e');
+      if (kDebugMode) debugPrint('[STOMP] room event parse error: $e');
     }
   }
 
@@ -441,7 +443,7 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
         _api.markRead(roomId, msg.messageId).catchError((_) {});
       }
     } catch (e) {
-      debugPrint('[STOMP] message parse error: $e');
+      if (kDebugMode) debugPrint('[STOMP] message parse error: $e');
     }
   }
 

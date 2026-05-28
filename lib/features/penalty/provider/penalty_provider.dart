@@ -36,7 +36,7 @@ class ActivePenaltyNotifier extends StateNotifier<ActivePenaltyState> {
       final penalty = await _api.getMyActivePenalty();
       state = ActivePenaltyState(penalty: penalty, isLoading: false);
     } catch (e) {
-      debugPrint('[PenaltyProvider] load error: $e');
+      if (kDebugMode) debugPrint('[PenaltyProvider] load error: $e');
       state = ActivePenaltyState(
         penalty: ActivePenaltyModel.notPenalized(),
         isLoading: false,

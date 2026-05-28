@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../app/theme.dart';
 import '../../../core/auth/auth_session_provider.dart';
 import '../../../core/network/base_url.dart';
 import '../../../core/storage/token_storage.dart';
@@ -144,35 +146,50 @@ class _LandingPageState extends ConsumerState<LandingPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FBFF),
-      body: SizedBox.expand(
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFFFBFDFF), Color(0xFFEAF8FF)],
-            ),
-          ),
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Center(
-                child: Semantics(
-                  label: 'TeenPle, 우리 학교와 동네를 잇는 학생 커뮤니티',
-                  image: true,
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: _landingImageSize.width,
-                      height: _landingImageSize.height,
-                      child: Image.asset(
-                        _landingAsset,
+    const backgroundColor = Color(0xFFF7FBFF);
+    const overlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: backgroundColor,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    );
+
+    return Theme(
+      data: buildTeenpleLightTheme(),
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: overlayStyle,
+        child: Scaffold(
+          backgroundColor: backgroundColor,
+          body: SizedBox.expand(
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFFFBFDFF), Color(0xFFEAF8FF)],
+                ),
+              ),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Center(
+                    child: Semantics(
+                      label: 'TeenPle, 우리 학교와 동네를 잇는 학생 커뮤니티',
+                      image: true,
+                      child: FittedBox(
                         fit: BoxFit.contain,
-                        filterQuality: FilterQuality.medium,
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: _landingImageSize.width,
+                          height: _landingImageSize.height,
+                          child: Image.asset(
+                            _landingAsset,
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.medium,
+                          ),
+                        ),
                       ),
                     ),
                   ),

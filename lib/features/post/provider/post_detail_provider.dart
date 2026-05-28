@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_exception.dart';
 import '../api/post_repository.dart';
@@ -176,9 +176,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
   Future<void> submitComment(String content) async {
     if (content.trim().isEmpty || state.isSubmittingComment) return;
 
-    debugPrint('댓글 작성 대상 postId = ${state.postId}');
-    debugPrint('현재 보고 있는 post 제목 = ${state.post?.title}');
-
     state = state.copyWith(
       isSubmittingComment: true,
       clearError: true,
@@ -224,7 +221,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       state = state.copyWith(isReporting: false, successMessage: '게시글을 신고했어요.');
     } catch (e, st) {
-      debugPrint('reportPost error: $e\n$st');
+      if (kDebugMode) debugPrint('reportPost error: $e\n$st');
       final message = e is ApiException ? e.message : '게시글 신고에 실패했어요.';
       state = state.copyWith(isReporting: false, errorMessage: message);
     }
@@ -245,7 +242,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       state = state.copyWith(isReporting: false, successMessage: '댓글을 신고했어요.');
     } catch (e, st) {
-      debugPrint('reportComment error: $e\n$st');
+      if (kDebugMode) debugPrint('reportComment error: $e\n$st');
       final message = e is ApiException ? e.message : '댓글 신고에 실패했어요.';
       state = state.copyWith(isReporting: false, errorMessage: message);
     }

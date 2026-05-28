@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 
 import '../../../core/network/api_response.dart';
 import '../../../core/network/app_api_client.dart';
@@ -53,9 +52,6 @@ class PostApi {
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
     }
-
-    debugPrint('댓글 작성 요청 URL = /api/posts/$postId/comments');
-    debugPrint('댓글 작성 body = ${request.toJson()}');
 
     return response.result!;
   }

@@ -35,7 +35,7 @@ class UnreadWarningNotifier extends StateNotifier<UnreadWarningState> {
       final warning = await _api.getUnreadWarning();
       state = UnreadWarningState(warning: warning, isLoading: false);
     } catch (e) {
-      debugPrint('[WarningProvider] load error: $e');
+      if (kDebugMode) debugPrint('[WarningProvider] load error: $e');
       state = const UnreadWarningState(isLoading: false);
     }
   }
@@ -45,7 +45,7 @@ class UnreadWarningNotifier extends StateNotifier<UnreadWarningState> {
       await _api.markWarningRead(warningId);
       state = state.copyWith(clear: true);
     } catch (e) {
-      debugPrint('[WarningProvider] markRead error: $e');
+      if (kDebugMode) debugPrint('[WarningProvider] markRead error: $e');
     }
   }
 }

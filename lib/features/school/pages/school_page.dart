@@ -35,6 +35,7 @@ import '../../post/provider/post_detail_providers.dart';
 enum _HomeTab { feed, popular, boards }
 
 const bool _showSchoolMainAdTestSlot = true;
+const int _homeFeedFirstAdAfterPosts = 5;
 const String _seenPenaltyDialogKeysPrefsKey = 'seen_penalty_dialog_keys';
 const String _seenWarningDialogKeysPrefsKey = 'seen_warning_dialog_keys';
 
@@ -379,9 +380,11 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       ];
     }
 
-    final showAdSlot = _showSchoolMainAdTestSlot;
-    final adInsertIndex = hotPosts.isNotEmpty ? 1 : 0;
     final totalPostCount = hotPosts.length + feedPosts.length;
+    final showAdSlot =
+        _showSchoolMainAdTestSlot &&
+        totalPostCount > _homeFeedFirstAdAfterPosts;
+    final adInsertIndex = _homeFeedFirstAdAfterPosts;
     final totalItemCount =
         totalPostCount + (showAdSlot ? 1 : 0) + 1; // +1 for footer
 

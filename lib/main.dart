@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'app/app.dart';
 import 'features/notification/service/fcm_service.dart';
 import 'firebase_options.dart';
@@ -39,6 +40,11 @@ void main() async {
   );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (_isMobile) {
+    // 출시 전 AdMob 연동 검증용 초기화. 실제 광고 단위 ID를 쓰기 전에도
+    // Google 테스트 광고가 로드되는지 확인할 수 있다.
+    await MobileAds.instance.initialize();
+  }
   if (_isMobile) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     // FCM 백그라운드 알림이 앱 채널 생성 전에 도달해도 헤드업이 뜨도록

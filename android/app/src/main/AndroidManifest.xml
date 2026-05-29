@@ -48,6 +48,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <!-- AdMob 테스트 App ID. 운영 출시 전에는 실제 AdMob App ID로 교체해야 한다. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+
         <!-- FCM 기본 알림 채널 (Android 8.0+): fcm_service.dart의 fcmChannelId와 일치해야 함 -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"

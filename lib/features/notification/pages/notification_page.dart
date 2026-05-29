@@ -67,10 +67,22 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
           ? const Center(child: CircularProgressIndicator())
           : state.notifications.isEmpty
           ? const _EmptyState()
-          : ListView.builder(
+          : ListView.separated(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: state.notifications.length + (state.hasMore ? 1 : 0),
+              separatorBuilder: (context, index) {
+                if (index >= state.notifications.length - 1) {
+                  return const SizedBox.shrink();
+                }
+                return Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: context.colors.divider,
+                  indent: 74,
+                  endIndent: 20,
+                );
+              },
               itemBuilder: (context, index) {
                 if (index == state.notifications.length) {
                   return const Padding(
@@ -169,7 +181,8 @@ class _CommentNotificationContent extends StatelessWidget {
           Text(
             notification.boardName!,
             style: AppTextStyles.labelSmall.copyWith(
-              color: const Color(0xFF14A3F7),
+              color: c.textPrimary,
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 3),

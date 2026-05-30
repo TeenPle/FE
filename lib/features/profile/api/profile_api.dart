@@ -86,9 +86,13 @@ class ProfileApi {
 
   Future<String> updateProfileImage(File imageFile) async {
     final ext = imageFile.path.split('.').last.toLowerCase();
-    final contentType = ext == 'png'
-        ? MediaType('image', 'png')
-        : MediaType('image', 'jpeg');
+    final contentType = switch (ext) {
+      'png' => MediaType('image', 'png'),
+      'heic' => MediaType('image', 'heic'),
+      'heif' => MediaType('image', 'heif'),
+      'webp' => MediaType('image', 'webp'),
+      _ => MediaType('image', 'jpeg'),
+    };
     final multipartFile = await MultipartFile.fromFile(
       imageFile.path,
       filename: 'profile.$ext',

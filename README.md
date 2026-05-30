@@ -75,12 +75,20 @@ Android 릴리즈 빌드:
 flutter build apk --release
 ```
 
+iOS 릴리즈 빌드(macOS):
+
+```bash
+flutter build ipa --release
+```
+
 환경별 API 주소와 Firebase 설정 파일은 로컬에서만 관리합니다.
 
 - `android/app/google-services.json`
+- `ios/Runner/GoogleService-Info.plist`
 - `lib/firebase_options.dart`
 
 위 파일은 실제 서비스 키가 포함될 수 있으므로 Git에 커밋하지 않습니다.
+iOS 서명과 푸시 설정 절차는 `docs/ios_release_setup.md`를 참고합니다.
 
 ---
 

@@ -159,116 +159,101 @@ class _AdminVerificationDetailPageState
         elevation: 0,
       ),
       bottomNavigationBar: isPending
-          ? AnimatedPadding(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                color: c.pageBg,
+                border: Border(top: BorderSide(color: c.borderSubtle)),
               ),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: c.pageBg,
-                  border: Border(top: BorderSide(color: c.borderSubtle)),
-                ),
-                child: SafeArea(
-                  top: false,
-                  minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-                  child: AdminBottomActionFrame(
-                    child: AdminResponsiveActions(
-                      spacing: 12,
-                      children: [
-                        AdminActionButtonBox(
-                          child: ElevatedButton.icon(
-                            onPressed: state.isActionLoading
-                                ? null
-                                : () async {
-                                    await notifier.approve(
-                                      _commentController.text,
+              child: SafeArea(
+                top: false,
+                minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                child: AdminBottomActionFrame(
+                  child: AdminResponsiveActions(
+                    spacing: 12,
+                    children: [
+                      AdminActionButtonBox(
+                        child: ElevatedButton.icon(
+                          onPressed: state.isActionLoading
+                              ? null
+                              : () async {
+                                  await notifier.approve(
+                                    _commentController.text,
+                                  );
+                                  final latest = ref.read(
+                                    adminVerificationDetailProvider(
+                                      widget.requestId,
+                                    ),
+                                  );
+                                  if (!context.mounted) return;
+                                  if (latest.isActionSuccess) {
+                                    showAppSnackBar('인증 요청을 승인했습니다.');
+                                    Navigator.of(context).pop(true);
+                                  } else if (latest.actionErrorMessage !=
+                                      null) {
+                                    showAppSnackBar(
+                                      latest.actionErrorMessage!,
+                                      backgroundColor: const Color(0xFFE05C7B),
                                     );
-                                    final latest = ref.read(
-                                      adminVerificationDetailProvider(
-                                        widget.requestId,
-                                      ),
-                                    );
-                                    if (!context.mounted) return;
-                                    if (latest.isActionSuccess) {
-                                      showAppSnackBar('인증 요청을 승인했습니다.');
-                                      Navigator.of(context).pop(true);
-                                    } else if (latest.actionErrorMessage !=
-                                        null) {
-                                      showAppSnackBar(
-                                        latest.actionErrorMessage!,
-                                        backgroundColor: const Color(
-                                          0xFFE05C7B,
-                                        ),
-                                      );
-                                    }
-                                  },
-                            icon: const Icon(Icons.check_rounded, size: 18),
-                            label: Text(
-                              state.isActionLoading ? '처리 중...' : '승인',
+                                  }
+                                },
+                          icon: const Icon(Icons.check_rounded, size: 18),
+                          label: Text(state.isActionLoading ? '처리 중...' : '승인'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1477F8),
+                            disabledBackgroundColor: const Color(0xFFBFC8FF),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            textStyle: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
                             ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1477F8),
-                              disabledBackgroundColor: const Color(0xFFBFC8FF),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              textStyle: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                         ),
-                        AdminActionButtonBox(
-                          child: OutlinedButton.icon(
-                            onPressed: state.isActionLoading
-                                ? null
-                                : () async {
-                                    await notifier.reject(
-                                      _commentController.text,
+                      ),
+                      AdminActionButtonBox(
+                        child: OutlinedButton.icon(
+                          onPressed: state.isActionLoading
+                              ? null
+                              : () async {
+                                  await notifier.reject(
+                                    _commentController.text,
+                                  );
+                                  final latest = ref.read(
+                                    adminVerificationDetailProvider(
+                                      widget.requestId,
+                                    ),
+                                  );
+                                  if (!context.mounted) return;
+                                  if (latest.isActionSuccess) {
+                                    showAppSnackBar('인증 요청을 거절했습니다.');
+                                    Navigator.of(context).pop(true);
+                                  } else if (latest.actionErrorMessage !=
+                                      null) {
+                                    showAppSnackBar(
+                                      latest.actionErrorMessage!,
+                                      backgroundColor: const Color(0xFFE05C7B),
                                     );
-                                    final latest = ref.read(
-                                      adminVerificationDetailProvider(
-                                        widget.requestId,
-                                      ),
-                                    );
-                                    if (!context.mounted) return;
-                                    if (latest.isActionSuccess) {
-                                      showAppSnackBar('인증 요청을 거절했습니다.');
-                                      Navigator.of(context).pop(true);
-                                    } else if (latest.actionErrorMessage !=
-                                        null) {
-                                      showAppSnackBar(
-                                        latest.actionErrorMessage!,
-                                        backgroundColor: const Color(
-                                          0xFFE05C7B,
-                                        ),
-                                      );
-                                    }
-                                  },
-                            icon: const Icon(Icons.close_rounded, size: 18),
-                            label: Text(
-                              state.isActionLoading ? '처리 중...' : '거절',
+                                  }
+                                },
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          label: Text(state.isActionLoading ? '처리 중...' : '거절'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFE05C7B),
+                            side: const BorderSide(color: Color(0xFFE05C7B)),
+                            textStyle: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
                             ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFFE05C7B),
-                              side: const BorderSide(color: Color(0xFFE05C7B)),
-                              textStyle: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),

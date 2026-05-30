@@ -316,140 +316,143 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
       ),
       builder: (ctx) {
         final bc = ctx.colors;
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-            left: 22,
-            right: 22,
-            top: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+              left: 22,
+              right: 22,
+              top: 24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '${_weekdayLabel(day)}요일 $period교시',
+                      style: AppTextStyles.titleSmall.copyWith(
+                        color: bc.textPrimary,
+                      ),
+                    ),
+                    if (hasOverride) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: bc.tintBg,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '수정됨',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E8CE8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (neisSubject.isNotEmpty && hasOverride) ...[
+                  const SizedBox(height: 4),
                   Text(
-                    '${_weekdayLabel(day)}요일 $period교시',
-                    style: AppTextStyles.titleSmall.copyWith(
-                      color: bc.textPrimary,
+                    'NEIS 원본: $neisSubject',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 10,
+                      color: bc.textMuted,
                     ),
                   ),
-                  if (hasOverride) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
+                ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: controller,
+                  maxLength: 10,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: neisSubject.isNotEmpty ? neisSubject : '과목명 입력',
+                    counterText: '',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: bc.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF14A3F7),
+                        width: 1.8,
                       ),
-                      decoration: BoxDecoration(
-                        color: bc.tintBg,
-                        borderRadius: BorderRadius.circular(999),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 13,
+                    ),
+                  ),
+                  onSubmitted: (_) =>
+                      _saveAndPop(ctx, day, period, controller.text),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    if (hasOverride)
+                      TextButton(
+                        onPressed: () {
+                          ref
+                              .read(timetableProvider.notifier)
+                              .clearOverride(day, period);
+                          Navigator.pop(ctx);
+                        },
+                        child: Text(
+                          '원래대로',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: Color(0xFFE05C5C),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(
+                        '취소',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: bc.textMuted,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () =>
+                          _saveAndPop(ctx, day, period, controller.text),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF14A3F7),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 11,
+                        ),
                       ),
                       child: Text(
-                        '수정됨',
+                        '저장',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1E8CE8),
                         ),
                       ),
                     ),
                   ],
-                ],
-              ),
-              if (neisSubject.isNotEmpty && hasOverride) ...[
-                const SizedBox(height: 4),
-                Text(
-                  'NEIS 원본: $neisSubject',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 10,
-                    color: bc.textMuted,
-                  ),
                 ),
               ],
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                maxLength: 10,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: neisSubject.isNotEmpty ? neisSubject : '과목명 입력',
-                  counterText: '',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: bc.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF14A3F7),
-                      width: 1.8,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 13,
-                  ),
-                ),
-                onSubmitted: (_) =>
-                    _saveAndPop(ctx, day, period, controller.text),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  if (hasOverride)
-                    TextButton(
-                      onPressed: () {
-                        ref
-                            .read(timetableProvider.notifier)
-                            .clearOverride(day, period);
-                        Navigator.pop(ctx);
-                      },
-                      child: Text(
-                        '원래대로',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: Color(0xFFE05C5C),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: Text(
-                      '취소',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: bc.textMuted,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () =>
-                        _saveAndPop(ctx, day, period, controller.text),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF14A3F7),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 22,
-                        vertical: 11,
-                      ),
-                    ),
-                    child: Text(
-                      '저장',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -593,174 +596,179 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
         color: c.popupBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: EdgeInsets.fromLTRB(18, 10, 18, 16 + bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: c.divider,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(18, 10, 18, 16 + bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 28,
-                height: 28,
+                width: 36,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF7FF),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.edit_note_rounded,
-                  size: 16,
-                  color: Color(0xFF14A3F7),
+                  color: c.divider,
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '메모 추가',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: c.textPrimary,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+              const SizedBox(height: 14),
               Row(
                 children: [
-                  _PeriodSegment(
-                    label: '오전',
-                    selected: !_isPm,
-                    onTap: () => _setPeriod(false),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEAF7FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.edit_note_rounded,
+                      size: 16,
+                      color: Color(0xFF14A3F7),
+                    ),
                   ),
-                  const SizedBox(width: 5),
-                  _PeriodSegment(
-                    label: '오후',
-                    selected: _isPm,
-                    onTap: () => _setPeriod(true),
+                  const SizedBox(width: 8),
+                  Text(
+                    '메모 추가',
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: c.textPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 66,
-                child: _TimePartField(
-                  controller: _hourController,
-                  label: '시',
-                  hintText: '8',
-                  hasError: !_hasValidTime,
-                  textInputAction: TextInputAction.next,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      _PeriodSegment(
+                        label: '오전',
+                        selected: !_isPm,
+                        onTap: () => _setPeriod(false),
+                      ),
+                      const SizedBox(width: 5),
+                      _PeriodSegment(
+                        label: '오후',
+                        selected: _isPm,
+                        onTap: () => _setPeriod(true),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 66,
+                    child: _TimePartField(
+                      controller: _hourController,
+                      label: '시',
+                      hintText: '8',
+                      hasError: !_hasValidTime,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 66,
+                    child: _TimePartField(
+                      controller: _minuteController,
+                      label: '분',
+                      hintText: '30',
+                      hasError: !_hasValidTime,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 66,
-                child: _TimePartField(
-                  controller: _minuteController,
-                  label: '분',
-                  hintText: '30',
-                  hasError: !_hasValidTime,
-                  textInputAction: TextInputAction.next,
+              if (!_hasValidTime) ...[
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '시간은 1~12시, 분은 0~59 사이로 입력해 주세요',
+                    style: AppTextStyles.captionSmall.copyWith(
+                      color: const Color(0xFFE76F6F),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (!_hasValidTime) ...[
-            const SizedBox(height: 6),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '시간은 1~12시, 분은 0~59 사이로 입력해 주세요',
-                style: AppTextStyles.captionSmall.copyWith(
-                  color: const Color(0xFFE76F6F),
+              ],
+              const SizedBox(height: 8),
+              TextField(
+                controller: _controller,
+                autofocus: true,
+                maxLength: 36,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: c.textBody,
                   fontWeight: FontWeight.w700,
                 ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 8),
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            maxLength: 36,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: c.textBody,
-              fontWeight: FontWeight.w700,
-            ),
-            decoration: InputDecoration(
-              hintText: '예) 체육복 챙기기',
-              hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: c.textHint,
-                fontWeight: FontWeight.w400,
-              ),
-              counterText: '',
-              filled: true,
-              fillColor: c.inputBg,
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 11,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Color(0xFF14A3F7),
-                  width: 1.5,
+                decoration: InputDecoration(
+                  hintText: '예) 체육복 챙기기',
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: c.textHint,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  counterText: '',
+                  filled: true,
+                  fillColor: c.inputBg,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 11,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF14A3F7),
+                      width: 1.5,
+                    ),
+                  ),
                 ),
+                onSubmitted: (_) => _submit(),
               ),
-            ),
-            onSubmitted: (_) => _submit(),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              decoration: BoxDecoration(
-                gradient: _hasText && _hasValidTime
-                    ? const LinearGradient(
-                        colors: [Color(0xFF14A3F7), Color(0xFF0D87D4)],
-                      )
-                    : null,
-                color: _hasText && _hasValidTime
-                    ? null
-                    : const Color(0xFFEAF7FF),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: _hasText && _hasValidTime ? _submit : null,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Center(
-                    child: Text(
-                      '추가하기',
-                      style: AppTextStyles.titleMedium.copyWith(
-                        color: _hasText && _hasValidTime
-                            ? Colors.white
-                            : const Color(0xFF14A3F7),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  decoration: BoxDecoration(
+                    gradient: _hasText && _hasValidTime
+                        ? const LinearGradient(
+                            colors: [Color(0xFF14A3F7), Color(0xFF0D87D4)],
+                          )
+                        : null,
+                    color: _hasText && _hasValidTime
+                        ? null
+                        : const Color(0xFFEAF7FF),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _hasText && _hasValidTime ? _submit : null,
+                      borderRadius: BorderRadius.circular(14),
+                      child: Center(
+                        child: Text(
+                          '추가하기',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: _hasText && _hasValidTime
+                                ? Colors.white
+                                : const Color(0xFF14A3F7),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

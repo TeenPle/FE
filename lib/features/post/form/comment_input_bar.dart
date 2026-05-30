@@ -91,12 +91,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
       top: false,
       child: Container(
         color: c.pageBg,
-        padding: EdgeInsets.fromLTRB(
-          12,
-          6,
-          12,
-          MediaQuery.of(context).viewInsets.bottom + 8,
-        ),
+        padding: EdgeInsets.fromLTRB(12, 6, 12, 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,

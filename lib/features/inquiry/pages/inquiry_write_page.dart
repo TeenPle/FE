@@ -39,8 +39,6 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
       }
     });
 
-    final keyboardBottom = MediaQuery.viewInsetsOf(context).bottom;
-
     return Scaffold(
       backgroundColor: c.pageBg,
       resizeToAvoidBottomInset: true,
@@ -163,37 +161,32 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
           ),
         ],
       ),
-      bottomNavigationBar: AnimatedPadding(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        padding: EdgeInsets.only(bottom: keyboardBottom),
-        child: SafeArea(
-          minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: Center(
-            heightFactor: 1,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: state.isSubmitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1677FF),
-                    disabledBackgroundColor: const Color(0xFFBBD6FF),
-                    foregroundColor: Colors.white,
-                    disabledForegroundColor: Colors.white70,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Center(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: state.isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1677FF),
+                  disabledBackgroundColor: const Color(0xFFBBD6FF),
+                  foregroundColor: Colors.white,
+                  disabledForegroundColor: Colors.white70,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Text(
-                    state.isSubmitting ? '등록 중...' : '문의 등록',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                    ),
+                ),
+                child: Text(
+                  state.isSubmitting ? '등록 중...' : '문의 등록',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),

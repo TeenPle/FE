@@ -144,8 +144,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             );
 
             return SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
+              physics: keyboardInset > 0
+                  ? const ClampingScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                24,
+                32,
+                24,
+                keyboardInset > 0 ? keyboardInset + 32 : 32,
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: minContentHeight),
                 child: AnimatedContainer(

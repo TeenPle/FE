@@ -278,90 +278,80 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
           ),
         ),
         if (isPending)
-          AnimatedPadding(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOut,
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.viewInsetsOf(context).bottom,
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: c.pageBg,
+              border: Border(top: BorderSide(color: c.borderSubtle)),
             ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: c.pageBg,
-                border: Border(top: BorderSide(color: c.borderSubtle)),
-              ),
-              child: SafeArea(
-                top: false,
-                minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-                child: AdminBottomActionFrame(
-                  child: AdminResponsiveActions(
-                    children: [
-                      AdminActionButtonBox(
-                        child: OutlinedButton.icon(
-                          onPressed: state.isActing
-                              ? null
-                              : () => _onReject(context),
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          label: Text(state.isActing ? '처리 중...' : '거절'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFFE05C7B),
-                            side: const BorderSide(color: Color(0xFFE05C7B)),
-                            textStyle: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+            child: SafeArea(
+              top: false,
+              minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+              child: AdminBottomActionFrame(
+                child: AdminResponsiveActions(
+                  children: [
+                    AdminActionButtonBox(
+                      child: OutlinedButton.icon(
+                        onPressed: state.isActing
+                            ? null
+                            : () => _onReject(context),
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                        label: Text(state.isActing ? '처리 중...' : '거절'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFE05C7B),
+                          side: const BorderSide(color: Color(0xFFE05C7B)),
+                          textStyle: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
-                      AdminActionButtonBox(
-                        child: OutlinedButton.icon(
-                          onPressed: state.isActing
-                              ? null
-                              : () => _onWarn(context),
-                          icon: const Icon(
-                            Icons.warning_amber_rounded,
-                            size: 18,
+                    ),
+                    AdminActionButtonBox(
+                      child: OutlinedButton.icon(
+                        onPressed: state.isActing
+                            ? null
+                            : () => _onWarn(context),
+                        icon: const Icon(Icons.warning_amber_rounded, size: 18),
+                        label: Text(state.isActing ? '처리 중...' : '경고'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFF59E0B),
+                          side: const BorderSide(color: Color(0xFFF59E0B)),
+                          textStyle: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
                           ),
-                          label: Text(state.isActing ? '처리 중...' : '경고'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFFF59E0B),
-                            side: const BorderSide(color: Color(0xFFF59E0B)),
-                            textStyle: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
-                      AdminActionButtonBox(
-                        child: ElevatedButton.icon(
-                          onPressed: state.isActing
-                              ? null
-                              : () => _onApprove(context),
-                          icon: const Icon(Icons.check_rounded, size: 18),
-                          label: Text(state.isActing ? '처리 중...' : '승인'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1477F8),
-                            disabledBackgroundColor: const Color(0xFFBFC8FF),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            textStyle: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                    ),
+                    AdminActionButtonBox(
+                      child: ElevatedButton.icon(
+                        onPressed: state.isActing
+                            ? null
+                            : () => _onApprove(context),
+                        icon: const Icon(Icons.check_rounded, size: 18),
+                        label: Text(state.isActing ? '처리 중...' : '승인'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1477F8),
+                          disabledBackgroundColor: const Color(0xFFBFC8FF),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          textStyle: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

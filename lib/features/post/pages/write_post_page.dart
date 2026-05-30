@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
@@ -141,14 +142,30 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         return MediaType('image', 'gif');
       case 'webp':
         return MediaType('image', 'webp');
+      case 'heic':
+        return MediaType('image', 'heic');
+      case 'heif':
+        return MediaType('image', 'heif');
       default:
         return MediaType('application', 'octet-stream');
     }
   }
 
   bool _isImageExtension(String? ext) {
-    const imageExts = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'};
+    const imageExts = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
     return imageExts.contains(ext?.toLowerCase());
+  }
+
+  Future<PlatformFile> _normalizeIosHeicFile(PlatformFile file) async {
+    if (file.path == null) return file;
+    final normalized = await IosImageUploadService.normalizeHeic(file.path!);
+    if (normalized == null) return file;
+    return PlatformFile(
+      name: normalized.name,
+      path: normalized.path,
+      size: normalized.bytes.length,
+      bytes: normalized.bytes,
+    );
   }
 
   Future<void> _pickFiles() async {
@@ -167,7 +184,26 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
 
     if (result == null || result.files.isEmpty) return;
 
-    final oversized = result.files
+    late final List<PlatformFile> normalizedFiles;
+    try {
+      normalizedFiles = await Future.wait(
+        result.files.map(_normalizeIosHeicFile),
+      );
+    } catch (_) {
+      showAppSnackBar('일부 이미지를 변환하지 못했어요. 다른 사진을 선택해 주세요.');
+      return;
+    }
+    if (!mounted) return;
+
+    final unsupported = normalizedFiles
+        .where((f) => !_isImageExtension(f.extension))
+        .map((f) => f.name)
+        .toList();
+    if (unsupported.isNotEmpty) {
+      showAppSnackBar('지원하지 않는 형식은 제외돼요.\n${unsupported.join(', ')}');
+    }
+
+    final oversized = normalizedFiles
         .where((f) => f.size > _maxFileSizeBytes)
         .map((f) => f.name)
         .toList();
@@ -175,7 +211,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
       showAppSnackBar('10MB를 초과한 파일은 제외돼요.\n${oversized.join(', ')}');
     }
 
-    final valid = result.files
+    final valid = normalizedFiles
+        .where((f) => _isImageExtension(f.extension))
         .where((f) => f.size <= _maxFileSizeBytes)
         .take(remaining)
         .toList();

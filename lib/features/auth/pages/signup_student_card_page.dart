@@ -7,8 +7,10 @@ import 'package:go_router/go_router.dart';
 
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
+import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/signup_form_provider.dart';
 import '../provider/signup_secret_store.dart';
 import '../provider/signup_submit_provider.dart';
@@ -29,7 +31,23 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
     if (image == null) return;
 
-    ref.read(signupFormProvider.notifier).updateStudentCardFilePath(image.path);
+    NormalizedUploadImage? normalized;
+    try {
+      normalized = await IosImageUploadService.normalizeHeic(image.path);
+    } catch (_) {
+      showAppSnackBar('이미지를 변환하지 못했어요. 다른 사진을 선택해 주세요.');
+      return;
+    }
+    final uploadPath = normalized?.path ?? image.path;
+    if (!IosImageUploadService.hasAllowedExtension(uploadPath, const {
+      'jpg',
+      'jpeg',
+      'png',
+    })) {
+      showAppSnackBar('JPG 또는 PNG 이미지만 업로드할 수 있어요.');
+      return;
+    }
+    ref.read(signupFormProvider.notifier).updateStudentCardFilePath(uploadPath);
 
     /// 이전 회원가입 에러 상태 초기화
     ref.read(signupSubmitProvider.notifier).reset();

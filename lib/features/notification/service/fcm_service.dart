@@ -49,7 +49,12 @@ Future<void> showLocalNotification(RemoteMessage message) async {
     priority: Priority.high,
     showWhen: true,
   );
-  const details = NotificationDetails(android: androidDetails);
+  const iosDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: true,
+  );
+  const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
   // FCM data를 payload로 전달해 탭 시 라우팅에 사용한다.
   final payload = message.data.isNotEmpty ? jsonEncode(message.data) : null;
@@ -94,6 +99,7 @@ class FcmService {
 
     await _initLocalNotifications();
     await _requestPermission();
+    FirebaseMessaging.instance.onTokenRefresh.listen((_) => _registerToken());
     await _registerToken();
 
     FirebaseMessaging.onMessage.listen((message) async {
@@ -119,8 +125,6 @@ class FcmService {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((m) => _handleMessageTap(m));
-
-    FirebaseMessaging.instance.onTokenRefresh.listen((_) => _registerToken());
   }
 
   Future<void> handleInitialMessage() async {
@@ -366,14 +370,21 @@ class FcmService {
 
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-          alert: true,
-          badge: true,
-          sound: true,
+          // 포그라운드에서는 payload 라우팅을 유지하기 위해 로컬 알림을 사용한다.
+          // iOS 시스템 표시까지 활성화하면 동일 알림이 중복으로 노출된다.
+          alert: false,
+          badge: false,
+          sound: false,
         );
   }
 
   Future<void> _registerToken() async {
     if (kDebugMode) debugPrint('[FCM] 토큰 요청 중...');
+    if (Platform.isIOS && !await _waitForApnsToken()) {
+      if (kDebugMode) debugPrint('[FCM] APNs 토큰 대기 시간 초과');
+      return;
+    }
+
     String? token;
     try {
       token = await FirebaseMessaging.instance.getToken();
@@ -396,6 +407,20 @@ class FcmService {
         }
       }
     }
+  }
+
+  Future<bool> _waitForApnsToken() async {
+    for (int attempt = 0; attempt < 10; attempt++) {
+      try {
+        if (await FirebaseMessaging.instance.getAPNSToken() != null) {
+          return true;
+        }
+      } catch (e) {
+        if (kDebugMode) debugPrint('[FCM] APNs 토큰 확인 실패: $e');
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+    return false;
   }
 
   Future<void> reRegisterToken() async {

@@ -26,6 +26,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   // 앱이 시스템 상태바·네비게이션 바 뒤까지 그려지도록 설정.
   // Flutter의 MediaQuery 인셋(padding.bottom 등)이 시스템 바 높이를 정확히 반영해
   // Scaffold가 콘텐츠를 자동으로 피해준다.
@@ -41,6 +43,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (_isMobile) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
+  if (defaultTargetPlatform == TargetPlatform.android) {
     // FCM 백그라운드 알림이 앱 채널 생성 전에 도달해도 헤드업이 뜨도록
     // 앱 시작 시점에 채널을 즉시 생성
     await _ensureNotificationChannel();

@@ -182,7 +182,7 @@ class _TimetableOnboardingPageState extends State<TimetableOnboardingPage> {
         ],
       ),
       body: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 6, 16, 28),
           child: Column(

@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -165,7 +166,26 @@ class _ProfileHeaderCard extends ConsumerWidget {
     );
     if (result == null || result.files.single.path == null) return;
 
-    final file = File(result.files.single.path!);
+    final originalPath = result.files.single.path!;
+    NormalizedUploadImage? normalized;
+    try {
+      normalized = await IosImageUploadService.normalizeHeic(originalPath);
+    } catch (_) {
+      showAppSnackBar('이미지를 변환하지 못했어요. 다른 사진을 선택해 주세요.');
+      return;
+    }
+    final uploadPath = normalized?.path ?? originalPath;
+    if (!IosImageUploadService.hasAllowedExtension(uploadPath, const {
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+    })) {
+      showAppSnackBar('JPG, PNG, GIF, WEBP 이미지만 업로드할 수 있어요.');
+      return;
+    }
+    final file = File(uploadPath);
     if (!context.mounted) return;
 
     await ref.read(profileProvider.notifier).updateProfileImage(file);

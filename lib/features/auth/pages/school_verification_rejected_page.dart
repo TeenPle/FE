@@ -7,8 +7,10 @@ import 'package:go_router/go_router.dart';
 
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
+import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/login_provider.dart';
 import '../provider/verification_reapply_provider.dart';
 
@@ -47,9 +49,25 @@ class _SchoolVerificationRejectedPageState
 
     if (image == null) return;
 
+    NormalizedUploadImage? normalized;
+    try {
+      normalized = await IosImageUploadService.normalizeHeic(image.path);
+    } catch (_) {
+      showAppSnackBar('이미지를 변환하지 못했어요. 다른 사진을 선택해 주세요.');
+      return;
+    }
+    final uploadPath = normalized?.path ?? image.path;
+    if (!IosImageUploadService.hasAllowedExtension(uploadPath, const {
+      'jpg',
+      'jpeg',
+      'png',
+    })) {
+      showAppSnackBar('JPG 또는 PNG 이미지만 업로드할 수 있어요.');
+      return;
+    }
     ref
         .read(verificationReapplyProvider.notifier)
-        .setSelectedFilePath(image.path);
+        .setSelectedFilePath(uploadPath);
   }
 
   @override

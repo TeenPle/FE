@@ -208,11 +208,21 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
             ),
           ),
           const SizedBox(width: 10),
-          _MockDDayChip(label: '수능', days: 'D-47'),
-          const SizedBox(width: 6),
-          _MockDDayChip(label: '중간고사', days: 'D-12'),
-          const SizedBox(width: 6),
-          _MockDDayChip(label: '방학', days: 'D-53'),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  _MockDDayChip(label: '수능', days: 'D-47'),
+                  const SizedBox(width: 6),
+                  _MockDDayChip(label: '중간고사', days: 'D-12'),
+                  const SizedBox(width: 6),
+                  _MockDDayChip(label: '방학', days: 'D-53'),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -314,7 +324,7 @@ class _SchoolOnboardingPageState extends State<SchoolOnboardingPage> {
           ),
           const SizedBox(height: 8),
           Container(
-            margin: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             decoration: BoxDecoration(
               color: context.colors.cardBg,

@@ -340,74 +340,112 @@ class _PostDetailBody extends StatelessWidget {
       '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')} '
       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
-  void _confirmAction(
+  Future<void> _confirmAction(
     BuildContext context, {
     required String title,
     required String message,
     required String confirmText,
     required Future<void> Function(String reason) onConfirm,
-  }) {
-    final reasonController = TextEditingController();
-    showDialog<bool>(
+  }) async {
+    final reason = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(message),
-              const SizedBox(height: 12),
-              TextField(
-                controller: reasonController,
-                maxLines: 3,
-                maxLength: 500,
-                decoration: InputDecoration(
-                  hintText: '처리 사유를 입력하세요.',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  contentPadding: const EdgeInsets.all(12),
+      builder: (ctx) => _ModerationReasonDialog(
+        title: title,
+        message: message,
+        confirmText: confirmText,
+      ),
+    );
+    if (reason != null) {
+      await onConfirm(reason);
+    }
+  }
+}
+
+class _ModerationReasonDialog extends StatefulWidget {
+  final String title;
+  final String message;
+  final String confirmText;
+
+  const _ModerationReasonDialog({
+    required this.title,
+    required this.message,
+    required this.confirmText,
+  });
+
+  @override
+  State<_ModerationReasonDialog> createState() =>
+      _ModerationReasonDialogState();
+}
+
+class _ModerationReasonDialogState extends State<_ModerationReasonDialog> {
+  late final TextEditingController _reasonController;
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.message),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _reasonController,
+              maxLines: 3,
+              maxLength: 500,
+              decoration: InputDecoration(
+                hintText: '처리 사유를 입력하세요.',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                contentPadding: const EdgeInsets.all(12),
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            '취소',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: context.colors.textMuted,
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              '취소',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: ctx.colors.textMuted,
-              ),
+        TextButton(
+          onPressed: () {
+            final reason = _reasonController.text.trim();
+            if (reason.isEmpty) {
+              showAppSnackBar('처리 사유를 입력해 주세요.');
+              return;
+            }
+            Navigator.of(context).pop(reason);
+          },
+          child: Text(
+            widget.confirmText,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: const Color(0xFFE05C7B),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              if (reasonController.text.trim().isEmpty) {
-                showAppSnackBar('처리 사유를 입력해 주세요.');
-                return;
-              }
-              Navigator.of(ctx).pop(true);
-            },
-            child: Text(
-              confirmText,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: Color(0xFFE05C7B),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ).then((confirmed) {
-      // 텍스트를 먼저 추출하고 controller를 dispose한 뒤 API를 호출한다.
-      // onConfirm 호출 전에 dispose해야 메모리 누수 없이 안전하게 처리된다.
-      final reason = reasonController.text.trim();
-      reasonController.dispose();
-      if (confirmed == true) onConfirm(reason);
-    });
+        ),
+      ],
+    );
   }
 }
 

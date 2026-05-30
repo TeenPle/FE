@@ -309,7 +309,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const SchoolMainAdCard(fullBleed: true),
+                  const SchoolMainAdCard(
+                    fullBleed: true,
+                    placement: 'POST_DETAIL',
+                  ),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),

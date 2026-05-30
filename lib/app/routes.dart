@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/storage/token_storage.dart';
 import '../features/admin/pages/admin_home_page.dart';
+import '../features/admin/pages/admin_ad_page.dart';
 import '../features/admin/pages/admin_audit_log_page.dart';
 import '../features/admin/pages/admin_board_posts_page.dart';
 import '../features/admin/pages/admin_post_detail_page.dart';
@@ -137,6 +138,7 @@ class AppRoutes {
   static const adminAuditLogs = '/admin/audit-logs';
 
   static const adminInquiries = '/admin/inquiries';
+  static const adminAds = '/admin/ads';
 
   /// 愿由ъ옄 ?좉퀬 ?곸꽭 ?섏씠吏
   static String adminReportDetail(int id) => '/admin/reports/$id';
@@ -399,6 +401,11 @@ final GoRouter router = GoRouter(
       path: AppRoutes.adminAuditLogs,
       redirect: _adminOnly,
       builder: (context, state) => const AdminAuditLogPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminAds,
+      redirect: _adminOnly,
+      builder: (context, state) => const AdminAdPage(),
     ),
     GoRoute(
       path: AppRoutes.adminInquiries,

@@ -9,6 +9,13 @@ import '../models/my_comment_model.dart';
 import '../models/my_post_model.dart';
 import '../models/profile_model.dart';
 
+class ProfilePageResult<T> {
+  final List<T> items;
+  final bool hasMore;
+
+  const ProfilePageResult({required this.items, required this.hasMore});
+}
+
 class ProfileApi {
   final AppApiClient client;
 
@@ -47,16 +54,20 @@ class ProfileApi {
     if (!response.isSuccess) throw Exception(response.message);
   }
 
-  Future<List<MyPostModel>> getMyPosts({int page = 0, int size = 20}) async {
+  Future<ProfilePageResult<MyPostModel>> getMyPosts({
+    int page = 0,
+    int size = 20,
+  }) async {
     final json = await client.get(
       '/api/users/me/posts',
       queryParameters: {'page': '$page', 'size': '$size'},
     );
     final response = ApiResponse.fromJson(json, (data) {
-      final list = data as List<dynamic>;
-      return list
-          .map((e) => MyPostModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return _parsePage(
+        data,
+        (e) => MyPostModel.fromJson(e as Map<String, dynamic>),
+        pageSize: size,
+      );
     });
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
@@ -64,7 +75,7 @@ class ProfileApi {
     return response.result!;
   }
 
-  Future<List<MyCommentModel>> getMyComments({
+  Future<ProfilePageResult<MyCommentModel>> getMyComments({
     int page = 0,
     int size = 20,
   }) async {
@@ -73,10 +84,11 @@ class ProfileApi {
       queryParameters: {'page': '$page', 'size': '$size'},
     );
     final response = ApiResponse.fromJson(json, (data) {
-      final list = data as List<dynamic>;
-      return list
-          .map((e) => MyCommentModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return _parsePage(
+        data,
+        (e) => MyCommentModel.fromJson(e as Map<String, dynamic>),
+        pageSize: size,
+      );
     });
     if (!response.isSuccess || response.result == null) {
       throw Exception(response.message);
@@ -109,23 +121,6 @@ class ProfileApi {
     return response.result!;
   }
 
-  Future<List<MyPostModel>> getLikedPosts({int page = 0, int size = 20}) async {
-    final json = await client.get(
-      '/api/users/me/liked-posts',
-      queryParameters: {'page': '$page', 'size': '$size'},
-    );
-    final response = ApiResponse.fromJson(json, (data) {
-      final list = data as List<dynamic>;
-      return list
-          .map((e) => MyPostModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-    });
-    if (!response.isSuccess || response.result == null) {
-      throw Exception(response.message);
-    }
-    return response.result!;
-  }
-
   Future<List<MyPostModel>> getMyBookmarks({
     int page = 0,
     int size = 20,
@@ -150,5 +145,31 @@ class ProfileApi {
     final json = await client.delete('/api/users/me');
     final response = ApiResponse.fromJson(json, (data) => data);
     if (!response.isSuccess) throw Exception(response.message);
+  }
+
+  ProfilePageResult<T> _parsePage<T>(
+    dynamic data,
+    T Function(dynamic) parser, {
+    required int pageSize,
+  }) {
+    if (data is List<dynamic>) {
+      return ProfilePageResult(
+        items: data.map(parser).toList(),
+        hasMore: data.length >= pageSize,
+      );
+    }
+
+    final map = data as Map<String, dynamic>;
+    final content = map['content'] as List<dynamic>? ?? [];
+    return ProfilePageResult(
+      items: content.map(parser).toList(),
+      hasMore: _hasMore(map),
+    );
+  }
+
+  bool _hasMore(Map<String, dynamic> map) {
+    if (map['hasNext'] is bool) return map['hasNext'] as bool;
+    if (map['last'] is bool) return !(map['last'] as bool);
+    return false;
   }
 }

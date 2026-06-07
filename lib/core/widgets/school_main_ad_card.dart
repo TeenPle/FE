@@ -68,9 +68,7 @@ class _AdMobTestBannerState extends State<_AdMobTestBanner> {
     final width = availableWidth.truncate();
     if (width <= 0 || _requestedWidth == width) return;
 
-    final adSize = widget.placement == 'POST_DETAIL'
-        ? AdSize.mediumRectangle
-        : AdSize.largeBanner;
+    final adSize = AdSize.largeBanner;
     if (width < adSize.width) return;
 
     _requestedWidth = width;

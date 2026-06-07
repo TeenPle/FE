@@ -133,12 +133,14 @@ class _PagedState<T> {
   final bool isLoading;
   final bool hasMore;
   final int currentPage;
+  final String? errorMessage;
 
   const _PagedState({
     this.items = const [],
     this.isLoading = false,
     this.hasMore = true,
     this.currentPage = 0,
+    this.errorMessage,
   });
 
   _PagedState<T> copyWith({
@@ -146,11 +148,14 @@ class _PagedState<T> {
     bool? isLoading,
     bool? hasMore,
     int? currentPage,
+    String? errorMessage,
+    bool clearError = false,
   }) => _PagedState(
     items: items ?? this.items,
     isLoading: isLoading ?? this.isLoading,
     hasMore: hasMore ?? this.hasMore,
     currentPage: currentPage ?? this.currentPage,
+    errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
   );
 }
 
@@ -171,16 +176,20 @@ class MyPostsNotifier extends StateNotifier<MyPostsState> {
       items: [],
       currentPage: 0,
       hasMore: true,
+      clearError: true,
     );
     try {
-      final items = await _api.getMyPosts(page: 0);
+      final page = await _api.getMyPosts(page: 0);
       state = state.copyWith(
         isLoading: false,
-        items: items,
-        hasMore: items.length >= 20,
+        items: page.items,
+        hasMore: page.hasMore,
       );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
@@ -189,15 +198,18 @@ class MyPostsNotifier extends StateNotifier<MyPostsState> {
     state = state.copyWith(isLoading: true);
     try {
       final nextPage = state.currentPage + 1;
-      final items = await _api.getMyPosts(page: nextPage);
+      final page = await _api.getMyPosts(page: nextPage);
       state = state.copyWith(
         isLoading: false,
-        items: [...state.items, ...items],
+        items: [...state.items, ...page.items],
         currentPage: nextPage,
-        hasMore: items.length >= 20,
+        hasMore: page.hasMore,
       );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 }
@@ -224,16 +236,20 @@ class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
       items: [],
       currentPage: 0,
       hasMore: true,
+      clearError: true,
     );
     try {
-      final items = await _api.getMyComments(page: 0);
+      final page = await _api.getMyComments(page: 0);
       state = state.copyWith(
         isLoading: false,
-        items: items,
-        hasMore: items.length >= 20,
+        items: page.items,
+        hasMore: page.hasMore,
       );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 
@@ -242,15 +258,18 @@ class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
     state = state.copyWith(isLoading: true);
     try {
       final nextPage = state.currentPage + 1;
-      final items = await _api.getMyComments(page: nextPage);
+      final page = await _api.getMyComments(page: nextPage);
       state = state.copyWith(
         isLoading: false,
-        items: [...state.items, ...items],
+        items: [...state.items, ...page.items],
         currentPage: nextPage,
-        hasMore: items.length >= 20,
+        hasMore: page.hasMore,
       );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
     }
   }
 }
@@ -258,59 +277,6 @@ class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
 final myCommentsNotifierProvider =
     StateNotifierProvider<MyCommentsNotifier, MyCommentsState>((ref) {
       return MyCommentsNotifier(ref.watch(profileApiProvider));
-    });
-
-// ─────────────────────────────────────────────
-// 내가 공감한 글
-// ─────────────────────────────────────────────
-
-typedef MyLikedPostsState = _PagedState<MyPostModel>;
-
-class MyLikedPostsNotifier extends StateNotifier<MyLikedPostsState> {
-  final ProfileApi _api;
-  MyLikedPostsNotifier(this._api) : super(const _PagedState());
-
-  Future<void> load() async {
-    if (state.isLoading) return;
-    state = state.copyWith(
-      isLoading: true,
-      items: [],
-      currentPage: 0,
-      hasMore: true,
-    );
-    try {
-      final items = await _api.getLikedPosts(page: 0);
-      state = state.copyWith(
-        isLoading: false,
-        items: items,
-        hasMore: items.length >= 20,
-      );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
-    }
-  }
-
-  Future<void> loadMore() async {
-    if (state.isLoading || !state.hasMore) return;
-    state = state.copyWith(isLoading: true);
-    try {
-      final nextPage = state.currentPage + 1;
-      final items = await _api.getLikedPosts(page: nextPage);
-      state = state.copyWith(
-        isLoading: false,
-        items: [...state.items, ...items],
-        currentPage: nextPage,
-        hasMore: items.length >= 20,
-      );
-    } catch (_) {
-      state = state.copyWith(isLoading: false);
-    }
-  }
-}
-
-final myLikedPostsNotifierProvider =
-    StateNotifierProvider<MyLikedPostsNotifier, MyLikedPostsState>((ref) {
-      return MyLikedPostsNotifier(ref.watch(profileApiProvider));
     });
 
 // ─────────────────────────────────────────────

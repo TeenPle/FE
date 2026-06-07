@@ -6,6 +6,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
+const Color _likeAccentColor = Color(0xFFE2556F);
+const Color _commentAccentColor = Color(0xFF2F80ED);
+
 class MyPostsPage extends ConsumerStatefulWidget {
   const MyPostsPage({super.key});
 
@@ -68,6 +71,13 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
 
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.errorMessage != null && state.items.isEmpty) {
+      return _LoadError(
+        message: state.errorMessage!,
+        onRetry: () => ref.read(myPostsNotifierProvider.notifier).load(),
+      );
     }
 
     if (state.items.isEmpty) {
@@ -162,13 +172,15 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                 Row(
                   children: [
                     _Chip(
-                      icon: Icons.thumb_up_outlined,
+                      icon: Icons.favorite_border_rounded,
                       label: '${post.likeCount}',
+                      color: _likeAccentColor,
                     ),
                     const SizedBox(width: 8),
                     _Chip(
                       icon: Icons.chat_bubble_outline_rounded,
                       label: '${post.commentCount}',
+                      color: _commentAccentColor,
                     ),
                   ],
                 ),
@@ -181,15 +193,50 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
   }
 }
 
-class _Chip extends StatelessWidget {
-  final IconData icon;
-  final String label;
+class _LoadError extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
 
-  const _Chip({required this.icon, required this.label});
+  const _LoadError({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors.textMuted;
+    final c = context.colors;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded, size: 52, color: c.iconMuted),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color? color;
+
+  const _Chip({required this.icon, required this.label, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? context.colors.textMuted;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

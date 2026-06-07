@@ -50,7 +50,6 @@ import '../features/profile/pages/edit_nickname_page.dart';
 import '../features/profile/pages/edit_password_page.dart';
 import '../features/profile/pages/my_comments_page.dart';
 import '../features/profile/pages/my_bookmarks_page.dart';
-import '../features/profile/pages/my_liked_posts_page.dart';
 import '../features/profile/pages/my_posts_page.dart';
 import '../features/dday/pages/dday_settings_page.dart';
 import '../features/school/pages/hot_board_page.dart';
@@ -176,7 +175,6 @@ class AppRoutes {
   static const settings = '/settings';
 
   /// ?닿? 怨듦컧??湲 ?섏씠吏
-  static const myLikedPosts = '/profile/liked-posts';
 
   /// ?쒖옱 ?대젰 ?섏씠吏
   static const myPenalties = '/settings/penalties';
@@ -525,11 +523,6 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: AppRoutes.myPenalties,
       builder: (context, state) => const MyPenaltyPage(),
-    ),
-
-    GoRoute(
-      path: AppRoutes.myLikedPosts,
-      builder: (context, state) => const MyLikedPostsPage(),
     ),
 
     GoRoute(

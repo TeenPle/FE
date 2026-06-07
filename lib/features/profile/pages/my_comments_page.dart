@@ -6,6 +6,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../provider/profile_provider.dart';
 
+const Color _likeAccentColor = Color(0xFFE2556F);
+
 class MyCommentsPage extends ConsumerStatefulWidget {
   const MyCommentsPage({super.key});
 
@@ -68,6 +70,13 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
 
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.errorMessage != null && state.items.isEmpty) {
+      return _LoadError(
+        message: state.errorMessage!,
+        onRetry: () => ref.read(myCommentsNotifierProvider.notifier).load(),
+      );
     }
 
     if (state.items.isEmpty) {
@@ -174,16 +183,16 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.thumb_up_outlined,
+                      Icons.favorite_border_rounded,
                       size: 13,
-                      color: cc.textMuted,
+                      color: _likeAccentColor,
                     ),
                     const SizedBox(width: 3),
                     Text(
                       '${comment.likeCount}',
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
-                        color: cc.textMuted,
+                        color: _likeAccentColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -194,6 +203,40 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class _LoadError extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _LoadError({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded, size: 52, color: c.iconMuted),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                color: c.textMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+          ],
+        ),
+      ),
     );
   }
 }

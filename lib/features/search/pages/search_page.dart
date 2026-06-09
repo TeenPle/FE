@@ -287,23 +287,30 @@ class _SearchResultCard extends StatelessWidget {
   }
 
   String get _timeText {
-    switch (post.id % 6) {
-      case 0:
-        return '10/13';
-      case 1:
-        return '2분 전';
-      case 2:
-        return '2시간 전';
-      case 3:
-        return '12/25';
-      case 4:
-        return '12/24';
-      default:
-        return '12/23';
+    final ms = post.createdAtMs;
+    if (ms != null && ms > 0) {
+      final diffMs = DateTime.now().millisecondsSinceEpoch - ms;
+      if (diffMs < 60 * 60 * 1000) {
+        final minutes = (diffMs / (60 * 1000)).floor();
+        return minutes <= 0 ? '방금' : '$minutes분 전';
+      }
+      if (diffMs < 24 * 60 * 60 * 1000) {
+        final hours = (diffMs / (60 * 60 * 1000)).floor();
+        return '$hours시간 전';
+      }
+      final dt = DateTime.fromMillisecondsSinceEpoch(ms);
+      return '${dt.month}/${dt.day}';
     }
+    if (post.createdAt.isNotEmpty) {
+      try {
+        final dt = DateTime.parse(post.createdAt);
+        return '${dt.month}/${dt.day}';
+      } catch (_) {}
+    }
+    return '';
   }
 
-  bool get _showThumbnailBox => post.id % 3 == 1;
+  bool get _showThumbnailBox => post.mediaList.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -316,12 +323,18 @@ class _SearchResultCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_showThumbnailBox) ...[
-              Container(
-                width: 74,
-                height: 74,
-                decoration: BoxDecoration(
-                  color: c.subtleBg,
-                  borderRadius: BorderRadius.circular(12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  post.mediaList.first.url,
+                  width: 74,
+                  height: 74,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Container(
+                    width: 74,
+                    height: 74,
+                    color: c.subtleBg,
+                  ),
                 ),
               ),
               const SizedBox(width: 14),

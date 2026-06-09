@@ -245,20 +245,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ),
         ],
       ),
-      bottomNavigationBar: Builder(
-        builder: (context) {
-          if (isPenalized) return const SizedBox.shrink();
-          return CommentInputBar(
-            anonymous: state.commentAnonymous,
-            isSubmitting: state.isSubmittingComment,
-            replyingToCommentId: state.replyingToCommentId,
-            onAnonymousChanged: notifier.toggleCommentAnonymous,
-            onSubmit: notifier.submitComment,
-            onCancelReply: notifier.cancelReply,
-          );
-        },
-      ),
-      body: state.isLoading && post == null
+      resizeToAvoidBottomInset: false,
+      body: Column(
+        children: [
+          Expanded(
+            child: state.isLoading && post == null
           ? const Center(child: CircularProgressIndicator())
           : post == null
           ? Center(
@@ -429,6 +420,18 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 ],
               ),
             ),
+          ),
+          if (!isPenalized)
+            CommentInputBar(
+              anonymous: state.commentAnonymous,
+              isSubmitting: state.isSubmittingComment,
+              replyingToCommentId: state.replyingToCommentId,
+              onAnonymousChanged: notifier.toggleCommentAnonymous,
+              onSubmit: notifier.submitComment,
+              onCancelReply: notifier.cancelReply,
+            ),
+        ],
+      ),
     );
   }
 
@@ -499,7 +502,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   }
 
   void _scrollReplyTargetIntoView(int commentId) {
-    Future<void>.delayed(const Duration(milliseconds: 220), () {
+    Future<void>.delayed(const Duration(milliseconds: 320), () {
       if (!mounted) return;
       _liftCommentAboveKeyboard(commentId);
     });
@@ -516,7 +519,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     final top = renderObject.localToGlobal(Offset.zero).dy;
     final bottom = top + renderObject.size.height;
     final keyboardTop = media.size.height - media.viewInsets.bottom;
-    final reservedInputHeight = media.viewInsets.bottom > 0 ? 104.0 : 72.0;
+    final reservedInputHeight = media.viewInsets.bottom > 0 ? 130.0 : 88.0;
     final visibleBottom = keyboardTop - reservedInputHeight;
     final overflow = bottom - visibleBottom;
 
@@ -734,66 +737,94 @@ Future<void> _showEditCommentDialog(
   required bool initialAnonymous,
   required void Function(String content, bool anonymous) onSubmit,
 }) {
-  final controller = TextEditingController(text: initialContent);
-  bool anonymous = initialAnonymous;
-
   return showDialog<void>(
     context: context,
-    builder: (dialogContext) {
-      return StatefulBuilder(
-        builder: (context, setLocalState) {
-          return AlertDialog(
-            title: Text('댓글 수정'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: controller,
-                    autofocus: true,
-                    maxLines: 4,
-                    minLines: 2,
-                    decoration: const InputDecoration(
-                      hintText: '댓글 내용을 입력하세요',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: anonymous,
-                        onChanged: (value) {
-                          setLocalState(() {
-                            anonymous = value ?? true;
-                          });
-                        },
-                      ),
-                      Text('익명으로 수정'),
-                    ],
-                  ),
-                ],
+    builder: (_) => _CommentEditDialog(
+      initialContent: initialContent,
+      initialAnonymous: initialAnonymous,
+      onSubmit: onSubmit,
+    ),
+  );
+}
+
+class _CommentEditDialog extends StatefulWidget {
+  final String initialContent;
+  final bool initialAnonymous;
+  final void Function(String content, bool anonymous) onSubmit;
+
+  const _CommentEditDialog({
+    required this.initialContent,
+    required this.initialAnonymous,
+    required this.onSubmit,
+  });
+
+  @override
+  State<_CommentEditDialog> createState() => _CommentEditDialogState();
+}
+
+class _CommentEditDialogState extends State<_CommentEditDialog> {
+  late final TextEditingController _controller;
+  late bool _anonymous;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialContent);
+    _anonymous = widget.initialAnonymous;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('댓글 수정'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              maxLines: 4,
+              minLines: 2,
+              decoration: const InputDecoration(
+                hintText: '댓글 내용을 입력하세요',
+                border: OutlineInputBorder(),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text('취소'),
-              ),
-              TextButton(
-                onPressed: () {
-                  final content = controller.text.trim();
-                  if (content.isEmpty) return;
-
-                  Navigator.pop(dialogContext);
-                  onSubmit(content, anonymous);
-                },
-                child: Text('수정'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  ).whenComplete(controller.dispose);
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Checkbox(
+                  value: _anonymous,
+                  onChanged: (v) => setState(() => _anonymous = v ?? true),
+                ),
+                const Text('익명으로 수정'),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            final content = _controller.text.trim();
+            if (content.isEmpty) return;
+            Navigator.pop(context);
+            widget.onSubmit(content, _anonymous);
+          },
+          child: const Text('수정'),
+        ),
+      ],
+    );
+  }
 }

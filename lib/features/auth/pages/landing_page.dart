@@ -188,6 +188,25 @@ class _LandingPageState extends ConsumerState<LandingPage>
                             _landingAsset,
                             fit: BoxFit.contain,
                             filterQuality: FilterQuality.medium,
+                            errorBuilder: (_, _, _) => const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.school_rounded,
+                                  size: 80,
+                                  color: Color(0xFF4A67F2),
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'TeenPle',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF4A67F2),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

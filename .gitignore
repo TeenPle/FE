@@ -68,3 +68,9 @@ coverage/
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
+
+# Service account keys
+keys/
+
+# Backup files
+*.backup

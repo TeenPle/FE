@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -100,43 +99,28 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(resetPasswordProvider);
+    final media = MediaQuery.of(context);
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    final bottomPad = keyboard > 0
+        ? keyboard + 8.0
+        : safeBottom + (media.size.height * 0.024).clamp(14.0, 24.0);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: AuthBottomActionArea(
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: (_canSubmit && !state.isLoading) ? _submit : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: state.isLoading
-                ? SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.white,
-                    ),
-                  )
-                : Text('비밀번호 변경', style: AppTextStyles.titleSmall),
-          ),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               IconButton(
                 onPressed: () {
                   if (context.canPop()) context.pop();
@@ -248,8 +232,43 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
                 ),
               ],
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPad),
+              child: SizedBox(
+                height: 54,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: (_canSubmit && !state.isLoading) ? _submit : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4A67F2),
+                    disabledBackgroundColor: const Color(0xFFD7DEFF),
+                    foregroundColor: Colors.white,
+                    disabledForegroundColor: Colors.white70,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: state.isLoading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text('비밀번호 변경', style: AppTextStyles.titleSmall),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

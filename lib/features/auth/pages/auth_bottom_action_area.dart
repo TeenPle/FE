@@ -7,7 +7,6 @@ class AuthStepLayout extends StatelessWidget {
   final Widget bottom;
   final bool scrollable;
   final EdgeInsetsGeometry padding;
-  final bool resizeToAvoidBottomInset;
 
   const AuthStepLayout({
     super.key,
@@ -15,25 +14,43 @@ class AuthStepLayout extends StatelessWidget {
     required this.bottom,
     this.scrollable = true,
     this.padding = const EdgeInsets.fromLTRB(24, 8, 24, 40),
-    this.resizeToAvoidBottomInset = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    final bottomPad = keyboard > 0
+        ? keyboard + 8.0
+        : safeBottom + (media.size.height * 0.024).clamp(14.0, 24.0);
+
     final content = Padding(padding: padding, child: child);
 
     return Scaffold(
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      resizeToAvoidBottomInset: false,
       backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: AuthBottomActionArea(child: bottom),
       body: SafeArea(
-        child: scrollable
-            ? SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                child: content,
-              )
-            : content,
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: scrollable
+                  ? SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      child: content,
+                    )
+                  : content,
+            ),
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutCubic,
+              padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPad),
+              child: SizedBox(width: double.infinity, child: bottom),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -47,17 +64,17 @@ class AuthBottomActionArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    final bottomGap = media.viewInsets.bottom > 0
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    final bottomPad = keyboard > 0
         ? 8.0
-        : (media.size.height * 0.024).clamp(14.0, 24.0);
+        : safeBottom + (media.size.height * 0.024).clamp(14.0, 24.0);
 
-    return SafeArea(
-      top: false,
-      minimum: const EdgeInsets.only(left: 24, right: 24),
-      child: Padding(
-        padding: EdgeInsets.only(bottom: bottomGap),
-        child: child,
-      ),
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOutCubic,
+      padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPad),
+      child: child,
     );
   }
 }

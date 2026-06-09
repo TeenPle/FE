@@ -61,7 +61,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        showAppSnackBar('회원가입을 완료했습니다.');
+        showAppSnackBar('회원가입이 완료되었습니다.');
       });
     }
 

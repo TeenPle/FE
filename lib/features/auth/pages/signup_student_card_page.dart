@@ -256,6 +256,14 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
               color: context.colors.textMuted,
             ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            '개인정보나 얼굴은 가리고 올려도 괜찮아요.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 11,
+              color: context.colors.textMuted,
+            ),
+          ),
 
           /// 선택한 이미지 미리보기
           if (studentCardFilePath.isNotEmpty) ...[

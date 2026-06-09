@@ -66,7 +66,7 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
                 );
                 if (created == true && context.mounted) {
                   ref.read(inquiryListProvider.notifier).load();
-                  showAppSnackBar('문의를 접수했어요.');
+                  showAppSnackBar('문의가 등록되었습니다.');
                 }
               },
             ),

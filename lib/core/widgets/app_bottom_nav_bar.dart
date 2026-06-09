@@ -20,15 +20,16 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: c.cardBg,
-          border: Border(top: BorderSide(color: c.border, width: 1)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Row(
+    return ColoredBox(
+      color: c.cardBg,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: c.border, width: 1)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _NavItem(
@@ -65,6 +66,7 @@ class AppBottomNavBar extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

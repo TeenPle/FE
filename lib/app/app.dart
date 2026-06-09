@@ -42,7 +42,7 @@ class TeenpleApp extends ConsumerWidget {
               top: false,
               left: false,
               right: false,
-              bottom: true,
+              bottom: false,
               child: child ?? const SizedBox.shrink(),
             ),
           ),

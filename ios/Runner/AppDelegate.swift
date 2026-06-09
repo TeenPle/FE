@@ -21,7 +21,9 @@ import UniformTypeIdentifiers
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "TeenpleMediaPlugin")
+    guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "TeenpleMediaPlugin") else {
+      return
+    }
     let channel = FlutterMethodChannel(
       name: mediaChannelName,
       binaryMessenger: registrar.messenger()

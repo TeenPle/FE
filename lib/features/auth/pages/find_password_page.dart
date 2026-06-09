@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -131,46 +130,25 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
     final canVerify =
         _isValidCode && !state.isVerifyLoading && !isExpired && !isVerified;
 
+    final media = MediaQuery.of(context);
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    final bottomPad = keyboard > 0
+        ? keyboard + 8.0
+        : safeBottom + (media.size.height * 0.024).clamp(14.0, 24.0);
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: AuthBottomActionArea(
-        child: SizedBox(
-          height: 54,
-          child: ElevatedButton(
-            onPressed: isVerified
-                ? () {
-                    context.push(
-                      AppRoutes.resetPassword,
-                      extra: state.verificationToken!,
-                    );
-                  }
-                : (!_hasSentCode && canSend)
-                ? _sendCode
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A67F2),
-              disabledBackgroundColor: const Color(0xFFD7DEFF),
-              foregroundColor: Colors.white,
-              disabledForegroundColor: Colors.white70,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: Text(
-              isVerified
-                  ? '다음'
-                  : (state.isSendLoading
-                        ? '전송 중...'
-                        : (_hasSentCode ? '인증 완료 후 다음' : '인증번호 받기')),
-              style: AppTextStyles.titleSmall,
-            ),
-          ),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -400,9 +378,51 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                 ],
               ],
             ],
+            ),
           ),
         ),
+        AnimatedPadding(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPad),
+            child: SizedBox(
+              height: 54,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isVerified
+                    ? () {
+                        context.push(
+                          AppRoutes.resetPassword,
+                          extra: state.verificationToken!,
+                        );
+                      }
+                    : (!_hasSentCode && canSend)
+                    ? _sendCode
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4A67F2),
+                  disabledBackgroundColor: const Color(0xFFD7DEFF),
+                  foregroundColor: Colors.white,
+                  disabledForegroundColor: Colors.white70,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  isVerified
+                      ? '다음'
+                      : (state.isSendLoading
+                            ? '전송 중...'
+                            : (_hasSentCode ? '인증 완료 후 다음' : '인증번호 받기')),
+                  style: AppTextStyles.titleSmall,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-    );
+    ),
+  );
   }
 }

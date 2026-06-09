@@ -87,12 +87,18 @@ class _CommentInputBarState extends State<CommentInputBar> {
     final c = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = isDark ? const Color(0xFF6EA8D8) : const Color(0xFF14A3F7);
-    return SafeArea(
-      top: false,
-      child: Container(
-        color: c.pageBg,
-        padding: EdgeInsets.fromLTRB(12, 6, 12, 8),
-        child: Column(
+    final media = MediaQuery.of(context);
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    return ColoredBox(
+      color: c.pageBg,
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: keyboard > 0 ? keyboard : safeBottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -234,6 +240,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

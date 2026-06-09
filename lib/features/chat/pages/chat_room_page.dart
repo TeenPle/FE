@@ -653,8 +653,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   : Icons.notifications_rounded,
               color: isMuted ? c.textMuted : c.iconPrimary,
             ),
-            onPressed: () =>
-                ref.read(mutedRoomsProvider.notifier).toggle(widget.roomId),
+            onPressed: () {
+              final willMute = !isMuted;
+              ref.read(mutedRoomsProvider.notifier).toggle(widget.roomId);
+              showAppSnackBar(willMute ? '알림을 껐어요.' : '알림을 켰어요.');
+            },
           ),
           IconButton(
             icon: Icon(

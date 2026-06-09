@@ -28,6 +28,12 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
   Widget build(BuildContext context) {
     final state = ref.watch(inquiryCreateProvider);
     final c = context.colors;
+    final media = MediaQuery.of(context);
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    final bottomPad = keyboard > 0
+        ? keyboard + 8.0
+        : safeBottom + 16.0;
 
     ref.listen(inquiryCreateProvider, (_, next) {
       if (next.submitted) {
@@ -41,7 +47,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
 
     return Scaffold(
       backgroundColor: c.pageBg,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: c.pageBg,
         foregroundColor: c.textPrimary,
@@ -56,143 +62,146 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
           ),
         ),
       ),
-      body: ListView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      body: Column(
         children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const _InquiryWriteHero(),
-                  const SizedBox(height: 18),
-                  const _InquiryWriteTip(),
-                  const SizedBox(height: 18),
-                  _InputPanel(
+          Expanded(
+            child: ListView(
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 560),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const _FieldLabel('문의 제목'),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _titleController,
-                          maxLength: 100,
-                          textInputAction: TextInputAction.next,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 12,
-                            color: c.textPrimary,
-                          ),
-                          decoration: _inputDecoration(
-                            context,
-                            '제목을 입력해주세요',
-                          ).copyWith(counterText: ''),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '핵심 내용을 짧게 적어주세요',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 10,
-                            color: c.textMuted,
-                          ),
-                        ),
-                        const SizedBox(height: 22),
-                        Divider(height: 1, color: c.border),
-                        const SizedBox(height: 22),
-                        const _FieldLabel('문의 내용'),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _contentController,
-                          minLines: 8,
-                          maxLines: 10,
-                          maxLength: 2000,
-                          textInputAction: TextInputAction.newline,
-                          keyboardType: TextInputType.multiline,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 12,
-                            height: 1.55,
-                            color: c.textPrimary,
-                          ),
-                          decoration:
-                              _inputDecoration(
-                                context,
-                                '문의 내용을 자세히 작성해주세요',
-                              ).copyWith(
-                                counterText: '',
-                                contentPadding: const EdgeInsets.fromLTRB(
-                                  14,
-                                  14,
-                                  14,
-                                  42,
+                        const _InquiryWriteHero(),
+                        const SizedBox(height: 18),
+                        const _InquiryWriteTip(),
+                        const SizedBox(height: 18),
+                        _InputPanel(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _FieldLabel('문의 제목'),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: _titleController,
+                                maxLength: 100,
+                                textInputAction: TextInputAction.next,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontSize: 12,
+                                  color: c.textPrimary,
                                 ),
+                                decoration: _inputDecoration(
+                                  context,
+                                  '제목을 입력해주세요',
+                                ).copyWith(counterText: ''),
+                                onChanged: (_) => setState(() {}),
                               ),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                '상황을 자세히 적어주시면 답변에 도움이 돼요',
+                              const SizedBox(height: 8),
+                              Text(
+                                '핵심 내용을 짧게 적어주세요',
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   fontSize: 10,
                                   color: c.textMuted,
                                 ),
                               ),
-                            ),
-                            Text(
-                              '${_contentController.text.length} / 2000',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: c.textSecondary,
+                              const SizedBox(height: 22),
+                              Divider(height: 1, color: c.border),
+                              const SizedBox(height: 22),
+                              const _FieldLabel('문의 내용'),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: _contentController,
+                                minLines: 8,
+                                maxLines: 10,
+                                maxLength: 2000,
+                                textInputAction: TextInputAction.newline,
+                                keyboardType: TextInputType.multiline,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontSize: 12,
+                                  height: 1.55,
+                                  color: c.textPrimary,
+                                ),
+                                decoration: _inputDecoration(
+                                  context,
+                                  '문의 내용을 자세히 작성해주세요',
+                                ).copyWith(
+                                  counterText: '',
+                                  contentPadding:
+                                      const EdgeInsets.fromLTRB(14, 14, 14, 42),
+                                ),
+                                onChanged: (_) => setState(() {}),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '상황을 자세히 적어주시면 답변에 도움이 돼요',
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        fontSize: 10,
+                                        color: c.textMuted,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${_contentController.text.length} / 2000',
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: c.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          AnimatedPadding(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, bottomPad),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: state.isSubmitting ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1677FF),
+                      disabledBackgroundColor: const Color(0xFFBBD6FF),
+                      foregroundColor: Colors.white,
+                      disabledForegroundColor: Colors.white70,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      state.isSubmitting ? '등록 중...' : '문의 등록',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: Center(
-          heightFactor: 1,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: state.isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1677FF),
-                  disabledBackgroundColor: const Color(0xFFBBD6FF),
-                  foregroundColor: Colors.white,
-                  disabledForegroundColor: Colors.white70,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: Text(
-                  state.isSubmitting ? '등록 중...' : '문의 등록',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

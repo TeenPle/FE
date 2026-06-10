@@ -288,11 +288,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
           OutlinedButton(
             onPressed: profile.canChangeNickname
                 ? () async {
-                    final changed =
-                        await context.push<bool>(AppRoutes.editNickname);
-                    if (changed == true && context.mounted) {
-                      showAppSnackBar('닉네임이 변경되었습니다.');
-                    }
+                    await context.push<bool>(AppRoutes.editNickname);
                   }
                 : null,
             style: OutlinedButton.styleFrom(

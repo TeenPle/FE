@@ -46,7 +46,7 @@ class AuthStepLayout extends StatelessWidget {
             AnimatedPadding(
               duration: const Duration(milliseconds: 160),
               curve: Curves.easeOutCubic,
-              padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPad),
+              padding: EdgeInsets.fromLTRB(24, 8, 24, bottomPad),
               child: SizedBox(width: double.infinity, child: bottom),
             ),
           ],

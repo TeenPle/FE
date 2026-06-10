@@ -158,107 +158,6 @@ class _AdminVerificationDetailPageState
         foregroundColor: c.textPrimary,
         elevation: 0,
       ),
-      bottomNavigationBar: isPending
-          ? DecoratedBox(
-              decoration: BoxDecoration(
-                color: c.pageBg,
-                border: Border(top: BorderSide(color: c.borderSubtle)),
-              ),
-              child: SafeArea(
-                top: false,
-                minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-                child: AdminBottomActionFrame(
-                  child: AdminResponsiveActions(
-                    spacing: 12,
-                    children: [
-                      AdminActionButtonBox(
-                        child: ElevatedButton.icon(
-                          onPressed: state.isActionLoading
-                              ? null
-                              : () async {
-                                  await notifier.approve(
-                                    _commentController.text,
-                                  );
-                                  final latest = ref.read(
-                                    adminVerificationDetailProvider(
-                                      widget.requestId,
-                                    ),
-                                  );
-                                  if (!context.mounted) return;
-                                  if (latest.isActionSuccess) {
-                                    showAppSnackBar('인증 요청을 승인했습니다.');
-                                    Navigator.of(context).pop(true);
-                                  } else if (latest.actionErrorMessage !=
-                                      null) {
-                                    showAppSnackBar(
-                                      latest.actionErrorMessage!,
-                                      backgroundColor: const Color(0xFFE05C7B),
-                                    );
-                                  }
-                                },
-                          icon: const Icon(Icons.check_rounded, size: 18),
-                          label: Text(state.isActionLoading ? '처리 중...' : '승인'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1477F8),
-                            disabledBackgroundColor: const Color(0xFFBFC8FF),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            textStyle: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                      ),
-                      AdminActionButtonBox(
-                        child: OutlinedButton.icon(
-                          onPressed: state.isActionLoading
-                              ? null
-                              : () async {
-                                  await notifier.reject(
-                                    _commentController.text,
-                                  );
-                                  final latest = ref.read(
-                                    adminVerificationDetailProvider(
-                                      widget.requestId,
-                                    ),
-                                  );
-                                  if (!context.mounted) return;
-                                  if (latest.isActionSuccess) {
-                                    showAppSnackBar('인증 요청을 거절했습니다.');
-                                    Navigator.of(context).pop(true);
-                                  } else if (latest.actionErrorMessage !=
-                                      null) {
-                                    showAppSnackBar(
-                                      latest.actionErrorMessage!,
-                                      backgroundColor: const Color(0xFFE05C7B),
-                                    );
-                                  }
-                                },
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          label: Text(state.isActionLoading ? '처리 중...' : '거절'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFFE05C7B),
-                            side: const BorderSide(color: Color(0xFFE05C7B)),
-                            textStyle: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          : null,
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : detail == null
@@ -271,148 +170,265 @@ class _AdminVerificationDetailPageState
                 ),
               ),
             )
-          : AdminContentFrame(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                padding: AdminLayout.pagePadding(
-                  context,
-                  top: 8,
-                  bottom: isPending ? 28 : 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isPending) ...[
-                      Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                        child: InkWell(
-                          onTap: () => _openImagePreview(imageUrl),
-                          borderRadius: BorderRadius.circular(18),
-                          child: Ink(
-                            height: (MediaQuery.of(context).size.height * 0.30)
-                                .clamp(220.0, 360.0),
-                            decoration: BoxDecoration(
-                              color: c.cardBg,
+          : Column(
+              children: [
+                Expanded(
+                  child: AdminContentFrame(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      padding: AdminLayout.pagePadding(
+                        context,
+                        top: 8,
+                        bottom: isPending ? 28 : 24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (isPending) ...[
+                            Material(
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: c.borderBlue),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF0B2447,
-                                  ).withValues(alpha: 0.05),
-                                  blurRadius: 18,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(17),
-                              child: Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: imageUrl.isEmpty
-                                        ? _ImagePlaceholder(
-                                            c: c,
-                                            message: '학생증 이미지가 없습니다.',
-                                          )
-                                        : CachedNetworkImage(
-                                            imageUrl: imageUrl,
-                                            fit: BoxFit.contain,
-                                            placeholder: (context, url) =>
-                                                const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    _ImagePlaceholder(
-                                                      c: c,
-                                                      message:
-                                                          '이미지를 불러오지 못했습니다.',
-                                                    ),
-                                          ),
+                              child: InkWell(
+                                onTap: () => _openImagePreview(imageUrl),
+                                borderRadius: BorderRadius.circular(18),
+                                child: Ink(
+                                  height: (MediaQuery.of(context).size.height *
+                                          0.30)
+                                      .clamp(220.0, 360.0),
+                                  decoration: BoxDecoration(
+                                    color: c.cardBg,
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(color: c.borderBlue),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFF0B2447,
+                                        ).withValues(alpha: 0.05),
+                                        blurRadius: 18,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
                                   ),
-                                  Positioned(
-                                    right: 12,
-                                    bottom: 12,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 7,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.60,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          999,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(
-                                            Icons.zoom_out_map_rounded,
-                                            size: 15,
-                                            color: Colors.white,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            '확대',
-                                            style: AppTextStyles.bodyMedium
-                                                .copyWith(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w900,
-                                                  color: Colors.white,
-                                                  height: 1,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(17),
+                                    child: Stack(
+                                      children: [
+                                        Positioned.fill(
+                                          child: imageUrl.isEmpty
+                                              ? _ImagePlaceholder(
+                                                  c: c,
+                                                  message: '학생증 이미지가 없습니다.',
+                                                )
+                                              : CachedNetworkImage(
+                                                  imageUrl: imageUrl,
+                                                  fit: BoxFit.contain,
+                                                  placeholder: (context, url) =>
+                                                      const Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                  errorWidget: (context, url,
+                                                          error) =>
+                                                      _ImagePlaceholder(
+                                                        c: c,
+                                                        message:
+                                                            '이미지를 불러오지 못했습니다.',
+                                                      ),
                                                 ),
+                                        ),
+                                        Positioned(
+                                          right: 12,
+                                          bottom: 12,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 7,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.60,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(999),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Icons.zoom_out_map_rounded,
+                                                  size: 15,
+                                                  color: Colors.white,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  '확대',
+                                                  style: AppTextStyles
+                                                      .bodyMedium
+                                                      .copyWith(
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        color: Colors.white,
+                                                        height: 1,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                          ],
+
+                          _ReviewStatusPanel(
+                            icon: _statusIcon(detail.status),
+                            color: _statusColor(detail.status),
+                            backgroundColor: _statusBg(detail.status),
+                            title: _statusLabel(detail.status),
+                            helper: _statusHelper(detail.status),
                           ),
+                          const SizedBox(height: 12),
+
+                          _ApplicantInfoPanel(
+                            schoolName: detail.schoolName,
+                            userName: detail.userName,
+                            userEmail: detail.userEmail,
+                            requestedAt: _formatDate(detail.requestedAt),
+                            processedAt: detail.processedAt == null
+                                ? null
+                                : _formatDate(detail.processedAt),
+                            adminComment: detail.adminComment,
+                          ),
+
+                          if (isPending) ...[
+                            const SizedBox(height: 12),
+                            _ReviewCommentPanel(
+                              controller: _commentController,
+                              focusNode: _commentFocusNode,
+                              errorMessage: state.actionErrorMessage,
+                              onChanged: notifier.clearActionState,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (isPending)
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: c.pageBg,
+                      border: Border(top: BorderSide(color: c.borderSubtle)),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      minimum: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                      child: AdminBottomActionFrame(
+                        child: AdminResponsiveActions(
+                          spacing: 12,
+                          children: [
+                            AdminActionButtonBox(
+                              child: ElevatedButton.icon(
+                                onPressed: state.isActionLoading
+                                    ? null
+                                    : () async {
+                                        await notifier.approve(
+                                          _commentController.text,
+                                        );
+                                        final latest = ref.read(
+                                          adminVerificationDetailProvider(
+                                            widget.requestId,
+                                          ),
+                                        );
+                                        if (!context.mounted) return;
+                                        if (latest.isActionSuccess) {
+                                          showAppSnackBar('인증 요청을 승인했습니다.');
+                                          Navigator.of(context).pop(true);
+                                        } else if (latest.actionErrorMessage !=
+                                            null) {
+                                          showAppSnackBar(
+                                            latest.actionErrorMessage!,
+                                            backgroundColor:
+                                                const Color(0xFFE05C7B),
+                                          );
+                                        }
+                                      },
+                                icon: const Icon(Icons.check_rounded, size: 18),
+                                label: Text(
+                                  state.isActionLoading ? '처리 중...' : '승인',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1477F8),
+                                  disabledBackgroundColor:
+                                      const Color(0xFFBFC8FF),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  textStyle: AppTextStyles.bodyMedium.copyWith(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            AdminActionButtonBox(
+                              child: OutlinedButton.icon(
+                                onPressed: state.isActionLoading
+                                    ? null
+                                    : () async {
+                                        await notifier.reject(
+                                          _commentController.text,
+                                        );
+                                        final latest = ref.read(
+                                          adminVerificationDetailProvider(
+                                            widget.requestId,
+                                          ),
+                                        );
+                                        if (!context.mounted) return;
+                                        if (latest.isActionSuccess) {
+                                          showAppSnackBar('인증 요청을 거절했습니다.');
+                                          Navigator.of(context).pop(true);
+                                        } else if (latest.actionErrorMessage !=
+                                            null) {
+                                          showAppSnackBar(
+                                            latest.actionErrorMessage!,
+                                            backgroundColor:
+                                                const Color(0xFFE05C7B),
+                                          );
+                                        }
+                                      },
+                                icon: const Icon(Icons.close_rounded, size: 18),
+                                label: Text(
+                                  state.isActionLoading ? '처리 중...' : '거절',
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFE05C7B),
+                                  side: const BorderSide(
+                                    color: Color(0xFFE05C7B),
+                                  ),
+                                  textStyle: AppTextStyles.bodyMedium.copyWith(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
-                    ],
-
-                    _ReviewStatusPanel(
-                      icon: _statusIcon(detail.status),
-                      color: _statusColor(detail.status),
-                      backgroundColor: _statusBg(detail.status),
-                      title: _statusLabel(detail.status),
-                      helper: _statusHelper(detail.status),
                     ),
-                    const SizedBox(height: 12),
-
-                    _ApplicantInfoPanel(
-                      schoolName: detail.schoolName,
-                      userName: detail.userName,
-                      userEmail: detail.userEmail,
-                      requestedAt: _formatDate(detail.requestedAt),
-                      processedAt: detail.processedAt == null
-                          ? null
-                          : _formatDate(detail.processedAt),
-                      adminComment: detail.adminComment,
-                    ),
-
-                    if (isPending) ...[
-                      const SizedBox(height: 12),
-                      _ReviewCommentPanel(
-                        controller: _commentController,
-                        focusNode: _commentFocusNode,
-                        errorMessage: state.actionErrorMessage,
-                        onChanged: notifier.clearActionState,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+                  ),
+              ],
             ),
     );
   }

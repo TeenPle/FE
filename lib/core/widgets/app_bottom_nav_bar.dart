@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
@@ -20,53 +21,56 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+
+    final content = Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: c.border, width: 1)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _NavItem(
+            icon: Icons.home_rounded,
+            label: '홈',
+            selected: currentIndex == 0,
+            onTap: () => onTap(0),
+          ),
+          _NavItem(
+            icon: Icons.chat_bubble_outline_rounded,
+            label: '채팅',
+            selected: currentIndex == 1,
+            onTap: () => onTap(1),
+            badgeCount: chatUnreadCount,
+          ),
+          _NavItem(
+            icon: Icons.restaurant_outlined,
+            label: '급식',
+            selected: currentIndex == 2,
+            onTap: () => onTap(2),
+          ),
+          _NavItem(
+            icon: Icons.calendar_today_outlined,
+            label: '시간표',
+            selected: currentIndex == 3,
+            onTap: () => onTap(3),
+          ),
+          _NavItem(
+            icon: Icons.person_outline_rounded,
+            label: '내정보',
+            selected: currentIndex == 4,
+            onTap: () => onTap(4),
+          ),
+        ],
+      ),
+    );
+
     return ColoredBox(
       color: c.cardBg,
-      child: SafeArea(
-        top: false,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: c.border, width: 1)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavItem(
-              icon: Icons.home_rounded,
-              label: '홈',
-              selected: currentIndex == 0,
-              onTap: () => onTap(0),
-            ),
-            _NavItem(
-              icon: Icons.chat_bubble_outline_rounded,
-              label: '채팅',
-              selected: currentIndex == 1,
-              onTap: () => onTap(1),
-              badgeCount: chatUnreadCount,
-            ),
-            _NavItem(
-              icon: Icons.restaurant_outlined,
-              label: '급식',
-              selected: currentIndex == 2,
-              onTap: () => onTap(2),
-            ),
-            _NavItem(
-              icon: Icons.calendar_today_outlined,
-              label: '시간표',
-              selected: currentIndex == 3,
-              onTap: () => onTap(3),
-            ),
-            _NavItem(
-              icon: Icons.person_outline_rounded,
-              label: '내정보',
-              selected: currentIndex == 4,
-              onTap: () => onTap(4),
-            ),
-          ],
-        ),
-      ),
-    ),
+      child: isIOS
+          ? content
+          : SafeArea(top: false, child: content),
     );
   }
 }

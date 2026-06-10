@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/profile_provider.dart';
 
 class EditNicknamePage extends ConsumerStatefulWidget {
@@ -40,6 +41,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
         .read(profileProvider.notifier)
         .updateNickname(nickname);
     if (ok && mounted) {
+      showAppSnackBar('닉네임이 변경됐어요.');
       context.pop(true);
     }
   }

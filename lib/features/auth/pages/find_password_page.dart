@@ -122,6 +122,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(findPasswordProvider);
     final isVerified = state.isVerified;
     final isExpired = _isExpired && !isVerified;
@@ -216,7 +217,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                         onPressed: state.isSendLoading ? null : _sendCode,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4A67F2),
-                          disabledBackgroundColor: const Color(0xFFD7DEFF),
+                          disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -338,7 +339,7 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                           onPressed: canVerify ? _verifyCode : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF4A67F2),
-                            disabledBackgroundColor: const Color(0xFFD7DEFF),
+                            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
                             foregroundColor: Colors.white,
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -401,9 +402,9 @@ class _FindPasswordPageState extends ConsumerState<FindPasswordPage> {
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4A67F2),
-                  disabledBackgroundColor: const Color(0xFFD7DEFF),
+                  disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
                   foregroundColor: Colors.white,
-                  disabledForegroundColor: Colors.white70,
+                  disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

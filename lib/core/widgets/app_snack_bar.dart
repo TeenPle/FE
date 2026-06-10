@@ -2,37 +2,42 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+// ScaffoldMessenger key는 MaterialApp에서 사용 (유지)
 final appScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+// GoRouter navigatorKey — routes.dart에서 GoRouter(navigatorKey:)에 전달
+// Overlay는 Navigator 안에 있으므로 이 key로 overlay에 직접 접근한다
+final appNavigatorKey = GlobalKey<NavigatorState>();
 
 OverlayEntry? _currentSnackBarEntry;
 Timer? _currentSnackBarTimer;
 
 void showAppSnackBar(String message, {Color? backgroundColor}) {
-  final context = appScaffoldMessengerKey.currentState?.context;
-  if (context == null) return;
-
-  _showOverlaySnackBar(context, message, isError: backgroundColor != null);
+  final overlay = appNavigatorKey.currentState?.overlay;
+  if (overlay == null) return;
+  _insertSnackBar(overlay, message, isError: backgroundColor != null);
 }
 
 void showContextSnackBar(BuildContext context, String message) {
-  _showOverlaySnackBar(context, message);
+  // 페이지 context가 있으면 그걸 쓰되, 없으면 navigator key fallback
+  final overlay = Overlay.maybeOf(context) ?? appNavigatorKey.currentState?.overlay;
+  if (overlay == null) return;
+  _insertSnackBar(overlay, message);
 }
 
 void hideAppSnackBar() {
   _currentSnackBarTimer?.cancel();
-  _currentSnackBarEntry?.remove();
   _currentSnackBarTimer = null;
+  final entry = _currentSnackBarEntry;
   _currentSnackBarEntry = null;
+  try { entry?.remove(); } catch (_) {}
 }
 
-void _showOverlaySnackBar(
-  BuildContext context,
+void _insertSnackBar(
+  OverlayState overlay,
   String message, {
   bool isError = false,
 }) {
-  final overlay = Overlay.maybeOf(context, rootOverlay: true);
-  if (overlay == null) return;
-
   hideAppSnackBar();
 
   _currentSnackBarEntry = OverlayEntry(

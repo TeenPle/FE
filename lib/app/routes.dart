@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/storage/token_storage.dart';
+import '../core/widgets/app_snack_bar.dart';
 import '../features/admin/pages/admin_home_page.dart';
 import '../features/admin/pages/admin_ad_page.dart';
 import '../features/admin/pages/admin_audit_log_page.dart';
@@ -234,6 +235,7 @@ class AppRoutes {
 
 /// ???꾩껜 ?쇱슦??
 final GoRouter router = GoRouter(
+  navigatorKey: appNavigatorKey,
   initialLocation: AppRoutes.landing,
   routes: [
     GoRoute(path: '/', redirect: (context, state) => AppRoutes.landing),

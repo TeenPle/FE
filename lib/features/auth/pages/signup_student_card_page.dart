@@ -12,6 +12,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/signup_form_provider.dart';
+import '../provider/signup_school_provider.dart';
 import '../provider/signup_secret_store.dart';
 import '../provider/signup_submit_provider.dart';
 
@@ -57,6 +58,8 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     /// 회원가입 전체 상태
     final signupFormState = ref.watch(signupFormProvider);
 
@@ -96,15 +99,18 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
                   /// 성공 시 로그인 화면 이동
                   if (latestSubmitState.isSuccess && context.mounted) {
                     SignupSecretStore.clear();
+                    ref.read(signupFormProvider.notifier).clear();
+                    ref.read(signupSchoolProvider.notifier).clearSearch();
+                    ref.read(signupSubmitProvider.notifier).reset();
                     context.go('${AppRoutes.login}?signup=success');
                   }
                 }
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
-            disabledForegroundColor: Colors.white70,
+            disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),

@@ -43,6 +43,8 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
     /// 다음 버튼은 실제 학교를 선택했을 때만 활성화
     final isNextEnabled = selectedSchool != null;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AuthStepLayout(
       scrollable: false,
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
@@ -58,9 +60,11 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            disabledBackgroundColor:
+                isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
-            disabledForegroundColor: Colors.white70,
+            disabledForegroundColor:
+                isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -258,7 +262,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     decoration: BoxDecoration(
                       color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE9EDF4)),
+                      border: Border.all(color: context.colors.border),
                     ),
                     child: Text(
                       '학교명을 입력하면\n검색 결과가 여기에 표시돼요.',
@@ -278,7 +282,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     decoration: BoxDecoration(
                       color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE9EDF4)),
+                      border: Border.all(color: context.colors.border),
                     ),
                     child: Center(child: CircularProgressIndicator()),
                   );
@@ -295,7 +299,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                     decoration: BoxDecoration(
                       color: context.colors.cardBg,
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE9EDF4)),
+                      border: Border.all(color: context.colors.border),
                     ),
                     child: Text(
                       '검색 결과가 없어요.\n학교명을 다시 확인해주세요.',
@@ -314,7 +318,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                   decoration: BoxDecoration(
                     color: context.colors.cardBg,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFE9EDF4)),
+                    border: Border.all(color: context.colors.border),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x0A000000),
@@ -349,19 +353,19 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                           ],
                         ),
                       ),
-                      const Divider(
+                      Divider(
                         height: 1,
                         thickness: 1,
-                        color: Color(0xFFF1F3F6),
+                        color: context.colors.border,
                       ),
                       Expanded(
                         child: ListView.separated(
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           itemCount: searchState.schools.length,
-                          separatorBuilder: (_, _) => const Divider(
+                          separatorBuilder: (_, _) => Divider(
                             height: 1,
                             thickness: 1,
-                            color: Color(0xFFF5F6F8),
+                            color: context.colors.border,
                             indent: 16,
                             endIndent: 16,
                           ),
@@ -406,7 +410,9 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFFF2F5FF)
+                                      ? (isDark
+                                          ? const Color(0xFF1E2C46)
+                                          : const Color(0xFFF2F5FF))
                                       : context.colors.cardBg,
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(

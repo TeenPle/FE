@@ -1,3 +1,5 @@
+import FirebaseCore
+import FirebaseMessaging
 import Flutter
 import Photos
 import PhotosUI
@@ -16,7 +18,39 @@ import UniformTypeIdentifiers
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // UIScene 라이프사이클에서는 firebase_messaging의 자동 연결(스위즐링)이
+    // APNs 등록을 수행하지 못하므로 네이티브에서 직접 등록한다.
+    // Dart의 Firebase.initializeApp보다 먼저 토큰 콜백이 도착할 수 있어
+    // 네이티브에서도 기본 앱을 구성해 둔다(이미 있으면 건너뜀).
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+    }
+    application.registerForRemoteNotifications()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  // APNs 토큰을 FCM에 직접 전달한다. 스위즐링이 동작하지 않는 환경 대비.
+  override func application(
+    _ application: UIApplication,
+    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+  ) {
+    Messaging.messaging().apnsToken = deviceToken
+    super.application(
+      application,
+      didRegisterForRemoteNotificationsWithDeviceToken: deviceToken
+    )
+  }
+
+  // 등록 실패 원인을 콘솔에서 확인할 수 있도록 로그를 남긴다.
+  override func application(
+    _ application: UIApplication,
+    didFailToRegisterForRemoteNotificationsWithError error: Error
+  ) {
+    NSLog("[APNs] 원격 알림 등록 실패: \(error.localizedDescription)")
+    super.application(
+      application,
+      didFailToRegisterForRemoteNotificationsWithError: error
+    )
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {

@@ -87,6 +87,10 @@ class FcmService {
   final Ref _ref;
   bool _initialized = false;
 
+  // 첫 발급 시 onTokenRefresh와 명시적 등록이 동시에 돌아 같은 토큰이
+  // 중복 등록되는 것을 막기 위해 마지막 등록 성공 토큰을 기억한다.
+  String? _lastRegisteredToken;
+
   FcmService(this._api, this._ref);
 
   Future<void> init() async {
@@ -445,10 +449,16 @@ class FcmService {
         );
   }
 
+  /// FCM 토큰을 발급받아 서버에 등록한다.
+  /// 이미 등록 성공한 토큰이면 서버 호출을 생략한다.
+  /// (로그아웃 시 deleteToken이 기억을 초기화하므로 재로그인 등록은 누락되지 않는다)
   Future<void> _registerToken() async {
     if (kDebugMode) debugPrint('[FCM] 토큰 요청 중...');
     if (Platform.isIOS && !await _waitForApnsToken()) {
-      if (kDebugMode) debugPrint('[FCM] APNs 토큰 대기 시간 초과');
+      // 일시적인 네트워크 문제로 발급이 늦어질 수 있으므로
+      // 앱 재시작 없이도 등록되도록 일정 시간 후 다시 시도한다.
+      if (kDebugMode) debugPrint('[FCM] APNs 토큰 대기 시간 초과 — 60초 후 재시도');
+      _scheduleApnsRetry();
       return;
     }
 
@@ -460,11 +470,21 @@ class FcmService {
       return;
     }
     if (token == null) return;
+    // Firebase 콘솔 '테스트 메시지 전송'으로 발송 경로를 검증할 수 있도록
+    // 디버그 빌드에서만 토큰 전체를 출력한다.
+    if (kDebugMode) debugPrint('[FCM] 발급된 토큰: $token');
+
+    // 이미 등록 성공한 토큰이면 서버 호출 생략 (중복 등록 방지)
+    if (token == _lastRegisteredToken) {
+      if (kDebugMode) debugPrint('[FCM] 동일 토큰 — 서버 등록 생략');
+      return;
+    }
 
     final platform = Platform.isIOS ? 'IOS' : 'ANDROID';
     for (int attempt = 1; attempt <= 3; attempt++) {
       try {
         await _api.registerPushToken(token, platform);
+        _lastRegisteredToken = token;
         if (kDebugMode) debugPrint('[FCM] 서버 토큰 등록 완료 (시도 $attempt)');
         return;
       } catch (e) {
@@ -476,8 +496,23 @@ class FcmService {
     }
   }
 
+  // APNs 재시도가 중복으로 쌓이지 않도록 하는 플래그
+  bool _apnsRetryScheduled = false;
+
+  void _scheduleApnsRetry() {
+    if (_apnsRetryScheduled) return;
+    _apnsRetryScheduled = true;
+    Future<void>.delayed(const Duration(seconds: 60), () {
+      _apnsRetryScheduled = false;
+      _registerToken();
+    });
+  }
+
+  /// APNs 토큰 발급을 폴링으로 대기한다.
+  /// 첫 설치 직후나 네트워크가 느린 환경에서는 Apple의 토큰 발급이
+  /// 수십 초까지 걸릴 수 있어 총 30초까지 기다린다.
   Future<bool> _waitForApnsToken() async {
-    for (int attempt = 0; attempt < 10; attempt++) {
+    for (int attempt = 0; attempt < 30; attempt++) {
       try {
         if (await FirebaseMessaging.instance.getAPNSToken() != null) {
           return true;
@@ -485,11 +520,13 @@ class FcmService {
       } catch (e) {
         if (kDebugMode) debugPrint('[FCM] APNs 토큰 확인 실패: $e');
       }
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(seconds: 1));
     }
     return false;
   }
 
+  /// 앱 복귀(resume) 시 등록 누락을 복구하기 위한 진입점.
+  /// 같은 토큰이면 내부에서 서버 호출을 생략하므로 자주 불려도 안전하다.
   Future<void> reRegisterToken() async {
     if (!_isMobile) return;
     await _registerToken();
@@ -503,5 +540,7 @@ class FcmService {
       await _api.deletePushToken(token);
     } catch (_) {}
     await FirebaseMessaging.instance.deleteToken();
+    // 다음 로그인 시 새 토큰이 반드시 등록되도록 기억을 초기화한다.
+    _lastRegisteredToken = null;
   }
 }

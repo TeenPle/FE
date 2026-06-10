@@ -98,6 +98,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(resetPasswordProvider);
     final media = MediaQuery.of(context);
     final keyboard = media.viewInsets.bottom;
@@ -247,9 +248,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   onPressed: (_canSubmit && !state.isLoading) ? _submit : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4A67F2),
-                    disabledBackgroundColor: const Color(0xFFD7DEFF),
+                    disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
                     foregroundColor: Colors.white,
-                    disabledForegroundColor: Colors.white70,
+                    disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),

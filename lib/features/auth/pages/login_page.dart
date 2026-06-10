@@ -124,6 +124,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final loginState = ref.watch(loginProvider);
 
     final c = context.colors;
@@ -443,11 +444,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               onPressed: loginState.isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4A67F2),
-                                disabledBackgroundColor: const Color(
-                                  0xFFBFC8FF,
-                                ),
+                                disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFBFC8FF),
                                 foregroundColor: Colors.white,
-                                disabledForegroundColor: Colors.white70,
+                                disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),

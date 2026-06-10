@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -38,7 +39,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
     ref.listen(inquiryCreateProvider, (_, next) {
       if (next.submitted) {
         ref.read(inquiryCreateProvider.notifier).clearResult();
-        Navigator.of(context).pop(true);
+        context.pop(true);
       }
       if (next.error != null) {
         showAppSnackBar(next.error!, backgroundColor: const Color(0xFFE05C7B));

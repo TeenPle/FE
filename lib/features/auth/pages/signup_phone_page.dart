@@ -112,6 +112,8 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     /// 현재 입력값
     final phoneNumber = _normalizePhoneNumber(_phoneController.text);
 
@@ -148,9 +150,9 @@ class _SignupPhonePageState extends ConsumerState<SignupPhonePage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
-            disabledForegroundColor: Colors.white70,
+            disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),

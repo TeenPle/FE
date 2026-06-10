@@ -94,7 +94,9 @@ class _LikeBurstButtonState extends State<LikeBurstButton>
     final inactiveIcon = _useHeartLikeStyle
         ? Icons.favorite_border_rounded
         : Icons.thumb_up_outlined;
-    final label = _useHeartLikeStyle ? '좋아요' : '공감';
+    // 아이콘 스타일(하트/엄지)과 무관하게 용어는 '좋아요'로 통일한다.
+    // (알림 문구·설정 화면의 '좋아요 알림'과 표기 일치)
+    const label = '좋아요';
 
     return Stack(
       clipBehavior: Clip.none,

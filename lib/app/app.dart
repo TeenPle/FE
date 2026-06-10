@@ -14,7 +14,8 @@ class TeenpleApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'Teenple',
+      // 앱 표기는 안드로이드 라벨(TeenPle)과 통일한다.
+      title: 'TeenPle',
       debugShowCheckedModeBanner: false,
       theme: buildTeenpleLightTheme(),
       darkTheme: buildTeenpleDarkTheme(),

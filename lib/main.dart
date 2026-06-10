@@ -60,7 +60,8 @@ void main() async {
 
 Future<void> _ensureNotificationChannel() async {
   final plugin = FlutterLocalNotificationsPlugin();
-  const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+  // 상태바 small icon은 흰색 실루엣 전용 아이콘을 사용 (fcm_service.dart와 동일)
+  const androidInit = AndroidInitializationSettings('@drawable/ic_notification');
   await plugin.initialize(const InitializationSettings(android: androidInit));
   await plugin
       .resolvePlatformSpecificImplementation<

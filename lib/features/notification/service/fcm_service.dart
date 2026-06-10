@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show Color;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -22,8 +23,9 @@ final fcmServiceProvider = Provider<FcmService>((ref) {
 });
 
 // main.dart에서도 참조하므로 public으로 선언
+// 채널 id는 기존 설치 기기와의 호환을 위해 변경 금지. 이름은 앱 표기(TeenPle)와 통일.
 const fcmChannelId = 'teenple_default';
-const fcmChannelName = 'Teenple 알림';
+const fcmChannelName = 'TeenPle 알림';
 
 // 내부 사용 별칭
 const _channelId = fcmChannelId;
@@ -48,6 +50,8 @@ Future<void> showLocalNotification(RemoteMessage message) async {
     importance: Importance.high,
     priority: Priority.high,
     showWhen: true,
+    // 브랜드 블루 — 상태바 실루엣 아이콘(ic_notification)의 틴트 색상
+    color: Color(0xFF14A3F7),
   );
   const iosDetails = DarwinNotificationDetails(
     presentAlert: true,
@@ -143,16 +147,39 @@ class FcmService {
       return;
     }
 
-    await _navigateFromData(message.data);
+    // 매칭되는 상세 경로가 없는 알림은 알림함으로 보낸다.
+    if (!await _navigateFromData(message.data)) {
+      router.push(AppRoutes.notifications);
+    }
+  }
+
+  /// 알림함 목록에서 알림을 탭했을 때 해당 상세 페이지로 이동한다.
+  ///
+  /// 푸시 탭(_navigateFromData)과 동일한 라우팅 규칙을 공유해 두 진입점의
+  /// 동작을 일치시킨다. 단, 호출 시점에 이미 알림함 화면에 있으므로
+  /// 매칭되는 경로가 없으면 (푸시 탭과 달리) 아무것도 하지 않는다.
+  Future<void> openNotification({
+    required String type,
+    required String targetType,
+    required int targetId,
+  }) async {
+    await _navigateFromData({
+      'type': type,
+      'targetType': targetType,
+      'targetId': targetId.toString(),
+    });
   }
 
   /// FCM data 맵을 기반으로 적절한 페이지로 이동한다.
-  /// 포그라운드 로컬 알림 탭과 백그라운드/종료 알림 탭 모두 이 함수를 사용한다.
-  Future<void> _navigateFromData(Map<String, dynamic> data) async {
+  /// 포그라운드 로컬 알림 탭 / 백그라운드·종료 푸시 탭 / 알림함 목록 탭이
+  /// 모두 이 함수를 사용한다. 이동했으면 true, 매칭 경로가 없으면 false 반환.
+  Future<bool> _navigateFromData(Map<String, dynamic> data) async {
+    // 관리자 전용 알림 (신고·인증 요청·관리자 문의)
     if (await _navigateAdminNotification(data)) {
-      return;
+      return true;
     }
 
+    // 채팅 알림 — 해당 채팅방으로 이동한다.
     if (_isChatMessage(data)) {
       final roomId = int.tryParse(data['targetId'] ?? '');
       if (roomId != null) {
@@ -160,7 +187,7 @@ class FcmService {
       } else {
         router.push(AppRoutes.chat);
       }
-      return;
+      return true;
     }
 
     // 문의 답변 알림 — 해당 문의 상세 페이지로 이동한다.
@@ -168,21 +195,43 @@ class FcmService {
       final inquiryId = int.tryParse(data['targetId'] ?? '');
       if (inquiryId != null) {
         router.push(AppRoutes.inquiryDetail(inquiryId));
-        return;
+        return true;
       }
     }
 
-    // 채팅·문의 외 알림(댓글·대댓글·좋아요 등)은 해당 게시글로 이동한다.
+    // 경고 알림 — 내 경고 내역 페이지로 이동한다.
+    if (data['type'] == 'WARNING' || data['targetType'] == 'WARNING') {
+      router.push(AppRoutes.myWarnings);
+      return true;
+    }
+
+    // 이용 제재 알림 — 내 제재 내역 페이지로 이동한다.
+    if (data['type'] == 'PENALTY' || data['targetType'] == 'PENALTY') {
+      router.push(AppRoutes.myPenalties);
+      return true;
+    }
+
+    // 학교 인증 결과 알림 — 인증 상태가 바뀌었으므로 랜딩부터 다시 진입해
+    // 인증 플로우(대기/거절/홈)가 현재 상태에 맞는 화면으로 분기하도록 한다.
+    if (data['type'] == 'VERIFICATION_APPROVED' ||
+        data['type'] == 'VERIFICATION_REJECTED') {
+      router.go('/');
+      return true;
+    }
+
+    // 그 외 게시글 관련 알림(댓글·대댓글·좋아요 등)은 해당 게시글로 이동한다.
+    // 주의: 새 알림 타입을 추가할 때는 targetId가 게시글 id로 오인되지 않도록
+    // 반드시 이 분기보다 위에 명시적 분기를 추가할 것.
     final targetIdStr = data['targetId'];
     if (targetIdStr != null) {
       final postId = int.tryParse(targetIdStr);
       if (postId != null) {
         router.push('/post/$postId');
-        return;
+        return true;
       }
     }
 
-    router.push(AppRoutes.notifications);
+    return false;
   }
 
   Future<bool> _navigateAdminNotification(Map<String, dynamic> data) async {
@@ -272,6 +321,14 @@ class FcmService {
     return data['type'] == 'CHAT' || data['targetType'] == 'CHAT_MSG';
   }
 
+  // 게시글 상세 페이지와 연결되는 알림 타입 (targetId = postId)
+  static const _postRelatedTypes = {
+    'COMMENT',
+    'REPLY',
+    'POST_LIKE',
+    'COMMENT_LIKE',
+  };
+
   /// 사용자가 현재 알림 대상 페이지를 보고 있으면 true 반환
   bool _isUserOnRelevantPage(Map<String, dynamic> data) {
     try {
@@ -283,8 +340,14 @@ class FcmService {
         return activePage.chatRoomId == targetId;
       }
 
-      // 댓글·대댓글·좋아요 등 게시글 관련 알림
-      return activePage.postId == targetId;
+      // 댓글·대댓글·좋아요 등 게시글 관련 알림.
+      // 경고/제재/인증 등 다른 타입은 targetId가 게시글 id가 아니므로
+      // 우연히 번호가 같은 게시글을 보고 있어도 알림을 생략하면 안 된다.
+      if (_postRelatedTypes.contains(data['type'])) {
+        return activePage.postId == targetId;
+      }
+
+      return false;
     } catch (_) {
       return false;
     }
@@ -310,7 +373,8 @@ class FcmService {
   }
 
   Future<void> _initLocalNotifications() async {
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // 상태바 small icon은 흰색 실루엣 전용 아이콘을 사용 (풀컬러 아이콘은 덩어리로 보임)
+    const androidInit = AndroidInitializationSettings('@drawable/ic_notification');
     const iosInit = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -334,7 +398,10 @@ class FcmService {
             router.push(AppRoutes.login);
             return;
           }
-          await _navigateFromData(data);
+          // 매칭되는 상세 경로가 없는 알림은 알림함으로 보낸다. (푸시 탭과 동일)
+          if (!await _navigateFromData(data)) {
+            router.push(AppRoutes.notifications);
+          }
         } catch (e) {
           if (kDebugMode) debugPrint('[FCM] local notification tap error: $e');
         }

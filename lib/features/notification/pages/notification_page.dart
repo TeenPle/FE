@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/time_format.dart';
 import '../models/notification_model.dart';
 import '../provider/notification_provider.dart';
+import '../service/fcm_service.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
@@ -103,11 +103,15 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     if (!notification.isRead) {
       _notifier.markAsRead(notification.id);
     }
-    if (notification.targetType == 'POST') {
-      context.push('/post/${notification.targetId}');
-    } else if (notification.targetType == 'INQUIRY') {
-      context.push(AppRoutes.inquiryDetail(notification.targetId));
-    }
+    // 라우팅은 FCM 푸시 탭과 동일한 규칙(FcmService)에 위임한다.
+    // 게시글·문의뿐 아니라 채팅/경고/제재/인증 결과/관리자 알림까지 일관되게 처리된다.
+    ref
+        .read(fcmServiceProvider)
+        .openNotification(
+          type: notification.type,
+          targetType: notification.targetType,
+          targetId: notification.targetId,
+        );
   }
 }
 
@@ -252,6 +256,8 @@ class _NotificationIcon extends StatelessWidget {
     IconData icon;
     Color color;
 
+    // 백엔드 NotificationType enum과 1:1로 대응한다.
+    // 새 타입 추가 시 여기에도 케이스를 추가하지 않으면 기본 종 모양으로 표시된다.
     switch (type) {
       case 'COMMENT':
       case 'REPLY':
@@ -266,6 +272,31 @@ class _NotificationIcon extends StatelessWidget {
       case 'CHAT':
         icon = Icons.forum_outlined;
         color = const Color(0xFF4CAF7D);
+        break;
+      case 'INQUIRY':
+        // 문의 답변
+        icon = Icons.support_agent_rounded;
+        color = const Color(0xFF7C5CE0);
+        break;
+      case 'WARNING':
+        // 관리자 경고
+        icon = Icons.warning_amber_rounded;
+        color = const Color(0xFFF59E0B);
+        break;
+      case 'PENALTY':
+        // 이용 제재
+        icon = Icons.block_rounded;
+        color = const Color(0xFFE05C5C);
+        break;
+      case 'VERIFICATION_APPROVED':
+        // 학교 인증 승인
+        icon = Icons.verified_outlined;
+        color = const Color(0xFF4CAF7D);
+        break;
+      case 'VERIFICATION_REJECTED':
+        // 학교 인증 거절
+        icon = Icons.school_outlined;
+        color = const Color(0xFFE05C5C);
         break;
       default:
         icon = Icons.notifications_none_rounded;
@@ -306,7 +337,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '새 댓글이나 공감이 오면 알려드릴게요.',
+            '새 댓글이나 좋아요, 채팅이 오면 알려드릴게요.',
             style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
           ),
         ],

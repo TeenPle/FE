@@ -298,6 +298,21 @@ class _NotificationIcon extends StatelessWidget {
         icon = Icons.school_outlined;
         color = const Color(0xFFE05C5C);
         break;
+      case 'ADMIN_REPORT':
+        // 새 신고 접수 (관리자 전용)
+        icon = Icons.flag_outlined;
+        color = const Color(0xFFE05C5C);
+        break;
+      case 'ADMIN_INQUIRY':
+        // 새 문의 접수 (관리자 전용)
+        icon = Icons.support_agent_rounded;
+        color = const Color(0xFF7C5CE0);
+        break;
+      case 'ADMIN_VERIFICATION':
+        // 새 학교 인증 요청 (관리자 전용)
+        icon = Icons.how_to_reg_outlined;
+        color = const Color(0xFF14A3F7);
+        break;
       default:
         icon = Icons.notifications_none_rounded;
         color = const Color(0xFF9AA7B2);

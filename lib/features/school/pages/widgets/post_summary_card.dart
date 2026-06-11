@@ -69,92 +69,98 @@ class PostSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(18, 12, 18, 10),
             child: Column(
               children: [
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _TitleLine(
-                              title: post.title,
-                              hot: hot,
-                              hasPoll: post.hasPoll,
-                              textPrimary: c.textPrimary,
+                Row(
+                  // 썸네일 높이를 고정해 사진 비율과 무관하게 카드 높이를 균일하게 유지
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _TitleLine(
+                            title: post.title,
+                            hot: hot,
+                            hasPoll: post.hasPoll,
+                            textPrimary: c.textPrimary,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            post.content,
+                            maxLines: thumbnailUrl == null ? 3 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 12,
+                              height: 1.3,
+                              fontWeight: FontWeight.w400,
+                              color: c.textSecondary,
+                              letterSpacing: 0,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              post.content,
-                              maxLines: thumbnailUrl == null ? 3 : 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 12,
-                                height: 1.3,
-                                fontWeight: FontWeight.w400,
-                                color: c.textSecondary,
-                                letterSpacing: 0,
+                          ),
+                          const SizedBox(height: 4),
+                          _BoardMetaRow(
+                            categoryLabel: categoryLabel,
+                            timeLabel: _timeLabel,
+                            color: c.textTertiary,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              _StatChip(
+                                icon: Icons.remove_red_eye_outlined,
+                                text: _viewText,
+                                color: c.iconOnCard,
+                                emphasized: post.viewCount > 0,
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            _BoardMetaRow(
-                              categoryLabel: categoryLabel,
-                              timeLabel: _timeLabel,
-                              color: c.textTertiary,
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                _StatChip(
-                                  icon: Icons.remove_red_eye_outlined,
-                                  text: _viewText,
-                                  color: c.iconOnCard,
-                                  emphasized: post.viewCount > 0,
-                                ),
-                                const SizedBox(width: 10),
-                                _StatChip(
-                                  icon: Icons.favorite_border_rounded,
-                                  text: _likeText,
-                                  color: _likeAccentColor,
-                                  emphasized: post.likeCount > 0,
-                                ),
-                                const SizedBox(width: 10),
-                                _StatChip(
-                                  icon: Icons.chat_bubble_outline_rounded,
-                                  text: _commentText,
-                                  color: post.commentCount > 0
-                                      ? _commentAccentColor
-                                      : c.iconMuted,
-                                  emphasized: post.commentCount > 0,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              const SizedBox(width: 10),
+                              _StatChip(
+                                icon: Icons.favorite_border_rounded,
+                                text: _likeText,
+                                color: _likeAccentColor,
+                                emphasized: post.likeCount > 0,
+                              ),
+                              const SizedBox(width: 10),
+                              _StatChip(
+                                icon: Icons.chat_bubble_outline_rounded,
+                                text: _commentText,
+                                color: post.commentCount > 0
+                                    ? _commentAccentColor
+                                    : c.iconMuted,
+                                emphasized: post.commentCount > 0,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      if (thumbnailUrl != null) ...[
-                        const SizedBox(width: 14),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl: thumbnailUrl,
+                    ),
+                    if (thumbnailUrl != null) ...[
+                      const SizedBox(width: 14),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        // 정사각형 고정 크기 + cover로 사진 중앙을 보여준다.
+                        // 세로로 긴 사진이어도 카드 높이에 영향을 주지 않는다.
+                        child: CachedNetworkImage(
+                          imageUrl: thumbnailUrl,
+                          width: 82,
+                          height: 82,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
                             width: 82,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                Container(width: 82, color: c.subtleBg),
-                            errorWidget: (context, url, error) => Container(
-                              width: 82,
-                              color: c.border,
-                              child: Icon(
-                                Icons.broken_image_rounded,
-                                color: c.iconSecondary,
-                              ),
+                            height: 82,
+                            color: c.subtleBg,
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 82,
+                            height: 82,
+                            color: c.border,
+                            child: Icon(
+                              Icons.broken_image_rounded,
+                              color: c.iconSecondary,
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
                 if (showDivider) ...[
                   const SizedBox(height: 8),

@@ -376,46 +376,48 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 360),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: widget.availableBoards.length,
-                  separatorBuilder: (_, _) =>
-                      Divider(height: 1, color: context.colors.borderSubtle),
-                  itemBuilder: (context, index) {
-                    final board = widget.availableBoards[index];
-                    final selected = board.id == _selectedBoardId;
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        board.title,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 12,
-                          fontWeight: selected
-                              ? FontWeight.w900
-                              : FontWeight.w700,
-                          color: selected
-                              ? const Color(0xFF2F80ED)
-                              : context.colors.textBody,
+              Flexible(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 360),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: widget.availableBoards.length,
+                    separatorBuilder: (_, _) =>
+                        Divider(height: 1, color: context.colors.borderSubtle),
+                    itemBuilder: (context, index) {
+                      final board = widget.availableBoards[index];
+                      final selected = board.id == _selectedBoardId;
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          board.title,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 12,
+                            fontWeight: selected
+                                ? FontWeight.w900
+                                : FontWeight.w700,
+                            color: selected
+                                ? const Color(0xFF2F80ED)
+                                : context.colors.textBody,
+                          ),
                         ),
-                      ),
-                      subtitle: board.description.isEmpty
-                          ? null
-                          : Text(
-                              board.description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                      trailing: selected
-                          ? const Icon(
-                              Icons.check_rounded,
-                              color: Color(0xFF2F80ED),
-                            )
-                          : null,
-                      onTap: () => Navigator.pop(context, board),
-                    );
-                  },
+                        subtitle: board.description.isEmpty
+                            ? null
+                            : Text(
+                                board.description,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                        trailing: selected
+                            ? const Icon(
+                                Icons.check_rounded,
+                                color: Color(0xFF2F80ED),
+                              )
+                            : null,
+                        onTap: () => Navigator.pop(context, board),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

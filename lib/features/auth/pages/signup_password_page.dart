@@ -118,6 +118,8 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
     final canProceed = isPasswordValid && isPasswordConfirmValid;
 
     return AuthStepLayout(
+      /// 키보드가 올라와도 비밀번호 확인란과 버튼이 본문 아래에 보이도록 인라인 배치
+      inlineBottom: true,
       bottom: SizedBox(
         height: 54,
         child: ElevatedButton(
@@ -134,7 +136,9 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
             disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
@@ -268,6 +272,9 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
             keyboardType: TextInputType.visiblePassword,
             autocorrect: false,
             enableSuggestions: false,
+
+            /// 포커스 시 아래의 비밀번호 확인란과 다음 버튼까지 함께 보이도록 여유 확보
+            scrollPadding: const EdgeInsets.only(bottom: 240),
             onChanged: (value) {
               setState(() {});
             },
@@ -336,6 +343,9 @@ class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
             keyboardType: TextInputType.visiblePassword,
             autocorrect: false,
             enableSuggestions: false,
+
+            /// 포커스 시 일치 여부 메시지와 다음 버튼까지 함께 보이도록 여유 확보
+            scrollPadding: const EdgeInsets.only(bottom: 150),
             onChanged: (value) {
               setState(() {});
             },

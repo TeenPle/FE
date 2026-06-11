@@ -107,6 +107,9 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
       fcm.init().catchError((e) {
         if (kDebugMode) debugPrint('[FCM ERROR] $e');
       });
+      // 앱 재시작 없이 다른 계정으로 재로그인한 경우 init()은 이미 초기화돼
+      // 아무것도 하지 않으므로, 현재 계정으로 토큰을 다시 등록한다.
+      fcm.reRegisterToken();
       fcm.handleInitialMessage();
       ref.read(notificationProvider.notifier).loadUnreadCount();
       ref.read(chatRoomListProvider.notifier).load();

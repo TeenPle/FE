@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,8 @@ import '../../../app/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../auth/provider/login_provider.dart';
+import '../../notification/provider/notification_provider.dart';
+import '../../notification/service/fcm_service.dart';
 import '../provider/admin_dashboard_provider.dart';
 import '../widgets/admin_responsive.dart';
 
@@ -27,6 +30,21 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
     Future.microtask(_reloadDashboard);
     _refreshTimer = Timer.periodic(const Duration(seconds: 60), (_) {
       if (mounted) _reloadDashboard();
+    });
+
+    // 관리자도 신고/문의/인증 요청 푸시를 받아야 하므로 학생 홈(school_page)과
+    // 동일하게 FCM을 초기화하고 토큰을 등록한다. 관리자는 이 화면이 홈이라
+    // school_page를 거치지 않는다 — 여기서 하지 않으면 토큰 등록이 영영 안 된다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final fcm = ref.read(fcmServiceProvider);
+      fcm.init().catchError((e) {
+        if (kDebugMode) debugPrint('[FCM ERROR] $e');
+      });
+      // 같은 기기에서 일반 유저로 쓰다가 관리자로 전환 로그인한 경우
+      // init()은 이미 초기화돼 아무것도 하지 않으므로 현재 계정으로 재등록한다.
+      fcm.reRegisterToken();
+      fcm.handleInitialMessage();
+      ref.read(notificationProvider.notifier).loadUnreadCount();
     });
   }
 
@@ -62,6 +80,9 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _AdminHeader(
+                      unreadCount: ref.watch(notificationProvider).unreadCount,
+                      onNotifications: () =>
+                          context.push(AppRoutes.notifications),
                       onRefresh: _reloadDashboard,
                       onLogout: () => _confirmLogout(context, ref),
                     ),
@@ -209,10 +230,17 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
 }
 
 class _AdminHeader extends StatelessWidget {
+  final int unreadCount;
+  final VoidCallback onNotifications;
   final VoidCallback onRefresh;
   final VoidCallback onLogout;
 
-  const _AdminHeader({required this.onRefresh, required this.onLogout});
+  const _AdminHeader({
+    required this.unreadCount,
+    required this.onNotifications,
+    required this.onRefresh,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +279,31 @@ class _AdminHeader extends StatelessWidget {
             ),
           ),
         ),
+        // 알림함 진입 버튼 — 신고/문의/인증 요청 알림을 푸시를 놓쳐도 확인할 수 있다.
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            _HeaderButton(
+              icon: Icons.notifications_none_rounded,
+              tooltip: '알림',
+              onTap: onNotifications,
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                top: -2,
+                right: -2,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE05C5C),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(width: 10),
         _HeaderButton(
           icon: Icons.refresh_rounded,
           tooltip: '새로고침',

@@ -91,6 +91,13 @@ class FcmService {
   // 중복 등록되는 것을 막기 위해 마지막 등록 성공 토큰을 기억한다.
   String? _lastRegisteredToken;
 
+  // 로그아웃 시 deleteToken()이 FCM 토큰을 삭제하면 곧바로 onTokenRefresh가
+  // 새 토큰을 발급하는데, 이때 리스너가 새 토큰을 "로그아웃 중인 이전 계정"으로
+  // 재등록해버리는 레이스가 있다. (이러면 다음 계정으로 로그인해도 푸시가
+  // 이전 계정으로 감) 이를 막기 위해 로그아웃부터 다음 로그인 후
+  // reRegisterToken() 호출 전까지 서버 등록을 중단한다.
+  bool _suppressRegistration = false;
+
   FcmService(this._api, this._ref);
 
   Future<void> init() async {
@@ -454,6 +461,16 @@ class FcmService {
   /// (로그아웃 시 deleteToken이 기억을 초기화하므로 재로그인 등록은 누락되지 않는다)
   Future<void> _registerToken() async {
     if (kDebugMode) debugPrint('[FCM] 토큰 요청 중...');
+    // 로그아웃 직후의 onTokenRefresh 재등록 차단 (위 _suppressRegistration 주석 참고)
+    if (_suppressRegistration) {
+      if (kDebugMode) debugPrint('[FCM] 로그아웃 상태 — 토큰 등록 생략');
+      return;
+    }
+    // 로그인된 계정이 없으면 등록할 주인이 없으므로 생략한다.
+    if (await TokenStorage().getUserId() == null) {
+      if (kDebugMode) debugPrint('[FCM] 로그인 계정 없음 — 토큰 등록 생략');
+      return;
+    }
     if (Platform.isIOS && !await _waitForApnsToken()) {
       // 일시적인 네트워크 문제로 발급이 늦어질 수 있으므로
       // 앱 재시작 없이도 등록되도록 일정 시간 후 다시 시도한다.
@@ -525,10 +542,15 @@ class FcmService {
     return false;
   }
 
-  /// 앱 복귀(resume) 시 등록 누락을 복구하기 위한 진입점.
+  /// 등록 누락을 복구하기 위한 진입점. 로그인 후 홈 화면(학생/관리자)에서 호출한다.
   /// 같은 토큰이면 내부에서 서버 호출을 생략하므로 자주 불려도 안전하다.
+  ///
+  /// 같은 기기에서 계정을 바꿔 로그인한 경우(예: 일반 유저 → 관리자)
+  /// init()은 이미 초기화돼 아무것도 하지 않으므로, 여기서 등록 중단을 풀고
+  /// 현재 계정으로 토큰을 다시 등록한다.
   Future<void> reRegisterToken() async {
     if (!_isMobile) return;
+    _suppressRegistration = false;
     await _registerToken();
   }
 
@@ -559,6 +581,9 @@ class FcmService {
 
   Future<void> deleteToken() async {
     if (!_isMobile) return;
+    // 아래 FirebaseMessaging.deleteToken()이 유발하는 onTokenRefresh가
+    // 새 토큰을 이전 계정으로 재등록하지 않도록 다음 로그인 전까지 등록을 막는다.
+    _suppressRegistration = true;
     final token = await FirebaseMessaging.instance.getToken();
     if (token == null) return;
     try {

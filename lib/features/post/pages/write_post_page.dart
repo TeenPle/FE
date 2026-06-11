@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../../core/network/api_exception.dart';
 import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -283,10 +284,14 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
         if (!mounted) return;
         Navigator.pop(context, postId);
       }
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      // 백엔드가 내려준 사유(부적절한 이미지 감지, 파일 형식·크기 제한 등)를
+      // 그대로 보여준다. 일반 실패 멘트로 뭉개면 사용자가 원인을 알 수 없다.
       showAppSnackBar(
-        widget.isEditMode ? '게시글 수정에 실패했어요.' : '게시글 등록에 실패했어요.',
+        e is ApiException
+            ? e.message
+            : (widget.isEditMode ? '게시글 수정에 실패했어요.' : '게시글 등록에 실패했어요.'),
         backgroundColor: const Color(0xFFE05C7B),
       );
     } finally {

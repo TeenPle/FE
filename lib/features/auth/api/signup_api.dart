@@ -50,9 +50,15 @@ class SignupApi {
   /// multipart/form-data
   /// - data: JSON
   /// - studentCard: 이미지 파일
+  ///
+  /// [fcmToken]/[fcmPlatform]: 가입 시점에 푸시 토큰을 함께 등록하기 위한 값 (선택).
+  /// 인증 승인 전에는 로그인이 차단되어 토큰을 등록할 기회가 없으므로,
+  /// 여기서 등록해야 학교 인증 승인/거절 결과를 푸시로 받을 수 있다.
   Future<void> signUp(
     SignupFormState formState, {
     required String password,
+    String? fcmToken,
+    String? fcmPlatform,
   }) async {
     /// 필수값 체크
     _require(formState.selectedSchool != null, '학교 정보가 없어요.');
@@ -111,6 +117,11 @@ class SignupApi {
       'grade': _mapGradeToEnum(formState.grade!),
       'phoneNumber': formState.phoneNumber.trim(),
       'verificationToken': formState.verificationToken.trim(),
+      // 푸시 토큰은 선택값 — 발급 실패 시에도 가입은 정상 진행된다.
+      if (fcmToken != null && fcmPlatform != null) ...{
+        'fcmToken': fcmToken,
+        'fcmPlatform': fcmPlatform,
+      },
     });
 
     /// 파일명 추출

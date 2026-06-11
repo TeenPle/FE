@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../notification/service/fcm_service.dart';
 import '../api/verification_reapply_api.dart';
 import '../models/verification_reapply_info_request_model.dart';
 import '../models/verification_reapply_request_model.dart';
@@ -13,14 +14,16 @@ final verificationReapplyProvider =
       VerificationReapplyState
     >((ref) {
       final api = ref.read(verificationReapplyApiProvider);
-      return VerificationReapplyNotifier(api);
+      final fcmService = ref.read(fcmServiceProvider);
+      return VerificationReapplyNotifier(api, fcmService);
     });
 
 class VerificationReapplyNotifier
     extends StateNotifier<VerificationReapplyState> {
   final VerificationReapplyApi _api;
+  final FcmService _fcmService;
 
-  VerificationReapplyNotifier(this._api)
+  VerificationReapplyNotifier(this._api, this._fcmService)
     : super(const VerificationReapplyState());
 
   /// 반려 사유 조회
@@ -101,11 +104,17 @@ class VerificationReapplyNotifier
     );
 
     try {
+      // 재신청도 로그인 없이 진행되므로 가입과 동일하게 FCM 토큰을 함께 보낸다.
+      // (인증 승인/거절 결과 푸시 수신용 — 실패해도 재신청은 그대로 진행)
+      final fcm = await _fcmService.obtainTokenForSignup();
+
       await _api.reapply(
         request: VerificationReapplyRequestModel(
           email: trimmedEmail,
           password: trimmedPassword,
           schoolId: state.info!.schoolId,
+          fcmToken: fcm?.token,
+          fcmPlatform: fcm?.platform,
         ),
         studentCardFilePath: state.selectedFilePath,
       );

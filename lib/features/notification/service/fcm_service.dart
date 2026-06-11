@@ -510,9 +510,9 @@ class FcmService {
 
   /// APNs 토큰 발급을 폴링으로 대기한다.
   /// 첫 설치 직후나 네트워크가 느린 환경에서는 Apple의 토큰 발급이
-  /// 수십 초까지 걸릴 수 있어 총 30초까지 기다린다.
-  Future<bool> _waitForApnsToken() async {
-    for (int attempt = 0; attempt < 30; attempt++) {
+  /// 수십 초까지 걸릴 수 있어 기본 30초까지 기다린다.
+  Future<bool> _waitForApnsToken({int maxWaitSeconds = 30}) async {
+    for (int attempt = 0; attempt < maxWaitSeconds; attempt++) {
       try {
         if (await FirebaseMessaging.instance.getAPNSToken() != null) {
           return true;
@@ -530,6 +530,31 @@ class FcmService {
   Future<void> reRegisterToken() async {
     if (!_isMobile) return;
     await _registerToken();
+  }
+
+  /// 회원가입/인증 재신청 시점에 서버 등록 없이 FCM 토큰만 발급받는다.
+  ///
+  /// 학교 인증 승인 전에는 로그인이 차단되어 일반 등록 경로(init → /api/push-tokens)를
+  /// 탈 수 없으므로, 가입/재신청 요청 본문에 토큰을 실어 보내 서버가 대신 등록하게 한다.
+  /// 이 토큰이 있어야 인증 승인/거절 결과를 푸시로 받을 수 있다.
+  ///
+  /// 권한 거부·발급 실패 시 null을 반환하고 가입 진행 자체는 막지 않는다.
+  /// iOS APNs 대기는 가입 제출이 늘어지지 않도록 init 경로(30초)보다 짧게 제한한다.
+  Future<({String token, String platform})?> obtainTokenForSignup() async {
+    if (!_isMobile) return null;
+    try {
+      await _requestPermission();
+      if (Platform.isIOS && !await _waitForApnsToken(maxWaitSeconds: 10)) {
+        if (kDebugMode) debugPrint('[FCM] 가입용 토큰: APNs 대기 시간 초과');
+        return null;
+      }
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token == null || token.isEmpty) return null;
+      return (token: token, platform: Platform.isIOS ? 'IOS' : 'ANDROID');
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FCM ERROR] 가입용 토큰 발급 실패: $e');
+      return null;
+    }
   }
 
   Future<void> deleteToken() async {

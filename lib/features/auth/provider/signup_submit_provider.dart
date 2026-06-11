@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../notification/service/fcm_service.dart';
 import '../api/signup_api.dart';
 import 'signup_form_state.dart';
 import 'signup_submit_state.dart';
@@ -9,13 +10,16 @@ import 'signup_submit_state.dart';
 final signupSubmitProvider =
     StateNotifierProvider<SignupSubmitNotifier, SignupSubmitState>((ref) {
       final signupApi = ref.read(signupApiProvider);
-      return SignupSubmitNotifier(signupApi);
+      final fcmService = ref.read(fcmServiceProvider);
+      return SignupSubmitNotifier(signupApi, fcmService);
     });
 
 class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
   final SignupApi _signupApi;
+  final FcmService _fcmService;
 
-  SignupSubmitNotifier(this._signupApi) : super(const SignupSubmitState());
+  SignupSubmitNotifier(this._signupApi, this._fcmService)
+    : super(const SignupSubmitState());
 
   /// 회원가입 요청
   Future<void> submit(
@@ -29,7 +33,17 @@ class SignupSubmitNotifier extends StateNotifier<SignupSubmitState> {
     );
 
     try {
-      await _signupApi.signUp(formState, password: password);
+      // 인증 승인 전에는 로그인이 막혀 푸시 토큰을 등록할 수 없으므로
+      // 가입 요청에 토큰을 함께 실어 보낸다. (승인/거절 결과 푸시 수신용)
+      // 권한 거부·발급 실패 시 null — 가입은 그대로 진행한다.
+      final fcm = await _fcmService.obtainTokenForSignup();
+
+      await _signupApi.signUp(
+        formState,
+        password: password,
+        fcmToken: fcm?.token,
+        fcmPlatform: fcm?.platform,
+      );
 
       state = state.copyWith(isLoading: false, isSuccess: true);
     } on DioException catch (e) {

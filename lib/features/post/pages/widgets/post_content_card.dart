@@ -105,6 +105,7 @@ class _SingleImage extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: url,
           width: double.infinity,
+          height: 280,
           fit: BoxFit.cover,
           placeholder: (_, _) => _imagePlaceholder(context),
           errorWidget: (_, _, _) => _imagePlaceholder(context),
@@ -233,7 +234,7 @@ Widget _defaultAvatar(BuildContext context) {
 Widget _imagePlaceholder(BuildContext context) {
   final c = context.colors;
   return Container(
-    height: 200,
+    height: 280,
     color: c.borderSubtle,
     child: Center(
       child: Icon(Icons.broken_image_rounded, color: c.iconSecondary, size: 36),

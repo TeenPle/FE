@@ -139,11 +139,13 @@ class PostSummaryCard extends StatelessWidget {
                           child: CachedNetworkImage(
                             imageUrl: thumbnailUrl,
                             width: 82,
+                            height: 82,
                             fit: BoxFit.cover,
                             placeholder: (context, url) =>
-                                Container(width: 82, color: c.subtleBg),
+                                Container(width: 82, height: 82, color: c.subtleBg),
                             errorWidget: (context, url, error) => Container(
                               width: 82,
+                              height: 82,
                               color: c.border,
                               child: Icon(
                                 Icons.broken_image_rounded,

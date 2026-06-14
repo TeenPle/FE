@@ -112,6 +112,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
           commentStatus: comment.commentStatus,
           content: comment.content,
           author: comment.author,
+          authorProfileImageUrl: comment.authorProfileImageUrl,
           likeCount: result.likeCount,
           dislikeCount: result.dislikeCount,
           likedByMe: result.liked,

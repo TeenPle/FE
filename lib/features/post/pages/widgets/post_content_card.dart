@@ -294,7 +294,10 @@ class _PostMetaRow extends StatelessWidget {
     final c = context.colors;
     final profileUrl = post.authorProfileImageUrl;
     final showNetworkAvatar =
-        !post.anonymous && profileUrl != null && profileUrl.isNotEmpty;
+        !post.anonymous &&
+        !post.authorDeleted &&
+        profileUrl != null &&
+        profileUrl.isNotEmpty;
 
     return Row(
       children: [

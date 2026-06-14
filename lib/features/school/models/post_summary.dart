@@ -1,4 +1,5 @@
 import '../../../features/post/models/post_media_item.dart';
+import '../../../core/utils/profile_image_url.dart';
 
 class PostSummary {
   final int id;
@@ -42,7 +43,6 @@ class PostSummary {
   });
 
   factory PostSummary.fromJson(Map<String, dynamic> json) {
-    final rawProfileUrl = json['authorProfileImageUrl'] as String?;
     return PostSummary(
       id: (json['id'] as num).toInt(),
       title: json['title'] as String? ?? '',
@@ -61,10 +61,7 @@ class PostSummary {
       boardId: json['boardId'] != null ? (json['boardId'] as num).toInt() : 0,
       userId: json['userId'] != null ? (json['userId'] as num).toInt() : null,
       username: json['username'] as String? ?? '',
-      authorProfileImageUrl:
-          (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
-          ? rawProfileUrl
-          : null,
+      authorProfileImageUrl: readProfileImageUrl(json),
       authorDeleted: json['authorDeleted'] as bool? ?? false,
       commentCount: json['commentCount'] != null
           ? (json['commentCount'] as num).toInt()

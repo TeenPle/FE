@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
@@ -21,7 +20,6 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
 
     final content = Container(
       decoration: BoxDecoration(
@@ -68,9 +66,7 @@ class AppBottomNavBar extends StatelessWidget {
 
     return ColoredBox(
       color: c.cardBg,
-      child: isIOS
-          ? content
-          : SafeArea(top: false, child: content),
+      child: SafeArea(top: false, child: content),
     );
   }
 }

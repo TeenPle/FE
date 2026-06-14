@@ -1,6 +1,7 @@
 import 'comment_model.dart';
 import 'post_media_item.dart';
 import 'poll_model.dart';
+import '../../../core/utils/profile_image_url.dart';
 
 class PostDetail {
   final int postId;
@@ -58,7 +59,6 @@ class PostDetail {
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
-    final rawProfileUrl = json['authorProfileImageUrl'] as String?;
     return PostDetail(
       postId: (json['postId'] as num).toInt(),
       authorUserId: json['authorUserId'] != null
@@ -84,10 +84,7 @@ class PostDetail {
       dislikedByMe: json['dislikedByMe'] as bool? ?? false,
       postStatus: json['postStatus'] as String? ?? '',
       username: json['username'] as String? ?? '',
-      authorProfileImageUrl:
-          (rawProfileUrl != null && rawProfileUrl.startsWith('http'))
-          ? rawProfileUrl
-          : null,
+      authorProfileImageUrl: readProfileImageUrl(json),
       authorDeleted: json['authorDeleted'] as bool? ?? false,
       canChatWithAuthor: json['canChatWithAuthor'] as bool? ?? true,
       canReportAuthor: json['canReportAuthor'] as bool? ?? true,

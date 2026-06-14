@@ -1,3 +1,5 @@
+import '../../../core/utils/profile_image_url.dart';
+
 class CommentModel {
   final int commentId;
   final int? authorUserId;
@@ -10,6 +12,7 @@ class CommentModel {
   final String commentStatus;
   final String content;
   final String author;
+  final String? authorProfileImageUrl;
   final int likeCount;
   final int dislikeCount;
   final bool likedByMe;
@@ -31,6 +34,7 @@ class CommentModel {
     required this.commentStatus,
     required this.content,
     required this.author,
+    this.authorProfileImageUrl,
     required this.likeCount,
     required this.dislikeCount,
     required this.likedByMe,
@@ -56,6 +60,7 @@ class CommentModel {
       commentStatus: json['commentStatus'] as String? ?? 'ACTIVE',
       content: json['content'] as String? ?? '',
       author: json['author'] as String? ?? '',
+      authorProfileImageUrl: readProfileImageUrl(json),
       likeCount: json['likeCount'] != null
           ? (json['likeCount'] as num).toInt()
           : 0,
@@ -77,6 +82,11 @@ class CommentModel {
 
   bool get isReply => parentId != null;
   bool get isDeleted => commentStatus == 'DELETED';
+  bool get showProfileImage =>
+      !anonymous &&
+      !authorDeleted &&
+      authorProfileImageUrl != null &&
+      authorProfileImageUrl!.isNotEmpty;
 
   String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : author;
 }

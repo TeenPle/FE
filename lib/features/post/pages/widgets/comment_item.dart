@@ -206,19 +206,7 @@ class _CommentBody extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    width: isReply ? 24 : 28,
-                    height: isReply ? 24 : 28,
-                    decoration: BoxDecoration(
-                      color: isReply ? c.cardBg : const Color(0xFFE4F2FF),
-                      borderRadius: BorderRadius.circular(isReply ? 8 : 9),
-                    ),
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: const Color(0xFF8EA2B5),
-                      size: isReply ? 15 : 17,
-                    ),
-                  ),
+                  _CommentAvatar(comment: comment, isReply: isReply),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Align(
@@ -408,6 +396,61 @@ class _DeletedCommentPlaceholder extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CommentAvatar extends StatelessWidget {
+  final CommentModel comment;
+  final bool isReply;
+
+  const _CommentAvatar({required this.comment, required this.isReply});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = isReply ? 24.0 : 28.0;
+    final radius = BorderRadius.circular(isReply ? 8 : 9);
+
+    return ClipRRect(
+      borderRadius: radius,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: comment.showProfileImage
+            ? Image.network(
+                comment.authorProfileImageUrl!,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, _, _) =>
+                    _DefaultCommentAvatar(isReply: isReply),
+              )
+            : _DefaultCommentAvatar(isReply: isReply),
+      ),
+    );
+  }
+}
+
+class _DefaultCommentAvatar extends StatelessWidget {
+  final bool isReply;
+
+  const _DefaultCommentAvatar({required this.isReply});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      width: isReply ? 24 : 28,
+      height: isReply ? 24 : 28,
+      decoration: BoxDecoration(
+        color: isReply ? c.cardBg : const Color(0xFFE4F2FF),
+        borderRadius: BorderRadius.circular(isReply ? 8 : 9),
+      ),
+      child: Icon(
+        Icons.person_rounded,
+        color: const Color(0xFF8EA2B5),
+        size: isReply ? 15 : 17,
+      ),
     );
   }
 }

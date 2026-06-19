@@ -29,7 +29,7 @@ class SchoolHeader extends ConsumerWidget {
       child: Row(
         children: [
           Image.asset(
-            'assets/images/Logo.png',
+            'assets/images/Logo_transparent.png',
             width: 44,
             height: 44,
             fit: BoxFit.contain,

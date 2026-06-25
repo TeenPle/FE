@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config/feature_flags.dart';
@@ -13,13 +11,11 @@ import '../../features/ad/provider/ad_banner_provider.dart';
 class SchoolMainAdCard extends ConsumerWidget {
   final bool fullBleed;
   final String placement;
-  final bool showAdMobTestFallback;
 
   const SchoolMainAdCard({
     super.key,
     this.fullBleed = false,
     this.placement = 'HOME_FEED',
-    this.showAdMobTestFallback = true,
   });
 
   @override
@@ -32,167 +28,10 @@ class SchoolMainAdCard extends ConsumerWidget {
     // 피드/상세 UX가 광고 API 장애 때문에 깨지지 않도록 의도적으로 조용히 숨긴다.
     return adState.maybeWhen(
       data: (ad) => ad == null
-          ? _fallbackAdMobTestBanner()
+          ? const SizedBox.shrink()
           : _SchoolAdSurface(ad: ad, fullBleed: fullBleed),
-      error: (_, _) => _fallbackAdMobTestBanner(),
+      error: (_, _) => const SizedBox.shrink(),
       orElse: () => const SizedBox.shrink(),
-    );
-  }
-
-  Widget _fallbackAdMobTestBanner() {
-    // 디버그에서만 기본 노출한다. 운영 빌드에서 테스트 광고를 띄우려면
-    // --dart-define=ENABLE_ADMOB_TEST_ADS=true 를 명시적으로 넣는다.
-    const enabledByDefine = bool.fromEnvironment('ENABLE_ADMOB_TEST_ADS');
-    final enabled = showAdMobTestFallback && (kDebugMode || enabledByDefine);
-    if (!enabled) return const SizedBox.shrink();
-    return _AdMobTestBanner(fullBleed: fullBleed, placement: placement);
-  }
-}
-
-class _AdMobTestBanner extends StatefulWidget {
-  final bool fullBleed;
-  final String placement;
-
-  const _AdMobTestBanner({required this.fullBleed, required this.placement});
-
-  @override
-  State<_AdMobTestBanner> createState() => _AdMobTestBannerState();
-}
-
-class _AdMobTestBannerState extends State<_AdMobTestBanner> {
-  static const _testBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
-
-  BannerAd? _bannerAd;
-  AdSize? _platformAdSize;
-  int? _requestedWidth;
-  bool _isLoaded = false;
-
-  void _loadBanner(double availableWidth) async {
-    final width = availableWidth.truncate();
-    if (width <= 0 || _requestedWidth == width) return;
-
-    final adSize = AdSize.largeBanner;
-    if (width < adSize.width) return;
-
-    _requestedWidth = width;
-    await _bannerAd?.dispose();
-    if (!mounted) return;
-    setState(() {
-      _bannerAd = null;
-      _platformAdSize = null;
-      _isLoaded = false;
-    });
-
-    final banner = BannerAd(
-      // Google 공식 테스트 배너 ID. 실제 출시 광고 ID로 교체하면 안 되는 검증 전용 값이다.
-      adUnitId: _testBannerAdUnitId,
-      request: const AdRequest(),
-      size: adSize,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) async {
-          if (!mounted) return;
-          final bannerAd = ad as BannerAd;
-          setState(() {
-            _bannerAd = bannerAd;
-            _platformAdSize = adSize;
-            _isLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          if (mounted && _bannerAd == null) {
-            setState(() {
-              _isLoaded = false;
-            });
-          }
-          if (kDebugMode) {
-            debugPrint(
-              '[AdMob] test adaptive banner failed: '
-              'code=${error.code}, domain=${error.domain}, message=${error.message}',
-            );
-          }
-        },
-      ),
-    );
-    banner.load();
-  }
-
-  @override
-  void dispose() {
-    _bannerAd?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final horizontalPadding = widget.fullBleed ? 0.0 : 36.0;
-        final availableWidth = constraints.maxWidth - horizontalPadding;
-        final availableWidthInt = availableWidth.truncate();
-        if (availableWidthInt > 0 && _requestedWidth != availableWidthInt) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _loadBanner(availableWidth);
-          });
-        }
-
-        final ad = _bannerAd;
-        final adSize = _platformAdSize;
-        if (!_isLoaded || ad == null || adSize == null) {
-          return kDebugMode
-              ? _AdMobDebugBox(
-                  fullBleed: widget.fullBleed,
-                  text: 'AdMob test ad loading',
-                )
-              : const SizedBox.shrink();
-        }
-
-        return Container(
-          color: context.colors.pageBg,
-          padding: widget.fullBleed
-              ? const EdgeInsets.fromLTRB(0, 12, 0, 12)
-              : const EdgeInsets.fromLTRB(18, 12, 18, 12),
-          alignment: Alignment.center,
-          child: SizedBox(
-            width: adSize.width.toDouble(),
-            height: adSize.height.toDouble(),
-            child: AdWidget(ad: ad),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _AdMobDebugBox extends StatelessWidget {
-  final bool fullBleed;
-  final String text;
-
-  const _AdMobDebugBox({required this.fullBleed, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: context.colors.pageBg,
-      padding: fullBleed
-          ? const EdgeInsets.fromLTRB(0, 12, 0, 12)
-          : const EdgeInsets.fromLTRB(18, 12, 18, 12),
-      child: Container(
-        height: 50,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF8E8),
-          borderRadius: BorderRadius.circular(fullBleed ? 0 : 12),
-          border: Border.all(color: const Color(0xFFFFD88A)),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyles.captionSmall.copyWith(
-            color: const Color(0xFF9A5B00),
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
     );
   }
 }

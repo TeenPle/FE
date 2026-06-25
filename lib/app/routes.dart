@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/config/feature_flags.dart';
 import '../core/storage/token_storage.dart';
 import '../core/widgets/app_snack_bar.dart';
 import '../features/admin/pages/admin_home_page.dart';
@@ -404,7 +405,11 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.adminAds,
-      redirect: _adminOnly,
+      redirect: (context, state) async {
+        final adminRedirect = await _adminOnly(context, state);
+        if (adminRedirect != null) return adminRedirect;
+        return adsEnabled ? null : AppRoutes.adminHome;
+      },
       builder: (context, state) => const AdminAdPage(),
     ),
     GoRoute(

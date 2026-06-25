@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/feature_flags.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../auth/provider/login_provider.dart';
@@ -158,13 +159,14 @@ class _AdminHomePageState extends ConsumerState<AdminHomePage> {
                           color: const Color(0xFF1477F8),
                           onTap: () => context.push(AppRoutes.adminSchools),
                         ),
-                        _QuickActionTile(
-                          icon: Icons.campaign_outlined,
-                          title: '광고 관리',
-                          subtitle: '앱 광고 배너 등록/수정',
-                          color: const Color(0xFF1477F8),
-                          onTap: () => context.push(AppRoutes.adminAds),
-                        ),
+                        if (adsEnabled)
+                          _QuickActionTile(
+                            icon: Icons.campaign_outlined,
+                            title: '광고 관리',
+                            subtitle: '앱 광고 배너 등록/수정',
+                            color: const Color(0xFF1477F8),
+                            onTap: () => context.push(AppRoutes.adminAds),
+                          ),
                         _QuickActionTile(
                           icon: Icons.receipt_long_outlined,
                           title: '감사 로그',

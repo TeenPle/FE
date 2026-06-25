@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/feature_flags.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/haptics.dart';
@@ -34,7 +35,6 @@ import '../../post/provider/post_detail_providers.dart';
 
 enum _HomeTab { feed, popular, boards }
 
-const bool _showSchoolMainAdTestSlot = true;
 const int _homeFeedFirstAdAfterPosts = 5;
 const String _seenPenaltyDialogKeysPrefsKey = 'seen_penalty_dialog_keys';
 const String _seenWarningDialogKeysPrefsKey = 'seen_warning_dialog_keys';
@@ -385,8 +385,7 @@ class _SchoolPageState extends ConsumerState<SchoolPage>
 
     final totalPostCount = hotPosts.length + feedPosts.length;
     final showAdSlot =
-        _showSchoolMainAdTestSlot &&
-        totalPostCount > _homeFeedFirstAdAfterPosts;
+        adsEnabled && totalPostCount > _homeFeedFirstAdAfterPosts;
     final adInsertIndex = _homeFeedFirstAdAfterPosts;
     final totalItemCount =
         totalPostCount + (showAdSlot ? 1 : 0) + 1; // +1 for footer

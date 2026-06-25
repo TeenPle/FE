@@ -1,17 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 인터넷 -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- 푸시 알림 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Android 9 이하에서 갤러리 저장용 -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-    <!-- Android 13+ 갤러리 이미지 접근 -->
     <uses-permission
         android:name="android.permission.READ_MEDIA_IMAGES"
         android:minSdkVersion="33" />
-    <!-- Android 12 이하 갤러리 접근 -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -20,7 +15,7 @@
         android:label="TeenPle"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="false">
 
         <activity
             android:name=".MainActivity"
@@ -32,49 +27,37 @@
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
 
-            <!-- Flutter UI 초기화 전 적용되는 기본 테마 -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Flutter 엔진 등록용 메타데이터 -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- AdMob 테스트 App ID. 운영 출시 전에는 실제 AdMob App ID로 교체해야 한다. -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
-
-        <!-- FCM 기본 알림 채널 (Android 8.0+): fcm_service.dart의 fcmChannelId와 일치해야 함 -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="teenple_default" />
 
-        <!-- FCM 기본 알림 아이콘: 상태바 small icon은 흰색 실루엣만 허용되므로
-             풀컬러 런처 아이콘 대신 단색 전용 아이콘을 사용한다 -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
 
-        <!-- FCM 기본 알림 강조색 (아이콘 틴트·앱 이름 색상) -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/notification_color" />
     </application>
 
-    <!-- 텍스트 처리 가능한 외부 앱 조회용 설정 -->
     <queries>
         <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
         </intent>
     </queries>
 </manifest>

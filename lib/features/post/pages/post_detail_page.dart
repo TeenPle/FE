@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/active_page_provider.dart';
+import '../../../core/config/feature_flags.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../models/post_detail.dart';
@@ -250,176 +251,186 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         children: [
           Expanded(
             child: state.isLoading && post == null
-          ? const Center(child: CircularProgressIndicator())
-          : post == null
-          ? Center(
-              child: Text(
-                state.errorMessage ?? '게시글을 불러오지 못했어요.',
-                style: AppTextStyles.bodyMedium.copyWith(color: c.textBody),
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: notifier.refresh,
-              child: ListView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 120),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: PostContentCard(post: post),
-                  ),
-                  if (post.poll != null) ...[
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: PollCard(
-                        poll: post.poll!,
-                        isSubmitting: state.isSubmittingReaction,
-                        onVote: notifier.votePoll,
+                ? const Center(child: CircularProgressIndicator())
+                : post == null
+                ? Center(
+                    child: Text(
+                      state.errorMessage ?? '게시글을 불러오지 못했어요.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: c.textBody,
                       ),
                     ),
-                  ],
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: PostActionBar(
-                      likeCount: post.likeCount,
-                      commentCount: state.comments.length,
-                      likedByMe: state.likedByMe,
-                      bookmarkedByMe: state.bookmarkedByMe,
-                      onBookmarkTap: () => notifier.toggleBookmark(),
-                      onLikeTap: () {
-                        if (isPenalized) {
-                          showAppSnackBar('제재 중에는 공감할 수 없어요.');
-                          return;
-                        }
-                        notifier.toggleLike();
-                      },
-                      onShareTap: () {},
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const SchoolMainAdCard(
-                    fullBleed: true,
-                    placement: 'POST_DETAIL',
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _CommentSectionHeader(
-                      commentCount: state.comments.length,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: _buildCommentWidgets(
-                        comments: state.comments,
-                        replyingToCommentId: state.replyingToCommentId,
-                        onReplyTap: (commentId, isReply) {
-                          if (isPenalized) {
-                            showAppSnackBar('제재 중에는 댓글을 작성할 수 없어요.');
-                            return;
-                          }
-                          notifier.startReply(commentId, isReply: isReply);
-                          _scrollReplyTargetIntoView(commentId);
-                        },
-                        onCommentLikeTap: (commentId) {
-                          if (isPenalized) {
-                            showAppSnackBar('제재 중에는 공감할 수 없어요.');
-                            return;
-                          }
-                          notifier.likeComment(commentId);
-                        },
-                        likedCommentIds: state.likedCommentIds,
-                        onCommentChatTap: (comment) async {
-                          if (isPenalized) {
-                            showAppSnackBar('제재 중에는 채팅을 시작할 수 없어요.');
-                            return;
-                          }
-                          if (comment.isMine) {
-                            showAppSnackBar('자신의 댓글에는 채팅할 수 없어요.');
-                            return;
-                          }
-                          if (!comment.canChatWithAuthor ||
-                              comment.authorUserId == null) {
-                            return;
-                          }
-                          await _startChat(
-                            context: context,
-                            ref: ref,
-                            otherUserId: comment.authorUserId!,
-                            post: post,
-                          );
-                        },
-                        onCommentReportTap: (commentId) {
-                          _showReportSheet(
-                            context,
-                            onSubmit: (reason) {
-                              notifier.reportComment(commentId, reason);
-                            },
-                          );
-                        },
-                        onCommentEditTap: (comment) {
-                          if (isPenalized) {
-                            showAppSnackBar('제재 중에는 댓글을 수정할 수 없어요.');
-                            return;
-                          }
-                          _showEditCommentDialog(
-                            context,
-                            initialContent: comment.content,
-                            initialAnonymous: comment.anonymous,
-                            onSubmit: (content, anonymous) {
-                              notifier.updateComment(
-                                commentId: comment.commentId,
-                                content: content,
-                                anonymous: anonymous,
-                              );
-                            },
-                          );
-                        },
-                        onCommentDeleteTap: (commentId) async {
-                          final confirmed = await _showDeleteConfirmDialog(
-                            context,
-                            title: '댓글을 삭제할까요?',
-                            description: '삭제한 댓글은 되돌릴 수 없습니다.',
-                          );
-
-                          if (confirmed == true) {
-                            await notifier.deleteComment(commentId);
-                          }
-                        },
-                        onCommentBlockTap: (authorUserId) async {
-                          final confirmed = await _showBlockConfirmDialog(
-                            context,
-                          );
-                          if (confirmed == true && mounted) {
-                            try {
-                              await ref
-                                  .read(blockActionProvider)
-                                  .block(authorUserId);
-                              if (mounted) {
-                                showAppSnackBar('해당 사용자를 차단했어요.');
-                                await notifier.loadPostDetail();
+                  )
+                : RefreshIndicator(
+                    onRefresh: notifier.refresh,
+                    child: ListView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 120),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: PostContentCard(post: post),
+                        ),
+                        if (post.poll != null) ...[
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: PollCard(
+                              poll: post.poll!,
+                              isSubmitting: state.isSubmittingReaction,
+                              onVote: notifier.votePoll,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: PostActionBar(
+                            likeCount: post.likeCount,
+                            commentCount: state.comments.length,
+                            likedByMe: state.likedByMe,
+                            bookmarkedByMe: state.bookmarkedByMe,
+                            onBookmarkTap: () => notifier.toggleBookmark(),
+                            onLikeTap: () {
+                              if (isPenalized) {
+                                showAppSnackBar('제재 중에는 공감할 수 없어요.');
+                                return;
                               }
-                            } catch (_) {
-                              if (mounted) {
-                                showAppSnackBar(
-                                  '차단 처리에 실패했어요.',
-                                  backgroundColor: const Color(0xFFE05C7B),
+                              notifier.toggleLike();
+                            },
+                            onShareTap: () {},
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        if (adsEnabled) ...[
+                          const SchoolMainAdCard(
+                            fullBleed: true,
+                            placement: 'POST_DETAIL',
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: _CommentSectionHeader(
+                            commentCount: state.comments.length,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: _buildCommentWidgets(
+                              comments: state.comments,
+                              replyingToCommentId: state.replyingToCommentId,
+                              onReplyTap: (commentId, isReply) {
+                                if (isPenalized) {
+                                  showAppSnackBar('제재 중에는 댓글을 작성할 수 없어요.');
+                                  return;
+                                }
+                                notifier.startReply(
+                                  commentId,
+                                  isReply: isReply,
                                 );
-                              }
-                            }
-                          }
-                        },
-                      ),
+                                _scrollReplyTargetIntoView(commentId);
+                              },
+                              onCommentLikeTap: (commentId) {
+                                if (isPenalized) {
+                                  showAppSnackBar('제재 중에는 공감할 수 없어요.');
+                                  return;
+                                }
+                                notifier.likeComment(commentId);
+                              },
+                              likedCommentIds: state.likedCommentIds,
+                              onCommentChatTap: (comment) async {
+                                if (isPenalized) {
+                                  showAppSnackBar('제재 중에는 채팅을 시작할 수 없어요.');
+                                  return;
+                                }
+                                if (comment.isMine) {
+                                  showAppSnackBar('자신의 댓글에는 채팅할 수 없어요.');
+                                  return;
+                                }
+                                if (!comment.canChatWithAuthor ||
+                                    comment.authorUserId == null) {
+                                  return;
+                                }
+                                await _startChat(
+                                  context: context,
+                                  ref: ref,
+                                  otherUserId: comment.authorUserId!,
+                                  post: post,
+                                );
+                              },
+                              onCommentReportTap: (commentId) {
+                                _showReportSheet(
+                                  context,
+                                  onSubmit: (reason) {
+                                    notifier.reportComment(commentId, reason);
+                                  },
+                                );
+                              },
+                              onCommentEditTap: (comment) {
+                                if (isPenalized) {
+                                  showAppSnackBar('제재 중에는 댓글을 수정할 수 없어요.');
+                                  return;
+                                }
+                                _showEditCommentDialog(
+                                  context,
+                                  initialContent: comment.content,
+                                  initialAnonymous: comment.anonymous,
+                                  onSubmit: (content, anonymous) {
+                                    notifier.updateComment(
+                                      commentId: comment.commentId,
+                                      content: content,
+                                      anonymous: anonymous,
+                                    );
+                                  },
+                                );
+                              },
+                              onCommentDeleteTap: (commentId) async {
+                                final confirmed =
+                                    await _showDeleteConfirmDialog(
+                                      context,
+                                      title: '댓글을 삭제할까요?',
+                                      description: '삭제한 댓글은 되돌릴 수 없습니다.',
+                                    );
+
+                                if (confirmed == true) {
+                                  await notifier.deleteComment(commentId);
+                                }
+                              },
+                              onCommentBlockTap: (authorUserId) async {
+                                final confirmed = await _showBlockConfirmDialog(
+                                  context,
+                                );
+                                if (confirmed == true && mounted) {
+                                  try {
+                                    await ref
+                                        .read(blockActionProvider)
+                                        .block(authorUserId);
+                                    if (mounted) {
+                                      showAppSnackBar('해당 사용자를 차단했어요.');
+                                      await notifier.loadPostDetail();
+                                    }
+                                  } catch (_) {
+                                    if (mounted) {
+                                      showAppSnackBar(
+                                        '차단 처리에 실패했어요.',
+                                        backgroundColor: const Color(
+                                          0xFFE05C7B,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
           ),
           if (!isPenalized)
             CommentInputBar(

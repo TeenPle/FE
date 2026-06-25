@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/feature_flags.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../../features/ad/models/ad_banner_model.dart';
@@ -23,6 +24,8 @@ class SchoolMainAdCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!adsEnabled) return const SizedBox.shrink();
+
     final adState = ref.watch(activeAdProvider(placement));
 
     // 광고는 운영 데이터에 의존하므로 실패하거나 등록된 광고가 없으면 지면을 접는다.

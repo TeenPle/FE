@@ -371,6 +371,9 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                 );
                               },
                               onCommentEditTap: (comment) {
+                                if (!commentEditingEnabled) {
+                                  return;
+                                }
                                 if (isPenalized) {
                                   showAppSnackBar('제재 중에는 댓글을 수정할 수 없어요.');
                                   return;
@@ -500,7 +503,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               onReplyLikeTap: onCommentLikeTap,
               onChatTap: onCommentChatTap,
               onReportTap: onCommentReportTap,
-              onEditTap: onCommentEditTap,
+              onEditTap: commentEditingEnabled ? onCommentEditTap : null,
               onDeleteTap: onCommentDeleteTap,
               onBlockTap: onCommentBlockTap,
             ),

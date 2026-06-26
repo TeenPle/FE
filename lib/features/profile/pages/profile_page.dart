@@ -9,11 +9,13 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/config/web_links.dart';
 import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../../core/utils/external_links.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../../features/auth/provider/login_provider.dart';
@@ -643,7 +645,7 @@ class _SettingsSection extends ConsumerWidget {
             _ProfileSettingsTile(
               icon: Icons.support_agent_rounded,
               label: '문의하기',
-              onTap: () => context.push(AppRoutes.inquiries),
+              onTap: () => context.push(AppRoutes.myInquiries),
             ),
             const _ProfileSettingsDivider(),
             _ProfileSettingsTile(
@@ -971,13 +973,13 @@ class _ProfileAppInfoCardState extends State<_ProfileAppInfoCard> {
         _ProfileSettingsTile(
           icon: Icons.description_outlined,
           label: '이용약관',
-          onTap: () => context.push(AppRoutes.terms),
+          onTap: () => openExternalLink(context, teenpleTermsUrl),
         ),
         const _ProfileSettingsDivider(),
         _ProfileSettingsTile(
           icon: Icons.privacy_tip_outlined,
           label: '개인정보처리방침',
-          onTap: () => context.push(AppRoutes.privacyPolicy),
+          onTap: () => openExternalLink(context, teenplePrivacyPolicyUrl),
         ),
       ],
     );

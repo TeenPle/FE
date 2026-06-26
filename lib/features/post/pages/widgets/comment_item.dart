@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
+import '../../../../core/config/feature_flags.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/time_format.dart';
@@ -279,10 +280,11 @@ class _CommentBody extends StatelessWidget {
                     },
                     itemBuilder: (context) => [
                       if (isMyComment) ...[
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: _CompactMenuText('수정하기'),
-                        ),
+                        if (commentEditingEnabled)
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: _CompactMenuText('수정하기'),
+                          ),
                         const PopupMenuItem(
                           value: 'delete',
                           child: _CompactMenuText('삭제하기'),

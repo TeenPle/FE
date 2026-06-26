@@ -1,0 +1,396 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'auth_bottom_action_area.dart';
+import '../../../app/routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../provider/signup_form_provider.dart';
+import '../provider/signup_secret_store.dart';
+
+/// 회원가입 6단계 비밀번호 설정 페이지
+class SignupPasswordPage extends ConsumerStatefulWidget {
+  const SignupPasswordPage({super.key});
+
+  @override
+  ConsumerState<SignupPasswordPage> createState() => _SignupPasswordPageState();
+}
+
+class _SignupPasswordPageState extends ConsumerState<SignupPasswordPage> {
+  /// 비밀번호 입력 컨트롤러
+  late final TextEditingController _passwordController;
+
+  /// 비밀번호 재입력 컨트롤러
+  late final TextEditingController _passwordConfirmController;
+
+  /// 비밀번호 표시 여부
+  bool _obscurePassword = true;
+
+  /// 비밀번호 재입력 표시 여부
+  bool _obscurePasswordConfirm = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// 비밀번호는 Riverpod State에 올리지 않고 전용 임시 저장소에서만 복원한다.
+    _passwordController = TextEditingController(
+      text: SignupSecretStore.password,
+    );
+    _passwordConfirmController = TextEditingController(
+      text: SignupSecretStore.passwordConfirm,
+    );
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    _passwordConfirmController.dispose();
+    super.dispose();
+  }
+
+  /// 비밀번호 유효성 검사
+  ///
+  /// 백엔드 규칙과 동일하게 맞춤
+  /// - 8~20자
+  /// - 영문 1개 이상
+  /// - 숫자 1개 이상
+  /// - 특수문자 1개 이상
+  /// - 허용 특수문자: @$!%*#?&
+  bool _isValidPassword(String value) {
+    final regex = RegExp(
+      r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$',
+    );
+    return regex.hasMatch(value);
+  }
+
+  /// 공통 입력창 스타일
+  InputDecoration _inputDecoration(
+    BuildContext context, {
+    required String hintText,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    final c = context.colors;
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: AppTextStyles.captionLarge.copyWith(color: c.textHint),
+      filled: true,
+      fillColor: c.inputBg,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: context.colors.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: context.colors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Color(0xFF4A67F2), width: 1.3),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    /// 회원가입 전체 상태
+    final signupFormState = ref.watch(signupFormProvider);
+
+    /// 현재 입력값
+    final password = _passwordController.text;
+    final passwordConfirm = _passwordConfirmController.text;
+
+    /// 비밀번호 규칙 통과 여부
+    final isPasswordValid = _isValidPassword(password);
+
+    /// 비밀번호 재입력 일치 여부
+    final isPasswordConfirmValid =
+        passwordConfirm.isNotEmpty && password == passwordConfirm;
+
+    /// 다음 버튼 활성화 조건
+    final canProceed = isPasswordValid && isPasswordConfirmValid;
+
+    return AuthStepLayout(
+      /// 키보드가 올라와도 비밀번호 확인란과 버튼이 본문 아래에 보이도록 인라인 배치
+      inlineBottom: true,
+      bottom: SizedBox(
+        height: 54,
+        child: ElevatedButton(
+          onPressed: canProceed
+              ? () {
+                  SignupSecretStore.savePassword(
+                    password: password,
+                    passwordConfirm: passwordConfirm,
+                  );
+
+                  /// 다음 단계인 전화번호 입력 페이지로 이동
+                  context.push(AppRoutes.signupPhone);
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A67F2),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: Text('다음', style: AppTextStyles.titleSmall),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 상단 뒤로가기 버튼
+          IconButton(
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              }
+            },
+            icon: Icon(Icons.arrow_back_ios_new_rounded),
+            padding: EdgeInsets.zero,
+            alignment: Alignment.centerLeft,
+            splashRadius: 22,
+          ),
+
+          SizedBox(height: 8),
+
+          /// 단계 표시
+          Text(
+            '6/8',
+            style: AppTextStyles.labelSmall.copyWith(
+              color: context.colors.textTertiary,
+            ),
+          ),
+
+          SizedBox(height: 14),
+
+          /// 페이지 성격 안내
+          Text(
+            '보안 설정',
+            style: AppTextStyles.labelSmall.copyWith(color: Color(0xFF4A67F2)),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 제목
+          Text(
+            '거의 다 왔어요!\n비밀번호를 설정해주세요',
+            style: AppTextStyles.displayLarge.copyWith(
+              height: 1.22,
+              letterSpacing: -0.6,
+              color: context.colors.textPrimary,
+            ),
+          ),
+
+          SizedBox(height: 10),
+
+          /// 보조 문구
+          Text(
+            'TeenPle에서 사용할 비밀번호를 입력해 주세요.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              height: 1.5,
+              color: context.colors.textBody,
+            ),
+          ),
+
+          SizedBox(height: 28),
+
+          /// 가입 이메일 라벨
+          Text(
+            '가입 이메일',
+            style: AppTextStyles.labelSmall.copyWith(
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 이메일 표시 박스
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: context.colors.cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: context.colors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.mail_outline_rounded,
+                  size: 18,
+                  color: context.colors.iconSecondary,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    signupFormState.email.isEmpty
+                        ? '이메일 정보가 없어요.'
+                        : signupFormState.email,
+                    style: signupFormState.email.isEmpty
+                        ? AppTextStyles.captionLarge.copyWith(
+                            color: context.colors.textTertiary,
+                          )
+                        : AppTextStyles.labelMedium.copyWith(
+                            color: context.colors.textPrimary,
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 24),
+
+          /// 비밀번호 라벨
+          Text(
+            '비밀번호',
+            style: AppTextStyles.labelSmall.copyWith(
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 비밀번호 입력창
+          TextField(
+            controller: _passwordController,
+            obscureText: _obscurePassword,
+            keyboardType: TextInputType.visiblePassword,
+            autocorrect: false,
+            enableSuggestions: false,
+
+            /// 포커스 시 아래의 비밀번호 확인란과 다음 버튼까지 함께 보이도록 여유 확보
+            scrollPadding: const EdgeInsets.only(bottom: 240),
+            onChanged: (value) {
+              setState(() {});
+            },
+            decoration: _inputDecoration(
+              context,
+              hintText: '비밀번호를 입력해주세요',
+              prefixIcon: Icon(
+                Icons.lock_outline_rounded,
+                color: context.colors.iconSecondary,
+              ),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: context.colors.iconSecondary,
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 비밀번호 안내/에러 메시지
+          if (password.isEmpty)
+            Text(
+              '영문, 숫자, 특수문자(@\$!%*#?&)를 포함해 8~20자로 입력해주세요.',
+              style: AppTextStyles.captionSmall.copyWith(
+                color: context.colors.textMuted,
+              ),
+            )
+          else if (!isPasswordValid)
+            Text(
+              '비밀번호는 영문, 숫자, 특수문자(@\$!%*#?&)를 포함한 8~20자여야 해요.',
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
+            )
+          else
+            Text(
+              '사용 가능한 비밀번호 형식이에요.',
+              style: AppTextStyles.captionSmall.copyWith(
+                color: Color(0xFF4A67F2),
+              ),
+            ),
+
+          SizedBox(height: 20),
+
+          /// 비밀번호 확인 라벨
+          Text(
+            '비밀번호 확인',
+            style: AppTextStyles.labelSmall.copyWith(
+              color: context.colors.textMuted,
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 비밀번호 재입력 입력창
+          TextField(
+            controller: _passwordConfirmController,
+            obscureText: _obscurePasswordConfirm,
+            keyboardType: TextInputType.visiblePassword,
+            autocorrect: false,
+            enableSuggestions: false,
+
+            /// 포커스 시 일치 여부 메시지와 다음 버튼까지 함께 보이도록 여유 확보
+            scrollPadding: const EdgeInsets.only(bottom: 150),
+            onChanged: (value) {
+              setState(() {});
+            },
+            decoration: _inputDecoration(
+              context,
+              hintText: '비밀번호를 다시 입력해주세요',
+              prefixIcon: Icon(
+                Icons.lock_outline_rounded,
+                color: context.colors.iconSecondary,
+              ),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscurePasswordConfirm = !_obscurePasswordConfirm;
+                  });
+                },
+                icon: Icon(
+                  _obscurePasswordConfirm
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: context.colors.iconSecondary,
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(height: 8),
+
+          /// 비밀번호 재입력 안내/에러 메시지
+          if (passwordConfirm.isNotEmpty && password != passwordConfirm)
+            Text(
+              '비밀번호가 일치하지 않아요.',
+              style: AppTextStyles.captionSmall.copyWith(color: Colors.red),
+            )
+          else if (passwordConfirm.isNotEmpty &&
+              password == passwordConfirm &&
+              isPasswordValid)
+            Text(
+              '비밀번호가 일치해요.',
+              style: AppTextStyles.captionSmall.copyWith(
+                color: Color(0xFF4A67F2),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

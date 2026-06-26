@@ -1,8 +1,5 @@
 /// 게시글 목록 정렬 타입
-enum PostSortType {
-  latest,
-  popular,
-}
+enum PostSortType { latest, popular }
 
 extension PostSortTypeX on PostSortType {
   /// UI에 표시할 한글 라벨

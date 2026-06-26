@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/network/api_exception.dart';
 import '../api/post_repository.dart';
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
-import '../models/post_detail.dart';
 import '../models/update_comment_request.dart';
 import '../models/update_post_request.dart';
 import 'post_detail_state.dart';
@@ -12,10 +12,8 @@ import 'post_detail_state.dart';
 class PostDetailNotifier extends StateNotifier<PostDetailState> {
   final PostRepository repository;
 
-  PostDetailNotifier({
-    required int postId,
-    required this.repository,
-  }) : super(PostDetailState.initial(postId));
+  PostDetailNotifier({required int postId, required this.repository})
+    : super(PostDetailState.initial(postId));
 
   /// 게시글 상세 데이터를 조회
   Future<void> loadPostDetail({bool isRefresh = false}) async {
@@ -34,12 +32,14 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         comments: post.comments,
         isLoading: false,
         isRefreshing: false,
+        bookmarkedByMe: post.isBookmarked,
+        likedByMe: post.likedByMe,
       );
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
         isRefreshing: false,
-        errorMessage: '게시글을 불러오지 못했습니다.',
+        errorMessage: '게시글을 불러오지 못했어요.',
       );
     }
   }
@@ -63,17 +63,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       final result = await repository.applyPostLike(state.postId);
       final currentPost = state.post!;
 
-      final updatedPost = PostDetail(
-        postId: currentPost.postId,
-        title: currentPost.title,
-        content: currentPost.content,
-        viewCount: currentPost.viewCount,
-        anonymous: currentPost.anonymous,
+      final updatedPost = currentPost.copyWith(
         likeCount: result.likeCount,
         dislikeCount: result.dislikeCount,
-        postStatus: currentPost.postStatus,
-        username: currentPost.username,
-        createdAt: currentPost.createdAt,
+        likedByMe: result.liked,
+        dislikedByMe: result.disliked,
         comments: state.comments,
       );
 
@@ -85,7 +79,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     } catch (_) {
       state = state.copyWith(
         isSubmittingReaction: false,
-        errorMessage: '공감 처리에 실패했습니다.',
+        errorMessage: '공감 처리에 실패했어요.',
       );
     }
   }
@@ -108,42 +102,47 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
         return CommentModel(
           commentId: comment.commentId,
+          authorUserId: comment.authorUserId,
+          isMine: comment.isMine,
+          isPostAuthor: comment.isPostAuthor,
+          authorDeleted: comment.authorDeleted,
+          canChatWithAuthor: comment.canChatWithAuthor,
+          canReportAuthor: comment.canReportAuthor,
+          canBlockAuthor: comment.canBlockAuthor,
+          commentStatus: comment.commentStatus,
           content: comment.content,
           author: comment.author,
+          authorProfileImageUrl: comment.authorProfileImageUrl,
           likeCount: result.likeCount,
           dislikeCount: result.dislikeCount,
+          likedByMe: result.liked,
           anonymous: comment.anonymous,
           depth: comment.depth,
           parentId: comment.parentId,
           createdAt: comment.createdAt,
+          createdAtMs: comment.createdAtMs,
         );
       }).toList();
+
+      final updatedLikedCommentIds = Set<int>.from(state.likedCommentIds);
+      if (result.liked) {
+        updatedLikedCommentIds.add(commentId);
+      } else {
+        updatedLikedCommentIds.remove(commentId);
+      }
 
       final currentPost = state.post;
 
       state = state.copyWith(
         comments: updatedComments,
-        post: currentPost == null
-            ? null
-            : PostDetail(
-          postId: currentPost.postId,
-          title: currentPost.title,
-          content: currentPost.content,
-          viewCount: currentPost.viewCount,
-          anonymous: currentPost.anonymous,
-          likeCount: currentPost.likeCount,
-          dislikeCount: currentPost.dislikeCount,
-          postStatus: currentPost.postStatus,
-          username: currentPost.username,
-          createdAt: currentPost.createdAt,
-          comments: updatedComments,
-        ),
+        likedCommentIds: updatedLikedCommentIds,
+        post: currentPost?.copyWith(comments: updatedComments),
         isSubmittingReaction: false,
       );
     } catch (_) {
       state = state.copyWith(
         isSubmittingReaction: false,
-        errorMessage: '댓글 공감 처리에 실패했습니다.',
+        errorMessage: '댓글 공감 처리에 실패했어요.',
       );
     }
   }
@@ -153,9 +152,14 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     state = state.copyWith(commentAnonymous: value);
   }
 
-  /// 답글 작성 대상을 설정
+  /// 답글 작성 대상을 설정 (같은 댓글 재탭 시 취소)
   void startReply(int commentId, {required bool isReply}) {
     if (isReply) return;
+
+    if (state.replyingToCommentId == commentId) {
+      cancelReply();
+      return;
+    }
 
     state = state.copyWith(
       replyingToCommentId: commentId,
@@ -173,9 +177,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
   Future<void> submitComment(String content) async {
     if (content.trim().isEmpty || state.isSubmittingComment) return;
 
-    debugPrint('댓글 작성 대상 postId = ${state.postId}');
-    debugPrint('현재 보고 있는 post 제목 = ${state.post?.title}');
-
     state = state.copyWith(
       isSubmittingComment: true,
       clearError: true,
@@ -189,23 +190,19 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         parentId: state.replyingToCommentId,
       );
 
-
-      await repository.createComment(
-        postId: state.postId,
-        request: request,
-      );
+      await repository.createComment(postId: state.postId, request: request);
 
       await loadPostDetail();
 
       state = state.copyWith(
         isSubmittingComment: false,
         clearReplying: true,
-        successMessage: '댓글이 등록되었습니다.',
+        successMessage: '댓글을 등록했어요.',
       );
     } catch (_) {
       state = state.copyWith(
         isSubmittingComment: false,
-        errorMessage: '댓글 작성에 실패했습니다.',
+        errorMessage: '댓글 작성에 실패했어요.',
       );
     }
   }
@@ -223,15 +220,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.reportPost(state.postId, reportReason);
 
-      state = state.copyWith(
-        isReporting: false,
-        successMessage: '게시글을 신고했습니다.',
-      );
-    } catch (_) {
-      state = state.copyWith(
-        isReporting: false,
-        errorMessage: '게시글 신고에 실패했습니다.',
-      );
+      state = state.copyWith(isReporting: false, successMessage: '게시글을 신고했어요.');
+    } catch (e, st) {
+      if (kDebugMode) debugPrint('reportPost error: $e\n$st');
+      final message = e is ApiException ? e.message : '게시글 신고에 실패했어요.';
+      state = state.copyWith(isReporting: false, errorMessage: message);
     }
   }
 
@@ -248,15 +241,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.reportComment(commentId, reportReason);
 
-      state = state.copyWith(
-        isReporting: false,
-        successMessage: '댓글을 신고했습니다.',
-      );
-    } catch (_) {
-      state = state.copyWith(
-        isReporting: false,
-        errorMessage: '댓글 신고에 실패했습니다.',
-      );
+      state = state.copyWith(isReporting: false, successMessage: '댓글을 신고했어요.');
+    } catch (e, st) {
+      if (kDebugMode) debugPrint('reportComment error: $e\n$st');
+      final message = e is ApiException ? e.message : '댓글 신고에 실패했어요.';
+      state = state.copyWith(isReporting: false, errorMessage: message);
     }
   }
 
@@ -286,15 +275,9 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       await loadPostDetail();
 
-      state = state.copyWith(
-        isUpdating: false,
-        successMessage: '게시글이 수정되었습니다.',
-      );
+      state = state.copyWith(isUpdating: false, successMessage: '게시글을 수정했어요.');
     } catch (_) {
-      state = state.copyWith(
-        isUpdating: false,
-        errorMessage: '게시글 수정에 실패했습니다.',
-      );
+      state = state.copyWith(isUpdating: false, errorMessage: '게시글 수정에 실패했어요.');
     }
   }
 
@@ -313,14 +296,11 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
       state = state.copyWith(
         isDeleting: false,
-        successMessage: '게시글이 삭제되었습니다.',
+        successMessage: '게시글을 삭제했어요.',
         shouldClosePage: true,
       );
     } catch (_) {
-      state = state.copyWith(
-        isDeleting: false,
-        errorMessage: '게시글 삭제에 실패했습니다.',
-      );
+      state = state.copyWith(isDeleting: false, errorMessage: '게시글 삭제에 실패했어요.');
     }
   }
 
@@ -341,23 +321,14 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.updateComment(
         commentId: commentId,
-        request: UpdateCommentRequest(
-          content: content,
-          anonymous: anonymous,
-        ),
+        request: UpdateCommentRequest(content: content, anonymous: anonymous),
       );
 
       await loadPostDetail();
 
-      state = state.copyWith(
-        isUpdating: false,
-        successMessage: '댓글이 수정되었습니다.',
-      );
+      state = state.copyWith(isUpdating: false, successMessage: '댓글을 수정했어요.');
     } catch (_) {
-      state = state.copyWith(
-        isUpdating: false,
-        errorMessage: '댓글 수정에 실패했습니다.',
-      );
+      state = state.copyWith(isUpdating: false, errorMessage: '댓글 수정에 실패했어요.');
     }
   }
 
@@ -375,28 +346,70 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       await repository.deleteComment(commentId);
       await loadPostDetail();
 
-      state = state.copyWith(
-        isDeleting: false,
-        successMessage: '댓글이 삭제되었습니다.',
-      );
+      state = state.copyWith(isDeleting: false, successMessage: '댓글을 삭제했어요.');
     } catch (_) {
-      state = state.copyWith(
-        isDeleting: false,
-        errorMessage: '댓글 삭제에 실패했습니다.',
-      );
+      state = state.copyWith(isDeleting: false, errorMessage: '댓글 삭제에 실패했어요.');
     }
   }
 
   /// 에러/성공 메시지를 초기화
   void clearMessages() {
-    state = state.copyWith(
-      clearError: true,
-      clearSuccess: true,
-    );
+    state = state.copyWith(clearError: true, clearSuccess: true);
   }
 
   /// 페이지 종료 플래그를 해제
   void clearClosePageFlag() {
     state = state.copyWith(shouldClosePage: false);
+  }
+
+  /// 북마크 토글
+  Future<void> toggleBookmark() async {
+    if (state.post == null || state.isBookmarking) return;
+
+    state = state.copyWith(
+      isBookmarking: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      final bookmarked = await repository.toggleBookmark(state.postId);
+      state = state.copyWith(
+        bookmarkedByMe: bookmarked,
+        isBookmarking: false,
+        successMessage: bookmarked ? '북마크에 추가했어요.' : '북마크를 해제했어요.',
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isBookmarking: false,
+        errorMessage: '북마크 처리에 실패했어요.',
+      );
+    }
+  }
+
+  Future<void> votePoll(int optionId) async {
+    if (state.post == null || state.isSubmittingReaction) return;
+
+    state = state.copyWith(
+      isSubmittingReaction: true,
+      clearError: true,
+      clearSuccess: true,
+    );
+
+    try {
+      final poll = await repository.votePoll(
+        postId: state.postId,
+        optionId: optionId,
+      );
+      state = state.copyWith(
+        post: state.post!.copyWith(poll: poll),
+        isSubmittingReaction: false,
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isSubmittingReaction: false,
+        errorMessage: '투표 처리에 실패했어요.',
+      );
+    }
   }
 }

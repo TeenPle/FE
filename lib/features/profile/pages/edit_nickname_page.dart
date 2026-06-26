@@ -1,0 +1,229 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
+import '../provider/profile_provider.dart';
+
+class EditNicknamePage extends ConsumerStatefulWidget {
+  const EditNicknamePage({super.key});
+
+  @override
+  ConsumerState<EditNicknamePage> createState() => _EditNicknamePageState();
+}
+
+class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
+  late final TextEditingController _controller;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    final current = ref.read(profileProvider).profile?.nickname ?? '';
+    _controller = TextEditingController(text: current);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final nickname = _controller.text.trim();
+    if (nickname.isEmpty) return;
+
+    setState(() => _errorText = null);
+
+    final ok = await ref
+        .read(profileProvider.notifier)
+        .updateNickname(nickname);
+    if (ok && mounted) {
+      showAppSnackBar('닉네임이 변경됐어요.');
+      context.pop(true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isSaving = ref.watch(profileProvider).isSaving;
+
+    ref.listen(profileProvider, (prev, next) {
+      if (next.errorMessage != null &&
+          next.errorMessage != prev?.errorMessage) {
+        setState(() => _errorText = next.errorMessage);
+        ref.read(profileProvider.notifier).clearMessages();
+      }
+    });
+
+    final c = context.colors;
+    return Scaffold(
+      backgroundColor: c.pageBg,
+      appBar: AppBar(
+        backgroundColor: c.pageBg,
+        elevation: 0,
+        foregroundColor: c.textPrimary,
+        centerTitle: true,
+        title: Text(
+          '닉네임 변경',
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+        child: Builder(
+          builder: (context) {
+            final profile = ref.watch(profileProvider).profile;
+            final canChange = profile?.canChangeNickname ?? true;
+            final daysLeft = profile?.daysUntilNicknameChange ?? 0;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!canChange)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF8EC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFFDDA0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.access_time_rounded,
+                          size: 18,
+                          color: Color(0xFFE89C2F),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '닉네임은 30일에 한 번 변경할 수 있습니다.\n$daysLeft일 후에 다시 변경 가능합니다.',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 11,
+                              height: 1.5,
+                              color: Color(0xFF8A6200),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                Text(
+                  '새 닉네임',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: c.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _controller,
+                  autofocus: canChange,
+                  maxLength: 20,
+                  enabled: canChange,
+                  onChanged: (_) {
+                    if (_errorText != null) setState(() => _errorText = null);
+                  },
+                  decoration: InputDecoration(
+                    hintText: '2~20자로 입력해주세요',
+                    hintStyle: AppTextStyles.bodyMedium.copyWith(
+                      color: c.textHint,
+                    ),
+                    filled: true,
+                    fillColor: canChange ? c.cardBg : c.subtleBg,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    errorText: _errorText,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: c.borderStrong),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: _errorText != null
+                            ? const Color(0xFFE05C5C)
+                            : c.borderStrong,
+                      ),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: c.borderStrong),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: _errorText != null
+                            ? const Color(0xFFE05C5C)
+                            : const Color(0xFF14A3F7),
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE05C5C)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE05C5C)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: (isSaving || !canChange) ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF14A3F7),
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: const Color(0xFFD0D8E4),
+                      disabledForegroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isSaving
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            canChange ? '변경하기' : '$daysLeft일 후 변경 가능',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

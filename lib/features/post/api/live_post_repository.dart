@@ -1,6 +1,9 @@
+import 'package:dio/dio.dart';
+
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
 import '../models/post_detail.dart';
+import '../models/poll_model.dart';
 import '../models/reaction_request.dart';
 import '../models/reaction_response.dart';
 import '../models/report_request.dart';
@@ -13,9 +16,7 @@ import 'post_repository.dart';
 class LivePostRepository implements PostRepository {
   final PostApi api;
 
-  const LivePostRepository({
-    required this.api,
-  });
+  const LivePostRepository({required this.api});
 
   /// 게시글 상세 조회를 서버에 요청
   @override
@@ -29,10 +30,7 @@ class LivePostRepository implements PostRepository {
     required int postId,
     required CreateCommentRequest request,
   }) async {
-    await api.createComment(
-      postId: postId,
-      request: request,
-    );
+    await api.createComment(postId: postId, request: request);
   }
 
   /// 게시글 공감 요청을 서버에 전달
@@ -88,11 +86,9 @@ class LivePostRepository implements PostRepository {
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
+    List<MultipartFile> files = const [],
   }) {
-    return api.createPost(
-      boardId: boardId,
-      request: request,
-    );
+    return api.createPost(boardId: boardId, request: request, files: files);
   }
 
   /// 게시글 수정 요청을 서버에 전달
@@ -100,11 +96,9 @@ class LivePostRepository implements PostRepository {
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
+    List<MultipartFile> files = const [],
   }) {
-    return api.updatePost(
-      postId: postId,
-      request: request,
-    );
+    return api.updatePost(postId: postId, request: request, files: files);
   }
 
   /// 게시글 삭제 요청을 서버에 전달
@@ -119,15 +113,23 @@ class LivePostRepository implements PostRepository {
     required int commentId,
     required UpdateCommentRequest request,
   }) {
-    return api.updateComment(
-      commentId: commentId,
-      request: request,
-    );
+    return api.updateComment(commentId: commentId, request: request);
   }
 
   /// 댓글 삭제 요청을 서버에 전달
   @override
   Future<void> deleteComment(int commentId) {
     return api.deleteComment(commentId);
+  }
+
+  /// 북마크 토글 요청을 서버에 전달
+  @override
+  Future<bool> toggleBookmark(int postId) {
+    return api.toggleBookmark(postId);
+  }
+
+  @override
+  Future<PollModel> votePoll({required int postId, required int optionId}) {
+    return api.votePoll(postId: postId, optionId: optionId);
   }
 }

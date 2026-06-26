@@ -12,9 +12,9 @@ class ApiResponse<T> {
   });
 
   factory ApiResponse.fromJson(
-      Map<String, dynamic> json,
-      T Function(dynamic data) parser,
-      ) {
+    Map<String, dynamic> json,
+    T Function(dynamic data) parser,
+  ) {
     return ApiResponse<T>(
       isSuccess: json['isSuccess'] as bool? ?? false,
       code: json['code'] as String? ?? '',

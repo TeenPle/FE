@@ -12,6 +12,8 @@ class SearchState {
   final bool isLoadingMore;
   final bool isLoadingRecent;
   final bool hasSearched;
+  final int? boardId;
+  final String? scopeTitle;
   final String? errorMessage;
 
   const SearchState({
@@ -25,6 +27,8 @@ class SearchState {
     required this.isLoadingMore,
     required this.isLoadingRecent,
     required this.hasSearched,
+    required this.boardId,
+    required this.scopeTitle,
     required this.errorMessage,
   });
 
@@ -41,6 +45,8 @@ class SearchState {
       isLoadingMore: false,
       isLoadingRecent: false,
       hasSearched: false,
+      boardId: null,
+      scopeTitle: null,
       errorMessage: null,
     );
   }
@@ -57,6 +63,8 @@ class SearchState {
     bool? isLoadingMore,
     bool? isLoadingRecent,
     bool? hasSearched,
+    Object? boardId = _unset,
+    Object? scopeTitle = _unset,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -71,7 +79,13 @@ class SearchState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isLoadingRecent: isLoadingRecent ?? this.isLoadingRecent,
       hasSearched: hasSearched ?? this.hasSearched,
+      boardId: boardId == _unset ? this.boardId : boardId as int?,
+      scopeTitle: scopeTitle == _unset
+          ? this.scopeTitle
+          : scopeTitle as String?,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
+
+const Object _unset = Object();

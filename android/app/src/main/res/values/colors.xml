@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 알림 아이콘 강조색 (브랜드 블루) — FCM/로컬 알림 공통 -->
+    <color name="notification_color">#14A3F7</color>
+</resources>

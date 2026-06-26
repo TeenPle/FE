@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/theme/app_text_styles.dart';
+import '../../../core/theme/app_colors.dart';
+import '../pages/widgets/crisis_banner.dart';
 
 class CommentInputBar extends StatefulWidget {
   final bool anonymous;
@@ -24,132 +27,212 @@ class CommentInputBar extends StatefulWidget {
 
 class _CommentInputBarState extends State<CommentInputBar> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  static const int _maxLength = 500;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_handleTextChanged);
+  }
+
+  void _handleTextChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_handleTextChanged);
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant CommentInputBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final previousReplyId = oldWidget.replyingToCommentId;
+    final currentReplyId = widget.replyingToCommentId;
+
+    if (currentReplyId != null && currentReplyId != previousReplyId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _focusNode.requestFocus();
+      });
+      return;
+    }
+
+    if (previousReplyId != null && currentReplyId == null) {
+      _focusNode.unfocus();
+    }
+  }
+
+  int get _length => _controller.text.length;
+  bool get _isOverLimit => _length > _maxLength;
+  bool get _showCrisisBanner =>
+      CrisisBanner.containsCrisisKeyword(_controller.text);
 
   void _submit() {
     final text = _controller.text.trim();
-    if (text.isEmpty || widget.isSubmitting) return;
-
+    if (text.isEmpty || widget.isSubmitting || _isOverLimit) return;
     widget.onSubmit(text);
     _controller.clear();
+    _focusNode.unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        color: const Color(0xFFF7FAFC),
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
-        child: Column(
+    final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? const Color(0xFF6EA8D8) : const Color(0xFF14A3F7);
+    final media = MediaQuery.of(context);
+    final keyboard = media.viewInsets.bottom;
+    final safeBottom = media.viewPadding.bottom;
+    return ColoredBox(
+      color: c.pageBg,
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: keyboard > 0 ? keyboard : safeBottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            if (_showCrisisBanner) ...[
+              const CrisisBanner(),
+              const SizedBox(height: 8),
+            ],
             if (widget.replyingToCommentId != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF5FF),
+                  color: c.replyBg,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFCFEAFF)),
+                  border: Border.all(color: c.borderBlue),
                 ),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         '답글 작성 중',
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF14A3F7),
+                          color: accent,
                         ),
                       ),
                     ),
                     GestureDetector(
                       onTap: widget.onCancelReply,
-                      child: const Icon(
+                      child: Icon(
                         Icons.close_rounded,
                         size: 18,
-                        color: Color(0xFF555555),
+                        color: c.textMuted,
                       ),
                     ),
                   ],
                 ),
               ),
             Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: c.cardBg,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE6EDF3)),
+                border: Border.all(color: c.borderStrong),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () {
-                      widget.onAnonymousChanged(!widget.anonymous);
-                    },
+                    onTap: () => widget.onAnonymousChanged(!widget.anonymous),
                     borderRadius: BorderRadius.circular(999),
-                    child: Container(
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                        horizontal: 8,
+                        vertical: 6,
                       ),
-                      decoration: BoxDecoration(
-                        color: widget.anonymous
-                            ? const Color(0xFFEAF7FF)
-                            : const Color(0xFFF4F7FA),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        '익명',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: widget.anonymous
-                              ? const Color(0xFF14A3F7)
-                              : const Color(0xFF7D8790),
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            widget.anonymous
+                                ? Icons.check_circle_rounded
+                                : Icons.radio_button_unchecked_rounded,
+                            size: 15,
+                            color: widget.anonymous ? accent : c.textMuted,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '익명',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: widget.anonymous ? accent : c.textMuted,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: TextField(
                       controller: _controller,
+                      focusNode: _focusNode,
                       minLines: 1,
                       maxLines: 4,
-                      style: const TextStyle(
-                        color: Color(0xFF222222),
-                        fontSize: 15,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: _isOverLimit
+                            ? const Color(0xFFE05C5C)
+                            : c.textBody,
+                        fontSize: 13,
+                        height: 1.25,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '댓글을 입력하세요',
-                        hintStyle: TextStyle(
-                          color: Color(0xFF9AA7B2),
-                          fontSize: 15,
+                        hintStyle: AppTextStyles.bodyMedium.copyWith(
+                          color: c.textTertiary,
+                          fontSize: 13,
+                          height: 1.25,
                         ),
+                        filled: false,
+                        fillColor: Colors.transparent,
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
                         isCollapsed: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 6),
                   InkWell(
-                    onTap: widget.isSubmitting ? null : _submit,
+                    onTap: (widget.isSubmitting || _isOverLimit)
+                        ? null
+                        : _submit,
                     borderRadius: BorderRadius.circular(999),
                     child: Container(
-                      width: 40,
-                      height: 40,
+                      width: 34,
+                      height: 34,
                       decoration: BoxDecoration(
-                        color: widget.isSubmitting
-                            ? const Color(0xFFD9EAF7)
+                        color: (widget.isSubmitting || _isOverLimit)
+                            ? c.tintBg
                             : const Color(0xFF14A3F7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.arrow_upward_rounded,
                         color: Colors.white,
-                        size: 20,
+                        size: 18,
                       ),
                     ),
                   ),
@@ -157,6 +240,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

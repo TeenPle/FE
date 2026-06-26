@@ -1,121 +1,134 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'api_exception.dart';
-import 'token_provider.dart';
 
 class AppApiClient {
-  final String baseUrl;
-  final TokenProvider tokenProvider;
-  final http.Client _client;
+  final Dio _dio;
 
-  AppApiClient({
-    required this.baseUrl,
-    required this.tokenProvider,
-    http.Client? client,
-  }) : _client = client ?? http.Client();
+  AppApiClient(this._dio);
 
   Future<Map<String, dynamic>> get(
-      String path, {
-        Map<String, String>? queryParameters,
-      }) async {
-    final uri = Uri.parse('$baseUrl$path').replace(
-      queryParameters: queryParameters,
-    );
-
-    final response = await _client.get(
-      uri,
-      headers: await _headers(),
-    );
-
-    return _decodeResponse(response);
-  }
+    String path, {
+    Map<String, String>? queryParameters,
+  }) =>
+      _execute(() => _dio.get<dynamic>(path, queryParameters: queryParameters));
 
   Future<Map<String, dynamic>> post(
-      String path, {
-        Object? body,
-        Map<String, String>? queryParameters,
-      }) async {
-    final uri = Uri.parse('$baseUrl$path').replace(
-      queryParameters: queryParameters,
-    );
-
-    final response = await _client.post(
-      uri,
-      headers: await _headers(),
-      body: body == null ? null : jsonEncode(body),
-    );
-
-    return _decodeResponse(response);
-  }
+    String path, {
+    Object? body,
+    Map<String, String>? queryParameters,
+  }) => _execute(
+    () =>
+        _dio.post<dynamic>(path, data: body, queryParameters: queryParameters),
+  );
 
   Future<Map<String, dynamic>> patch(
-      String path, {
-        Object? body,
-        Map<String, String>? queryParameters,
-      }) async {
-    final uri = Uri.parse('$baseUrl$path').replace(
-      queryParameters: queryParameters,
-    );
+    String path, {
+    Object? body,
+    Map<String, String>? queryParameters,
+  }) => _execute(
+    () =>
+        _dio.patch<dynamic>(path, data: body, queryParameters: queryParameters),
+  );
 
-    final response = await _client.patch(
-      uri,
-      headers: await _headers(),
-      body: body == null ? null : jsonEncode(body),
+  Future<Map<String, dynamic>> postMultipart(
+    String path, {
+    required Object jsonBody,
+    List<MultipartFile> files = const [],
+  }) {
+    final formData = FormData();
+    formData.files.add(
+      MapEntry(
+        'data',
+        MultipartFile.fromString(
+          jsonEncode(jsonBody),
+          contentType: MediaType('application', 'json'),
+        ),
+      ),
     );
+    for (final file in files) {
+      formData.files.add(MapEntry('files', file));
+    }
+    return _execute(() => _dio.post<dynamic>(path, data: formData));
+  }
 
-    return _decodeResponse(response);
+  Future<Map<String, dynamic>> patchMultipart(
+    String path, {
+    required Object jsonBody,
+    List<MultipartFile> files = const [],
+  }) {
+    final formData = FormData();
+    formData.files.add(
+      MapEntry(
+        'data',
+        MultipartFile.fromString(
+          jsonEncode(jsonBody),
+          contentType: MediaType('application', 'json'),
+        ),
+      ),
+    );
+    for (final file in files) {
+      formData.files.add(MapEntry('files', file));
+    }
+    return _execute(() => _dio.patch<dynamic>(path, data: formData));
   }
 
   Future<Map<String, dynamic>> delete(
-      String path, {
-        Object? body,
-        Map<String, String>? queryParameters,
-      }) async {
-    final uri = Uri.parse('$baseUrl$path').replace(
+    String path, {
+    Object? body,
+    Map<String, String>? queryParameters,
+  }) => _execute(
+    () => _dio.delete<dynamic>(
+      path,
+      data: body,
       queryParameters: queryParameters,
-    );
+    ),
+  );
 
-    final request = http.Request('DELETE', uri);
-    request.headers.addAll(await _headers());
-    if (body != null) {
-      request.body = jsonEncode(body);
-    }
-
-    final streamed = await _client.send(request);
-    final response = await http.Response.fromStream(streamed);
-
-    return _decodeResponse(response);
+  Future<Map<String, dynamic>> patchMultipartFile(
+    String path, {
+    required MultipartFile file,
+    String fieldName = 'file',
+  }) {
+    final formData = FormData();
+    formData.files.add(MapEntry(fieldName, file));
+    return _execute(() => _dio.patch<dynamic>(path, data: formData));
   }
 
-  Future<Map<String, String>> _headers() async {
-    final token = await tokenProvider.getAccessToken();
-
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
+  Future<Map<String, dynamic>> _execute(
+    Future<Response<dynamic>> Function() call,
+  ) async {
+    try {
+      final response = await call();
+      return _decodeResponse(response);
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'] as String?;
+        if (message != null && message.isNotEmpty) {
+          throw ApiException(message, statusCode: e.response?.statusCode);
+        }
+      }
+      throw ApiException('네트워크 오류가 발생했어요.', statusCode: e.response?.statusCode);
+    }
   }
 
-  Map<String, dynamic> _decodeResponse(http.Response response) {
-    final statusCode = response.statusCode;
-    final rawBody = response.body.isEmpty ? '{}' : response.body;
-    final decoded = jsonDecode(rawBody);
+  Future<Map<String, dynamic>> postMultipartFile(
+    String path, {
+    required MultipartFile file,
+    String fieldName = 'file',
+  }) async {
+    final formData = FormData();
+    formData.files.add(MapEntry(fieldName, file));
+    return _execute(() => _dio.post<dynamic>(path, data: formData));
+  }
 
-    if (decoded is! Map<String, dynamic>) {
-      throw ApiException(
-        '올바르지 않은 응답 형식입니다.',
-        statusCode: statusCode,
-      );
+  Map<String, dynamic> _decodeResponse(Response<dynamic> response) {
+    final data = response.data;
+    if (data is! Map<String, dynamic>) {
+      throw ApiException('응답 형식이 올바르지 않아요.', statusCode: response.statusCode);
     }
-
-    if (statusCode < 200 || statusCode >= 300) {
-      throw ApiException(
-        decoded['message'] as String? ?? '요청 처리에 실패했습니다.',
-        statusCode: statusCode,
-      );
-    }
-
-    return decoded;
+    return data;
   }
 }

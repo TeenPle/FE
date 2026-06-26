@@ -19,13 +19,17 @@ class ReactionResponse {
 
   factory ReactionResponse.fromJson(Map<String, dynamic> json) {
     return ReactionResponse(
-      targetId: json['targetId'] as int,
+      targetId: (json['targetId'] as num).toInt(),
       targetType: json['targetType'] as String? ?? '',
       liked: json['liked'] as bool? ?? false,
       disliked: json['disliked'] as bool? ?? false,
       applied: json['applied'] as bool? ?? false,
-      likeCount: json['likeCount'] as int? ?? 0,
-      dislikeCount: json['dislikeCount'] as int? ?? 0,
+      likeCount: json['likeCount'] != null
+          ? (json['likeCount'] as num).toInt()
+          : 0,
+      dislikeCount: json['dislikeCount'] != null
+          ? (json['dislikeCount'] as num).toInt()
+          : 0,
     );
   }
 }

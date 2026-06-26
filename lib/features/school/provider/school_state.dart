@@ -1,4 +1,5 @@
 import '../models/board_model.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
 import '../models/post_summary.dart';
 
@@ -10,6 +11,10 @@ class SchoolState {
   final List<BoardModel> boards;
   final int? selectedBoardId;
   final List<PostSummary> posts;
+  final List<PostSummary> topRecommendedPosts;
+  final List<PostSummary> hotPosts;
+  final HotFilter hotFilter;
+  final bool isLoadingHot;
   final PostSortType sortType;
   final int currentPage;
   final int pageSize;
@@ -27,6 +32,10 @@ class SchoolState {
     required this.boards,
     required this.selectedBoardId,
     required this.posts,
+    required this.topRecommendedPosts,
+    required this.hotPosts,
+    required this.hotFilter,
+    required this.isLoadingHot,
     required this.sortType,
     required this.currentPage,
     required this.pageSize,
@@ -46,9 +55,13 @@ class SchoolState {
       boards: [],
       selectedBoardId: null,
       posts: [],
+      topRecommendedPosts: [],
+      hotPosts: [],
+      hotFilter: HotFilter.week,
+      isLoadingHot: false,
       sortType: PostSortType.latest,
       currentPage: 0,
-      pageSize: 5,
+      pageSize: 10,
       hasNext: false,
       isLoading: false,
       isRefreshing: false,
@@ -58,14 +71,18 @@ class SchoolState {
     );
   }
 
-  /// 상태 일부를 복사해서 새 상태 생성
   SchoolState copyWith({
     int? schoolId,
     String? schoolName,
     String? schoolDescription,
     List<BoardModel>? boards,
     int? selectedBoardId,
+    bool clearSelectedBoard = false,
     List<PostSummary>? posts,
+    List<PostSummary>? topRecommendedPosts,
+    List<PostSummary>? hotPosts,
+    HotFilter? hotFilter,
+    bool? isLoadingHot,
     PostSortType? sortType,
     int? currentPage,
     int? pageSize,
@@ -82,8 +99,14 @@ class SchoolState {
       schoolName: schoolName ?? this.schoolName,
       schoolDescription: schoolDescription ?? this.schoolDescription,
       boards: boards ?? this.boards,
-      selectedBoardId: selectedBoardId ?? this.selectedBoardId,
+      selectedBoardId: clearSelectedBoard
+          ? null
+          : (selectedBoardId ?? this.selectedBoardId),
       posts: posts ?? this.posts,
+      topRecommendedPosts: topRecommendedPosts ?? this.topRecommendedPosts,
+      hotPosts: hotPosts ?? this.hotPosts,
+      hotFilter: hotFilter ?? this.hotFilter,
+      isLoadingHot: isLoadingHot ?? this.isLoadingHot,
       sortType: sortType ?? this.sortType,
       currentPage: currentPage ?? this.currentPage,
       pageSize: pageSize ?? this.pageSize,

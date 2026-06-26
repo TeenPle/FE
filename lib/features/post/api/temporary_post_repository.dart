@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
+
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
 import '../models/create_post_request.dart';
 import '../models/post_detail.dart';
+import '../models/poll_model.dart';
 import '../models/reaction_response.dart';
 import '../models/update_comment_request.dart';
 import '../models/update_post_request.dart';
@@ -19,10 +22,13 @@ class TemporaryPostRepository implements PostRepository {
     final comments = <CommentModel>[
       CommentModel(
         commentId: 1,
+        isMine: true,
+        commentStatus: 'ACTIVE',
         content: '이 글 진짜 공감돼요.',
         author: '익명',
         likeCount: 3,
         dislikeCount: 0,
+        likedByMe: false,
         anonymous: true,
         depth: 0,
         parentId: null,
@@ -30,10 +36,13 @@ class TemporaryPostRepository implements PostRepository {
       ),
       CommentModel(
         commentId: 2,
+        isMine: false,
+        commentStatus: 'ACTIVE',
         content: '저도 비슷한 경험 있었어요.',
         author: '익명',
         likeCount: 1,
         dislikeCount: 0,
+        likedByMe: false,
         anonymous: true,
         depth: 1,
         parentId: 1,
@@ -43,6 +52,7 @@ class TemporaryPostRepository implements PostRepository {
 
     return PostDetail(
       postId: postId,
+      isMine: true,
       title: '샘플 게시글 제목입니다',
       content: '이곳은 게시글 본문 영역입니다. 실제 서버 연동 전까지는 임시 데이터로 화면을 확인할 수 있도록 구성했습니다.',
       viewCount: 128,
@@ -53,6 +63,7 @@ class TemporaryPostRepository implements PostRepository {
       username: '익명',
       createdAt: '방금 전',
       comments: comments,
+      mediaList: const [],
     );
   }
 
@@ -114,6 +125,7 @@ class TemporaryPostRepository implements PostRepository {
   Future<int> createPost({
     required int boardId,
     required CreatePostRequest request,
+    List<MultipartFile> files = const [],
   }) async {
     await Future.delayed(const Duration(milliseconds: 350));
     return 999;
@@ -124,6 +136,7 @@ class TemporaryPostRepository implements PostRepository {
   Future<void> updatePost({
     required int postId,
     required UpdatePostRequest request,
+    List<MultipartFile> files = const [],
   }) async {
     await Future.delayed(const Duration(milliseconds: 200));
   }
@@ -147,5 +160,34 @@ class TemporaryPostRepository implements PostRepository {
   @override
   Future<void> deleteComment(int commentId) async {
     await Future.delayed(const Duration(milliseconds: 200));
+  }
+
+  @override
+  Future<bool> toggleBookmark(int postId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    return true;
+  }
+
+  @override
+  Future<PollModel> votePoll({
+    required int postId,
+    required int optionId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    return PollModel(
+      pollId: 1,
+      totalParticipants: 1,
+      hasVoted: true,
+      selectedOptionId: optionId,
+      options: [
+        PollOptionModel(
+          optionId: optionId,
+          text: '선택 항목',
+          voteCount: 1,
+          percentage: 100,
+          selectedByMe: true,
+        ),
+      ],
+    );
   }
 }

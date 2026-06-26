@@ -16,6 +16,9 @@ class PostDetailState {
   final bool commentAnonymous;
   final int? replyingToCommentId;
   final bool likedByMe;
+  final Set<int> likedCommentIds;
+  final bool bookmarkedByMe;
+  final bool isBookmarking;
   final String? errorMessage;
   final String? successMessage;
   final bool shouldClosePage;
@@ -34,12 +37,14 @@ class PostDetailState {
     required this.commentAnonymous,
     required this.replyingToCommentId,
     required this.likedByMe,
+    required this.likedCommentIds,
+    required this.bookmarkedByMe,
+    required this.isBookmarking,
     required this.errorMessage,
     required this.successMessage,
     required this.shouldClosePage,
   });
 
-  /// 초기 상태 생성
   factory PostDetailState.initial(int postId) {
     return PostDetailState(
       postId: postId,
@@ -55,6 +60,9 @@ class PostDetailState {
       commentAnonymous: true,
       replyingToCommentId: null,
       likedByMe: false,
+      likedCommentIds: const {},
+      bookmarkedByMe: false,
+      isBookmarking: false,
       errorMessage: null,
       successMessage: null,
       shouldClosePage: false,
@@ -76,6 +84,9 @@ class PostDetailState {
     int? replyingToCommentId,
     bool clearReplying = false,
     bool? likedByMe,
+    Set<int>? likedCommentIds,
+    bool? bookmarkedByMe,
+    bool? isBookmarking,
     String? errorMessage,
     bool clearError = false,
     String? successMessage,
@@ -98,9 +109,13 @@ class PostDetailState {
           ? null
           : (replyingToCommentId ?? this.replyingToCommentId),
       likedByMe: likedByMe ?? this.likedByMe,
+      likedCommentIds: likedCommentIds ?? this.likedCommentIds,
+      bookmarkedByMe: bookmarkedByMe ?? this.bookmarkedByMe,
+      isBookmarking: isBookmarking ?? this.isBookmarking,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      successMessage:
-      clearSuccess ? null : (successMessage ?? this.successMessage),
+      successMessage: clearSuccess
+          ? null
+          : (successMessage ?? this.successMessage),
       shouldClosePage: shouldClosePage ?? this.shouldClosePage,
     );
   }

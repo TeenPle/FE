@@ -1,34 +1,16 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/app_api_client.dart';
-import '../../../core/network/token_provider.dart';
+import '../../../core/network/dio_provider.dart';
 import '../../school/models/board_post_page.dart';
 import '../../school/models/post_summary.dart';
 import '../api/search_api.dart';
 import '../models/search_state.dart';
 import '../services/recent_search_service.dart';
 
-/// 토큰 없이 개발할 때 사용하는 더미 구현체
-class DummyTokenProvider implements TokenProvider {
-  @override
-  Future<String?> getAccessToken() async {
-    return null;
-  }
-}
-
-/// 검색용 토큰 provider
-final searchTokenProviderProvider = Provider<TokenProvider>((ref) {
-  return DummyTokenProvider();
-});
-
 /// 검색용 공통 API 클라이언트 생성
 final searchApiClientProvider = Provider<AppApiClient>((ref) {
-  final tokenProvider = ref.watch(searchTokenProviderProvider);
-
-  return AppApiClient(
-    baseUrl: 'http://10.0.2.2:8080',
-    tokenProvider: tokenProvider,
-  );
+  return AppApiClient(ref.watch(dioProvider));
 });
 
 /// 검색 API 생성
@@ -47,17 +29,12 @@ class SearchNotifier extends StateNotifier<SearchState> {
   final SearchApi api;
   final RecentSearchService recentSearchService;
 
-  SearchNotifier(
-      this.api,
-      this.recentSearchService,
-      ) : super(SearchState.initial());
+  SearchNotifier(this.api, this.recentSearchService)
+    : super(SearchState.initial());
 
   /// 저장된 최근 검색어 목록을 불러옴
   Future<void> loadRecentKeywords() async {
-    state = state.copyWith(
-      isLoadingRecent: true,
-      clearError: true,
-    );
+    state = state.copyWith(isLoadingRecent: true, clearError: true);
 
     try {
       final recentKeywords = await recentSearchService.getRecentKeywords();
@@ -69,7 +46,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
     } catch (_) {
       state = state.copyWith(
         isLoadingRecent: false,
-        errorMessage: '최근 검색어를 불러오지 못했습니다.',
+        errorMessage: '최근 검색어를 불러오지 못했어요.',
       );
     }
   }
@@ -77,6 +54,18 @@ class SearchNotifier extends StateNotifier<SearchState> {
   /// 검색어를 상태에 반영
   void setKeyword(String keyword) {
     state = state.copyWith(keyword: keyword);
+  }
+
+  void setScope({int? boardId, String? scopeTitle}) {
+    state = state.copyWith(
+      boardId: boardId,
+      scopeTitle: scopeTitle,
+      results: const [],
+      currentPage: 0,
+      hasNext: false,
+      hasSearched: false,
+      clearError: true,
+    );
   }
 
   /// 검색 상태를 초기 화면처럼 되돌림
@@ -114,6 +103,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
     try {
       final BoardPostPage pageResult = await api.searchPosts(
         keyword: keyword,
+        boardId: state.boardId,
         page: 0,
         size: state.pageSize,
       );
@@ -128,13 +118,12 @@ class SearchNotifier extends StateNotifier<SearchState> {
         isLoading: false,
       );
     } catch (e, stackTrace) {
-      debugPrint('검색 실패: $e');
-      debugPrintStack(stackTrace: stackTrace);
+      if (kDebugMode) {
+        debugPrint('검색 실패: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
 
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '검색에 실패했습니다.',
-      );
+      state = state.copyWith(isLoading: false, errorMessage: '검색에 실패했어요.');
     }
   }
 
@@ -144,36 +133,33 @@ class SearchNotifier extends StateNotifier<SearchState> {
     if (state.isLoading || state.isLoadingMore) return;
     if (state.keyword.trim().isEmpty) return;
 
-    state = state.copyWith(
-      isLoadingMore: true,
-      clearError: true,
-    );
+    state = state.copyWith(isLoadingMore: true, clearError: true);
 
     try {
       final nextPage = state.currentPage + 1;
 
       final BoardPostPage pageResult = await api.searchPosts(
         keyword: state.keyword.trim(),
+        boardId: state.boardId,
         page: nextPage,
         size: state.pageSize,
       );
 
       state = state.copyWith(
-        results: [
-          ...state.results,
-          ..._filterVisiblePosts(pageResult.posts),
-        ],
+        results: [...state.results, ..._filterVisiblePosts(pageResult.posts)],
         currentPage: nextPage,
         hasNext: pageResult.hasNext,
         isLoadingMore: false,
       );
     } catch (e, stackTrace) {
-      debugPrint('검색 더보기 실패: $e');
-      debugPrintStack(stackTrace: stackTrace);
+      if (kDebugMode) {
+        debugPrint('검색 더보기 실패: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
 
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: '검색 결과를 더 불러오지 못했습니다.',
+        errorMessage: '검색 결과를 더 불러오지 못했어요.',
       );
     }
   }
@@ -183,13 +169,9 @@ class SearchNotifier extends StateNotifier<SearchState> {
     try {
       final recentKeywords = await recentSearchService.removeKeyword(keyword);
 
-      state = state.copyWith(
-        recentKeywords: recentKeywords,
-      );
+      state = state.copyWith(recentKeywords: recentKeywords);
     } catch (_) {
-      state = state.copyWith(
-        errorMessage: '최근 검색어를 삭제하지 못했습니다.',
-      );
+      state = state.copyWith(errorMessage: '최근 검색어를 삭제하지 못했어요.');
     }
   }
 
@@ -198,13 +180,9 @@ class SearchNotifier extends StateNotifier<SearchState> {
     try {
       final recentKeywords = await recentSearchService.clearAll();
 
-      state = state.copyWith(
-        recentKeywords: recentKeywords,
-      );
+      state = state.copyWith(recentKeywords: recentKeywords);
     } catch (_) {
-      state = state.copyWith(
-        errorMessage: '최근 검색어를 초기화하지 못했습니다.',
-      );
+      state = state.copyWith(errorMessage: '최근 검색어를 초기화하지 못했어요.');
     }
   }
 
@@ -217,8 +195,9 @@ class SearchNotifier extends StateNotifier<SearchState> {
 }
 
 /// 검색 상태 provider
-final searchProvider =
-StateNotifierProvider<SearchNotifier, SearchState>((ref) {
+final searchProvider = StateNotifierProvider<SearchNotifier, SearchState>((
+  ref,
+) {
   final api = ref.watch(searchApiProvider);
   final recentSearchService = ref.watch(recentSearchServiceProvider);
 

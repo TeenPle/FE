@@ -1,0 +1,616 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+import '../../../app/routes.dart';
+import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/storage/token_storage.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/app_snack_bar.dart';
+import '../../../features/auth/provider/login_provider.dart';
+import '../../../features/notification/provider/notification_setting_provider.dart';
+import '../provider/profile_provider.dart';
+import '../widgets/block_summary_tile.dart';
+
+class SettingsPage extends ConsumerWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(profileProvider, (prev, next) {
+      if (next.shouldGoToLogin) {
+        ref.read(authSessionProvider.notifier).clearTokens();
+        ref.read(tokenStorageProvider).clearAll();
+        context.go(AppRoutes.login);
+      }
+    });
+
+    final c = context.colors;
+    return Scaffold(
+      backgroundColor: c.pageBg,
+      appBar: AppBar(
+        backgroundColor: c.pageBg,
+        elevation: 0,
+        foregroundColor: c.textPrimary,
+        centerTitle: true,
+        title: Text(
+          '설정',
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: c.textPrimary,
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+        children: [
+          // 계정 관리
+          _SectionHeader(label: '계정 관리'),
+          const SizedBox(height: 8),
+          _SettingsCard(
+            children: [
+              _SettingsTile(
+                icon: Icons.lock_outline_rounded,
+                label: '비밀번호 변경',
+                onTap: () => context.push(AppRoutes.editPassword),
+              ),
+              const _Divider(),
+              const BlockSummaryTile(),
+              const _Divider(),
+              _SettingsTile(
+                icon: Icons.gavel_rounded,
+                label: '제재 이력',
+                onTap: () => context.push(AppRoutes.myPenalties),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // 화면 설정
+          _SectionHeader(label: '화면'),
+          const SizedBox(height: 8),
+          const _ThemeCard(),
+
+          const SizedBox(height: 20),
+
+          // D-Day
+          _SectionHeader(label: 'D-Day'),
+          const SizedBox(height: 8),
+          _SettingsCard(
+            children: [
+              _SettingsTile(
+                icon: Icons.event_available_outlined,
+                label: 'D-Day 관리',
+                onTap: () => context.push(AppRoutes.ddaySettings),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // 알림 설정
+          _SectionHeader(label: '알림 설정'),
+          const SizedBox(height: 8),
+          const _NotificationSettingsCard(),
+
+          const SizedBox(height: 20),
+
+          // 앱 정보
+          _SectionHeader(label: '앱 정보'),
+          const SizedBox(height: 8),
+          const _AppInfoCard(),
+
+          const SizedBox(height: 20),
+
+          // 기타
+          _SectionHeader(label: '기타'),
+          const SizedBox(height: 8),
+          _SettingsCard(
+            children: [
+              _SettingsTile(
+                icon: Icons.support_agent_rounded,
+                label: '문의하기',
+                onTap: () => context.push(AppRoutes.inquiries),
+              ),
+              const _Divider(),
+              _SettingsTile(
+                icon: Icons.logout_rounded,
+                label: '로그아웃',
+                onTap: () => _confirmLogout(context, ref),
+              ),
+              const _Divider(),
+              _SettingsTile(
+                icon: Icons.person_remove_outlined,
+                label: '회원 탈퇴',
+                labelColor: const Color(0xFFE05C5C),
+                iconColor: const Color(0xFFE05C5C),
+                onTap: () => _confirmDeleteAccount(context, ref),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('로그아웃'),
+        content: Text('로그아웃 하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('로그아웃'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      // 로그아웃 API가 지연돼도 프로필/설정 화면에 머물지 않도록
+      // 로그인 화면으로 먼저 이동시키고 세션 정리는 이어서 완료한다.
+      final logoutFuture = ref.read(loginProvider.notifier).logout();
+      if (context.mounted) {
+        context.go(AppRoutes.login);
+        showAppSnackBar('로그아웃되었습니다.');
+      }
+      await logoutFuture;
+    }
+  }
+
+  void _confirmDeleteAccount(BuildContext context, WidgetRef ref) {
+    // 확인 문구 입력 + 유의사항 안내가 포함된 전용 페이지로 이동
+    context.push(AppRoutes.accountDeleteConfirm);
+  }
+}
+
+// ────────────────────────────────────────────
+// 테마 설정 카드
+// ────────────────────────────────────────────
+
+class _ThemeCard extends ConsumerWidget {
+  const _ThemeCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    final notifier = ref.read(themeModeProvider.notifier);
+
+    return _SettingsCard(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.dark_mode_outlined,
+                size: 20,
+                color: Color(0xFF14A3F7),
+              ),
+              const SizedBox(width: 14),
+              Text(
+                '테마',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              _ThemeSegment(
+                label: '라이트',
+                selected: mode == ThemeMode.light,
+                onTap: () => notifier.setMode(ThemeMode.light),
+              ),
+              const SizedBox(width: 6),
+              _ThemeSegment(
+                label: '다크',
+                selected: mode == ThemeMode.dark,
+                onTap: () => notifier.setMode(ThemeMode.dark),
+              ),
+              const SizedBox(width: 6),
+              _ThemeSegment(
+                label: '자동',
+                selected: mode == ThemeMode.system,
+                onTap: () => notifier.setMode(ThemeMode.system),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThemeSegment extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeSegment({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF14A3F7) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? const Color(0xFF14A3F7) : context.colors.border,
+          ),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: selected ? Colors.white : context.colors.textMuted,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────
+// 알림 설정 카드
+// ────────────────────────────────────────────
+
+class _NotificationSettingsCard extends ConsumerWidget {
+  const _NotificationSettingsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingAsync = ref.watch(notificationSettingProvider);
+
+    return settingAsync.when(
+      loading: () => const _SettingsCard(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          ),
+        ],
+      ),
+      error: (_, _) => const _SettingsCard(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            child: Text('알림 설정을 불러올 수 없습니다.'),
+          ),
+        ],
+      ),
+      data: (setting) => _SettingsCard(
+        children: [
+          _NotificationToggleTile(
+            icon: Icons.notifications_outlined,
+            label: '전체 알림',
+            value: setting.allowPush,
+            onChanged: (v) => _update(context, ref, _pushPatch(v)),
+          ),
+          const _Divider(),
+          _NotificationToggleTile(
+            icon: Icons.chat_bubble_outline_rounded,
+            label: '댓글 알림',
+            value: setting.allowCommentNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowCommentNotification': v}),
+          ),
+          const _Divider(),
+          _NotificationToggleTile(
+            icon: Icons.reply_rounded,
+            label: '답글 알림',
+            value: setting.allowReplyNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowReplyNotification': v}),
+          ),
+          const _Divider(),
+          _NotificationToggleTile(
+            icon: Icons.thumb_up_outlined,
+            label: '좋아요 알림',
+            value: setting.allowLikeNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowLikeNotification': v}),
+          ),
+          const _Divider(),
+          _NotificationToggleTile(
+            icon: Icons.forum_outlined,
+            label: '채팅 알림',
+            value: setting.allowChatNotification,
+            enabled: setting.allowPush,
+            onChanged: (v) =>
+                _update(context, ref, {'allowChatNotification': v}),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _update(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> patch,
+  ) {
+    ref
+        .read(notificationSettingProvider.notifier)
+        .updateSetting(patch)
+        .catchError((_) {
+          showAppSnackBar(
+            '설정 저장에 실패했어요.',
+            backgroundColor: const Color(0xFFE05C7B),
+          );
+        });
+  }
+
+  Map<String, dynamic> _pushPatch(bool allowPush) {
+    if (!allowPush) return {'allowPush': false};
+    return {
+      'allowPush': true,
+      'allowCommentNotification': true,
+      'allowReplyNotification': true,
+      'allowLikeNotification': true,
+      'allowChatNotification': true,
+    };
+  }
+}
+
+class _NotificationToggleTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool value;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  const _NotificationToggleTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final active = enabled && value;
+    final c = context.colors;
+    final color = enabled ? c.textPrimary : c.textDisabled;
+    final iconColor = enabled ? const Color(0xFF14A3F7) : c.textDisabled;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(width: 14),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+          const Spacer(),
+          Switch.adaptive(
+            value: active,
+            onChanged: enabled ? onChanged : null,
+            activeThumbColor: const Color(0xFF14A3F7),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────
+// 앱 정보 카드
+// ────────────────────────────────────────────
+
+class _AppInfoCard extends StatefulWidget {
+  const _AppInfoCard();
+
+  @override
+  State<_AppInfoCard> createState() => _AppInfoCardState();
+}
+
+class _AppInfoCardState extends State<_AppInfoCard> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    PackageInfo.fromPlatform().then((info) {
+      if (mounted) setState(() => _version = info.version);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsCard(
+      children: [
+        _InfoTile(label: '앱 버전', trailing: _version),
+        const _Divider(),
+        _SettingsTile(
+          icon: Icons.description_outlined,
+          label: '이용약관',
+          onTap: () => context.push(AppRoutes.terms),
+        ),
+        const _Divider(),
+        _SettingsTile(
+          icon: Icons.privacy_tip_outlined,
+          label: '개인정보처리방침',
+          onTap: () => context.push(AppRoutes.privacyPolicy),
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  final String label;
+  final String trailing;
+
+  const _InfoTile({required this.label, required this.trailing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 20,
+            color: Color(0xFF14A3F7),
+          ),
+          const SizedBox(width: 14),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: context.colors.textPrimary,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            trailing,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 12,
+              color: context.colors.textTertiary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────
+// 공통 위젯
+// ────────────────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  const _SectionHeader({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 4),
+      child: Text(
+        label,
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: context.colors.textTertiary,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  final List<Widget> children;
+  const _SettingsCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.borderStrong),
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: context.colors.borderSubtle,
+      indent: 52,
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? labelColor;
+  final Color? iconColor;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.labelColor,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = labelColor ?? context.colors.textPrimary;
+    final iColor = iconColor ?? const Color(0xFF14A3F7);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: iColor),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+            const Spacer(),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: context.colors.iconSecondary,
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

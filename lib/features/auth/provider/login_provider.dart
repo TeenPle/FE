@@ -1,0 +1,295 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/auth/auth_session_provider.dart';
+import '../../../core/storage/token_storage.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
+import '../../notification/service/fcm_service.dart';
+import '../../profile/provider/profile_provider.dart';
+import '../api/login_api.dart';
+import '../models/login_blocked_reason.dart';
+import '../models/login_request_model.dart';
+import 'login_state.dart';
+
+final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) {
+  final loginApi = ref.read(loginApiProvider);
+  final tokenStorage = ref.read(tokenStorageProvider);
+  final authSession = ref.read(authSessionProvider.notifier);
+  final fcmService = ref.read(fcmServiceProvider);
+  return LoginNotifier(loginApi, tokenStorage, authSession, fcmService, ref);
+});
+
+class LoginNotifier extends StateNotifier<LoginState> {
+  final LoginApi _loginApi;
+  final TokenStorage _tokenStorage;
+  final AuthSessionNotifier _authSession;
+  final FcmService _fcmService;
+  final Ref _ref;
+
+  LoginNotifier(
+    this._loginApi,
+    this._tokenStorage,
+    this._authSession,
+    this._fcmService,
+    this._ref,
+  ) : super(const LoginState());
+
+  /// [keepLoggedIn]이 true인 경우에만 토큰을 디스크에 저장.
+  Future<void> login({
+    required String email,
+    required String password,
+    required bool keepLoggedIn,
+  }) async {
+    final trimmedEmail = email.trim();
+    final trimmedPassword = password.trim();
+
+    if (trimmedEmail.isEmpty) {
+      state = state.copyWith(
+        errorMessage: '이메일을 입력해 주세요.',
+        clearLoginResponse: true,
+        clearBlockedReason: true,
+      );
+      return;
+    }
+
+    if (trimmedPassword.isEmpty) {
+      state = state.copyWith(
+        errorMessage: '비밀번호를 입력해 주세요.',
+        clearLoginResponse: true,
+        clearBlockedReason: true,
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      isLoading: true,
+      attemptedEmail: trimmedEmail,
+      attemptedPassword: trimmedPassword,
+      clearErrorMessage: true,
+      clearLoginResponse: true,
+      clearBlockedReason: true,
+    );
+
+    try {
+      final result = await _loginApi.login(
+        LoginRequestModel(email: trimmedEmail, password: trimmedPassword),
+      );
+
+      // 항상 메모리 세션에 저장
+      _authSession.setTokens(
+        result.accessToken,
+        result.refreshToken,
+        userId: result.userId,
+      );
+
+      // userId, role은 세션 중 라우트 가드에서 필요하므로 keepLoggedIn 무관하게 항상 저장
+      await _tokenStorage.saveUserId(result.userId);
+      await _tokenStorage.saveUserRole(result.role);
+
+      if (keepLoggedIn) {
+        // 자동로그인 체크: 토큰도 디스크에 저장
+        await _tokenStorage.saveAccessToken(result.accessToken);
+        await _tokenStorage.saveRefreshToken(result.refreshToken);
+        await _tokenStorage.saveAutoLogin(true);
+      } else {
+        // 자동로그인 미체크: 토큰만 클리어 (userId/role은 로그아웃 시 clearAll로 정리됨)
+        await _tokenStorage.saveAutoLogin(false);
+      }
+
+      // 학교 ID는 자동로그인 여부와 무관하게 항상 저장 (급식/시간표 기능에 필요)
+      if (result.schoolId != null) {
+        await _tokenStorage.saveSchoolId(result.schoolId!);
+      }
+
+      state = state.copyWith(isLoading: false, loginResponse: result);
+    } on DioException catch (e) {
+      final backendCode = _extractBackendCode(e.response?.data);
+      final blockedReason = _mapBlockedReason(backendCode);
+
+      if (blockedReason != null) {
+        state = state.copyWith(isLoading: false, blockedReason: blockedReason);
+        return;
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _mapDioErrorToMessage(e),
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '로그인에 실패했어요. 다시 시도해 주세요.',
+      );
+    }
+  }
+
+  /// 복구 페이지에서 직접 입력한 비밀번호로 attemptedPassword를 갱신한다.
+  void updateAttemptedPassword(String password) {
+    state = state.copyWith(attemptedPassword: password);
+  }
+
+  void clearTransientState() {
+    state = state.copyWith(
+      clearErrorMessage: true,
+      clearLoginResponse: true,
+      clearBlockedReason: true,
+    );
+  }
+
+  Future<void> logout() async {
+    final refreshToken =
+        _authSession.state.refreshToken ??
+        await _tokenStorage.getRefreshToken();
+
+    // FCM 토큰 서버 삭제 및 로컬 삭제
+    try {
+      await _fcmService.deleteToken();
+    } catch (_) {}
+    // 로그아웃 후에도 유저별 채팅 목록 STOMP 구독이 남지 않도록 정리한다.
+    _ref.read(chatRoomListProvider.notifier).stopRealtime();
+    // shouldGoToLogin 등 profileProvider의 잔여 상태를 초기화한다.
+    // 초기화 없이 재로그인 시 오염된 플래그가 정상 세션을 방해할 수 있다.
+    _ref.read(profileProvider.notifier).reset();
+
+    // 서버에 refresh token 무효화 (실패해도 로컬은 반드시 초기화)
+    if (refreshToken != null) {
+      try {
+        await _loginApi.logout(refreshToken);
+      } catch (_) {}
+    }
+
+    _authSession.clearTokens();
+    await _tokenStorage.clearAll();
+    state = const LoginState();
+  }
+
+  void reset() {
+    state = const LoginState();
+  }
+
+  String? _extractBackendCode(dynamic data) {
+    if (data is! Map<String, dynamic>) {
+      return null;
+    }
+    final directCode = data['code'];
+    if (directCode is String && directCode.trim().isNotEmpty) {
+      return directCode.trim();
+    }
+    final result = data['result'];
+    if (result is Map<String, dynamic>) {
+      final nestedCode = result['code'];
+      if (nestedCode is String && nestedCode.trim().isNotEmpty) {
+        return nestedCode.trim();
+      }
+    }
+    return null;
+  }
+
+  String? _extractBackendMessage(dynamic data) {
+    if (data is! Map<String, dynamic>) {
+      return null;
+    }
+    final directMessage = data['message'];
+    if (directMessage is String && directMessage.trim().isNotEmpty) {
+      return directMessage.trim();
+    }
+    final result = data['result'];
+    if (result is Map<String, dynamic>) {
+      final nestedMessage = result['message'];
+      if (nestedMessage is String && nestedMessage.trim().isNotEmpty) {
+        return nestedMessage.trim();
+      }
+    }
+    return null;
+  }
+
+  LoginBlockedReason? _mapBlockedReason(String? code) {
+    switch (code) {
+      case 'USER4031':
+        return LoginBlockedReason.required;
+      case 'USER4032':
+        return LoginBlockedReason.pending;
+      case 'USER4033':
+        return LoginBlockedReason.rejected;
+      case 'USER5001':
+        return LoginBlockedReason.invalid;
+      case 'USER4051':
+        // 탈퇴 유예 기간 중 — 복구 화면으로 분기
+        return LoginBlockedReason.pendingDeletion;
+      default:
+        return null;
+    }
+  }
+
+  /// 탈퇴 유예 계정 복구.
+  /// loginState에 저장된 이메일·비밀번호를 사용해 서버에 복구 요청하고, 성공 시 정상 로그인 처리한다.
+  Future<void> restoreAccount({required bool keepLoggedIn}) async {
+    final email = state.attemptedEmail;
+    final password = state.attemptedPassword;
+
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+
+    try {
+      final result = await _loginApi.restoreAccount(email: email, password: password);
+
+      _authSession.setTokens(
+        result.accessToken,
+        result.refreshToken,
+        userId: result.userId,
+      );
+
+      await _tokenStorage.saveUserId(result.userId);
+      await _tokenStorage.saveUserRole(result.role);
+
+      if (keepLoggedIn) {
+        await _tokenStorage.saveAccessToken(result.accessToken);
+        await _tokenStorage.saveRefreshToken(result.refreshToken);
+        await _tokenStorage.saveAutoLogin(true);
+      } else {
+        await _tokenStorage.saveAutoLogin(false);
+      }
+
+      if (result.schoolId != null) {
+        await _tokenStorage.saveSchoolId(result.schoolId!);
+      }
+
+      state = state.copyWith(isLoading: false, loginResponse: result, clearBlockedReason: true);
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _mapDioErrorToMessage(e),
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '복구에 실패했습니다. 다시 시도해주세요.',
+      );
+    }
+  }
+
+  String _mapDioErrorToMessage(DioException e) {
+    final code = _extractBackendCode(e.response?.data);
+    final message = _extractBackendMessage(e.response?.data);
+    final statusCode = e.response?.statusCode;
+
+    switch (code) {
+      case 'USER4003':
+      case 'USER4004':
+        // 이메일 존재 여부를 노출하지 않기 위해 두 케이스를 동일한 메시지로 처리한다.
+        return '이메일 또는 비밀번호를 다시 확인해 주세요.';
+    }
+
+    if (message != null && message.isNotEmpty) return message;
+    if (statusCode == 401) return '이메일 또는 비밀번호를 다시 확인해 주세요.';
+    if (statusCode == 403) return '로그인이 제한된 계정이에요.';
+    if (statusCode == 500) return '서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+
+    if (e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return '네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
+    }
+
+    return '로그인에 실패했어요. 다시 시도해 주세요.';
+  }
+}

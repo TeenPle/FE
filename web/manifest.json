@@ -1,11 +1,11 @@
 {
-    "name": "teenple_frontend",
-    "short_name": "teenple_frontend",
+    "name": "TeenPle",
+    "short_name": "TeenPle",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Teenple_FE Project",
+    "description": "TeenPle",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

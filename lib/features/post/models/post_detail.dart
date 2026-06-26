@@ -1,49 +1,170 @@
 import 'comment_model.dart';
+import 'post_media_item.dart';
+import 'poll_model.dart';
+import '../../../core/utils/profile_image_url.dart';
 
 class PostDetail {
   final int postId;
+  final int? authorUserId;
+  final bool isMine;
+  final int? authorId; // 게시글 작성자 userId (채팅 유입용)
   final String title;
   final String content;
   final int viewCount;
   final bool anonymous;
   final int likeCount;
   final int dislikeCount;
+  final bool likedByMe;
+  final bool dislikedByMe;
   final String postStatus;
   final String username;
+  final String? authorProfileImageUrl;
+  final bool authorDeleted;
+  final bool canChatWithAuthor;
+  final bool canReportAuthor;
+  final bool canBlockAuthor;
   final String createdAt;
+  final int? createdAtMs;
   final List<CommentModel> comments;
+  final List<PostMediaItem> mediaList;
+  final bool isBookmarked;
+  final PollModel? poll;
 
   const PostDetail({
     required this.postId,
+    this.authorUserId,
+    required this.isMine,
+    this.authorId,
     required this.title,
     required this.content,
     required this.viewCount,
     required this.anonymous,
     required this.likeCount,
     required this.dislikeCount,
+    this.likedByMe = false,
+    this.dislikedByMe = false,
     required this.postStatus,
     required this.username,
+    this.authorProfileImageUrl,
+    this.authorDeleted = false,
+    this.canChatWithAuthor = true,
+    this.canReportAuthor = true,
+    this.canBlockAuthor = true,
     required this.createdAt,
+    this.createdAtMs,
     required this.comments,
+    this.mediaList = const [],
+    this.isBookmarked = false,
+    this.poll,
   });
 
   factory PostDetail.fromJson(Map<String, dynamic> json) {
     return PostDetail(
-      postId: json['postId'] as int,
+      postId: (json['postId'] as num).toInt(),
+      authorUserId: json['authorUserId'] != null
+          ? (json['authorUserId'] as num).toInt()
+          : null,
+      isMine: json['isMine'] as bool? ?? false,
+      authorId: json['authorId'] != null
+          ? (json['authorId'] as num).toInt()
+          : null,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
-      viewCount: json['viewCount'] as int? ?? 0,
+      viewCount: json['viewCount'] != null
+          ? (json['viewCount'] as num).toInt()
+          : 0,
       anonymous: json['anonymous'] as bool? ?? false,
-      likeCount: json['likeCount'] as int? ?? 0,
-      dislikeCount: json['dislikeCount'] as int? ?? 0,
+      likeCount: json['likeCount'] != null
+          ? (json['likeCount'] as num).toInt()
+          : 0,
+      dislikeCount: json['dislikeCount'] != null
+          ? (json['dislikeCount'] as num).toInt()
+          : 0,
+      likedByMe: json['likedByMe'] as bool? ?? false,
+      dislikedByMe: json['dislikedByMe'] as bool? ?? false,
       postStatus: json['postStatus'] as String? ?? '',
       username: json['username'] as String? ?? '',
+      authorProfileImageUrl: readProfileImageUrl(json),
+      authorDeleted: json['authorDeleted'] as bool? ?? false,
+      canChatWithAuthor: json['canChatWithAuthor'] as bool? ?? true,
+      canReportAuthor: json['canReportAuthor'] as bool? ?? true,
+      canBlockAuthor: json['canBlockAuthor'] as bool? ?? true,
       createdAt: json['createdAt'] as String? ?? '',
+      createdAtMs: json['createdAtMs'] != null
+          ? (json['createdAtMs'] as num).toInt()
+          : null,
       comments: (json['comments'] as List<dynamic>? ?? [])
           .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      mediaList: (json['mediaList'] as List<dynamic>? ?? [])
+          .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      isBookmarked: json['isBookmarked'] as bool? ?? false,
+      poll: json['poll'] != null
+          ? PollModel.fromJson(json['poll'] as Map<String, dynamic>)
+          : null,
     );
   }
 
-  String get displayAuthorName => anonymous ? '익명' : username;
+  PostDetail copyWith({
+    int? postId,
+    int? authorUserId,
+    bool? isMine,
+    int? authorId,
+    String? title,
+    String? content,
+    int? viewCount,
+    bool? anonymous,
+    int? likeCount,
+    int? dislikeCount,
+    bool? likedByMe,
+    bool? dislikedByMe,
+    String? postStatus,
+    String? username,
+    String? authorProfileImageUrl,
+    bool? authorDeleted,
+    bool? canChatWithAuthor,
+    bool? canReportAuthor,
+    bool? canBlockAuthor,
+    String? createdAt,
+    int? createdAtMs,
+    List<CommentModel>? comments,
+    List<PostMediaItem>? mediaList,
+    bool? isBookmarked,
+    PollModel? poll,
+  }) {
+    return PostDetail(
+      postId: postId ?? this.postId,
+      authorUserId: authorUserId ?? this.authorUserId,
+      isMine: isMine ?? this.isMine,
+      authorId: authorId ?? this.authorId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      viewCount: viewCount ?? this.viewCount,
+      anonymous: anonymous ?? this.anonymous,
+      likeCount: likeCount ?? this.likeCount,
+      dislikeCount: dislikeCount ?? this.dislikeCount,
+      likedByMe: likedByMe ?? this.likedByMe,
+      dislikedByMe: dislikedByMe ?? this.dislikedByMe,
+      postStatus: postStatus ?? this.postStatus,
+      username: username ?? this.username,
+      authorProfileImageUrl:
+          authorProfileImageUrl ?? this.authorProfileImageUrl,
+      authorDeleted: authorDeleted ?? this.authorDeleted,
+      canChatWithAuthor: canChatWithAuthor ?? this.canChatWithAuthor,
+      canReportAuthor: canReportAuthor ?? this.canReportAuthor,
+      canBlockAuthor: canBlockAuthor ?? this.canBlockAuthor,
+      createdAt: createdAt ?? this.createdAt,
+      createdAtMs: createdAtMs ?? this.createdAtMs,
+      comments: comments ?? this.comments,
+      mediaList: mediaList ?? this.mediaList,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      poll: poll ?? this.poll,
+    );
+  }
+
+  List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
+
+  String get displayAuthorName =>
+      authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
 }

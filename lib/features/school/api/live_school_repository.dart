@@ -1,5 +1,7 @@
 import '../models/board_post_page.dart';
+import '../models/hot_filter.dart';
 import '../models/post_sort_type.dart';
+import '../models/post_summary.dart';
 import '../models/school_response.dart';
 import 'school_api.dart';
 import 'school_repository.dart';
@@ -8,9 +10,7 @@ import 'school_repository.dart';
 class LiveSchoolRepository implements SchoolRepository {
   final SchoolApi api;
 
-  const LiveSchoolRepository({
-    required this.api,
-  });
+  const LiveSchoolRepository({required this.api});
 
   /// 학교 상세 정보를 서버에서 조회
   @override
@@ -19,11 +19,7 @@ class LiveSchoolRepository implements SchoolRepository {
     int page = 0,
     int size = 10,
   }) {
-    return api.getSchoolDetail(
-      schoolId: schoolId,
-      page: page,
-      size: size,
-    );
+    return api.getSchoolDetail(schoolId: schoolId, page: page, size: size);
   }
 
   /// 특정 게시판 글 목록을 서버에서 조회
@@ -43,6 +39,37 @@ class LiveSchoolRepository implements SchoolRepository {
       size: size,
       sortBy: sortBy,
       sortDirection: sortDirection,
+    );
+  }
+
+  @override
+  Future<BoardPostPage> getAllPostsBySchool({
+    required int schoolId,
+    int page = 0,
+    int size = 10,
+  }) {
+    return api.getAllPostsBySchool(schoolId: schoolId, page: page, size: size);
+  }
+
+  @override
+  Future<List<PostSummary>> getHotPosts({
+    required int schoolId,
+    required HotFilter filter,
+    int size = 20,
+  }) {
+    return api.getHotPosts(schoolId: schoolId, filter: filter, size: size);
+  }
+
+  @override
+  Future<List<PostSummary>> getTopRecommendedPosts({
+    required int schoolId,
+    int hours = 3,
+    int size = 3,
+  }) {
+    return api.getTopRecommendedPosts(
+      schoolId: schoolId,
+      hours: hours,
+      size: size,
     );
   }
 }

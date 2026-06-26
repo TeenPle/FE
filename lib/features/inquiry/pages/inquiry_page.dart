@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/web_links.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/external_links.dart';
 import '../../../core/utils/time_format.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/inquiry_model.dart';
@@ -70,6 +72,12 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
                 }
               },
             ),
+            const SizedBox(height: 14),
+            const _InquiryWebSupportCard(
+              title: '더 자세한 문의가 필요하신가요?',
+              body:
+                  '앱 내 문의는 아래에서 접수하고 답변을 확인할 수 있어요. 이메일 문의 주소는 공식 웹 문의 페이지에서 확인해 주세요.',
+            ),
             const SizedBox(height: 28),
             _InquirySectionHeader(
               total: state.inquiries.length,
@@ -117,6 +125,98 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
 }
 
 enum _InquiryFilter { all, pending, answered }
+
+class _InquiryWebSupportCard extends StatelessWidget {
+  final String title;
+  final String body;
+
+  const _InquiryWebSupportCard({required this.title, required this.body});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
+          decoration: BoxDecoration(
+            color: c.cardBg,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: isDark ? c.border : const Color(0xFFDDEEFF),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF3FF),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: const Icon(
+                  Icons.mail_outline_rounded,
+                  size: 19,
+                  color: Color(0xFF1677FF),
+                ),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      body,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 10.5,
+                        height: 1.45,
+                        color: c.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton.icon(
+                      onPressed: () =>
+                          openExternalLink(context, teenpleSupportUrl),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF1677FF),
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                      label: Text(
+                        '웹 문의 페이지 보기',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF1677FF),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _InquiryHeroCard extends StatelessWidget {
   final VoidCallback onTap;

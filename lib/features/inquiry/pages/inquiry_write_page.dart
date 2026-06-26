@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/web_links.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/external_links.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../provider/inquiry_provider.dart';
 
@@ -32,9 +34,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
     final media = MediaQuery.of(context);
     final keyboard = media.viewInsets.bottom;
     final safeBottom = media.viewPadding.bottom;
-    final bottomPad = keyboard > 0
-        ? keyboard + 8.0
-        : safeBottom + 16.0;
+    final bottomPad = keyboard > 0 ? keyboard + 8.0 : safeBottom + 16.0;
 
     ref.listen(inquiryCreateProvider, (_, next) {
       if (next.submitted) {
@@ -67,8 +67,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
         children: [
           Expanded(
             child: ListView(
-              keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
                 Center(
@@ -80,6 +79,8 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                         const _InquiryWriteHero(),
                         const SizedBox(height: 18),
                         const _InquiryWriteTip(),
+                        const SizedBox(height: 18),
+                        const _InquiryWebSupportLink(),
                         const SizedBox(height: 18),
                         _InputPanel(
                           child: Column(
@@ -126,14 +127,19 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                                   height: 1.55,
                                   color: c.textPrimary,
                                 ),
-                                decoration: _inputDecoration(
-                                  context,
-                                  '문의 내용을 자세히 작성해주세요',
-                                ).copyWith(
-                                  counterText: '',
-                                  contentPadding:
-                                      const EdgeInsets.fromLTRB(14, 14, 14, 42),
-                                ),
+                                decoration:
+                                    _inputDecoration(
+                                      context,
+                                      '문의 내용을 자세히 작성해주세요',
+                                    ).copyWith(
+                                      counterText: '',
+                                      contentPadding: const EdgeInsets.fromLTRB(
+                                        14,
+                                        14,
+                                        14,
+                                        42,
+                                      ),
+                                    ),
                                 onChanged: (_) => setState(() {}),
                               ),
                               const SizedBox(height: 8),
@@ -436,6 +442,77 @@ class _InquiryWriteTip extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InquiryWebSupportLink extends StatelessWidget {
+  const _InquiryWebSupportLink();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.mail_outline_rounded,
+                size: 18,
+                color: Color(0xFF1677FF),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '이 화면에서 앱 내 문의를 접수할 수 있어요.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '이메일을 통한 자세한 문의가 필요하면 공식 웹 문의 페이지에서 연락처를 확인해 주세요.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10.5,
+              height: 1.45,
+              color: c.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () => openExternalLink(context, teenpleSupportUrl),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF1677FF),
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: Text(
+              '웹 문의 페이지 보기',
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1677FF),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

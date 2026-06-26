@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/web_links.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/external_links.dart';
 import '../models/inquiry_model.dart';
 import '../provider/inquiry_provider.dart';
 
@@ -76,6 +78,8 @@ class _InquiryDetailPageState extends ConsumerState<InquiryDetailPage> {
                           const SizedBox(height: 14),
                           _AnswerPanel(inquiry: inquiry),
                           const SizedBox(height: 20),
+                          const _InquiryWebSupportCard(),
+                          const SizedBox(height: 20),
                           const _BottomActions(),
                         ],
                       ),
@@ -89,6 +93,78 @@ class _InquiryDetailPageState extends ConsumerState<InquiryDetailPage> {
 }
 
 // 상단 히어로 카드 — 목록 페이지(_InquiryHeroCard)와 동일한 그라디언트·테두리·말풍선 일러스트
+class _InquiryWebSupportCard extends StatelessWidget {
+  const _InquiryWebSupportCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: c.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.mail_outline_rounded,
+                size: 18,
+                color: Color(0xFF1677FF),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '더 자세한 문의가 필요하신가요?',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '공식 웹 문의 페이지에서 이메일 문의 주소를 확인할 수 있습니다.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 10.5,
+              height: 1.45,
+              color: c.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () => openExternalLink(context, teenpleSupportUrl),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF1677FF),
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: Text(
+              '웹 문의 페이지 보기',
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1677FF),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _DetailHeroCard extends StatelessWidget {
   final InquiryDetailModel inquiry;
 

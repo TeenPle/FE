@@ -182,6 +182,14 @@ The privacy policy must be reachable from:
 - Play Store listing.
 - Inside the app.
 
+Use the official TeenPle web pages for review:
+
+- Privacy policy: `https://teenple.app/privacy`
+- Privacy collection consent: `https://teenple.app/privacy-consent`
+- Terms: `https://teenple.app/terms`
+- Support/contact: `https://teenple.app/support`
+- Account deletion: `https://teenple.app/account-deletion`
+
 It should cover:
 
 - Account data: login ID, email, phone number, nickname.

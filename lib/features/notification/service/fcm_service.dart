@@ -201,13 +201,15 @@ class FcmService {
       return true;
     }
 
-    // 문의 답변 알림 — 해당 문의 상세 페이지로 이동한다.
+    // 문의 답변 알림 — 앱 내부 문의 상세로 이동한다.
     if (data['type'] == 'INQUIRY' || data['targetType'] == 'INQUIRY') {
       final inquiryId = int.tryParse(data['targetId'] ?? '');
       if (inquiryId != null) {
         router.push(AppRoutes.inquiryDetail(inquiryId));
-        return true;
+      } else {
+        router.push(AppRoutes.myInquiries);
       }
+      return true;
     }
 
     // 경고 알림 — 내 경고 내역 페이지로 이동한다.
@@ -385,7 +387,9 @@ class FcmService {
 
   Future<void> _initLocalNotifications() async {
     // 상태바 small icon은 흰색 실루엣 전용 아이콘을 사용 (풀컬러 아이콘은 덩어리로 보임)
-    const androidInit = AndroidInitializationSettings('@drawable/ic_notification');
+    const androidInit = AndroidInitializationSettings(
+      '@drawable/ic_notification',
+    );
     const iosInit = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,

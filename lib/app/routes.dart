@@ -55,10 +55,8 @@ import '../features/profile/pages/my_bookmarks_page.dart';
 import '../features/profile/pages/my_posts_page.dart';
 import '../features/dday/pages/dday_settings_page.dart';
 import '../features/school/pages/hot_board_page.dart';
-import '../features/profile/pages/privacy_policy_page.dart';
 import '../features/profile/pages/profile_page.dart';
 import '../features/profile/pages/settings_page.dart';
-import '../features/profile/pages/terms_page.dart';
 import '../features/chat/pages/chat_room_list_page.dart';
 import '../features/chat/pages/chat_room_page.dart';
 import '../features/school/models/board_model.dart';
@@ -140,6 +138,11 @@ class AppRoutes {
 
   static const adminInquiries = '/admin/inquiries';
   static const adminAds = '/admin/ads';
+  static const myInquiries = '/settings/inquiries';
+  static const inquiryWrite = '/settings/inquiries/new';
+
+  static String inquiryDetail(int inquiryId) =>
+      '/settings/inquiries/$inquiryId';
 
   /// 愿由ъ옄 ?좉퀬 ?곸꽭 ?섏씠吏
   static String adminReportDetail(int id) => '/admin/reports/$id';
@@ -209,10 +212,8 @@ class AppRoutes {
   static const resetPassword = '/find-password/reset';
 
   /// ?댁슜?쎄? ?섏씠吏
-  static const terms = '/settings/terms';
 
   /// 媛쒖씤?뺣낫泥섎━諛⑹묠 ?섏씠吏
-  static const privacyPolicy = '/settings/privacy-policy';
 
   /// D-Day ?ㅼ젙 ?섏씠吏
   static const ddaySettings = '/settings/dday';
@@ -225,10 +226,6 @@ class AppRoutes {
 
   /// ??寃쎄퀬 ?대젰 ?섏씠吏
   static const myWarnings = '/profile/warnings';
-
-  static const inquiries = '/profile/inquiries';
-  static const inquiryWrite = '/profile/inquiries/write';
-  static String inquiryDetail(int id) => '/profile/inquiries/$id';
 
   /// 愿由ъ옄 ?좎?蹂??쒖옱쨌寃쎄퀬 ?대젰 ?섏씠吏
   static String adminUserHistory(int userId) => '/admin/users/$userId/history';
@@ -427,6 +424,22 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
+      path: AppRoutes.myInquiries,
+      builder: (context, state) => const InquiryPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.inquiryWrite,
+      builder: (context, state) => const InquiryWritePage(),
+    ),
+    GoRoute(
+      path: '/settings/inquiries/:inquiryId',
+      builder: (context, state) {
+        final inquiryId = int.parse(state.pathParameters['inquiryId']!);
+        return InquiryDetailPage(inquiryId: inquiryId);
+      },
+    ),
+
+    GoRoute(
       path: '/admin/reports/:reportId',
       redirect: _adminOnly,
       builder: (context, state) {
@@ -609,16 +622,6 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
-      path: AppRoutes.terms,
-      builder: (context, state) => const TermsPage(),
-    ),
-
-    GoRoute(
-      path: AppRoutes.privacyPolicy,
-      builder: (context, state) => const PrivacyPolicyPage(),
-    ),
-
-    GoRoute(
       path: AppRoutes.ddaySettings,
       builder: (context, state) => const DDaySettingsPage(),
     ),
@@ -637,22 +640,6 @@ final GoRouter router = GoRouter(
       path: AppRoutes.myWarnings,
       builder: (context, state) => const MyWarningHistoryPage(),
     ),
-    GoRoute(
-      path: AppRoutes.inquiries,
-      builder: (context, state) => const InquiryPage(),
-    ),
-    GoRoute(
-      path: AppRoutes.inquiryWrite,
-      builder: (context, state) => const InquiryWritePage(),
-    ),
-    GoRoute(
-      path: '/profile/inquiries/:inquiryId',
-      builder: (context, state) {
-        final inquiryId = int.parse(state.pathParameters['inquiryId']!);
-        return InquiryDetailPage(inquiryId: inquiryId);
-      },
-    ),
-
     GoRoute(
       path: '/admin/users/:userId/history',
       redirect: _adminOnly,

@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'auth_bottom_action_area.dart';
+import '../../../core/config/web_links.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/external_links.dart';
 import '../../../core/utils/haptics.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 
@@ -25,10 +27,9 @@ class SignupConsentPage extends StatefulWidget {
 }
 
 class _SignupConsentPageState extends State<SignupConsentPage> {
-  static const _termsUrl =
-      'https://www.notion.so/7715bdc3bc8c479c859d6716aa4bfeac';
+  static const _termsUrl = teenpleTermsUrl;
   static const _privacyCollectionConsentUrl =
-      'https://www.notion.so/35e4dbb9055f80a8baa4d993a79d0e61';
+      teenplePrivacyCollectionConsentUrl;
 
   bool _agreeTerms = false;
   bool _agreePrivacy = false;
@@ -62,7 +63,7 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
     });
   }
 
-  /// 실제 배포 앱에서 사용자가 전체 원문을 확인할 수 있도록 Notion 문서를
+  /// 실제 배포 앱에서 사용자가 전체 원문을 확인할 수 있도록 공식 웹 문서를
   /// 외부 브라우저/앱으로 엽니다. 앱 내 요약 동의와 별개로, 최신 법적 문서는
   /// 전달받은 고정 URL에서 확인하게 하여 문서 교체 시 앱 심사 영향도 줄입니다.
   Future<void> _openExternalLegalUrl(String url) async {
@@ -87,7 +88,9 @@ class _SignupConsentPageState extends State<SignupConsentPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
             disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
@@ -646,7 +649,8 @@ class _PrivacyNote extends StatelessWidget {
               decoration: TextDecoration.underline,
             ),
             recognizer: TapGestureRecognizer()
-              ..onTap = () => context.push(AppRoutes.privacyPolicy),
+              ..onTap = () =>
+                  openExternalLink(context, teenplePrivacyPolicyUrl),
           ),
           const TextSpan(text: '을 확인하세요.'),
         ],

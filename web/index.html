@@ -1,46 +1,132 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ko">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
-
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="TeenPle">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="TeenPle">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://teenple.app/">
+  <link rel="icon" type="image/png" href="/favicon.png">
   <title>TeenPle</title>
-  <link rel="manifest" href="manifest.json">
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --text: #17202a;
+  --muted: #5f6b7a;
+  --line: #dfe6ef;
+  --accent: #146ef5;
+  --accent-soft: #eaf1ff;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.68;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+main {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 36px 18px 64px;
+}
+header { padding: 12px 0 24px; }
+.kicker {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+.summary {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px 18px;
+  box-shadow: 0 8px 24px rgba(20, 40, 80, 0.06);
+}
+.grid {
+  display: grid;
+  gap: 12px;
+}
+.link-row {
+  display: block;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  background: #fff;
+}
+.link-row strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text);
+  font-size: 15px;
+}
+.link-row span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+.link-row.primary {
+  border-color: #bcd1ff;
+  background: var(--accent-soft);
+}
+a { color: var(--accent); font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+footer { margin-top: 20px; color: var(--muted); font-size: 12px; text-align: center; }
+@media (min-width: 640px) {
+  main { padding-top: 56px; }
+  h1 { font-size: 34px; }
+  .panel { padding: 28px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <main>
+    <header>
+      <p class="kicker">TeenPle</p>
+      <h1>TeenPle</h1>
+      <p class="summary">TeenPle의 주요 안내와 공식 문서를 확인할 수 있습니다.</p>
+    </header>
+    <section class="panel grid" aria-label="공식 문서 링크">
+      <a class="link-row primary" href="/support">
+        <strong>문의하기</strong>
+        <span>앱 이용, 계정, 신고, 개인정보 관련 문의</span>
+      </a>
+      <a class="link-row" href="/privacy">
+        <strong>개인정보처리방침</strong>
+        <span>개인정보 처리 목적, 항목, 보유 기간, 위탁 안내</span>
+      </a>
+      <a class="link-row" href="/privacy-consent">
+        <strong>개인정보 수집·이용 동의</strong>
+        <span>회원가입 및 학교 인증을 위한 필수 동의</span>
+      </a>
+      <a class="link-row" href="/terms">
+        <strong>서비스 이용약관</strong>
+        <span>TeenPle 서비스 이용 조건과 회원 의무</span>
+      </a>
+      <a class="link-row" href="/account-deletion">
+        <strong>계정 삭제 안내</strong>
+        <span>회원 탈퇴 및 개인정보 삭제 요청 방법</span>
+      </a>
+    </section>
+    <footer>© TeenPle</footer>
+  </main>
 </body>
 </html>

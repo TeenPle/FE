@@ -75,14 +75,26 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
       CrisisBanner.containsCrisisKeyword(_titleController.text) ||
       CrisisBanner.containsCrisisKeyword(_contentController.text);
 
-  bool get _canSubmit {
-    return (widget.isEditMode || _selectedBoardId != null) &&
-        _titleController.text.trim().isNotEmpty &&
-        _contentController.text.trim().isNotEmpty &&
-        _titleLength <= _titleLimit &&
-        _contentLength <= _contentLimit &&
-        !_isSubmitting;
+  String? get _submitValidationMessage {
+    if (!widget.isEditMode && _selectedBoardId == null) {
+      return '게시판을 선택해 주세요.';
+    }
+    if (_titleController.text.trim().isEmpty) {
+      return '제목을 입력해 주세요.';
+    }
+    if (_contentController.text.trim().isEmpty) {
+      return '내용을 입력해 주세요.';
+    }
+    if (_titleLength > _titleLimit) {
+      return '제목은 $_titleLimit자 이하로 입력해 주세요.';
+    }
+    if (_contentLength > _contentLimit) {
+      return '내용은 $_contentLimit자 이하로 입력해 주세요.';
+    }
+    return null;
   }
+
+  bool get _canSubmit => _submitValidationMessage == null && !_isSubmitting;
 
   @override
   void initState() {
@@ -246,7 +258,17 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
   }
 
   Future<void> _submit() async {
-    if (!_canSubmit) return;
+    if (_isSubmitting) return;
+
+    final validationMessage = _submitValidationMessage;
+    if (validationMessage != null) {
+      showAppSnackBar(
+        validationMessage,
+        backgroundColor: const Color(0xFFE05C7B),
+      );
+      return;
+    }
+
     FocusScope.of(context).unfocus();
     setState(() => _isSubmitting = true);
 
@@ -456,6 +478,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                 title: titleText,
                 submitText: _isSubmitting ? '저장 중' : submitText,
                 canSubmit: _canSubmit,
+                isSubmitting: _isSubmitting,
                 onClose: () async {
                   if (await _onWillPop() && mounted) {
                     navigator.pop();
@@ -591,6 +614,7 @@ class _WriteHeader extends StatelessWidget {
   final String title;
   final String submitText;
   final bool canSubmit;
+  final bool isSubmitting;
   final VoidCallback onClose;
   final VoidCallback onSubmit;
 
@@ -598,6 +622,7 @@ class _WriteHeader extends StatelessWidget {
     required this.title,
     required this.submitText,
     required this.canSubmit,
+    required this.isSubmitting,
     required this.onClose,
     required this.onSubmit,
   });
@@ -625,11 +650,17 @@ class _WriteHeader extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: canSubmit ? onSubmit : null,
+            onPressed: isSubmitting ? null : onSubmit,
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF2F80ED),
+              foregroundColor: canSubmit
+                  ? const Color(0xFF2F80ED)
+                  : c.textSecondary,
+              backgroundColor: canSubmit ? Colors.transparent : c.subtleBg,
               disabledForegroundColor: const Color(0xFFB8CCDF),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: Text(submitText, style: AppTextStyles.labelMedium),
           ),
@@ -1109,6 +1140,7 @@ class _PollFormPageState extends State<_PollFormPage> {
               title: '투표 만들기',
               submitText: '완료',
               canSubmit: _canSave,
+              isSubmitting: false,
               onClose: () => Navigator.pop(context),
               onSubmit: () => Navigator.pop(
                 context,

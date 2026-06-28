@@ -189,7 +189,9 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
             disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
@@ -399,7 +401,9 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: gender == 'MALE'
-                          ? const Color(0xFFF2F5FF)
+                          ? (isDark
+                                ? const Color(0xFF1E2C46)
+                                : const Color(0xFFF2F5FF))
                           : context.colors.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
@@ -413,7 +417,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                       '남성',
                       style: AppTextStyles.titleSmall.copyWith(
                         color: gender == 'MALE'
-                            ? const Color(0xFF4A67F2)
+                            ? context.colors.textPrimary
                             : context.colors.textPrimary,
                       ),
                     ),
@@ -431,7 +435,9 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: gender == 'FEMALE'
-                          ? const Color(0xFFF2F5FF)
+                          ? (isDark
+                                ? const Color(0xFF1E2C46)
+                                : const Color(0xFFF2F5FF))
                           : context.colors.cardBg,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
@@ -445,7 +451,7 @@ class _SignupProfileInfoPageState extends ConsumerState<SignupProfileInfoPage> {
                       '여성',
                       style: AppTextStyles.titleSmall.copyWith(
                         color: gender == 'FEMALE'
-                            ? const Color(0xFF4A67F2)
+                            ? context.colors.textPrimary
                             : context.colors.textPrimary,
                       ),
                     ),

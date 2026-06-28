@@ -322,15 +322,15 @@ class _CommentBody extends StatelessWidget {
                   ),
                 ],
               ),
-              if (comment.content.isNotEmpty) const SizedBox(height: 4),
+              if (comment.content.isNotEmpty) const SizedBox(height: 6),
               if (comment.content.isNotEmpty)
                 Padding(
                   padding: EdgeInsets.only(left: isReply ? 0 : 1),
                   child: Text(
                     comment.content,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
-                      height: isReply ? 1.3 : 1.38,
+                      fontSize: 13,
+                      height: isReply ? 1.34 : 1.42,
                       color: c.textBody,
                       letterSpacing: 0,
                     ),

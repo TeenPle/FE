@@ -117,7 +117,7 @@ class _BadgeIcon extends StatelessWidget {
                 child: Text(
                   count > 99 ? '99+' : '$count',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 9,
+                    fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
                   ),

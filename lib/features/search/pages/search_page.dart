@@ -126,6 +126,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         focusNode: _focusNode,
                         textInputAction: TextInputAction.search,
                         style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 14,
                           color: c.textPrimary,
                         ),
                         onChanged: (value) {
@@ -138,6 +139,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         decoration: InputDecoration(
                           hintText: '제목, 본문으로 검색',
                           hintStyle: AppTextStyles.captionLarge.copyWith(
+                            fontSize: 13,
                             color: c.textTertiary,
                           ),
                           prefixIcon: Icon(Icons.search, color: c.textMuted),
@@ -167,6 +169,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                     child: Text(
                       '검색',
                       style: AppTextStyles.titleSmall.copyWith(
+                        fontSize: 14,
                         color: c.textPrimary,
                       ),
                     ),
@@ -186,7 +189,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               state.hasSearched
                   ? '"${state.keyword}" 검색 결과${state.scopeTitle == null ? '' : ' · ${state.scopeTitle}'}'
                   : '${state.scopeTitle ?? '전체 게시판'}에서 제목이나 본문 키워드를 검색해보세요.',
-              style: AppTextStyles.labelSmall.copyWith(color: c.textMuted),
+              style: AppTextStyles.labelSmall.copyWith(
+                fontSize: 12,
+                color: c.textMuted,
+              ),
             ),
           ),
           Expanded(
@@ -330,11 +336,8 @@ class _SearchResultCard extends StatelessWidget {
                   width: 74,
                   height: 74,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    width: 74,
-                    height: 74,
-                    color: c.subtleBg,
-                  ),
+                  errorBuilder: (_, _, _) =>
+                      Container(width: 74, height: 74, color: c.subtleBg),
                 ),
               ),
               const SizedBox(width: 14),
@@ -348,10 +351,12 @@ class _SearchResultCard extends StatelessWidget {
                     keyword: keyword,
                     maxLines: 2,
                     defaultStyle: AppTextStyles.titleSmall.copyWith(
+                      fontSize: 14,
                       color: c.textPrimary,
                       height: 1.2,
                     ),
                     highlightStyle: AppTextStyles.titleSmall.copyWith(
+                      fontSize: 14,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF0E9BFF),
                       height: 1.2,
@@ -363,10 +368,12 @@ class _SearchResultCard extends StatelessWidget {
                     keyword: keyword,
                     maxLines: 3,
                     defaultStyle: AppTextStyles.captionLarge.copyWith(
+                      fontSize: 13,
                       color: c.textBody,
                       height: 1.35,
                     ),
                     highlightStyle: AppTextStyles.labelMedium.copyWith(
+                      fontSize: 13,
                       color: Color(0xFF0E9BFF),
                       height: 1.35,
                     ),
@@ -377,6 +384,7 @@ class _SearchResultCard extends StatelessWidget {
                       Text(
                         _timeText,
                         style: AppTextStyles.captionSmall.copyWith(
+                          fontSize: 12,
                           color: c.textTertiary,
                         ),
                       ),
@@ -384,6 +392,7 @@ class _SearchResultCard extends StatelessWidget {
                       Text(
                         '|',
                         style: AppTextStyles.captionSmall.copyWith(
+                          fontSize: 12,
                           color: c.borderSubtle,
                         ),
                       ),
@@ -391,6 +400,7 @@ class _SearchResultCard extends StatelessWidget {
                       Text(
                         post.displayAuthorName,
                         style: AppTextStyles.captionSmall.copyWith(
+                          fontSize: 12,
                           color: c.textTertiary,
                         ),
                       ),
@@ -509,7 +519,10 @@ class _MetaText extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 2),
-        Text(text, style: AppTextStyles.labelSmall.copyWith(color: color)),
+        Text(
+          text,
+          style: AppTextStyles.labelSmall.copyWith(fontSize: 12, color: color),
+        ),
       ],
     );
   }
@@ -549,14 +562,20 @@ class _RecentSearchSection extends StatelessWidget {
           children: [
             Text(
               '최근 검색어',
-              style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
+              style: AppTextStyles.titleSmall.copyWith(
+                fontSize: 14,
+                color: c.textPrimary,
+              ),
             ),
             const Spacer(),
             TextButton(
               onPressed: onClearAll,
               child: Text(
                 '전체 삭제',
-                style: AppTextStyles.labelSmall.copyWith(color: c.textMuted),
+                style: AppTextStyles.labelSmall.copyWith(
+                  fontSize: 12,
+                  color: c.textMuted,
+                ),
               ),
             ),
           ],
@@ -588,6 +607,7 @@ class _RecentSearchSection extends StatelessWidget {
                           child: Text(
                             keyword,
                             style: AppTextStyles.labelMedium.copyWith(
+                              fontSize: 14,
                               color: c.textPrimary,
                             ),
                           ),
@@ -626,6 +646,7 @@ class _SearchInitialState extends StatelessWidget {
           '최근 검색어가 없어요.\n찾고 싶은 게시글의 제목이나 본문 키워드를 입력해보세요.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 14,
             height: 1.5,
             color: c.textMuted,
           ),
@@ -647,7 +668,10 @@ class _SearchEmptyState extends StatelessWidget {
         child: Text(
           '검색 결과가 없어요.',
           textAlign: TextAlign.center,
-          style: AppTextStyles.titleSmall.copyWith(color: c.textMuted),
+          style: AppTextStyles.titleSmall.copyWith(
+            fontSize: 14,
+            color: c.textMuted,
+          ),
         ),
       ),
     );
@@ -692,7 +716,10 @@ class _LoadMoreSection extends StatelessWidget {
         ),
         child: Text(
           '검색 결과 더보기',
-          style: AppTextStyles.labelMedium.copyWith(color: c.textSecondary),
+          style: AppTextStyles.labelMedium.copyWith(
+            fontSize: 13,
+            color: c.textSecondary,
+          ),
         ),
       ),
     );

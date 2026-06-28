@@ -79,7 +79,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
         scrolledUnderElevation: 0,
         title: Text(
           '시간표',
-          style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
+          style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
         ),
         centerTitle: true,
         actions: [
@@ -133,7 +133,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                               Text(
                                 '시간표 되돌리기',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: c.textMuted,
                                 ),
@@ -351,7 +351,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                         child: Text(
                           '수정됨',
                           style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF1E8CE8),
                           ),
@@ -365,7 +365,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
                   Text(
                     'NEIS 원본: $neisSubject',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: bc.textMuted,
                     ),
                   ),
@@ -699,6 +699,7 @@ class _MemoBottomSheetState extends State<_MemoBottomSheet> {
                 autofocus: true,
                 maxLength: 36,
                 style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 14,
                   color: c.textBody,
                   fontWeight: FontWeight.w700,
                 ),
@@ -808,7 +809,7 @@ class _PeriodSegment extends StatelessWidget {
             child: Text(
               label,
               style: AppTextStyles.captionSmall.copyWith(
-                fontSize: 9,
+                fontSize: 11,
                 color: selected ? Colors.white : c.textMuted,
                 fontWeight: FontWeight.w900,
               ),
@@ -973,7 +974,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                     Text(
                       '학교 시간표를 불러올 때 사용돼요.',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 9,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: c.textMuted,
                       ),
@@ -999,13 +1000,13 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                 decoration: InputDecoration(
                   hintText: '3',
                   hintStyle: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: c.textHint,
                   ),
                   suffixText: '반',
                   suffixStyle: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: c.textSecondary,
                   ),
@@ -1041,7 +1042,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                 child: Text(
                   '나중에 우측 상단 수정 버튼으로 변경할 수 있어요.',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: c.textMuted,
                   ),
@@ -1066,7 +1067,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                   child: Text(
                     '취소',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -1088,7 +1089,7 @@ class _ClassRoomDialogContentState extends State<_ClassRoomDialogContent> {
                   child: Text(
                     '시간표 보기',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1163,7 +1164,7 @@ class _WeekNavigator extends ConsumerWidget {
                 Text(
                   '${state.week?.grade ?? '?'}학년 ${state.classRoom}반',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: c.textMuted,
                   ),
                 ),
@@ -1267,7 +1268,7 @@ class _TodayMemoCard extends StatelessWidget {
                         Text(
                           '추가',
                           style: AppTextStyles.captionSmall.copyWith(
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.w900,
                             color: addColor,
                           ),
@@ -1353,7 +1354,7 @@ class _MemoRow extends StatelessWidget {
               memo.time,
               textAlign: TextAlign.left,
               style: AppTextStyles.labelSmall.copyWith(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w900,
                 color: timeColor,
               ),
@@ -1368,7 +1369,7 @@ class _MemoRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 13,
                 color: c.textPrimary,
                 fontWeight: FontWeight.w800,
               ),
@@ -1427,7 +1428,7 @@ class _TimetableGrid extends StatelessWidget {
                   (constraints.maxWidth - 34) / _days.length;
               final cellHeight = subjectColumnWidth.clamp(40.0, 48.0);
               final headerHeight = (cellHeight * 0.68).clamp(26.0, 32.0);
-              final subjectFontSize = subjectColumnWidth < 48 ? 9.0 : 10.0;
+              final subjectFontSize = subjectColumnWidth < 48 ? 11.0 : 12.0;
 
               return Table(
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -1479,7 +1480,7 @@ class _TimetableGrid extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: c.textHint,
                   ),
                 ),
@@ -1518,7 +1519,7 @@ class _TimetableGrid extends StatelessWidget {
           child: Text(
             text,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
               color: highlight || isToday
                   ? const Color(0xFF14A3F7)
@@ -1543,7 +1544,7 @@ class _TimetableGrid extends StatelessWidget {
         child: Text(
           '$period',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.w900,
             color: c.textMuted,
           ),
@@ -1680,7 +1681,7 @@ class _ClassRoomPrompt extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     textStyle: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1795,7 +1796,7 @@ class _NeisNotConfigured extends StatelessWidget {
           Text(
             '학교 NEIS 정보가 아직 등록되지 않았어요.',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 10,
+              fontSize: 12,
               color: c.textMuted,
             ),
           ),

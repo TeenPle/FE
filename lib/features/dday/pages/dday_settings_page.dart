@@ -212,7 +212,7 @@ class _DDayEditSheetState extends State<_DDayEditSheet> {
                                   height: 1.2,
                                 ),
                             headerHelpStyle: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 11,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                               height: 1.1,
                             ),
@@ -415,7 +415,7 @@ class _DDayTile extends StatelessWidget {
                     Text(
                       '${dday.targetDate.year}.${dday.targetDate.month.toString().padLeft(2, '0')}.${dday.targetDate.day.toString().padLeft(2, '0')}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 11,
+                        fontSize: 14,
                         color: c.textTertiary,
                       ),
                     ),

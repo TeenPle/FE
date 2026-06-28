@@ -69,7 +69,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
         title: Text(
           '닉네임 변경',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -111,7 +111,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                           child: Text(
                             '닉네임은 30일에 한 번 변경할 수 있습니다.\n$daysLeft일 후에 다시 변경 가능합니다.',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 11,
+                              fontSize: 12,
                               height: 1.5,
                               color: Color(0xFF8A6200),
                               fontWeight: FontWeight.w600,
@@ -125,7 +125,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                 Text(
                   '새 닉네임',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: c.textPrimary,
                   ),
@@ -213,7 +213,7 @@ class _EditNicknamePageState extends ConsumerState<EditNicknamePage> {
                         : Text(
                             canChange ? '변경하기' : '$daysLeft일 후 변경 가능',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

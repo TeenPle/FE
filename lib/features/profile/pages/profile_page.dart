@@ -89,7 +89,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         title: Text(
           '내 프로필',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -259,7 +259,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
               Text(
                 '${profile.schoolName} · ${profile.gradeLabel}',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: c.textMuted,
                 ),
               ),
@@ -277,7 +277,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
                   child: Text(
                     '인증됨',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF14A3F7),
                     ),
@@ -314,7 +314,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
                   : '${profile.daysUntilNicknameChange}일 후 변경 가능',
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
           ),
@@ -346,7 +346,7 @@ class _InfoSection extends StatelessWidget {
           Text(
             '내 정보',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: c.textPrimary,
             ),
@@ -401,7 +401,7 @@ class _InfoRow extends StatelessWidget {
               Text(
                 label,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: c.textMuted,
                 ),
               ),
@@ -409,7 +409,7 @@ class _InfoRow extends StatelessWidget {
               Text(
                 value,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: valueColor ?? c.textPrimary,
                 ),
@@ -568,7 +568,7 @@ class _ActivityTile extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: c.textPrimary,
               ),
@@ -578,7 +578,7 @@ class _ActivityTile extends StatelessWidget {
               Text(
                 '$count',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF14A3F7),
                 ),
@@ -727,7 +727,7 @@ class _ProfileThemeCard extends ConsumerWidget {
               Text(
                 '테마',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: c.textPrimary,
                 ),
@@ -787,7 +787,7 @@ class _ProfileThemeSegment extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : c.textTertiary,
           ),
@@ -929,7 +929,7 @@ class _ProfileNotificationToggleTile extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: color,
             ),
@@ -1008,7 +1008,7 @@ class _ProfileInfoTile extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
@@ -1017,7 +1017,7 @@ class _ProfileInfoTile extends StatelessWidget {
           Text(
             trailing,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 12,
+              fontSize: 13,
               color: c.textTertiary,
             ),
           ),
@@ -1039,7 +1039,7 @@ class _ProfileSectionHeader extends StatelessWidget {
       child: Text(
         label,
         style: AppTextStyles.bodyMedium.copyWith(
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w700,
           color: c.textMuted,
         ),
@@ -1113,7 +1113,7 @@ class _ProfileSettingsTile extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

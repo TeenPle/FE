@@ -55,7 +55,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
         title: Text(
           '내가 쓴 댓글',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -93,7 +93,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
             Text(
               '아직 쓴 댓글이 없어요.',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 color: c.textMuted,
               ),
             ),
@@ -143,7 +143,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                         child: Text(
                           comment.boardTitle!,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF14A3F7),
                           ),
@@ -157,7 +157,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                       child: Text(
                         comment.postTitle,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
+                          fontSize: 13,
                           color: cc.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
@@ -171,7 +171,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                 Text(
                   comment.content,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
+                    fontSize: 14,
                     height: 1.5,
                     color: cc.textBody,
                   ),
@@ -191,7 +191,7 @@ class _MyCommentsPageState extends ConsumerState<MyCommentsPage> {
                     Text(
                       '${comment.likeCount}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 11,
+                        fontSize: 12,
                         color: _likeAccentColor,
                         fontWeight: FontWeight.w600,
                       ),
@@ -228,7 +228,7 @@ class _LoadError extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 color: c.textMuted,
               ),
             ),

@@ -50,7 +50,7 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
         title: Text(
           '문의하기',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -173,7 +173,7 @@ class _InquiryWebSupportCard extends StatelessWidget {
                     Text(
                       title,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: c.textPrimary,
                       ),
@@ -182,7 +182,7 @@ class _InquiryWebSupportCard extends StatelessWidget {
                     Text(
                       body,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10.5,
+                        fontSize: 12.5,
                         height: 1.45,
                         color: c.textSecondary,
                       ),
@@ -201,7 +201,7 @@ class _InquiryWebSupportCard extends StatelessWidget {
                       label: Text(
                         '웹 문의 페이지 보기',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF1677FF),
                         ),
@@ -287,7 +287,7 @@ class _InquiryHeroCard extends StatelessWidget {
                                 ),
                                 style: AppTextStyles.displaySmall.copyWith(
                                   // 제목 폰트 한 단계 축소: compact 17→15, 일반 19→17
-                                  fontSize: compact ? 15 : 17,
+                                  fontSize: compact ? 16 : 18,
                                   fontWeight: FontWeight.w900,
                                   height: 1.25,
                                   letterSpacing: 0,
@@ -297,7 +297,7 @@ class _InquiryHeroCard extends StatelessWidget {
                               Text(
                                 '앱 이용 중 불편한 점이나 궁금한 내용을\n빠르게 확인하고 답변해 드릴게요.',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: compact ? 9.5 : 10.5,
+                                  fontSize: compact ? 11.5 : 12.5,
                                   height: 1.7,
                                   color: c.textSecondary,
                                   fontWeight: FontWeight.w500,
@@ -462,7 +462,7 @@ class _InquiryEntryCard extends StatelessWidget {
                     Text(
                       '새 문의 작성',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 14,
+                        fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: c.textPrimary,
                       ),
@@ -471,7 +471,7 @@ class _InquiryEntryCard extends StatelessWidget {
                     Text(
                       '앱 이용 중 불편한 점이나 궁금한 내용을 남겨주세요.',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10,
+                        fontSize: 12,
                         height: 1.45,
                         color: c.textMuted,
                       ),
@@ -517,7 +517,7 @@ class _InquirySectionHeader extends StatelessWidget {
               Text(
                 '내 문의 내역',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w900,
                   color: c.textPrimary,
                 ),
@@ -583,7 +583,7 @@ class _InquiryFilterChip extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: selected ? Colors.white : c.textPrimary,
             ),
@@ -626,7 +626,7 @@ class _InquiryListTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: c.textPrimary,
                       ),
@@ -639,7 +639,7 @@ class _InquiryListTile extends StatelessWidget {
                         Text(
                           timeAgo(inquiry.createdAt),
                           style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: c.textTertiary,
                           ),
                         ),
@@ -699,7 +699,7 @@ class _InquiryNoticeCard extends StatelessWidget {
                     Text(
                       '문의 내용은 운영 확인 후 답변돼요',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: c.textPrimary,
                       ),
@@ -708,7 +708,7 @@ class _InquiryNoticeCard extends StatelessWidget {
                     Text(
                       '접수된 내용은 답변과 서비스 개선에 필요한 범위에서만 확인합니다.',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10,
+                        fontSize: 12,
                         height: 1.45,
                         color: c.textSecondary,
                       ),
@@ -749,7 +749,7 @@ class _InquiryStatusBadge extends StatelessWidget {
       child: Text(
         inquiry.statusLabel,
         style: AppTextStyles.bodyMedium.copyWith(
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.w800,
           color: answered
               ? (isDark ? const Color(0xFF5FE0CF) : const Color(0xFF1F8F4D))
@@ -775,7 +775,7 @@ class _InquiryEmptyState extends StatelessWidget {
         text,
         textAlign: TextAlign.center,
         style: AppTextStyles.bodyMedium.copyWith(
-          fontSize: 12,
+          fontSize: 14,
           color: c.textMuted,
         ),
       ),

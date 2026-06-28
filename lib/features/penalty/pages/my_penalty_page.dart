@@ -39,7 +39,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
         title: Text(
           '제재 이력',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -56,7 +56,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
             child: Text(
               '제재 이력',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: c.textTertiary,
                 letterSpacing: 0.3,
@@ -93,7 +93,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
               child: Text(
                 '제재 이력이 없어요.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
+                  fontSize: 14,
                   color: c.textMuted,
                 ),
               ),
@@ -132,7 +132,7 @@ class _MyPenaltyPageState extends ConsumerState<MyPenaltyPage> {
                             : Text(
                                 '더보기',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: c.textMuted,
                                 ),
@@ -203,7 +203,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '현재 제재 중',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFFE05C7B),
                         ),
@@ -212,7 +212,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '사유: ${penalty.reasonLabel}',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
+                          fontSize: 13,
                           color: c.iconOnCard,
                         ),
                       ),
@@ -220,7 +220,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '해제 예정: ${_formatDate(penalty.expiresAt!)}',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
+                          fontSize: 13,
                           color: c.iconOnCard,
                         ),
                       ),
@@ -228,7 +228,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '제재 기간 중 게시글·댓글 작성 및 채팅이 제한됩니다.',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
+                          fontSize: 13,
                           color: c.textMuted,
                           height: 1.4,
                         ),
@@ -241,7 +241,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '정상 이용 중',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF43A047),
                         ),
@@ -250,7 +250,7 @@ class _ActivePenaltyCard extends StatelessWidget {
                       Text(
                         '현재 활성 제재가 없어요.',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
+                          fontSize: 13,
                           color: c.iconOnCard,
                         ),
                       ),
@@ -297,7 +297,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
             child: Text(
               expired ? '만료' : '제재 중',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: expired ? c.textMuted : const Color(0xFFE05C7B),
               ),
@@ -311,7 +311,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
                 Text(
                   penalty.reasonLabel,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: c.textBody,
                   ),
@@ -320,7 +320,7 @@ class _PenaltyHistoryCard extends StatelessWidget {
                 Text(
                   '${_formatDate(penalty.createdAt)} ~ ${_formatDate(penalty.expiresAt)}',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: c.textMuted,
                   ),
                 ),

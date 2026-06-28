@@ -36,7 +36,7 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
         title: Text(
           '내 경고 이력',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -56,7 +56,7 @@ class _MyWarningHistoryPageState extends ConsumerState<MyWarningHistoryPage> {
               child: Text(
                 '경고 이력이 없어요.',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: c.textMuted,
                 ),
               ),
@@ -136,7 +136,7 @@ class _WarningHistoryCard extends StatelessWidget {
               Text(
                 '관리자 경고',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFFF59E0B),
                 ),
@@ -145,7 +145,7 @@ class _WarningHistoryCard extends StatelessWidget {
               Text(
                 issuedStr,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: c.textMuted,
                 ),
               ),
@@ -167,7 +167,7 @@ class _WarningHistoryCard extends StatelessWidget {
                   Text(
                     '신고된 ${warning.targetTypeLabel}',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: c.textMuted,
                     ),
@@ -176,7 +176,7 @@ class _WarningHistoryCard extends StatelessWidget {
                   Text(
                     warning.targetSummary!,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
+                      fontSize: 13,
                       color: c.textBody,
                       height: 1.4,
                     ),
@@ -199,7 +199,7 @@ class _WarningHistoryCard extends StatelessWidget {
             child: Text(
               warning.adminComment,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 13,
                 color: Color(0xFF78350F),
                 height: 1.5,
               ),

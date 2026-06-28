@@ -414,7 +414,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                         title: Text(
                           board.title,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: selected
                                 ? FontWeight.w900
                                 : FontWeight.w700,
@@ -514,6 +514,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                             maxLength,
                           }) => const SizedBox.shrink(),
                       style: AppTextStyles.titleLarge.copyWith(
+                        fontSize: 18,
                         color: context.colors.textPrimary,
                         height: 1.28,
                       ),
@@ -541,6 +542,8 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
                             maxLength,
                           }) => const SizedBox.shrink(),
                       style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 15,
+                        height: 1.55,
                         color: context.colors.textBody,
                       ),
                       decoration: _plainInputDecoration('내용을 입력해주세요'),
@@ -597,6 +600,7 @@ class _WritePostPageState extends ConsumerState<WritePostPage> {
     return InputDecoration(
       hintText: hintText,
       hintStyle: AppTextStyles.labelMedium.copyWith(
+        fontSize: 14,
         color: const Color(0xFF8B95A1),
       ),
       filled: true,
@@ -784,7 +788,7 @@ class _PostWritingGuidelines extends StatelessWidget {
                     child: Text(
                       rule,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10,
+                        fontSize: 11,
                         height: 1.45,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF667789),
@@ -863,7 +867,7 @@ class _WriteBottomToolbar extends StatelessWidget {
                     Text(
                       '익명',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         color: context.colors.textPrimary,
                       ),
@@ -944,7 +948,7 @@ class _ToolIconButton extends StatelessWidget {
                   child: Text(
                     label!,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 7,
+                      fontSize: 9,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                     ),
@@ -1177,11 +1181,13 @@ class _PollFormPageState extends State<_PollFormPage> {
                                     maxLength,
                                   }) => const SizedBox.shrink(),
                               style: AppTextStyles.labelMedium.copyWith(
+                                fontSize: 14,
                                 color: context.colors.textPrimary,
                               ),
                               decoration: InputDecoration(
                                 hintText: '항목 ${index + 1}',
                                 hintStyle: AppTextStyles.labelSmall.copyWith(
+                                  fontSize: 13,
                                   color: const Color(0xFF9AA7B2),
                                 ),
                                 filled: true,
@@ -1381,7 +1387,7 @@ class _ThumbFrame extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: Colors.white,
-                  fontSize: 9,
+                  fontSize: 10,
                 ),
               ),
             ),
@@ -1436,7 +1442,7 @@ class _FilePlaceholder extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 9,
+                fontSize: 11,
                 color: Color(0xFF7D8790),
               ),
             ),

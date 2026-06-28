@@ -39,6 +39,7 @@ class DDayStrip extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelMedium.copyWith(
+                    fontSize: 13,
                     height: 1,
                     color: c.textDisabled,
                     letterSpacing: 0,
@@ -110,6 +111,7 @@ class _InlineDDayText extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.captionLarge.copyWith(
+              fontSize: 13,
               height: 1,
               fontWeight: FontWeight.w700,
               color: c.textBody,
@@ -122,6 +124,7 @@ class _InlineDDayText extends StatelessWidget {
           dDayLabel,
           maxLines: 1,
           style: AppTextStyles.captionLarge.copyWith(
+            fontSize: 13,
             height: 1,
             fontWeight: FontWeight.w900,
             color: color,
@@ -145,6 +148,7 @@ class _Dot extends StatelessWidget {
       child: Text(
         '·',
         style: AppTextStyles.captionLarge.copyWith(
+          fontSize: 13,
           height: 1,
           fontWeight: FontWeight.w700,
           color: color,

@@ -55,7 +55,7 @@ class _MealPageState extends ConsumerState<MealPage> {
         scrolledUnderElevation: 0,
         title: Text(
           '급식',
-          style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
+          style: AppTextStyles.titleLarge.copyWith(color: c.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -162,7 +162,7 @@ class _WeekNavigator extends StatelessWidget {
                 Text(
                   '이번 주 급식',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF14A3F7),
                   ),
@@ -268,7 +268,7 @@ class _WeekDayTile extends StatelessWidget {
             Text(
               _weekdayLabel(date),
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: subColor,
               ),
@@ -277,7 +277,7 @@ class _WeekDayTile extends StatelessWidget {
             Text(
               '${date.day}',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
                 color: foreground,
               ),
@@ -345,6 +345,7 @@ class _SelectedMealCard extends StatelessWidget {
                   Text(
                     '${_monthDay(date)} ${_weekdayLabel(date)}요일',
                     style: AppTextStyles.labelMedium.copyWith(
+                      fontSize: 14,
                       color: c.textPrimary,
                     ),
                   ),
@@ -352,7 +353,7 @@ class _SelectedMealCard extends StatelessWidget {
                   Text(
                     '중식',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: c.textMuted,
                     ),
@@ -373,7 +374,7 @@ class _SelectedMealCard extends StatelessWidget {
                   child: Text(
                     meal!.calories,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF14A3F7),
                     ),
@@ -405,8 +406,9 @@ class _SelectedMealCard extends StatelessWidget {
                       child: Text(
                         dish,
                         style: AppTextStyles.labelMedium.copyWith(
+                          fontSize: 14,
                           color: c.textBody,
-                          height: 1.4,
+                          height: 1.45,
                         ),
                       ),
                     ),
@@ -448,7 +450,10 @@ class _WeeklySummaryCard extends StatelessWidget {
         children: [
           Text(
             '이번 주 한눈에 보기',
-            style: AppTextStyles.labelMedium.copyWith(color: c.textPrimary),
+            style: AppTextStyles.labelMedium.copyWith(
+              fontSize: 14,
+              color: c.textPrimary,
+            ),
           ),
           const SizedBox(height: 10),
           for (final day in days)
@@ -506,7 +511,7 @@ class _WeeklySummaryRow extends StatelessWidget {
               child: Text(
                 _weekdayLabel(date),
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w900,
                   color: selected ? Colors.white : c.textMuted,
                 ),
@@ -519,7 +524,7 @@ class _WeeklySummaryRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: meal == null ? c.textTertiary : c.textBody,
                 ),
@@ -587,7 +592,10 @@ class _EmptyMealInline extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               '이 날짜에는 급식 정보가 없어요.',
-              style: AppTextStyles.labelSmall.copyWith(color: c.textSecondary),
+              style: AppTextStyles.labelSmall.copyWith(
+                fontSize: 12,
+                color: c.textSecondary,
+              ),
             ),
           ],
         ),
@@ -610,13 +618,16 @@ class _NeisNotConfigured extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             '급식 서비스가 연결되지 않았어요',
-            style: AppTextStyles.labelMedium.copyWith(color: c.textSecondary),
+            style: AppTextStyles.labelMedium.copyWith(
+              fontSize: 14,
+              color: c.textSecondary,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             '학교 NEIS 정보가 아직 등록되지 않았어요.',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 10,
+              fontSize: 12,
               color: c.textTertiary,
             ),
           ),
@@ -641,7 +652,7 @@ class _ErrorState extends StatelessWidget {
           message,
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 11,
+            fontSize: 13,
             color: c.textTertiary,
           ),
         ),

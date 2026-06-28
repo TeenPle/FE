@@ -57,7 +57,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
         title: Text(
           '새 문의 작성',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -93,7 +93,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                                 maxLength: 100,
                                 textInputAction: TextInputAction.next,
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: c.textPrimary,
                                 ),
                                 decoration: _inputDecoration(
@@ -106,7 +106,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                               Text(
                                 '핵심 내용을 짧게 적어주세요',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color: c.textMuted,
                                 ),
                               ),
@@ -123,7 +123,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: 12,
+                                  fontSize: 15,
                                   height: 1.55,
                                   color: c.textPrimary,
                                 ),
@@ -149,7 +149,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                                     child: Text(
                                       '상황을 자세히 적어주시면 답변에 도움이 돼요',
                                       style: AppTextStyles.bodyMedium.copyWith(
-                                        fontSize: 10,
+                                        fontSize: 12,
                                         color: c.textMuted,
                                       ),
                                     ),
@@ -157,7 +157,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                                   Text(
                                     '${_contentController.text.length} / 2000',
                                     style: AppTextStyles.bodyMedium.copyWith(
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: c.textSecondary,
                                     ),
@@ -199,7 +199,7 @@ class _InquiryWritePageState extends ConsumerState<InquiryWritePage> {
                     child: Text(
                       state.isSubmitting ? '등록 중...' : '문의 등록',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -285,7 +285,7 @@ class _InquiryWriteHero extends StatelessWidget {
                       ),
                       style: AppTextStyles.displaySmall.copyWith(
                         // 제목 폰트 한 단계 축소: compact 17→15, 일반 19→17
-                        fontSize: compact ? 15 : 17,
+                        fontSize: compact ? 16 : 18,
                         fontWeight: FontWeight.w900,
                         height: 1.45,
                         letterSpacing: 0,
@@ -295,7 +295,7 @@ class _InquiryWriteHero extends StatelessWidget {
                     Text(
                       '자세히 작성해주시면 더 빠르고\n정확하게 도와드릴 수 있어요.',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: compact ? 10 : 11,
+                        fontSize: compact ? 12 : 13,
                         height: 1.65,
                         color: c.textSecondary,
                         fontWeight: FontWeight.w500,
@@ -435,7 +435,7 @@ class _InquiryWriteTip extends StatelessWidget {
             Text(
               '빠른 답변을 위해 정확히 작성해주세요',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: c.textSecondary,
               ),
@@ -476,7 +476,7 @@ class _InquiryWebSupportLink extends StatelessWidget {
                 child: Text(
                   '이 화면에서 앱 내 문의를 접수할 수 있어요.',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: c.textPrimary,
                   ),
@@ -488,7 +488,7 @@ class _InquiryWebSupportLink extends StatelessWidget {
           Text(
             '이메일을 통한 자세한 문의가 필요하면 공식 웹 문의 페이지에서 연락처를 확인해 주세요.',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 10.5,
+              fontSize: 12.5,
               height: 1.45,
               color: c.textSecondary,
             ),
@@ -506,7 +506,7 @@ class _InquiryWebSupportLink extends StatelessWidget {
             label: Text(
               '웹 문의 페이지 보기',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF1677FF),
               ),
@@ -568,7 +568,7 @@ class _FieldLabel extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.titleSmall.copyWith(
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w900,
             color: c.textPrimary,
           ),
@@ -583,7 +583,7 @@ InputDecoration _inputDecoration(BuildContext context, String hintText) {
   return InputDecoration(
     hintText: hintText,
     hintStyle: AppTextStyles.bodyMedium.copyWith(
-      fontSize: 12,
+      fontSize: 14,
       color: c.textHint,
     ),
     filled: true,

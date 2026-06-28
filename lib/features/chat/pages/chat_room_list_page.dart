@@ -312,7 +312,7 @@ class _ChatRoomItem extends ConsumerWidget {
                           child: Text(
                             '탈퇴',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 9,
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: c.textMuted,
                             ),
@@ -335,6 +335,7 @@ class _ChatRoomItem extends ConsumerWidget {
                         Text(
                           '탈퇴한 사용자',
                           style: AppTextStyles.labelSmall.copyWith(
+                            fontSize: 12,
                             color: c.textMuted,
                           ),
                         )
@@ -342,6 +343,7 @@ class _ChatRoomItem extends ConsumerWidget {
                         Text(
                           '익명',
                           style: AppTextStyles.labelSmall.copyWith(
+                            fontSize: 12,
                             color: Color(0xFF1DA1F2),
                           ),
                         ),
@@ -349,6 +351,7 @@ class _ChatRoomItem extends ConsumerWidget {
                         Text(
                           '  ·  ',
                           style: AppTextStyles.captionSmall.copyWith(
+                            fontSize: 12,
                             color: c.textMuted,
                           ),
                         ),
@@ -358,6 +361,7 @@ class _ChatRoomItem extends ConsumerWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.captionSmall.copyWith(
+                              fontSize: 12,
                               color: c.textMuted,
                             ),
                           ),
@@ -376,6 +380,7 @@ class _ChatRoomItem extends ConsumerWidget {
                 Text(
                   _formatTime(room.lastMessageAt),
                   style: AppTextStyles.captionSmall.copyWith(
+                    fontSize: 12,
                     color: c.textMuted,
                   ),
                 ),
@@ -393,7 +398,7 @@ class _ChatRoomItem extends ConsumerWidget {
                     child: Text(
                       room.unreadCount > 99 ? '99+' : '${room.unreadCount}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -412,7 +417,7 @@ class _ChatRoomItem extends ConsumerWidget {
                     child: Text(
                       '차단',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: c.textTertiary,
                       ),

@@ -128,7 +128,7 @@ class _NavItem extends StatelessWidget {
                           badgeCount > 99 ? '99+' : '$badgeCount',
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: Colors.white,
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
                           textAlign: TextAlign.center,
@@ -141,7 +141,7 @@ class _NavItem extends StatelessWidget {
               Text(
                 label,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                   color: color,
                   letterSpacing: 0,

@@ -18,6 +18,8 @@ class SignupStudentInfoPage extends ConsumerWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (bottomSheetContext) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
         /// 현재 회원가입 상태
         final signupFormState = ref.read(signupFormProvider);
 
@@ -94,7 +96,9 @@ class SignupStudentInfoPage extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: selectedGrade == grade
-                            ? const Color(0xFFF2F5FF)
+                            ? (isDark
+                                  ? const Color(0xFF1E2C46)
+                                  : const Color(0xFFF2F5FF))
                             : context.colors.cardBg,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
@@ -168,7 +172,9 @@ class SignupStudentInfoPage extends ConsumerWidget {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
             disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
@@ -275,7 +281,11 @@ class SignupStudentInfoPage extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: context.colors.cardBg,
+                color: selectedGrade != null
+                    ? (isDark
+                          ? const Color(0xFF1E2C46)
+                          : const Color(0xFFF2F5FF))
+                    : context.colors.cardBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selectedGrade != null

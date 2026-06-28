@@ -283,7 +283,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                          child: Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: c.divider,
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: PostActionBar(
@@ -302,7 +309,14 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             onShareTap: () {},
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+                          child: Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: c.divider,
+                          ),
+                        ),
                         if (adsEnabled) ...[
                           const SchoolMainAdCard(
                             fullBleed: true,

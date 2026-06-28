@@ -41,7 +41,7 @@ class SettingsPage extends ConsumerWidget {
         title: Text(
           '설정',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -204,7 +204,7 @@ class _ThemeCard extends ConsumerWidget {
               Text(
                 '테마',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: context.colors.textPrimary,
                 ),
@@ -263,7 +263,7 @@ class _ThemeSegment extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : context.colors.textMuted,
           ),
@@ -409,7 +409,7 @@ class _NotificationToggleTile extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: color,
             ),
@@ -491,7 +491,7 @@ class _InfoTile extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: context.colors.textPrimary,
             ),
@@ -500,7 +500,7 @@ class _InfoTile extends StatelessWidget {
           Text(
             trailing,
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 12,
+              fontSize: 13,
               color: context.colors.textTertiary,
             ),
           ),
@@ -525,7 +525,7 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         label,
         style: AppTextStyles.bodyMedium.copyWith(
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w700,
           color: context.colors.textTertiary,
           letterSpacing: 0.3,
@@ -599,7 +599,7 @@ class _SettingsTile extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

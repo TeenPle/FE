@@ -108,7 +108,9 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
             disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
@@ -212,7 +214,11 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               decoration: BoxDecoration(
-                color: context.colors.cardBg,
+                color: studentCardFilePath.isNotEmpty
+                    ? (isDark
+                          ? const Color(0xFF1E2C46)
+                          : const Color(0xFFF2F5FF))
+                    : context.colors.cardBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: studentCardFilePath.isNotEmpty

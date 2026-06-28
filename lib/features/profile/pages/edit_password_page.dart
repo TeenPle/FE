@@ -87,7 +87,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
         title: Text(
           '비밀번호 변경',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -147,7 +147,7 @@ class _EditPasswordPageState extends ConsumerState<EditPasswordPage> {
                     : Text(
                         '변경하기',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -184,7 +184,7 @@ class _PwField extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: c.textPrimary,
           ),

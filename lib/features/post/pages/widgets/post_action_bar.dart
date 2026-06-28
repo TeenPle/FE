@@ -41,7 +41,7 @@ class PostActionBar extends StatelessWidget {
                 likeCount: likeCount,
                 onTap: onLikeTap,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 14),
               _StaticChip(
                 icon: Icons.chat_bubble_outline_rounded,
                 label: '댓글 $commentCount',

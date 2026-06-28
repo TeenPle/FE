@@ -622,6 +622,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       appBar: AppBar(
         backgroundColor: c.cardBg,
         elevation: 0,
+        leadingWidth: 144,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -1083,7 +1084,7 @@ class _MessageBubble extends StatelessWidget {
                             Text(
                               '1',
                               style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFFFFD600),
                               ),
@@ -1092,7 +1093,7 @@ class _MessageBubble extends StatelessWidget {
                             Text(
                               _formatTime(message.createdAt),
                               style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 10,
+                                fontSize: 11,
                                 color: c.textMuted,
                               ),
                             ),
@@ -1192,7 +1193,7 @@ class _MessageBubble extends StatelessWidget {
                                           '이미지를 불러올 수 없습니다',
                                           style: AppTextStyles.bodyMedium
                                               .copyWith(
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 color: isMe
                                                     ? Colors.white60
                                                     : ctx.colors.textMuted,
@@ -1208,6 +1209,7 @@ class _MessageBubble extends StatelessWidget {
                         : Text(
                             message.content ?? '',
                             style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 14,
                               height: 1.4,
                               color: isMe ? Colors.white : c.textBody,
                             ),
@@ -1219,7 +1221,7 @@ class _MessageBubble extends StatelessWidget {
                       child: Text(
                         _formatTime(message.createdAt),
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 10,
+                          fontSize: 11,
                           color: c.textMuted,
                         ),
                       ),
@@ -1269,7 +1271,7 @@ class _MessageInputBar extends StatelessWidget {
       top: false,
       child: Container(
         color: c.cardBg,
-        padding: const EdgeInsets.fromLTRB(16, 10, 12, 12),
+        padding: const EdgeInsets.fromLTRB(14, 7, 10, 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1316,6 +1318,11 @@ class _MessageInputBar extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: isSending ? null : onImage,
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints(
+                    minWidth: 38,
+                    minHeight: 38,
+                  ),
                   icon: const Icon(
                     Icons.photo_camera_outlined,
                     color: Color(0xFF1DA1F2),
@@ -1342,15 +1349,17 @@ class _MessageInputBar extends StatelessWidget {
                             : '사진 전송 대기 중',
                         counterText: '',
                         hintStyle: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 14,
                           color: c.textMuted,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                          horizontal: 14,
+                          vertical: 8,
                         ),
                       ),
                       style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 14,
                         color: c.textPrimary,
                       ),
                     ),
@@ -1360,8 +1369,8 @@ class _MessageInputBar extends StatelessWidget {
                 GestureDetector(
                   onTap: isSending ? null : onSend,
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: isSending
                           ? const Color(0xFFB0BEC5)
@@ -1695,7 +1704,7 @@ class _ChatNoticeBar extends StatelessWidget {
               '욕설·비방·음란물·폭력적 내용 등 부적절한 메시지에 대한 책임은 작성자 본인에게 있습니다. '
               '위반 시 신고를 통해 이용이 제한될 수 있습니다.',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 height: 1.5,
                 color: Color(0xFF92400E),
               ),

@@ -35,7 +35,7 @@ class BlockSummaryTile extends ConsumerWidget {
           Text(
             '차단한 사용자',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: c.textPrimary,
             ),
@@ -51,7 +51,7 @@ class BlockSummaryTile extends ConsumerWidget {
             Text(
               '$count명',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: c.textMuted,
               ),
@@ -70,7 +70,7 @@ class BlockSummaryTile extends ConsumerWidget {
               child: Text(
                 '전체 해제',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),

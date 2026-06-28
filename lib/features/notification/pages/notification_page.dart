@@ -185,6 +185,7 @@ class _CommentNotificationContent extends StatelessWidget {
           Text(
             notification.boardName!,
             style: AppTextStyles.labelSmall.copyWith(
+              fontSize: 12,
               color: c.textPrimary,
               fontWeight: FontWeight.w800,
             ),
@@ -194,7 +195,7 @@ class _CommentNotificationContent extends StatelessWidget {
         Text(
           notification.message,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
             color: c.textPrimary,
             height: 1.4,
@@ -205,7 +206,10 @@ class _CommentNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
+          style: AppTextStyles.captionSmall.copyWith(
+            fontSize: 12,
+            color: c.textTertiary,
+          ),
         ),
       ],
     );
@@ -230,7 +234,7 @@ class _DefaultNotificationContent extends StatelessWidget {
         Text(
           notification.message,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: isUnread ? FontWeight.w700 : FontWeight.w400,
             color: c.textPrimary,
             height: 1.4,
@@ -239,7 +243,10 @@ class _DefaultNotificationContent extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           timeAgo(notification.createdAt),
-          style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
+          style: AppTextStyles.captionSmall.copyWith(
+            fontSize: 12,
+            color: c.textTertiary,
+          ),
         ),
       ],
     );
@@ -348,12 +355,18 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             '아직 알림이 없어요',
-            style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontSize: 14,
+              color: c.textPrimary,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             '새 댓글이나 좋아요, 채팅이 오면 알려드릴게요.',
-            style: AppTextStyles.captionSmall.copyWith(color: c.textTertiary),
+            style: AppTextStyles.captionSmall.copyWith(
+              fontSize: 12,
+              color: c.textTertiary,
+            ),
           ),
         ],
       ),

@@ -44,7 +44,7 @@ class _InquiryDetailPageState extends ConsumerState<InquiryDetailPage> {
         title: Text(
           '문의 상세',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -123,7 +123,7 @@ class _InquiryWebSupportCard extends StatelessWidget {
                 child: Text(
                   '더 자세한 문의가 필요하신가요?',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: c.textPrimary,
                   ),
@@ -135,7 +135,7 @@ class _InquiryWebSupportCard extends StatelessWidget {
           Text(
             '공식 웹 문의 페이지에서 이메일 문의 주소를 확인할 수 있습니다.',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 10.5,
+              fontSize: 12.5,
               height: 1.45,
               color: c.textSecondary,
             ),
@@ -153,7 +153,7 @@ class _InquiryWebSupportCard extends StatelessWidget {
             label: Text(
               '웹 문의 페이지 보기',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF1677FF),
               ),
@@ -178,7 +178,7 @@ class _DetailHeroCard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 360;
-        final titleSize = compact ? 15.0 : 17.0;
+        final titleSize = compact ? 16.0 : 18.0;
 
         return Container(
           width: double.infinity,
@@ -247,7 +247,7 @@ class _DetailHeroCard extends StatelessWidget {
                         Text(
                           '문의일 · ${_fmtDate(inquiry.createdAt)}',
                           style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: compact ? 11 : 12,
+                            fontSize: compact ? 12 : 13,
                             color: c.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -471,7 +471,7 @@ class _AnswerPanel extends StatelessWidget {
                   Text(
                     '답변을 준비하고 있어요',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: c.textSecondary,
                     ),
@@ -480,7 +480,7 @@ class _AnswerPanel extends StatelessWidget {
                   Text(
                     '빠른 시일 내에 답변 드리겠습니다.',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 11,
+                      fontSize: 12,
                       height: 1.5,
                       color: c.textMuted,
                     ),
@@ -575,7 +575,7 @@ class _MessageBox extends StatelessWidget {
             child: Text(
               body,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 15,
                 height: 1.65,
                 color: c.textBody,
                 fontWeight: FontWeight.w500,
@@ -630,7 +630,7 @@ class _MetaItem extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 11,
+                fontSize: 12,
                 color: c.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
@@ -674,7 +674,7 @@ class _SectionLabel extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.titleSmall.copyWith(
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.w900,
             color: c.textPrimary,
           ),
@@ -725,7 +725,7 @@ class _StatusBadge extends StatelessWidget {
           Text(
             answered ? '답변 완료' : '답변 대기',
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: answered
                   ? (isDark ? const Color(0xFF5FE0CF) : const Color(0xFF0C9A8A))
@@ -785,7 +785,7 @@ class _BottomActions extends StatelessWidget {
               Text(
                 '문의 목록으로',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF187BFF),
                 ),

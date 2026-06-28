@@ -95,7 +95,7 @@ class _SchoolAdSurface extends StatelessWidget {
                             child: Text(
                               'AD',
                               style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 9,
+                                fontSize: 11,
                                 height: 1,
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFFB26A00),

@@ -91,7 +91,7 @@ class _TeenplePageTransitionsBuilder extends PageTransitionsBuilder {
 const _transitions = PageTransitionsTheme(
   builders: {
     TargetPlatform.android: _TeenplePageTransitionsBuilder(),
-    TargetPlatform.iOS: _TeenplePageTransitionsBuilder(),
+    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
   },
 );
 

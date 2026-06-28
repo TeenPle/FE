@@ -56,7 +56,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
         title: Text(
           '내가 쓴 글',
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 15,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: c.textPrimary,
           ),
@@ -90,7 +90,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
             Text(
               '아직 쓴 글이 없어요.',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 color: c.textMuted,
               ),
             ),
@@ -140,7 +140,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                       child: Text(
                         post.boardTitle!,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF14A3F7),
                         ),
@@ -150,7 +150,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                 Text(
                   post.title,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: cc.textPrimary,
                   ),
@@ -161,7 +161,7 @@ class _MyPostsPageState extends ConsumerState<MyPostsPage> {
                 Text(
                   post.preview,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 11,
+                    fontSize: 13,
                     height: 1.5,
                     color: cc.iconOnCard,
                   ),
@@ -214,7 +214,7 @@ class _LoadError extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
+                fontSize: 14,
                 color: c.textMuted,
               ),
             ),
@@ -245,7 +245,7 @@ class _Chip extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: 11,
+            fontSize: 12,
             color: c,
             fontWeight: FontWeight.w600,
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teenple_frontend/core/config/feature_flags.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -62,14 +63,16 @@ class PostActionBar extends StatelessWidget {
           borderColor: bookmarkedByMe ? const Color(0xFFFFE0A0) : c.borderBlue,
           onTap: onBookmarkTap,
         ),
-        const SizedBox(width: 10),
-        _IconActionButton(
-          icon: Icons.ios_share_rounded,
-          backgroundColor: c.tintBg,
-          borderColor: c.borderBlue,
-          iconColor: c.iconOnCard,
-          onTap: onShareTap,
-        ),
+        if (postSharingEnabled) ...[
+          const SizedBox(width: 10),
+          _IconActionButton(
+            icon: Icons.ios_share_rounded,
+            backgroundColor: c.tintBg,
+            borderColor: c.borderBlue,
+            iconColor: c.iconOnCard,
+            onTap: onShareTap,
+          ),
+        ],
       ],
     );
   }

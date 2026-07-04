@@ -1,6 +1,7 @@
 import 'comment_model.dart';
 import 'post_media_item.dart';
 import 'poll_model.dart';
+import '../../../core/utils/teenpler_alias.dart';
 import '../../../core/utils/profile_image_url.dart';
 
 class PostDetail {
@@ -165,6 +166,7 @@ class PostDetail {
 
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
-  String get displayAuthorName =>
-      authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
+  String get displayAuthorName => authorDeleted
+      ? '탈퇴한 사용자'
+      : (anonymous ? teenplerAlias(postId) : username);
 }

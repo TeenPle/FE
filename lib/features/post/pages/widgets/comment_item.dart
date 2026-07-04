@@ -299,7 +299,7 @@ class _CommentBody extends StatelessWidget {
                         if (comment.canReportAuthor)
                           const PopupMenuItem(
                             value: 'report',
-                            child: _CompactMenuText('신고하기'),
+                            child: _CompactMenuText('신고 및 차단'),
                           ),
                         if (comment.canBlockAuthor && onBlockTap != null)
                           const PopupMenuItem(

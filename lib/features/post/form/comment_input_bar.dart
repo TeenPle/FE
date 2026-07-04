@@ -93,154 +93,152 @@ class _CommentInputBarState extends State<CommentInputBar> {
     return ColoredBox(
       color: c.pageBg,
       child: Padding(
-        padding: EdgeInsets.only(
-          bottom: keyboard > 0 ? keyboard : safeBottom,
-        ),
+        padding: EdgeInsets.only(bottom: keyboard > 0 ? keyboard : safeBottom),
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (_showCrisisBanner) ...[
-              const CrisisBanner(),
-              const SizedBox(height: 8),
-            ],
-            if (widget.replyingToCommentId != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (_showCrisisBanner) ...[
+                const CrisisBanner(),
+                const SizedBox(height: 8),
+              ],
+              if (widget.replyingToCommentId != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: c.replyBg,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: c.borderBlue),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '답글 작성 중',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: accent,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: widget.onCancelReply,
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: c.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
                 decoration: BoxDecoration(
-                  color: c.replyBg,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: c.borderBlue),
+                  color: c.cardBg,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: c.borderStrong),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Text(
-                        '답글 작성 중',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: accent,
+                    InkWell(
+                      onTap: () => widget.onAnonymousChanged(!widget.anonymous),
+                      borderRadius: BorderRadius.circular(999),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              !widget.anonymous
+                                  ? Icons.check_circle_rounded
+                                  : Icons.radio_button_unchecked_rounded,
+                              size: 15,
+                              color: !widget.anonymous ? accent : c.textMuted,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '닉네임 공개',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: !widget.anonymous ? accent : c.textMuted,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: widget.onCancelReply,
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 18,
-                        color: c.textMuted,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        minLines: 1,
+                        maxLines: 4,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: _isOverLimit
+                              ? const Color(0xFFE05C5C)
+                              : c.textBody,
+                          fontSize: 13,
+                          height: 1.25,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: '댓글을 입력하세요',
+                          hintStyle: AppTextStyles.bodyMedium.copyWith(
+                            color: c.textTertiary,
+                            fontSize: 13,
+                            height: 1.25,
+                          ),
+                          filled: false,
+                          fillColor: Colors.transparent,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          isCollapsed: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    InkWell(
+                      onTap: (widget.isSubmitting || _isOverLimit)
+                          ? null
+                          : _submit,
+                      borderRadius: BorderRadius.circular(999),
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: (widget.isSubmitting || _isOverLimit)
+                              ? c.tintBg
+                              : const Color(0xFF14A3F7),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
-              decoration: BoxDecoration(
-                color: c.cardBg,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: c.borderStrong),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () => widget.onAnonymousChanged(!widget.anonymous),
-                    borderRadius: BorderRadius.circular(999),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            widget.anonymous
-                                ? Icons.check_circle_rounded
-                                : Icons.radio_button_unchecked_rounded,
-                            size: 15,
-                            color: widget.anonymous ? accent : c.textMuted,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '익명',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: widget.anonymous ? accent : c.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      minLines: 1,
-                      maxLines: 4,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: _isOverLimit
-                            ? const Color(0xFFE05C5C)
-                            : c.textBody,
-                        fontSize: 13,
-                        height: 1.25,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: '댓글을 입력하세요',
-                        hintStyle: AppTextStyles.bodyMedium.copyWith(
-                          color: c.textTertiary,
-                          fontSize: 13,
-                          height: 1.25,
-                        ),
-                        filled: false,
-                        fillColor: Colors.transparent,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                        isCollapsed: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  InkWell(
-                    onTap: (widget.isSubmitting || _isOverLimit)
-                        ? null
-                        : _submit,
-                    borderRadius: BorderRadius.circular(999),
-                    child: Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: (widget.isSubmitting || _isOverLimit)
-                            ? c.tintBg
-                            : const Color(0xFF14A3F7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.arrow_upward_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );

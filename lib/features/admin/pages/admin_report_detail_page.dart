@@ -373,8 +373,8 @@ class _AdminReportDetailPageState extends ConsumerState<AdminReportDetailPage> {
     }
     _confirm(
       context,
-      title: '신고 승인',
-      message: '$days일 제재를 적용할까요?',
+      title: '콘텐츠 숨김 및 신고 승인',
+      message: '신고 대상 콘텐츠를 피드에서 제거하고 작성자를 $days일간 퇴출할까요?',
       onConfirmed: () => ref
           .read(adminReportDetailProvider(widget.reportId).notifier)
           .approve(days, comment),

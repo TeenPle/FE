@@ -232,7 +232,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                 if (post != null && post.canReportAuthor)
                   const PopupMenuItem(
                     value: 'report',
-                    child: _CompactMenuText('신고하기'),
+                    child: _CompactMenuText('신고 및 차단'),
                   ),
                 if (post != null &&
                     post.canBlockAuthor &&
@@ -707,9 +707,17 @@ void _showReportSheet(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '신고 사유 선택',
+                '신고 및 차단',
                 style: AppTextStyles.titleLarge.copyWith(
                   color: context.colors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '신고 즉시 해당 사용자가 차단되며, 운영자가 24시간 내 콘텐츠 제거와 작성자 퇴출을 검토합니다.',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: 12,
+                  color: context.colors.textMuted,
                 ),
               ),
               const SizedBox(height: 16),
@@ -829,10 +837,10 @@ class _CommentEditDialogState extends State<_CommentEditDialog> {
             Row(
               children: [
                 Checkbox(
-                  value: _anonymous,
-                  onChanged: (v) => setState(() => _anonymous = v ?? true),
+                  value: !_anonymous,
+                  onChanged: (v) => setState(() => _anonymous = !(v ?? false)),
                 ),
-                const Text('익명으로 수정'),
+                const Text('닉네임 공개'),
               ],
             ),
           ],

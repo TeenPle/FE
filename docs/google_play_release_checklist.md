@@ -1,6 +1,6 @@
 # Google Play 출시 제출 상세 가이드
 
-Last reviewed: 2026-06-29
+Last reviewed: 2026-07-02
 
 이 문서는 TeenPle Android 앱을 Google Play에 제출할 때 위에서부터 그대로 따라 하기 위한 상세 절차다.
 
@@ -24,7 +24,7 @@ Last reviewed: 2026-06-29
 - 이번 심사 빌드는 광고 없음으로 제출한다.
 - 이번 심사 빌드는 공유 버튼 숨김 상태로 제출한다.
 - 심사자가 회원가입/학교 인증 대기 상태에 막히지 않도록 검증 완료 계정을 제공한다.
-- 코드, Play Console 입력, 개인정보처리방침, Data safety 답변은 서로 일치해야 한다.
+- 코드, Play Console 입력, 개인정보처리방침, 데이터 보안 답변은 서로 일치해야 한다.
 
 ## 1. 제출 전 로컬 상태 정리
 
@@ -208,7 +208,7 @@ https://teenple.app/account-deletion
 
 ```text
 Website URL: https://teenple.app/support
-Privacy policy URL: https://teenple.app/privacy
+개인정보처리방침 URL: https://teenple.app/privacy
 Account deletion URL: https://teenple.app/account-deletion
 Support/contact URL: https://teenple.app/support
 ```
@@ -505,32 +505,32 @@ adb install -r build\app\outputs\flutter-apk\app-release.apk
 - 심사 중 계정을 삭제하거나 정지하지 않는다.
 - 심사용 계정이 속한 학교/게시판에 최소한 테스트 가능한 게시글이 있어야 한다.
 
-Play Console App access에 넣을 문구 예시:
+Play Console 앱 액세스에 넣을 문구 예시:
 
 ```text
-Login is required to use TeenPle.
+TeenPle 사용에는 로그인이 필요합니다.
 
 Reviewer account:
 Email: reviewer@example.com
-Password: ********
+비밀번호: ********
 
-This account is already school-verified.
-After login, reviewers can access:
-- School feed
-- Post list and post detail
-- Post and comment creation
-- Post and comment reporting
-- User blocking
-- Chat
-- Profile and settings
-- In-app inquiry
-- Account deletion flow
+이 계정은 학교 인증이 완료된 심사용 계정입니다.
+로그인 후 심사자는 다음 기능에 접근할 수 있습니다.
+- 학교 피드
+- 게시글 목록 및 게시글 상세
+- 게시글/댓글 작성
+- 게시글/댓글 신고
+- 사용자 차단
+- 채팅
+- 프로필 및 설정
+- 문의 경로
+- 계정 삭제 흐름
 
-Official URLs:
-Privacy Policy: https://teenple.app/privacy
-Terms: https://teenple.app/terms
-Support: https://teenple.app/support
-Account deletion: https://teenple.app/account-deletion
+공식 URL:
+개인정보처리방침: https://teenple.app/privacy
+이용약관: https://teenple.app/terms
+지원/문의: https://teenple.app/support
+계정 삭제: https://teenple.app/account-deletion
 
 Contact: teenple.official@gmail.com
 ```
@@ -553,7 +553,7 @@ https://play.google.com/console
 
 - 회사/팀 공식 계정이 있으면 그 계정을 사용한다.
 - 개인 Gmail로 등록하면 개발자 계정 유형이 개인 계정이 될 수 있다.
-- 개인 계정으로 2023-11-13 이후 새로 등록하면 Production 출시 전에 closed testing 12명/14일 요구사항이 적용될 수 있다.
+- 개인 계정으로 2023-11-13 이후 새로 등록하면 프로덕션 출시 전에 비공개 테스트 12명/14일 요구사항이 적용될 수 있다.
 - 장기 운영할 서비스라면 가능하면 조직 계정 또는 운영용 Google 계정을 사용하는 것이 관리에 유리하다.
 
 처음 접속하면 개발자 계정 등록 화면이 열린다.
@@ -623,23 +623,23 @@ Payment method: 실제 결제 가능한 카드
 등록 후 반드시 확인할 것:
 
 - Play Console 왼쪽 메뉴 또는 홈이 정상 표시된다.
-- `All apps` 또는 앱 목록 화면에 접근할 수 있다.
+- `모든 앱` 또는 앱 목록 화면에 접근할 수 있다.
 - 개발자 계정 상태에 미완료 인증 항목이 없는지 확인한다.
-- Production 출시 접근 권한에 closed testing 요구사항이 있는지 확인한다.
+- 프로덕션 출시 접근 권한에 비공개 테스트 요구사항이 있는지 확인한다.
 
 closed testing 요구사항 확인 경로:
 
 ```text
-Play Console -> Test and release -> Production
+Play Console -> 테스트 및 출시 -> 프로덕션
 ```
 
 또는 Play Console 홈의 안내 카드에서 production access 상태를 확인한다.
 
 요구사항이 표시되면:
 
-- 바로 Production 제출은 불가능하다.
-- Internal testing 후 Closed testing을 12명 이상, 14일 이상 진행해야 할 수 있다.
-- 자세한 절차는 이 문서의 `Closed testing 요구사항 확인` 단계를 따른다.
+- 바로 프로덕션 제출은 불가능하다.
+- 내부 테스트 후 비공개 테스트를 12명 이상, 14일 이상 진행해야 할 수 있다.
+- 자세한 절차는 이 문서의 `비공개 테스트 요구사항 확인` 단계를 따른다.
 
 ## 12. Play Console 앱 생성
 
@@ -649,131 +649,265 @@ Play Console -> Test and release -> Production
 https://play.google.com/console
 ```
 
-왼쪽 또는 상단에서 `All apps`로 이동한다.
+왼쪽 또는 상단에서 `모든 앱`으로 이동한다.
 
-`Create app`을 누른다.
+`앱 만들기`를 누른다.
 
 입력:
 
 ```text
-App name: TeenPle
-Default language: Korean (South Korea) 또는 Korean
-App or game: App
-Free or paid: Free
+앱 이름: TeenPle
+기본 언어: 한국어(대한민국) 또는 한국어
+앱 또는 게임: 앱
+무료 또는 유료: 무료
 ```
 
 체크:
 
-- Developer Program Policies 동의
-- US export laws declaration 동의
-- Play App Signing 약관 동의
+- 개발자 프로그램 정책 동의
+- 미국 수출 법규 선언 동의
+- Play 앱 서명 약관 동의
 
-`Create app`을 누른다.
+`앱 만들기`를 누른다.
 
-## 13. Store listing 작성
+## 13. 스토어 등록정보 작성
 
 Play Console에서 앱을 선택한다.
 
 왼쪽 메뉴에서 다음 경로로 이동한다.
 
 ```text
-Grow users -> Store presence -> Main store listing
+사용자 늘리기 -> 스토어 등록정보 -> 기본 스토어 등록정보
 ```
 
-또는 Play Console UI에 따라:
+또는 Play Console UI에 따라 왼쪽 메뉴에서 `스토어 등록정보` 또는 `기본 스토어 등록정보`를 찾는다.
+
+스토어 등록정보는 Google Play 스토어에서 사용자가 보는 앱 소개 페이지다.  
+앱 이름, 짧은 설명, 긴 설명, 아이콘, 대표 이미지, 스크린샷, 문의 이메일, 개인정보처리방침 URL을 넣는 곳이다.
+
+이번 출시에서는 Play Store에 보이는 내용과 실제 심사 빌드가 반드시 일치해야 한다.
+
+작성 원칙:
+
+- 아직 숨겨둔 공유 기능은 쓰지 않는다.
+- 광고 기능은 이번 빌드에서 꺼져 있으므로 쓰지 않는다.
+- “전국 1위”, “완전 안전”처럼 증명하기 어려운 표현은 쓰지 않는다.
+- 채팅, 게시글, 댓글처럼 UGC가 있는 기능은 숨기지 않는다.
+- 신고/차단/운영자 검토 기능을 설명에 포함한다.
+
+### 13-1. 앱 세부정보 입력
+
+입력값:
 
 ```text
-Store presence -> Main store listing
+앱 이름: TeenPle
 ```
 
-입력 항목:
+앱 이름은 스토어에 그대로 표시된다.  
+Play Console 앱 생성 단계에서 이미 입력했더라도 기본 스토어 등록정보에서 다시 확인한다.
+
+### 13-2. 간단한 설명 입력
+
+짧은 설명은 Play Store에서 앱 이름 아래에 보이는 한 줄 소개다. 아래 문구를 그대로 사용한다.
 
 ```text
-App name: TeenPle
-Short description: 학교 인증 기반 10대 커뮤니티
-Full description: 실제 서비스 설명을 입력한다. 숨겨진 기능, 아직 출시하지 않은 공유 기능, 광고 기능은 쓰지 않는다.
+학교 인증 기반 청소년 커뮤니티
 ```
 
-Full description에 포함할 내용:
+만약 글자 수 제한이나 표현 검토가 필요하면 아래 대체 문구를 사용한다.
 
-- 학교 인증 기반 커뮤니티
-- 게시글과 댓글
-- 채팅
-- 급식/시간표 등 학교생활 기능
-- 신고/차단 등 안전 기능
-- 문의 및 계정 삭제 경로
+```text
+학교 인증으로 만나는 청소년 커뮤니티
+```
 
-Full description에 쓰면 안 되는 내용:
+### 13-3. 자세한 설명 입력
 
-- 아직 숨겨둔 공유 기능
-- 아직 켜지 않은 광고 기능
-- 실제로 심사자가 접근할 수 없는 기능
-- 과장된 키워드 반복
+긴 설명은 사용자가 앱 상세 페이지에서 읽는 본문이다. 최대 4000자까지 입력할 수 있고, 반드시 4000자에 가깝게 채울 필요는 없다. 다만 너무 짧으면 앱의 목적과 기능이 충분히 전달되지 않으므로 아래 문구를 그대로 붙여넣는다.
 
-그래픽 항목:
+```text
+TeenPle은 학교 인증을 기반으로 같은 학교 학생들이 소통할 수 있는 청소년 커뮤니티 앱입니다.
 
-- App icon: Play Console 요구 크기 PNG 업로드
-- Feature graphic: Play Console 요구 크기 이미지 업로드
-- Phone screenshots: 실제 심사 빌드 화면으로 촬영한 이미지 업로드
+같은 학교 학생들과 학교생활 이야기를 나누고, 게시글과 댓글로 필요한 정보를 공유할 수 있습니다. 학교 인증을 완료한 사용자는 학교별 게시판을 이용할 수 있으며, 급식과 시간표처럼 일상적으로 확인하는 학교생활 정보도 앱 안에서 빠르게 볼 수 있습니다.
 
-스크린샷 주의:
+TeenPle에서 할 수 있는 것
+- 학교 인증 후 학교별 커뮤니티 이용
+- 게시글과 댓글 작성
+- 학교생활 정보 확인
+- 급식과 시간표 확인
+- 사용자 간 채팅
+- 프로필과 내 활동 관리
+- 부적절한 게시글과 댓글 신고
+- 사용자 차단
+- 문의 및 계정 삭제 경로 이용
 
-- 광고 영역이 보이면 안 된다.
-- 공유 버튼이 보이면 안 된다.
-- 심사 빌드와 다른 UI를 올리지 않는다.
-- 로그인 후 주요 화면을 보여준다.
+학교 인증 기반 커뮤니티
+TeenPle은 학교 인증을 바탕으로 커뮤니티를 제공합니다. 사용자는 가입 과정에서 학교 정보를 입력하고 인증 절차를 거친 뒤 주요 기능을 이용할 수 있습니다. 이를 통해 같은 학교 구성원을 중심으로 더 관련성 높은 이야기를 나눌 수 있습니다.
+
+게시글과 댓글
+학교 게시판에서 일상 이야기, 학교생활 정보, 궁금한 점을 글과 댓글로 나눌 수 있습니다. 사용자는 게시글 상세 화면에서 댓글을 확인하고 참여할 수 있습니다.
+
+채팅
+앱 안에서 다른 사용자와 채팅할 수 있습니다. 채팅 기능은 학교 커뮤니티 안에서 필요한 대화를 나누기 위한 기능입니다.
+
+급식과 시간표
+학교생활에서 자주 확인하는 급식과 시간표 정보를 앱에서 확인할 수 있습니다. 게시판뿐 아니라 학교생활에 필요한 기본 정보까지 한 곳에서 볼 수 있도록 구성했습니다.
+
+안전 기능
+TeenPle은 안전한 커뮤니티 운영을 위해 신고와 차단 기능을 제공합니다. 사용자는 부적절한 게시글과 댓글을 신고할 수 있고, 원하지 않는 사용자를 차단할 수 있습니다. 접수된 신고는 운영자가 검토하며, 필요한 경우 콘텐츠 숨김, 경고, 이용 제한 등 운영 정책에 따른 조치를 적용할 수 있습니다.
+
+계정과 개인정보
+사용자는 프로필과 설정 화면에서 내 정보를 관리할 수 있으며, 문의와 계정 삭제 경로를 확인할 수 있습니다. 개인정보처리방침과 이용약관은 공식 웹 페이지에서 확인할 수 있습니다.
+
+서비스 문의: teenple.official@gmail.com
+개인정보처리방침: https://teenple.app/privacy
+이용약관: https://teenple.app/terms
+계정 삭제 안내: https://teenple.app/account-deletion
+```
+
+주의:
+
+- 자세한 설명은 4000자를 모두 채울 필요는 없다. 위 문구는 약 1300자 수준이라 충분히 사용할 수 있다.
+- “앱의 자세한 설명을 추가하세요.”가 계속 뜨면 현재 언어의 `자세한 설명` 입력칸에 붙여넣었는지 확인한다. `간단한 설명` 칸에만 입력하면 이 오류가 계속 뜬다.
+- Play Console에서 여러 언어 등록정보를 만든 경우, 현재 편집 중인 언어의 `자세한 설명`이 비어 있으면 오류가 날 수 있다. 기본 언어가 한국어인지 확인한다.
+- 붙여넣기 후 반드시 `저장`을 누른다.
+- 채팅 기능을 숨기면 심사 중 “실제 기능과 설명 불일치”로 문제가 될 수 있으므로 설명에 포함한다.
+- “10대 전용”이라고 강하게 쓰면 연령 정책 검토가 더 민감해질 수 있다. 그래서 스토어 문구는 `청소년 커뮤니티` 정도로 둔다.
+
+### 13-4. 그래픽 업로드
+
+Play Console에서 요구하는 이미지 항목을 업로드한다.
+
+```text
+앱 아이콘: 앱 아이콘 PNG
+그래픽 이미지: 스토어 상단 대표 이미지
+휴대전화 스크린샷: 휴대폰 스크린샷
+```
+
+필수 여부:
+
+- 앱 아이콘: 필수
+- 그래픽 이미지: 필수
+- 스크린샷: 전체 기기 유형을 통틀어 최소 2장 필수
+- 휴대전화 스크린샷: 일반 Android 앱 첫 제출에서는 사실상 필수로 준비한다.
+- 7인치 태블릿 / 10인치 태블릿 / Chromebook: Play Console에 항목이 보여도 보통 권장 또는 대형 화면 노출 최적화용이다. 빨간 필수 표시가 없으면 첫 제출에서는 비워도 된다.
+- Android XR: Android XR용 앱으로 배포하거나 XR 등록정보를 구성하는 경우에 준비한다. 일반 휴대폰 앱이면 비워도 된다.
+
+TeenPle 첫 제출 기준 권장:
+
+```text
+휴대전화 스크린샷: 4~8장 업로드
+7인치 태블릿 스크린샷: 선택
+10인치 태블릿 스크린샷: 선택
+Chromebook 스크린샷: 선택
+Android XR 스크린샷: 선택
+```
+
+태블릿 기기가 없으면 Android Studio 에뮬레이터로 촬영해도 된다. 단, 실제 앱 화면이어야 하고, 화면이 늘어나거나 깨지거나 겹치면 태블릿 스크린샷은 첫 제출에서 넣지 않는 편이 낫다. 선택 항목에 품질 낮은 이미지를 넣는 것보다 휴대전화 스크린샷만 정확하게 올리는 것이 안전하다.
+
+스크린샷은 반드시 이번 release 빌드 또는 Play 내부 테스트 빌드에서 촬영한다.
+
+권장 스크린샷 구성:
+
+```text
+1. 로그인 또는 시작 화면
+2. 학교 피드/게시판 목록
+3. 게시글 상세와 댓글
+4. 글쓰기 화면
+5. 채팅 목록 또는 채팅방
+6. 급식 화면
+7. 시간표 화면
+8. 프로필 또는 설정 화면
+```
+
+스크린샷에서 피해야 할 것:
+
+- 실제 학생 개인정보 노출
+- 전화번호, 이메일, 학생증 이미지 노출
+- 테스트용 욕설/성적 표현/신고 대상 문구 노출
+- 광고 영역 노출
+- 공유 버튼 노출
+- 아직 출시하지 않은 기능 노출
+- 관리자 화면 노출
+
+에뮬레이터로 촬영할 때:
+
+- Android Studio Device Manager에서 Pixel 계열 휴대전화 에뮬레이터를 만든다.
+- 태블릿 스크린샷이 필요하면 Pixel Tablet 또는 7~10인치 태블릿 프로필을 만든다.
+- release APK 또는 Play 내부 테스트 빌드를 설치해서 촬영한다.
+- 상태바 알림, 실제 계정 정보, 학생 개인정보가 보이지 않게 한다.
+- 태블릿 화면에서 레이아웃이 어색하면 태블릿 섹션에는 올리지 않는다.
+
+테스트 데이터가 보이면 닉네임과 게시글 내용을 자연스러운 예시로 준비한다.
+
+예시:
+
+```text
+닉네임: 틴플러
+게시글 제목: 오늘 급식 어땠어?
+게시글 내용: 점심 메뉴 맛있었는지 궁금해요.
+댓글: 저는 괜찮았어요!
+```
+
+### 13-5. 연락처 세부정보 입력
 
 연락처/URL:
 
 ```text
-Website: https://teenple.app/support
-Email: teenple.official@gmail.com
-Phone: 없으면 비워둔다.
-Privacy policy: https://teenple.app/privacy
+웹사이트: https://teenple.app/support
+이메일: teenple.official@gmail.com
+전화번호: 없으면 비워둔다.
+개인정보처리방침: https://teenple.app/privacy
 ```
+
+주의:
+
+- 이메일은 실제로 받을 수 있어야 한다.
+- 지원 URL은 `https://teenple.app/support`를 사용한다.
+- 개인정보처리방침 URL은 `https://teenple.app/privacy`를 사용한다.
+- Play Console이 전화번호를 필수로 요구하지 않으면 비워둔다. 필수로 요구하면 실제 연락 가능한 번호를 입력한다.
 
 저장 버튼:
 
 ```text
-Save
+저장
 ```
 
-## 14. App content - Privacy Policy
+## 14. 앱 콘텐츠 - 개인정보처리방침
 
 왼쪽 메뉴에서 이동한다.
 
 ```text
-Policy and programs -> App content
+정책 및 프로그램 -> 앱 콘텐츠
 ```
 
-`Privacy Policy` 항목을 찾는다.
+`개인정보처리방침` 항목을 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
 입력:
 
 ```text
-Privacy policy URL: https://teenple.app/privacy
+개인정보처리방침 URL: https://teenple.app/privacy
 ```
 
-`Save` 또는 `Submit`을 누른다.
+`저장` 또는 `제출`을 누른다.
 
-## 15. App content - Ads
+## 15. 앱 콘텐츠 - 광고
 
-`App content`에서 `Ads`를 찾는다.
+`앱 콘텐츠`에서 `광고`를 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
 질문:
 
 ```text
-Does your app contain ads?
+앱에 광고가 포함되어 있나요?
 ```
 
 이번 심사 빌드 기준 답변:
 
 ```text
-No
+아니요
 ```
 
 근거:
@@ -785,18 +919,18 @@ No
 
 저장한다.
 
-나중에 광고를 켜는 업데이트를 하면 반드시 이 답변을 `Yes`로 바꾸고 Data safety도 다시 확인한다.
+나중에 광고를 켜는 업데이트를 하면 반드시 이 답변을 `예`로 바꾸고 데이터 보안도 다시 확인한다.
 
-## 16. App content - App Access
+## 16. 앱 콘텐츠 - 앱 액세스
 
-`App content`에서 `App access`를 찾는다.
+`앱 콘텐츠`에서 `앱 액세스`를 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
 질문이 나오면 다음처럼 선택한다.
 
 ```text
-All or some functionality is restricted
+일부 또는 모든 기능이 제한됨
 ```
 
 이유:
@@ -804,47 +938,48 @@ All or some functionality is restricted
 - TeenPle은 로그인이 필요하다.
 - 학교 인증이 완료된 사용자만 주요 기능에 접근한다.
 
-`Add instructions` 또는 `Add new instructions`를 누른다.
+`안내 추가` 또는 `새 안내 추가`를 누른다.
 
 입력:
 
 ```text
-Name: TeenPle reviewer account
-Username / Email: 실제 심사용 이메일
-Password: 실제 비밀번호
-Other instructions: 아래 문구 붙여넣기
+이름: TeenPle 심사용 계정
+사용자 이름 / 이메일: 실제 심사용 이메일
+비밀번호: 실제 비밀번호
+기타 안내: 아래 문구 붙여넣기
 ```
 
-Other instructions 예시:
+기타 안내 예시:
 
 ```text
-Login is required to use TeenPle.
+TeenPle 사용에는 로그인이 필요합니다.
 
-Use the account below:
+아래 계정을 사용해주세요.
 Email: 실제 심사용 이메일
-Password: 실제 비밀번호
+비밀번호: 실제 비밀번호
 
-This account is already school-verified.
-After login, reviewers can access the school feed, posts, comments, report and block flows, chat, profile, settings, inquiry, and account deletion flow.
+이 계정은 학교 인증이 완료된 심사용 계정입니다.
+로그인 후 학교 피드, 게시글, 댓글, 신고 및 차단 흐름, 채팅, 프로필, 설정, 문의, 계정 삭제 흐름에 접근할 수 있습니다.
 
-Please do not create a new account for review because school verification may require admin approval.
+학교 인증은 관리자 승인이 필요할 수 있으므로 심사 중에는 새 계정을 만들지 말고 위 심사용 계정을 사용해주세요.
 
-Official URLs:
-Privacy Policy: https://teenple.app/privacy
-Terms: https://teenple.app/terms
-Support: https://teenple.app/support
-Account deletion: https://teenple.app/account-deletion
+공식 URL:
+개인정보처리방침: https://teenple.app/privacy
+이용약관: https://teenple.app/terms
+지원/문의: https://teenple.app/support
+계정 삭제: https://teenple.app/account-deletion
 ```
 
 저장한다.
 
-## 17. App content - Target audience and content
+## 17. 앱 콘텐츠 - 타겟층 및 콘텐츠
 
-`App content`에서 `Target audience and content`를 찾는다.
+`앱 콘텐츠`에서 `타겟층 및 콘텐츠`를 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
-입력은 실제 운영 정책에 맞춘다.
+이 항목은 “이 앱을 누구에게 제공할 것인지”를 Google Play에 선언하는 곳이다.  
+TeenPle은 학교 인증 기반 청소년 커뮤니티이므로 어린이 대상 앱처럼 답하면 안 된다.
 
 TeenPle 기준으로 신중히 확인할 것:
 
@@ -854,21 +989,77 @@ TeenPle 기준으로 신중히 확인할 것:
 - UGC가 존재한다는 점
 - 신고/차단/관리자 moderation이 있다는 점
 
+현재 TeenPle 기준 추천:
+
+```text
+대상 연령 그룹:
+- 13-15
+- 16-17
+- 만 18세 이상
+```
+
+만약 실제 운영 정책상 고등학생 이상만 받는다면 다음처럼 더 좁게 선택한다.
+
+```text
+대상 연령 그룹:
+- 16-17
+- 만 18세 이상
+```
+
+선택하지 않는 것을 권장:
+
+```text
+만 13세 미만
+```
+
+이유:
+
+- 앱은 학교 인증, 게시글, 댓글, 채팅, 이미지 업로드가 있는 커뮤니티 앱이다.
+- 13세 미만 어린이를 대상으로 설계된 앱이 아니다.
+- 13세 미만을 선택하면 Google Play Families 정책, 광고 SDK 제한, 아동 개인정보 처리 요구가 훨씬 강해진다.
+
+질문이 나오면 다음 기준으로 답한다.
+
+```text
+앱이 어린이의 관심을 끌도록 설계되었나요?
+아니요
+```
+
+```text
+스토어 등록정보가 의도치 않게 어린이의 관심을 끌 수 있나요?
+아니요
+```
+
+근거:
+
+- 스토어 설명은 `청소년 커뮤니티`, `학교 인증`, `게시글`, `채팅` 중심이다.
+- 어린이용 캐릭터, 아동 대상 학습/놀이 표현을 사용하지 않는다.
+
 답변 원칙:
 
 - 실제 사용자 대상보다 낮은 연령을 선택하지 않는다.
 - 어린이 대상 앱처럼 보이게 선택하지 않는다.
 - 개인정보처리방침과 앱 설명이 같은 방향이어야 한다.
+- 앱 설명, 스크린샷, 아이콘이 어린이 앱처럼 보이지 않게 유지한다.
 
 저장한다.
 
-## 18. App content - Content Rating
+## 18. 앱 콘텐츠 - 콘텐츠 등급
 
-`App content`에서 `Content rating`을 찾는다.
+`앱 콘텐츠`에서 `콘텐츠 등급`을 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
-설문에서 실제 기능 기준으로 답한다.
+이 항목은 앱의 콘텐츠 등급을 산정하는 설문이다.  
+TeenPle은 게임이 아니라 커뮤니티/소셜 앱에 가깝다.
+
+카테고리 선택이 나오면 현재 앱 기준으로 아래를 선택한다.
+
+```text
+카테고리: 소셜 네트워킹 또는 소셜
+```
+
+정확한 명칭은 Play Console UI에 따라 다를 수 있다. `소셜`, `커뮤니케이션`, `라이프스타일` 중 고르게 나오면 `소셜` 또는 `소셜 네트워킹`이 가장 가깝다.
 
 TeenPle에 있는 기능:
 
@@ -880,6 +1071,35 @@ TeenPle에 있는 기능:
 - 차단
 - 관리자 moderation
 
+설문 추천 답변 기준:
+
+```text
+사용자 제작 콘텐츠: 예
+사용자가 콘텐츠를 공유하거나 교환할 수 있음: 예
+사용자끼리 커뮤니케이션할 수 있음: 예
+메시지 또는 채팅: 예
+사용자가 이미지를 업로드할 수 있음: 예
+검토/신고/차단 기능: 예
+```
+
+다음 항목은 현재 코드와 운영 기준상 `No`로 답한다.
+
+```text
+실제 현금 도박: 아니요
+모의 도박: 아니요
+인앱 구매 또는 유료 디지털 상품: 아니요
+앱에서 제공하는 성적 콘텐츠: 아니요
+앱에서 제공하는 노골적인 폭력 콘텐츠: 아니요
+마약, 주류, 담배 홍보: 아니요
+제한 없는 웹브라우저 또는 제한 없는 웹 액세스: 아니요
+```
+
+주의:
+
+- 외부 링크를 눌렀을 때 브라우저가 열릴 수는 있지만, 앱이 “무제한 웹 브라우저” 기능을 제공하는 것은 아니다.
+- 사용자가 부적절한 글을 올릴 가능성은 UGC/moderation 항목에서 다룬다.
+- 채팅이 있으므로 사용자 간 커뮤니케이션 항목을 숨기지 않는다.
+
 답변 원칙:
 
 - 사용자가 만든 콘텐츠가 있으면 UGC 관련 질문에 정확히 답한다.
@@ -888,13 +1108,16 @@ TeenPle에 있는 기능:
 
 완료 후 rating 결과를 저장한다.
 
-## 19. App content - Data Safety
+## 19. 앱 콘텐츠 - 데이터 보안
 
-`App content`에서 `Data safety`를 찾는다.
+`앱 콘텐츠`에서 `데이터 보안`을 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
-Data safety는 실제 수집/처리와 개인정보처리방침이 일치해야 한다.
+데이터 보안은 실제 수집/처리와 개인정보처리방침이 일치해야 한다.
+
+이 설문은 “앱이 어떤 데이터를 수집하고, 어떤 목적으로 쓰며, 사용자에게 연결되는지”를 묻는다.  
+TeenPle은 로그인/학교 인증/커뮤니티/채팅/신고 기능이 있으므로 `수집하지 않음`으로 답하면 안 된다.
 
 TeenPle에서 수집 또는 처리 가능성이 있는 데이터:
 
@@ -931,6 +1154,117 @@ TeenPle에서 수집 또는 처리 가능성이 있는 데이터:
 - 문의 응대
 - 계정 복구/탈퇴 처리
 
+### 19-1. 데이터 유형 추천 입력
+
+Play Console UI 명칭은 조금씩 바뀔 수 있으나, 아래 범주를 기준으로 체크한다.
+
+```text
+개인 정보
+- 이메일 주소
+- 전화번호
+- 이름 또는 닉네임에 해당하는 사용자 식별 정보
+- 사용자 ID
+```
+
+```text
+사진 및 동영상
+- 사진
+```
+
+사용 예:
+
+- 프로필 이미지
+- 게시글/채팅 이미지
+- 학생 인증 이미지
+
+```text
+메시지
+- 이메일 또는 기타 인앱 메시지
+```
+
+사용 예:
+
+- 채팅 메시지
+- 문의 내용
+
+```text
+앱 활동
+- 앱 상호작용
+- 기타 사용자 제작 콘텐츠
+```
+
+사용 예:
+
+- 게시글
+- 댓글
+- 신고 내용
+- 차단/제재 관련 처리
+
+```text
+앱 정보 및 성능
+- 비정상 종료 로그
+- 진단
+```
+
+실제 crash reporting SDK를 쓰지 않더라도 서버 로그나 앱 버전/기기 상태를 장애 대응에 사용한다면 보수적으로 확인한다. 현재 코드에 별도 crash analytics SDK는 보이지 않는다.
+
+```text
+기기 또는 기타 ID
+- 기기 또는 기타 ID
+```
+
+사용 예:
+
+- FCM push token
+- 기기/앱 버전 기반 알림 및 보안 처리
+
+### 19-2. 각 데이터의 사용 목적
+
+대부분의 TeenPle 데이터는 아래 목적에 해당한다.
+
+```text
+앱 기능
+계정 관리
+보안, 사기 방지, 규정 준수
+개발자 커뮤니케이션
+```
+
+광고 관련 목적은 이번 심사 빌드에서 선택하지 않는다.
+
+```text
+광고 또는 마케팅: 아니요
+```
+
+분석 목적은 실제 analytics SDK를 넣지 않았으므로 기본적으로 선택하지 않는다.  
+나중에 Firebase Analytics, Google Analytics, Amplitude 같은 분석 SDK를 넣으면 다시 수정한다.
+
+```text
+분석: 아니요
+```
+
+### 19-3. 데이터 공유 여부
+
+일반적으로 Google Play 데이터 보안의 “공유됨”은 개발자 외 제3자에게 데이터를 전송하는지를 묻는다.
+
+현재 앱 기준으로 주의할 외부 처리:
+
+- Firebase Cloud Messaging: 푸시 알림 발송
+- 운영 서버/API: TeenPle 서비스 제공
+- 정적 웹 페이지: 약관/개인정보/문의 안내
+
+Firebase Messaging을 사용하므로 Google/Firebase로 푸시 토큰 등 일부 데이터가 처리될 수 있다. Play Console 질문이 “제3자와 공유”를 넓게 묻는 형태라면 Firebase 문서와 현재 개인정보처리방침을 기준으로 보수적으로 답한다.
+
+확실하지 않으면 `기기 또는 기타 ID` 및 푸시 관련 처리는 숨기지 않는다.
+
+### 19-4. 삭제 가능 여부
+
+계정 삭제 URL과 앱 내 탈퇴 경로가 있으므로 삭제 요청 가능으로 답한다.
+
+```text
+사용자가 데이터 삭제를 요청할 수 있음: 예
+계정 삭제 URL: https://teenple.app/account-deletion
+```
+
 답변 시 주의:
 
 - 광고가 꺼진 심사 빌드이므로 광고 목적 데이터 수집으로 표시하지 않는다.
@@ -940,16 +1274,16 @@ TeenPle에서 수집 또는 처리 가능성이 있는 데이터:
 
 저장 후 Play Console이 표시하는 미완료 항목이 없는지 확인한다.
 
-## 20. App content - Data Deletion
+## 20. 앱 콘텐츠 - 데이터 삭제
 
-`App content`에서 `Data deletion`을 찾는다.
+`앱 콘텐츠`에서 `데이터 삭제`를 찾는다.
 
-`Start` 또는 `Manage`를 누른다.
+`시작` 또는 `관리`를 누른다.
 
 입력:
 
 ```text
-Account deletion URL: https://teenple.app/account-deletion
+계정 삭제 URL: https://teenple.app/account-deletion
 ```
 
 질문이 나오면 실제 정책에 맞게 답한다.
@@ -966,12 +1300,12 @@ TeenPle 기준:
 앱 내 삭제 경로 설명:
 
 ```text
-Profile or Settings -> 회원 탈퇴
+프로필 또는 설정 -> 회원 탈퇴
 ```
 
 저장한다.
 
-## 21. App content - Sensitive permissions
+## 21. 앱 콘텐츠 - 민감한 권한
 
 Play Console이 민감 권한 선언을 요구하면 실제 용도로 답한다.
 
@@ -1011,15 +1345,29 @@ TeenPle은 사용자 생성 콘텐츠가 있으므로 Play 심사 설명에 안�
 - 관리자 신고 관리
 - 관리자 제재/경고
 
-Review notes 또는 App access instructions에 넣을 수 있는 문구:
+검토 메모 또는 앱 액세스 안내에 넣을 문구:
 
 ```text
-TeenPle is a school-verified community app.
-Users can create posts, comments, and chat messages.
-Users can report inappropriate posts and comments.
-Users can block other users.
-Admins can review reports and moderate content and users.
+TeenPle은 학교 인증 기반 커뮤니티 앱입니다.
+사용자는 로그인과 학교 인증을 완료한 뒤 게시글, 댓글, 채팅 메시지를 작성할 수 있습니다.
+사용자는 회원가입 중 이용약관과 개인정보처리방침에 동의해야 합니다.
+사용자는 앱 안에서 부적절한 게시글과 댓글을 신고할 수 있습니다.
+사용자는 사용자/게시글/댓글 메뉴에서 다른 사용자를 차단할 수 있습니다.
+관리자는 신고를 검토하고, 부적절한 콘텐츠를 숨김 처리하며, 악성 사용자에게 경고 또는 이용 제한을 적용할 수 있습니다.
+TeenPle은 성인 콘텐츠, 도박, 랜덤 익명 매칭을 주목적으로 제공하지 않습니다.
 ```
+
+한국어 의미:
+
+- TeenPle은 학교 인증 기반 커뮤니티다.
+- 로그인과 학교 인증 후 게시글, 댓글, 채팅을 사용할 수 있다.
+- 가입 중 약관과 개인정보처리방침에 동의한다.
+- 사용자는 부적절한 게시글/댓글을 신고할 수 있다.
+- 사용자는 다른 사용자를 차단할 수 있다.
+- 관리자는 신고를 검토하고 콘텐츠 숨김, 경고, 제한 조치를 할 수 있다.
+- 성인 콘텐츠, 도박, 랜덤 익명 매칭을 주목적으로 제공하지 않는다.
+
+이 문구는 채팅 기능 때문에 정책 검토가 들어와도 “랜덤 익명 채팅 앱”이 아니라 “학교 인증 커뮤니티 + 안전장치 있음”을 설명하는 역할을 한다.
 
 ## 23. AAB 내부 테스트 업로드
 
@@ -1028,30 +1376,30 @@ Play Console에서 앱을 선택한다.
 왼쪽 메뉴:
 
 ```text
-Test and release -> Testing -> Internal testing
+테스트 및 출시 -> 테스트 -> 내부 테스트
 ```
 
 처음이면:
 
 ```text
-Create track
+트랙 만들기
 ```
 
 또는:
 
 ```text
-Create new release
+새 버전 만들기
 ```
 
-App signing 관련 화면이 나오면:
+앱 서명 관련 화면이 나오면:
 
 - Google Play App Signing 사용에 동의한다.
 - 업로드 키로 서명한 AAB를 올린다.
 
-`App bundles` 영역에서:
+`App Bundle` 또는 `앱 번들` 영역에서:
 
 ```text
-Upload
+업로드
 ```
 
 아래 파일을 선택한다.
@@ -1060,25 +1408,25 @@ Upload
 C:\develop\FE\build\app\outputs\bundle\release\app-release.aab
 ```
 
-Release name:
+버전 이름:
 
 ```text
 1.0.0
 ```
 
-Release notes 예시:
+출시 노트 예시:
 
 ```text
 TeenPle initial Android release for review.
 ```
 
-Korean release notes 예시:
+한국어 출시 노트 예시:
 
 ```text
 TeenPle 안드로이드 첫 출시 빌드입니다.
 ```
 
-`Next` 또는 `Review release`를 누른다.
+`다음` 또는 `버전 검토`를 누른다.
 
 경고가 나오면 읽고 처리한다.
 
@@ -1088,28 +1436,28 @@ TeenPle 안드로이드 첫 출시 빌드입니다.
 - versionCode 중복
 - 서명 오류
 - 개인정보처리방침 누락
-- App content 미완료
+- 앱 콘텐츠 미완료
 
 문제가 없으면:
 
 ```text
-Start rollout to Internal testing
+내부 테스트로 출시 시작
 ```
 
 또는 UI에 따라:
 
 ```text
-Publish release
+버전 게시
 ```
 
-## 24. 내부 테스트 설치 및 Pre-launch report 확인
+## 24. 내부 테스트 설치 및 출시 전 보고서 확인
 
-Internal testing에 테스터 이메일을 추가한다.
+내부 테스트에 테스터 이메일을 추가한다.
 
 경로:
 
 ```text
-Test and release -> Testing -> Internal testing -> Testers
+테스트 및 출시 -> 테스트 -> 내부 테스트 -> 테스터
 ```
 
 테스터 목록을 만들고 이메일을 추가한다.
@@ -1130,10 +1478,10 @@ Test and release -> Testing -> Internal testing -> Testers
 - 이미지 업로드
 - 푸시 권한
 
-Pre-launch report 확인:
+출시 전 보고서 확인:
 
 ```text
-Test and release -> Testing -> Pre-launch report
+테스트 및 출시 -> 테스트 -> 출시 전 보고서
 ```
 
 확인할 항목:
@@ -1147,16 +1495,18 @@ Test and release -> Testing -> Pre-launch report
 - Target API warnings
 - Permission warnings
 
-치명적인 Crash/ANR/정책 경고가 있으면 Production 제출 전에 수정한다.
+치명적인 비정상 종료/ANR/정책 경고가 있으면 프로덕션 제출 전에 수정한다.
 
-## 25. Closed testing 요구사항 확인
+## 25. 비공개 테스트 요구사항 확인
 
-Google Play 개발자 계정이 개인 계정이고 2023-11-13 이후 생성됐다면 Production 전에 closed testing 요구사항이 적용될 수 있다.
+Google Play 개발자 계정이 개인 계정이고 2023-11-13 이후 생성됐다면 프로덕션 전에 비공개 테스트 요구사항이 적용될 수 있다.
+
+현재 사용자의 계정이 개인 개발자 계정이라면 이 단계는 건너뛰지 않는다.
 
 Play Console에서 확인:
 
 ```text
-Test and release -> Production
+테스트 및 출시 -> 프로덕션
 ```
 
 또는 Play Console 홈의 안내 카드에서 production access 상태를 확인한다.
@@ -1165,39 +1515,188 @@ Test and release -> Production
 
 - 12명 이상 테스터
 - 14일 이상 closed test 참여
-- Production access 신청
+- 프로덕션 액세스 신청
 
-요구사항이 뜨면 바로 Production 제출이 아니라 closed testing부터 진행한다.
+Google 공식 기준:
 
-Production access 신청 때 준비할 답변:
+- 개인 개발자 계정이 2023-11-13 이후 생성된 경우 적용될 수 있다.
+- closed test에 최소 12명의 테스터가 opt-in 되어 있어야 한다.
+- 프로덕션 액세스 신청 시점에 이 12명이 최근 14일 동안 연속으로 opt-in 상태여야 한다.
+- 중간에 opt-out한 테스터는 14일 연속 조건이 다시 시작될 수 있다.
+- 조건을 만족한 뒤 Play Console 대시보드에서 `프로덕션 신청` 또는 `프로덕션 액세스 신청`을 누른다.
 
-- 테스터를 어떻게 모집했는지
-- 테스터가 앱을 어떻게 사용했는지
-- 어떤 피드백을 받았는지
-- 피드백으로 무엇을 수정했는지
-- 왜 production 출시 준비가 되었는지
+요구사항이 뜨면 바로 프로덕션 제출이 아니라 비공개 테스트부터 진행한다.
 
-## 26. Production 제출
+### 25-1. 비공개 테스트 트랙 만들기
 
-Internal testing과 Pre-launch report가 깨끗하고, closed testing 요구사항이 없거나 완료되었을 때 진행한다.
-
-왼쪽 메뉴:
+왼쪽 메뉴에서 이동한다.
 
 ```text
-Test and release -> Production
+테스트 및 출시 -> 테스트 -> 비공개 테스트
 ```
 
-`Create new release`를 누른다.
+처음이면 `트랙 만들기` 또는 `새 트랙 만들기`를 누른다.
 
-이미 내부 테스트에 올린 AAB를 선택하거나 새 AAB를 업로드한다.
+트랙 이름:
 
-Release name:
+```text
+TeenPle closed test
+```
+
+테스터 방식은 이메일 목록을 권장한다.
+
+```text
+테스터 -> 이메일 목록 만들기
+```
+
+목록 이름:
+
+```text
+TeenPle testers
+```
+
+테스터 이메일:
+
+```text
+최소 12명 이상
+권장 15명 이상
+```
+
+12명 딱 맞춰 모으면 한 명이 opt-in을 안 하거나 중간에 빠졌을 때 14일 조건을 다시 맞춰야 할 수 있다. 가능하면 15명 이상을 모은다.
+
+테스터에게 전달할 안내 문구:
+
+```text
+TeenPle Android 비공개 테스트 참여 안내입니다.
+
+1. 아래 opt-in 링크를 열어 테스트 참여를 눌러주세요.
+2. Play Store에서 TeenPle 테스트 버전을 설치해주세요.
+3. 14일 동안 테스트에서 나가지 말아주세요. 중간에 나가면 프로덕션 신청 조건에서 제외될 수 있습니다.
+4. 앱에서 로그인, 게시글 보기, 댓글, 채팅, 급식, 시간표, 프로필/설정 화면을 한 번씩 확인해주세요.
+5. 오류나 불편한 점은 teenple.official@gmail.com 으로 보내주세요.
+```
+
+### 25-2. 비공개 테스트 버전 올리기
+
+비공개 테스트 트랙에서 `새 버전 만들기`를 누른다.
+
+앱 번들:
+
+```text
+C:\develop\FE\build\app\outputs\bundle\release\app-release.aab
+```
+
+버전 이름:
 
 ```text
 1.0.0
 ```
 
-Release notes:
+출시 노트:
+
+```text
+TeenPle Android closed testing release.
+```
+
+한국어 릴리스 노트:
+
+```text
+TeenPle 안드로이드 비공개 테스트 빌드입니다.
+```
+
+검토 후 문제가 없으면 비공개 테스트로 배포한다.
+
+### 25-3. 14일 동안 관리할 것
+
+테스터 상태를 주기적으로 확인한다.
+
+```text
+테스트 및 출시 -> 테스트 -> 비공개 테스트 -> 테스터
+```
+
+확인할 것:
+
+- 12명 이상이 opt-in 상태인지
+- 테스터가 앱을 실제로 설치할 수 있는지
+- 로그인/학교 인증 완료 계정으로 테스트 가능한지
+- Crash/ANR이 발생하지 않는지
+- 신고/차단/계정 삭제 경로가 정상인지
+
+테스터 피드백 기록 양식:
+
+```text
+테스트 기간: YYYY-MM-DD ~ YYYY-MM-DD
+테스터 수: 00명
+테스트 기기: Galaxy S 시리즈, Galaxy A 시리즈 등
+테스트한 기능:
+- 로그인
+- 학교 피드
+- 게시글/댓글
+- 채팅
+- 급식
+- 시간표
+- 프로필/설정
+- 신고/차단
+- 계정 삭제 화면
+
+받은 피드백:
+- 예: 로그인 후 첫 로딩이 조금 느림
+- 예: 시간표 화면에서 빈 데이터 안내가 필요함
+
+반영한 내용:
+- 예: 네트워크 오류 문구 확인
+- 예: 심사 빌드에서 광고/공유 기능 비활성 상태 확인
+```
+
+### 25-4. 프로덕션 액세스 신청
+
+프로덕션 액세스 신청 때 준비할 답변:
+
+- 테스터를 어떻게 모집했는지
+- 테스터가 앱을 어떻게 사용했는지
+- 어떤 피드백을 받았는지
+- 피드백으로 무엇을 수정했는지
+- 왜 프로덕션 출시 준비가 되었는지
+
+Play Console에서 조건이 충족되면 대시보드 또는 프로덕션 화면에 `프로덕션 신청` 또는 `프로덕션 액세스 신청` 버튼이 보인다.
+
+답변 예시:
+
+```text
+TeenPle의 실제 대상 사용자와 가까운 개인 네트워크 및 학교 관련 네트워크를 통해 테스터를 모집했습니다. 테스터는 Google Play opt-in 링크를 통해 비공개 테스트에 참여했고, 요구되는 테스트 기간 동안 opt-in 상태를 유지했습니다.
+
+테스터는 로그인, 학교 피드, 게시글, 댓글, 채팅, 급식, 시간표, 프로필/설정, 신고, 차단, 계정 삭제 접근 등 주요 사용자 흐름을 테스트했습니다. 또한 심사용 계정이 학교 인증 단계에 막히지 않고 앱 주요 기능에 접근할 수 있는지도 확인했습니다.
+
+피드백은 직접 메시지와 이메일로 수집했습니다. 주요 피드백은 로그인 흐름의 명확성, 로딩 상태, 실제 Android 기기에서 학교 커뮤니티 기능이 정상 작동하는지에 관한 내용이었습니다.
+
+테스트 결과, 릴리스 빌드에서 치명적인 비정상 종료가 없고, 운영 API가 HTTPS로 연결되며, 이번 릴리스에서 광고와 공유 기능이 비활성화되어 있고, 신고/차단/관리자 검토 같은 사용자 제작 콘텐츠 안전 기능을 사용할 수 있음을 확인했습니다.
+
+TeenPle은 핵심 흐름을 실제 기기에서 테스트했고, 정책상 필요한 웹 페이지가 준비되어 있으며, 데이터 보안과 앱 액세스 정보가 완료되어 있고, 사용자 제작 콘텐츠에 대한 명확한 신고/차단 경로를 제공하므로 프로덕션 출시 준비가 되었습니다.
+```
+
+프로덕션 액세스 승인에는 보통 며칠이 걸릴 수 있다. 승인 전까지 프로덕션 제출 버튼이 비활성화될 수 있다.
+
+## 26. 프로덕션 제출
+
+내부 테스트와 출시 전 보고서가 깨끗하고, 비공개 테스트 요구사항이 없거나 완료되었을 때 진행한다.
+
+왼쪽 메뉴:
+
+```text
+테스트 및 출시 -> 프로덕션
+```
+
+`새 버전 만들기`를 누른다.
+
+이미 내부 테스트에 올린 AAB를 선택하거나 새 AAB를 업로드한다.
+
+버전 이름:
+
+```text
+1.0.0
+```
+
+출시 노트:
 
 ```text
 TeenPle initial Android release.
@@ -1210,41 +1709,41 @@ TeenPle initial Android release.
 - 처음에는 실제 서비스 대상 국가만 선택한다.
 - 한국 서비스라면 Korea/South Korea 중심으로 시작한다.
 
-`Review release`를 누른다.
+`버전 검토`를 누른다.
 
 모든 경고를 확인한다.
 
 반드시 완료되어야 하는 항목:
 
-- Store listing complete
-- App content complete
-- Privacy policy complete
-- Data safety complete
-- Data deletion complete
-- App access complete
-- Content rating complete
-- Target audience complete
-- AAB uploaded
-- No critical release warnings
+- 스토어 등록정보 완료
+- 앱 콘텐츠 완료
+- 개인정보처리방침 완료
+- 데이터 보안 완료
+- 데이터 삭제 완료
+- 앱 액세스 완료
+- 콘텐츠 등급 완료
+- 타겟층 완료
+- AAB 업로드 완료
+- 치명적인 출시 경고 없음
 
 문제가 없으면:
 
 ```text
-Submit for review
+검토를 위해 제출
 ```
 
-가능하면 Managed publishing을 켠다.
+가능하면 관리형 게시를 켠다.
 
 경로:
 
 ```text
-Publishing overview -> Managed publishing
+게시 개요 -> 관리형 게시
 ```
 
 권장:
 
 ```text
-Managed publishing: On
+관리형 게시: 사용
 ```
 
 이렇게 하면 승인 즉시 자동 출시되지 않고, 승인 후 직접 게시할 수 있다.
@@ -1293,25 +1792,25 @@ Managed publishing: On
 
 Play Console:
 
-- [ ] App name: TeenPle
-- [ ] Default language: Korean
-- [ ] App type: App
-- [ ] Free
-- [ ] Store listing 입력 완료
+- [ ] 앱 이름: TeenPle
+- [ ] 기본 언어: 한국어
+- [ ] 앱 유형: 앱
+- [ ] 무료
+- [ ] 스토어 등록정보 입력 완료
 - [ ] 실제 심사 빌드 스크린샷 업로드
-- [ ] Privacy policy URL 입력
-- [ ] Ads: No
+- [ ] 개인정보처리방침 URL 입력
+- [ ] 광고: 아니요
 - [ ] App access 심사용 계정 입력
-- [ ] Target audience 입력
-- [ ] Content rating 완료
-- [ ] Data safety 완료
-- [ ] Data deletion URL 입력
+- [ ] 타겟층 입력
+- [ ] 콘텐츠 등급 완료
+- [ ] 데이터 보안 완료
+- [ ] 데이터 삭제 URL 입력
 - [ ] UGC 신고/차단/moderation 설명 준비
-- [ ] Internal testing 업로드 완료
-- [ ] Pre-launch report 치명 이슈 없음
-- [ ] Closed testing 요구사항 확인
-- [ ] Production release 검토 완료
-- [ ] Submit for review 완료
+- [ ] 내부 테스트 업로드 완료
+- [ ] 출시 전 보고서 치명 이슈 없음
+- [ ] 비공개 테스트 요구사항 확인
+- [ ] 프로덕션 버전 검토 완료
+- [ ] 검토를 위해 제출 완료
 
 ## 28. 반려를 피하기 위한 주의사항
 
@@ -1323,7 +1822,7 @@ Play Console:
 - 개인정보처리방침 URL 404
 - 계정 삭제 URL 404
 - 앱 안에는 계정 생성이 있는데 삭제 경로가 없음
-- Data safety에서 실제 수집 데이터를 누락
+- 데이터 보안에서 실제 수집 데이터를 누락
 - Ads를 No로 답했는데 광고 SDK/광고 지면이 존재
 - 스크린샷에 현재 빌드에 없는 기능이 보임
 - 앱 설명에 공유 기능처럼 숨겨둔 기능을 작성
@@ -1336,7 +1835,7 @@ Play Console:
 
 - Create and set up your app: https://support.google.com/googleplay/android-developer/answer/9859152
 - Prepare your app for review: https://support.google.com/googleplay/android-developer/answer/9859455
-- Data safety: https://support.google.com/googleplay/android-developer/answer/10787469
+- 데이터 보안: https://support.google.com/googleplay/android-developer/answer/10787469
 - Account deletion requirements: https://support.google.com/googleplay/android-developer/answer/13327111
 - User generated content policy: https://support.google.com/googleplay/android-developer/answer/9876937
 - Target API requirements: https://support.google.com/googleplay/android-developer/answer/11926878

@@ -117,7 +117,8 @@ class SettingsPage extends ConsumerWidget {
               _SettingsTile(
                 icon: Icons.support_agent_rounded,
                 label: '문의하기',
-                onTap: () => context.push(AppRoutes.myInquiries),
+                subtitle: '부적절 활동 신고: teenple.official@gmail.com',
+                onTap: () => openExternalLink(context, teenpleSupportUrl),
               ),
               const _Divider(),
               _SettingsTile(
@@ -570,6 +571,7 @@ class _Divider extends StatelessWidget {
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String? subtitle;
   final VoidCallback onTap;
   final Color? labelColor;
   final Color? iconColor;
@@ -577,6 +579,7 @@ class _SettingsTile extends StatelessWidget {
   const _SettingsTile({
     required this.icon,
     required this.label,
+    this.subtitle,
     required this.onTap,
     this.labelColor,
     this.iconColor,
@@ -596,15 +599,34 @@ class _SettingsTile extends StatelessWidget {
           children: [
             Icon(icon, size: 20, color: iColor),
             const SizedBox(width: 14),
-            Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        height: 1.35,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            const Spacer(),
             Icon(
               Icons.chevron_right_rounded,
               color: context.colors.iconSecondary,

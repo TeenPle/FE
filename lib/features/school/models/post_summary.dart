@@ -1,4 +1,5 @@
 import '../../../features/post/models/post_media_item.dart';
+import '../../../core/utils/teenpler_alias.dart';
 import '../../../core/utils/profile_image_url.dart';
 
 class PostSummary {
@@ -103,5 +104,5 @@ class PostSummary {
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
   String get displayAuthorName =>
-      authorDeleted ? '탈퇴한 사용자' : (anonymous ? '익명' : username);
+      authorDeleted ? '탈퇴한 사용자' : (anonymous ? teenplerAlias(id) : username);
 }

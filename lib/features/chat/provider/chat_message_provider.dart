@@ -566,6 +566,15 @@ class ChatRoomNotifier extends StateNotifier<ChatRoomState> {
   Future<void> reportRoom(String reason) async {
     if (!state.canReport || state.otherUserDeleted) return;
     await _api.report(roomId, reason);
+    if (!state.canBlock || state.blockedByMe || state.otherUserDeleted) return;
+    await _api.block(roomId);
+    if (_isDisposed || !mounted) return;
+    state = state.copyWith(
+      isBlocked: true,
+      blockedByMe: true,
+      blockedByOther: state.blockedByOther,
+      canSendMessage: false,
+    );
   }
 
   Future<void> leaveRoom() async {

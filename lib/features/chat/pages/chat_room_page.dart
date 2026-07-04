@@ -10,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../models/chat_message_model.dart';
+import '../../profile/provider/block_provider.dart';
 import '../provider/chat_message_provider.dart';
 import '../provider/chat_room_list_provider.dart';
 import '../provider/muted_rooms_provider.dart';
@@ -329,7 +330,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '신고하기',
+                                              '신고 및 차단',
                                               style: AppTextStyles.titleLarge
                                                   .copyWith(
                                                     color: c.textPrimary,
@@ -337,7 +338,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              '신고 카테고리를 선택해 주세요.',
+                                              '신고 즉시 상대방이 차단되며, 운영자가 24시간 내 콘텐츠 제거와 작성자 퇴출을 검토합니다.',
                                               style: AppTextStyles.captionLarge
                                                   .copyWith(color: c.textMuted),
                                             ),
@@ -398,7 +399,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                           )).notifier,
                                         )
                                         .reportRoom(selectedReason);
-                                    showAppSnackBar('신고가 접수됐어요.');
+                                    ref.invalidate(blockSummaryProvider);
+                                    showAppSnackBar(
+                                      '신고가 접수되고 상대방이 차단됐어요.\n운영자가 24시간 내 검토해 콘텐츠 제거와 작성자 퇴출을 처리합니다.',
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF14A3F7),
@@ -409,7 +413,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    '신고 접수',
+                                    '신고 및 차단',
                                     style: AppTextStyles.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w800,
                                     ),
@@ -435,7 +439,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               const SizedBox(height: 20),
                               _BottomSheetItem(
                                 icon: Icons.report_outlined,
-                                label: '신고하기',
+                                label: '신고 및 차단',
                                 color: const Color(0xFFF44336),
                                 onTap: () => setModalState(() {
                                   showingReportForm = true;
@@ -641,7 +645,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
             ),
             Text(
-              '익명',
+              '틴플러',
               style: AppTextStyles.captionSmall.copyWith(color: c.textMuted),
             ),
           ],
@@ -1064,7 +1068,7 @@ class _MessageBubble extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4, left: 4),
                   child: Text(
-                    '익명',
+                    '틴플러',
                     style: AppTextStyles.labelSmall.copyWith(
                       color: c.textMuted,
                     ),

@@ -172,7 +172,10 @@ class AdminReportDetailNotifier extends StateNotifier<AdminReportDetailState> {
     state = state.copyWith(isActing: true, error: null, successMessage: null);
     try {
       await _api.approveReport(reportId, penaltyDays, adminComment);
-      state = state.copyWith(isActing: false, successMessage: '제재를 적용했어요.');
+      state = state.copyWith(
+        isActing: false,
+        successMessage: '신고 대상 콘텐츠를 숨기고 작성자 퇴출을 적용했어요.',
+      );
       return true;
     } catch (_) {
       state = state.copyWith(isActing: false, error: '승인 처리에 실패했어요.');

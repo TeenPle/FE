@@ -7,6 +7,10 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 
+# Flutter's deferred component hooks reference Play Core classes even when the
+# app does not use deferred components. Do not package legacy Play Core.
+-dontwarn com.google.android.play.core.**
+
 # Kotlin
 -keep class kotlin.** { *; }
 -keep class kotlin.Metadata { *; }

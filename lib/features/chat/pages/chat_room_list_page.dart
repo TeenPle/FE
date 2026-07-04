@@ -341,7 +341,7 @@ class _ChatRoomItem extends ConsumerWidget {
                         )
                       else
                         Text(
-                          '익명',
+                          '틴플러',
                           style: AppTextStyles.labelSmall.copyWith(
                             fontSize: 12,
                             color: Color(0xFF1DA1F2),

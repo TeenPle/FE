@@ -865,7 +865,7 @@ class _WriteBottomToolbar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '익명',
+                      '닉네임 공개',
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
@@ -875,12 +875,12 @@ class _WriteBottomToolbar extends StatelessWidget {
                     Transform.scale(
                       scale: 0.74,
                       child: Switch(
-                        value: anonymous,
+                        value: !anonymous,
                         activeThumbColor: Colors.white,
                         activeTrackColor: const Color(0xFF2F80ED),
                         inactiveThumbColor: Colors.white,
                         inactiveTrackColor: const Color(0xFFC9D6E2),
-                        onChanged: onAnonymousChanged,
+                        onChanged: (value) => onAnonymousChanged(!value),
                       ),
                     ),
                   ],

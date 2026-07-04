@@ -40,8 +40,6 @@
   - `web/privacy-consent/index.html`
   - `web/support/index.html`
   - `web/account-deletion/index.html`
-  - `web/legal-assets/teenple-terms.pdf`
-  - `web/legal-assets/teenple-privacy.pdf`
 - 앱의 약관/개인정보/문의하기는 공식 웹 URL을 외부 브라우저로 연다.
 - 앱 내부 사용자용 문의 목록/작성/상세 화면은 제거했다.
 - 백엔드 문의 API와 관리자 문의 기능은 유지한다.
@@ -52,7 +50,6 @@
   - `/privacy-consent`, `/privacy-consent/**`
   - `/support`, `/support/**`
   - `/account-deletion`, `/account-deletion/**`
-  - `/legal-assets/**`
   - `/favicon.ico`
 
 주의:
@@ -72,8 +69,6 @@ https://teenple.app/privacy
 https://teenple.app/privacy-consent
 https://teenple.app/support
 https://teenple.app/account-deletion
-https://teenple.app/legal-assets/teenple-terms.pdf
-https://teenple.app/legal-assets/teenple-privacy.pdf
 ```
 
 PowerShell 확인:
@@ -84,8 +79,6 @@ curl.exe -I https://teenple.app/privacy
 curl.exe -I https://teenple.app/privacy-consent
 curl.exe -I https://teenple.app/support
 curl.exe -I https://teenple.app/account-deletion
-curl.exe -I https://teenple.app/legal-assets/teenple-terms.pdf
-curl.exe -I https://teenple.app/legal-assets/teenple-privacy.pdf
 ```
 
 기대값:
@@ -102,7 +95,6 @@ HTTP/2 200
 - 이용약관 본문이 보인다.
 - 문의하기 페이지에서 이메일 링크가 보인다.
 - 계정 삭제 안내 페이지가 보인다.
-- PDF 원문 링크가 열린다.
 - `https://api.teenple.app` 기존 API가 깨지지 않았다.
 
 이 단계가 실패하면 Play Console 입력 전에 먼저 AWS를 수정한다.
@@ -782,7 +774,6 @@ Managed publishing ON
 - [ ] `https://teenple.app/terms` 열림
 - [ ] `https://teenple.app/support` 열림
 - [ ] `https://teenple.app/account-deletion` 열림
-- [ ] PDF 원문 2개 열림
 - [ ] `https://api.teenple.app` 정상
 - [ ] BE `compileJava` 성공
 - [ ] FE `flutter analyze` 성공

@@ -5,6 +5,7 @@ import '../api/live_post_repository.dart';
 import '../api/post_api.dart';
 import '../api/post_repository.dart';
 import '../api/temporary_post_repository.dart';
+import '../../profile/provider/block_provider.dart';
 import 'post_detail_provider.dart';
 import 'post_detail_state.dart';
 
@@ -36,6 +37,11 @@ final postDetailProvider =
       postId,
     ) {
       final repository = ref.watch(postRepositoryProvider);
+      final blockAction = ref.watch(blockActionProvider);
 
-      return PostDetailNotifier(postId: postId, repository: repository);
+      return PostDetailNotifier(
+        postId: postId,
+        repository: repository,
+        blockAction: blockAction,
+      );
     });

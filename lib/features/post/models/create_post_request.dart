@@ -8,13 +8,17 @@ class CreatePostRequest {
   const CreatePostRequest({
     required this.title,
     required this.content,
-    required this.anonymous,
+    this.anonymous = false,
     this.pollOptions,
   });
 
   /// 백엔드 요청 바디로 변환
   Map<String, dynamic> toJson() {
-    final json = {'title': title, 'content': content, 'anonymous': anonymous};
+    final json = <String, dynamic>{
+      'title': title,
+      'content': content,
+      'anonymous': false,
+    };
     if (pollOptions != null) {
       json['pollOptions'] = pollOptions!;
     }

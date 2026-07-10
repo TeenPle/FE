@@ -85,19 +85,19 @@ class BlockSummaryTile extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('차단 전체 해제'),
-        content: Text('차단한 모든 사용자의 차단을 해제하시겠습니까?'),
+        title: const Text('차단 전체 해제'),
+        content: const Text('차단한 모든 사용자의 차단을 해제하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('취소'),
+            child: const Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFE05C5C),
             ),
-            child: Text('전체 해제'),
+            child: const Text('전체 해제'),
           ),
         ],
       ),

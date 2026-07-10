@@ -1,6 +1,5 @@
-import '../../../features/post/models/post_media_item.dart';
-import '../../../core/utils/teenpler_alias.dart';
 import '../../../core/utils/profile_image_url.dart';
+import '../../../features/post/models/post_media_item.dart';
 
 class PostSummary {
   final int id;
@@ -49,24 +48,16 @@ class PostSummary {
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
       postStatus: json['postStatus'] as String? ?? '',
-      viewCount: json['viewCount'] != null
-          ? (json['viewCount'] as num).toInt()
-          : 0,
+      viewCount: (json['viewCount'] as num?)?.toInt() ?? 0,
       anonymous: json['anonymous'] as bool? ?? false,
-      likeCount: json['likeCount'] != null
-          ? (json['likeCount'] as num).toInt()
-          : 0,
-      dislikeCount: json['dislikeCount'] != null
-          ? (json['dislikeCount'] as num).toInt()
-          : 0,
-      boardId: json['boardId'] != null ? (json['boardId'] as num).toInt() : 0,
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+      dislikeCount: (json['dislikeCount'] as num?)?.toInt() ?? 0,
+      boardId: (json['boardId'] as num?)?.toInt() ?? 0,
       userId: json['userId'] != null ? (json['userId'] as num).toInt() : null,
       username: json['username'] as String? ?? '',
       authorProfileImageUrl: readProfileImageUrl(json),
       authorDeleted: json['authorDeleted'] as bool? ?? false,
-      commentCount: json['commentCount'] != null
-          ? (json['commentCount'] as num).toInt()
-          : 0,
+      commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
       mediaList: (json['mediaList'] as List<dynamic>? ?? [])
           .map((e) => PostMediaItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -103,6 +94,5 @@ class PostSummary {
 
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
-  String get displayAuthorName =>
-      authorDeleted ? '탈퇴한 사용자' : (anonymous ? teenplerAlias(id) : username);
+  String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : username;
 }

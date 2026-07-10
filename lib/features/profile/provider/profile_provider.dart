@@ -29,6 +29,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     try {
       final profile = await _api.getMyProfile();
       state = state.copyWith(isLoading: false, profile: profile);
+      try {
+        final boardProfiles = await _api.getBoardDisplayProfiles();
+        state = state.copyWith(boardProfiles: boardProfiles);
+      } catch (_) {
+        state = state.copyWith(boardProfiles: const []);
+      }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -45,7 +51,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       state = state.copyWith(
         isSaving: false,
         profile: updated,
-        successMessage: '닉네임이 변경됐어요.',
+        successMessage: '닉네임이 변경되었어요.',
       );
       return true;
     } catch (e) {
@@ -67,7 +73,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
-      state = state.copyWith(isSaving: false, successMessage: '비밀번호가 변경됐어요.');
+      state = state.copyWith(isSaving: false, successMessage: '비밀번호가 변경되었어요.');
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -86,7 +92,35 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       state = state.copyWith(
         isSaving: false,
         profile: updated,
-        successMessage: '프로필 사진이 변경됐어요.',
+        successMessage: '프로필 사진이 변경되었어요.',
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isSaving: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateBoardDisplayProfile({
+    required int boardId,
+    required String displayName,
+    File? imageFile,
+  }) async {
+    state = state.copyWith(isSaving: true, clearError: true);
+    try {
+      await _api.updateBoardDisplayProfile(
+        boardId: boardId,
+        displayName: displayName,
+        imageFile: imageFile,
+      );
+      final boardProfiles = await _api.getBoardDisplayProfiles();
+      state = state.copyWith(
+        isSaving: false,
+        boardProfiles: boardProfiles,
+        successMessage: '게시판별 프로필이 변경되었어요.',
       );
       return true;
     } catch (e) {
@@ -117,16 +151,10 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
 
-  /// 로그아웃 또는 계정 복구 후 상태를 완전히 초기화한다.
-  /// shouldGoToLogin 플래그를 비롯한 모든 상태를 리셋해 다음 세션에서 오염을 방지한다.
   void reset() {
     state = const ProfileState();
   }
 }
-
-// ─────────────────────────────────────────────
-// 공통 페이지네이션 상태
-// ─────────────────────────────────────────────
 
 class _PagedState<T> {
   final List<T> items;
@@ -159,14 +187,11 @@ class _PagedState<T> {
   );
 }
 
-// ─────────────────────────────────────────────
-// 내가 쓴 글
-// ─────────────────────────────────────────────
-
 typedef MyPostsState = _PagedState<MyPostModel>;
 
 class MyPostsNotifier extends StateNotifier<MyPostsState> {
   final ProfileApi _api;
+
   MyPostsNotifier(this._api) : super(const _PagedState());
 
   Future<void> load() async {
@@ -219,14 +244,11 @@ final myPostsNotifierProvider =
       return MyPostsNotifier(ref.watch(profileApiProvider));
     });
 
-// ─────────────────────────────────────────────
-// 내가 쓴 댓글
-// ─────────────────────────────────────────────
-
 typedef MyCommentsState = _PagedState<MyCommentModel>;
 
 class MyCommentsNotifier extends StateNotifier<MyCommentsState> {
   final ProfileApi _api;
+
   MyCommentsNotifier(this._api) : super(const _PagedState());
 
   Future<void> load() async {
@@ -279,14 +301,11 @@ final myCommentsNotifierProvider =
       return MyCommentsNotifier(ref.watch(profileApiProvider));
     });
 
-// ─────────────────────────────────────────────
-// 내 북마크
-// ─────────────────────────────────────────────
-
 typedef MyBookmarksState = _PagedState<MyPostModel>;
 
 class MyBookmarksNotifier extends StateNotifier<MyBookmarksState> {
   final ProfileApi _api;
+
   MyBookmarksNotifier(this._api) : super(const _PagedState());
 
   Future<void> load() async {

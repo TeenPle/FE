@@ -1,14 +1,13 @@
-import 'comment_model.dart';
-import 'post_media_item.dart';
-import 'poll_model.dart';
-import '../../../core/utils/teenpler_alias.dart';
 import '../../../core/utils/profile_image_url.dart';
+import 'comment_model.dart';
+import 'poll_model.dart';
+import 'post_media_item.dart';
 
 class PostDetail {
   final int postId;
   final int? authorUserId;
   final bool isMine;
-  final int? authorId; // 게시글 작성자 userId (채팅 유입용)
+  final int? authorId;
   final String title;
   final String content;
   final int viewCount;
@@ -71,16 +70,10 @@ class PostDetail {
           : null,
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
-      viewCount: json['viewCount'] != null
-          ? (json['viewCount'] as num).toInt()
-          : 0,
+      viewCount: (json['viewCount'] as num?)?.toInt() ?? 0,
       anonymous: json['anonymous'] as bool? ?? false,
-      likeCount: json['likeCount'] != null
-          ? (json['likeCount'] as num).toInt()
-          : 0,
-      dislikeCount: json['dislikeCount'] != null
-          ? (json['dislikeCount'] as num).toInt()
-          : 0,
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+      dislikeCount: (json['dislikeCount'] as num?)?.toInt() ?? 0,
       likedByMe: json['likedByMe'] as bool? ?? false,
       dislikedByMe: json['dislikedByMe'] as bool? ?? false,
       postStatus: json['postStatus'] as String? ?? '',
@@ -166,7 +159,5 @@ class PostDetail {
 
   List<String> get mediaUrls => mediaList.map((m) => m.url).toList();
 
-  String get displayAuthorName => authorDeleted
-      ? '탈퇴한 사용자'
-      : (anonymous ? teenplerAlias(postId) : username);
+  String get displayAuthorName => authorDeleted ? '탈퇴한 사용자' : username;
 }

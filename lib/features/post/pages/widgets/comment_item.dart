@@ -8,7 +8,6 @@ import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/tap_scale.dart';
 import '../../models/comment_model.dart';
 
-/// 댓글 및 대댓글 아이템 위젯
 class CommentItem extends StatelessWidget {
   final CommentModel comment;
   final List<CommentModel> replies;
@@ -121,7 +120,6 @@ class CommentItem extends StatelessWidget {
   }
 }
 
-/// 댓글 본문과 액션 영역
 class _CommentBody extends StatelessWidget {
   final CommentModel comment;
   final bool showReplyButton;
@@ -155,23 +153,14 @@ class _CommentBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (comment.isDeleted) {
-      return _DeletedCommentPlaceholder();
-    }
+    if (comment.isDeleted) return _DeletedCommentPlaceholder();
 
     final c = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final replyTargetBg = isDark
-        ? const Color(0xFF172436)
-        : const Color(0xFFDFF0FF);
-    final replyTargetBorder = isDark
-        ? const Color(0xFF2B4055)
-        : const Color(0xFF9BD0FF);
     final createdAtText = () {
       final dt = parseCreatedAtMs(comment.createdAtMs);
       return dt != null ? timeAgo(dt) : '';
     }();
-
     final canReplyFromSurface = showReplyButton && onReplyTap != null;
 
     return Material(
@@ -195,10 +184,10 @@ class _CommentBody extends StatelessWidget {
             isReplyTarget ? 9 : 0,
           ),
           decoration: BoxDecoration(
-            color: isReplyTarget ? replyTargetBg : Colors.transparent,
+            color: isReplyTarget ? c.highlightBg : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
             border: isReplyTarget
-                ? Border.all(color: replyTargetBorder, width: 1.2)
+                ? Border.all(color: c.borderBlue, width: 1.2)
                 : null,
           ),
           child: Column(
@@ -210,72 +199,72 @@ class _CommentBody extends StatelessWidget {
                   _CommentAvatar(comment: comment, isReply: isReply),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 6,
-                        runSpacing: 3,
-                        children: [
-                          Text(
-                            comment.displayAuthorName,
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: c.textPrimary,
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
+                      runSpacing: 3,
+                      children: [
+                        Text(
+                          comment.displayAuthorName,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                        if (comment.isPostAuthor)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: c.tintBg,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: c.borderBlue),
+                            ),
+                            child: Text(
+                              '작성자',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? const Color(0xFF8FAFCB)
+                                    : const Color(0xFF3A9DE0),
+                              ),
                             ),
                           ),
-                          if (comment.isPostAuthor)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: c.tintBg,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: c.borderBlue),
-                              ),
-                              child: Text(
-                                '작성자',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark
-                                      ? const Color(0xFF8FAFCB)
-                                      : const Color(0xFF3A9DE0),
-                                ),
-                              ),
+                        if (createdAtText.isNotEmpty)
+                          Text(
+                            createdAtText,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: c.textMuted,
                             ),
-                          if (createdAtText.isNotEmpty)
-                            Text(
-                              createdAtText,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF7D8790),
-                              ),
-                            ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
-
-                  /// 댓글 메뉴 — 내 댓글: 수정/삭제/채팅/신고, 타인: 채팅/신고/차단
                   PopupMenuButton<String>(
                     color: c.cardBg,
                     onSelected: (value) {
                       switch (value) {
                         case 'edit':
                           onEditTap?.call();
+                          break;
                         case 'delete':
                           onDeleteTap?.call();
+                          break;
                         case 'chat':
                           onChatTap?.call();
+                          break;
                         case 'report':
                           onReportTap?.call();
+                          break;
                         case 'block':
                           onBlockTap?.call();
+                          break;
                       }
                     },
                     itemBuilder: (context) => [
@@ -311,12 +300,12 @@ class _CommentBody extends StatelessWidget {
                           ),
                       ],
                     ],
-                    child: const Padding(
-                      padding: EdgeInsets.all(4),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
                       child: Icon(
                         Icons.more_horiz_rounded,
                         size: 18,
-                        color: Color(0xFF7D8790),
+                        color: c.textMuted,
                       ),
                     ),
                   ),
@@ -369,31 +358,27 @@ class _CommentBody extends StatelessWidget {
   }
 }
 
-/// 삭제된 댓글 플레이스홀더 (대댓글이 있어서 남겨두는 경우)
 class _DeletedCommentPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
         Container(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: const Color(0xFFF0F4F8),
+            color: c.subtleBg,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(
-            Icons.person_rounded,
-            color: Color(0xFFBCC8D4),
-            size: 22,
-          ),
+          child: Icon(Icons.person_rounded, color: c.iconMuted, size: 22),
         ),
         const SizedBox(width: 12),
         Text(
           '삭제된 댓글입니다.',
           style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
-            color: Color(0xFF95A3AF),
+            color: c.textMuted,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -445,19 +430,18 @@ class _DefaultCommentAvatar extends StatelessWidget {
       width: isReply ? 24 : 28,
       height: isReply ? 24 : 28,
       decoration: BoxDecoration(
-        color: isReply ? c.cardBg : const Color(0xFFE4F2FF),
+        color: isReply ? c.cardBg : c.tintBg,
         borderRadius: BorderRadius.circular(isReply ? 8 : 9),
       ),
       child: Icon(
         Icons.person_rounded,
-        color: const Color(0xFF8EA2B5),
+        color: c.iconSecondary,
         size: isReply ? 15 : 17,
       ),
     );
   }
 }
 
-/// 댓글 하단 액션 버튼
 class _InlineActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -477,7 +461,7 @@ class _InlineActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isActive
         ? activeColor ?? const Color(0xFF14A3F7)
-        : const Color(0xFF7D8790);
+        : context.colors.textMuted;
 
     return TapScale(
       scale: 0.90,
@@ -522,9 +506,7 @@ class _CompactMenuText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: AppTextStyles.bodyMedium.copyWith(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
+      style: AppTextStyles.labelMedium.copyWith(
         color: color ?? context.colors.textPrimary,
       ),
     );

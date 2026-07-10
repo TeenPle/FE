@@ -9,7 +9,7 @@ class UpdatePostRequest {
   const UpdatePostRequest({
     required this.title,
     required this.content,
-    required this.anonymous,
+    this.anonymous = false,
     this.deleteMediaIds = const [],
     this.pollOptions,
   });
@@ -19,7 +19,7 @@ class UpdatePostRequest {
     final json = {
       'title': title,
       'content': content,
-      'anonymous': anonymous,
+      'anonymous': false,
       'deleteMediaIds': deleteMediaIds,
     };
     if (pollOptions != null) {

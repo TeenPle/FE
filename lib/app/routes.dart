@@ -577,7 +577,14 @@ final GoRouter router = GoRouter(
         return ChatRoomPage(
           roomId: roomId,
           otherUserId: (extra['otherUserId'] as num).toInt(),
-          displayName: extra['displayName'] as String? ?? '채팅방',
+          displayName:
+              extra['roomTitle'] as String? ??
+              extra['displayName'] as String? ??
+              '채팅방',
+          counterpartDisplayName:
+              extra['counterpartDisplayName'] as String? ?? '상대방',
+          counterpartProfileImageUrl:
+              extra['counterpartProfileImageUrl'] as String?,
           initialBlocked: extra['blocked'] as bool? ?? false,
           initialBlockedByMe: extra['blockedByMe'] as bool? ?? false,
           initialBlockedByOther: extra['blockedByOther'] as bool? ?? false,

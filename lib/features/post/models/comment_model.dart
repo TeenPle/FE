@@ -61,15 +61,11 @@ class CommentModel {
       content: json['content'] as String? ?? '',
       author: json['author'] as String? ?? '',
       authorProfileImageUrl: readProfileImageUrl(json),
-      likeCount: json['likeCount'] != null
-          ? (json['likeCount'] as num).toInt()
-          : 0,
-      dislikeCount: json['dislikeCount'] != null
-          ? (json['dislikeCount'] as num).toInt()
-          : 0,
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+      dislikeCount: (json['dislikeCount'] as num?)?.toInt() ?? 0,
       likedByMe: json['likedByMe'] as bool? ?? false,
       anonymous: json['anonymous'] as bool? ?? false,
-      depth: json['depth'] != null ? (json['depth'] as num).toInt() : 0,
+      depth: (json['depth'] as num?)?.toInt() ?? 0,
       parentId: json['parentId'] != null
           ? (json['parentId'] as num).toInt()
           : null,
@@ -83,7 +79,6 @@ class CommentModel {
   bool get isReply => parentId != null;
   bool get isDeleted => commentStatus == 'DELETED';
   bool get showProfileImage =>
-      !anonymous &&
       !authorDeleted &&
       authorProfileImageUrl != null &&
       authorProfileImageUrl!.isNotEmpty;

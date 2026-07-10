@@ -1,5 +1,6 @@
 class ProfileModel {
   final int id;
+  final String username;
   final String nickname;
   final String email;
   final String profileImageUrl;
@@ -14,6 +15,7 @@ class ProfileModel {
 
   const ProfileModel({
     required this.id,
+    required this.username,
     required this.nickname,
     required this.email,
     required this.profileImageUrl,
@@ -30,8 +32,10 @@ class ProfileModel {
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: (json['id'] as num).toInt(),
-      nickname: json['nickname'] as String,
-      email: json['email'] as String,
+      username:
+          json['username'] as String? ?? json['nickname'] as String? ?? '',
+      nickname: json['nickname'] as String? ?? '',
+      email: json['email'] as String? ?? '',
       profileImageUrl: json['profileImageUrl'] as String? ?? '',
       schoolName: json['schoolName'] as String? ?? '',
       grade: json['grade'] as String? ?? '',
@@ -51,7 +55,6 @@ class ProfileModel {
     return DateTime.now().difference(nicknameChangedAt!).inDays >= 30;
   }
 
-  /// 변경 가능까지 남은 일수 (이미 가능하면 0)
   int get daysUntilNicknameChange {
     if (nicknameChangedAt == null) return 0;
     final nextAllowed = nicknameChangedAt!.add(const Duration(days: 30));

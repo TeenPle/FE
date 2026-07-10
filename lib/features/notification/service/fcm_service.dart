@@ -306,6 +306,9 @@ class FcmService {
         extra: {
           'otherUserId': room.otherUserId,
           'displayName': room.displayName,
+          'roomTitle': room.roomTitle,
+          'counterpartDisplayName': room.counterpartDisplayName,
+          'counterpartProfileImageUrl': room.counterpartProfileImageUrl,
           'blocked': room.blocked,
           'blockedByMe': room.blockedByMe,
           'blockedByOther': room.blockedByOther,

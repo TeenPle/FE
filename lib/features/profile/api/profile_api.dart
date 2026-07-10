@@ -5,6 +5,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../../../core/network/api_response.dart';
 import '../../../core/network/app_api_client.dart';
+import '../models/board_display_profile_model.dart';
 import '../models/my_comment_model.dart';
 import '../models/my_post_model.dart';
 import '../models/profile_model.dart';
@@ -40,6 +41,60 @@ class ProfileApi {
     );
     final response = ApiResponse.fromJson(json, (data) => data);
     if (!response.isSuccess) throw Exception(response.message);
+  }
+
+  Future<List<BoardDisplayProfileModel>> getBoardDisplayProfiles() async {
+    final json = await client.get('/api/users/me/board-profiles');
+    final response = ApiResponse.fromJson(json, (data) {
+      final list = data as List<dynamic>;
+      return list
+          .map(
+            (e) => BoardDisplayProfileModel.fromJson(e as Map<String, dynamic>),
+          )
+          .toList();
+    });
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+    return response.result!;
+  }
+
+  Future<BoardDisplayProfileModel> updateBoardDisplayProfile({
+    required int boardId,
+    required String displayName,
+    File? imageFile,
+  }) async {
+    final files = <MultipartFile>[];
+    if (imageFile != null) {
+      final ext = imageFile.path.split('.').last.toLowerCase();
+      final contentType = switch (ext) {
+        'png' => MediaType('image', 'png'),
+        'heic' => MediaType('image', 'heic'),
+        'heif' => MediaType('image', 'heif'),
+        'webp' => MediaType('image', 'webp'),
+        _ => MediaType('image', 'jpeg'),
+      };
+      files.add(
+        await MultipartFile.fromFile(
+          imageFile.path,
+          filename: 'board-profile.$ext',
+          contentType: contentType,
+        ),
+      );
+    }
+    final json = await client.patchMultipart(
+      '/api/users/me/board-profiles/$boardId',
+      jsonBody: {'displayName': displayName},
+      files: files,
+    );
+    final response = ApiResponse.fromJson(
+      json,
+      (data) => BoardDisplayProfileModel.fromJson(data as Map<String, dynamic>),
+    );
+    if (!response.isSuccess || response.result == null) {
+      throw Exception(response.message);
+    }
+    return response.result!;
   }
 
   Future<void> updatePassword({

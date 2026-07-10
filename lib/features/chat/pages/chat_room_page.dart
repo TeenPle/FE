@@ -23,6 +23,8 @@ class ChatRoomPage extends ConsumerStatefulWidget {
   final int roomId;
   final int otherUserId;
   final String displayName;
+  final String counterpartDisplayName;
+  final String? counterpartProfileImageUrl;
   final bool initialBlocked;
   final bool initialBlockedByMe;
   final bool initialBlockedByOther;
@@ -36,6 +38,8 @@ class ChatRoomPage extends ConsumerStatefulWidget {
     required this.roomId,
     required this.otherUserId,
     required this.displayName,
+    this.counterpartDisplayName = '',
+    this.counterpartProfileImageUrl,
     this.initialBlocked = false,
     this.initialBlockedByMe = false,
     this.initialBlockedByOther = false,
@@ -620,14 +624,22 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     });
 
     final c = context.colors;
+    final roomTitle = widget.displayName.trim().isEmpty
+        ? '채팅방'
+        : widget.displayName.trim();
+    final counterpartName = widget.counterpartDisplayName.trim().isEmpty
+        ? '상대방'
+        : widget.counterpartDisplayName.trim();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: c.pageBg,
       appBar: AppBar(
         backgroundColor: c.cardBg,
         elevation: 0,
-        leadingWidth: 144,
+        leadingWidth: 44,
         leading: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(width: 44, height: 56),
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: c.iconPrimary,
@@ -639,13 +651,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         title: Column(
           children: [
             Text(
-              widget.displayName,
+              roomTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
             ),
             Text(
-              '틴플러',
+              counterpartName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.captionSmall.copyWith(color: c.textMuted),
             ),
           ],
@@ -806,6 +820,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               showProfile: !isMe && isFirstInGroup,
                               showMeta: isLastInGroup,
                               isLastInGroup: isLastInGroup,
+                              counterpartDisplayName: counterpartName,
                             ),
                           ],
                         );
@@ -1020,6 +1035,7 @@ class _MessageBubble extends StatelessWidget {
   final bool showProfile;
   final bool showMeta;
   final bool isLastInGroup;
+  final String counterpartDisplayName;
 
   const _MessageBubble({
     required this.message,
@@ -1028,6 +1044,7 @@ class _MessageBubble extends StatelessWidget {
     this.showProfile = true,
     this.showMeta = true,
     this.isLastInGroup = true,
+    this.counterpartDisplayName = '상대방',
   });
 
   @override
@@ -1068,7 +1085,7 @@ class _MessageBubble extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4, left: 4),
                   child: Text(
-                    '틴플러',
+                    counterpartDisplayName,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: c.textMuted,
                     ),

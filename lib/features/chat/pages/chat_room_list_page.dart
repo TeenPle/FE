@@ -31,7 +31,6 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
     });
     Future.microtask(() {
       ref.read(chatRoomListProvider.notifier).load();
-      // 채팅 목록 화면에서는 유저별 STOMP 이벤트를 받아 새 메시지/읽음 상태를 즉시 반영한다.
       ref.read(chatRoomListProvider.notifier).startRealtime();
     });
   }
@@ -42,13 +41,13 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
     super.dispose();
   }
 
-  // displayName 또는 마지막 메시지 미리보기로 클라이언트 사이드 필터링
   List<ChatRoomModel> _filtered(List<ChatRoomModel> rooms) {
     if (_searchQuery.isEmpty) return rooms;
     return rooms
         .where(
           (r) =>
-              r.displayName.toLowerCase().contains(_searchQuery) ||
+              r.roomTitle.toLowerCase().contains(_searchQuery) ||
+              r.counterpartDisplayName.toLowerCase().contains(_searchQuery) ||
               r.lastPreview.toLowerCase().contains(_searchQuery),
         )
         .toList();
@@ -97,7 +96,7 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: '대화방 검색',
+                  hintText: '채팅방 검색',
                   hintStyle: AppTextStyles.bodyMedium.copyWith(
                     color: c.textMuted,
                   ),
@@ -113,8 +112,6 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
               ),
             ),
           ),
-
-          // 채팅방 목록
           Expanded(
             child: state.isLoading && state.rooms.isEmpty
                 ? const Center(child: CircularProgressIndicator())
@@ -134,7 +131,6 @@ class _ChatRoomListPageState extends ConsumerState<ChatRoomListPage> {
                             itemBuilder: (context, index) {
                               return _ChatRoomItem(
                                 room: filtered[index],
-                                // 채팅방에서 돌아오면 목록 갱신해서 읽음 뱃지 제거
                                 onReturn: () => ref
                                     .read(chatRoomListProvider.notifier)
                                     .load(),
@@ -186,11 +182,11 @@ class _EmptyView extends StatelessWidget {
               Container(
                 width: 80,
                 height: 80,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Color(0xFFE3F2FD),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.chat_bubble_outline_rounded,
                   size: 38,
                   color: Color(0xFF1DA1F2),
@@ -199,15 +195,15 @@ class _EmptyView extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 isSearch
-                    ? '검색 결과가 없어요.'
+                    ? '검색 결과가 없어요'
                     : errorMessage != null
                     ? '채팅 목록을 불러오지 못했어요.'
-                    : '아직 채팅이 없어요.',
+                    : '아직 채팅이 없어요',
                 style: AppTextStyles.titleSmall.copyWith(color: c.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
-                isSearch ? '다른 검색어를 입력해보세요.' : '게시글이나 댓글에서 채팅을 시작해보세요',
+                isSearch ? '다른 검색어를 입력해보세요.' : '게시글이나 댓글에서 채팅을 시작해보세요.',
                 style: AppTextStyles.captionLarge.copyWith(color: c.textMuted),
               ),
             ],
@@ -228,13 +224,23 @@ class _ChatRoomItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isMuted = ref.watch(mutedRoomsProvider).contains(room.roomId);
     final c = context.colors;
+    final roomTitle = room.roomTitle.trim().isEmpty
+        ? '채팅방'
+        : room.roomTitle.trim();
+    final counterpartName = room.counterpartDisplayName.trim().isEmpty
+        ? '상대방'
+        : room.counterpartDisplayName.trim();
+
     return GestureDetector(
       onTap: () async {
         await context.push(
           '/chat/rooms/${room.roomId}',
           extra: {
             'otherUserId': room.otherUserId,
-            'displayName': room.displayName,
+            'displayName': roomTitle,
+            'roomTitle': roomTitle,
+            'counterpartDisplayName': counterpartName,
+            'counterpartProfileImageUrl': room.counterpartProfileImageUrl,
             'blocked': room.blocked,
             'blockedByMe': room.blockedByMe,
             'blockedByOther': room.blockedByOther,
@@ -261,22 +267,9 @@ class _ChatRoomItem extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: room.otherUserDeleted
-                    ? c.subtleBg
-                    : const Color(0xFFE3F2FD),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.person_rounded,
-                color: room.otherUserDeleted
-                    ? c.textMuted
-                    : const Color(0xFF1DA1F2),
-                size: 28,
-              ),
+            _Avatar(
+              imageUrl: room.counterpartProfileImageUrl,
+              deleted: room.otherUserDeleted,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -287,7 +280,7 @@ class _ChatRoomItem extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          room.displayName,
+                          roomTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.titleSmall.copyWith(
@@ -299,25 +292,7 @@ class _ChatRoomItem extends ConsumerWidget {
                       ),
                       if (room.otherUserDeleted) ...[
                         const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: c.subtleBg,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: c.border),
-                          ),
-                          child: Text(
-                            '탈퇴',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: c.textMuted,
-                            ),
-                          ),
-                        ),
+                        _StatusChip(label: '탈퇴', muted: true),
                       ] else if (isMuted) ...[
                         const SizedBox(width: 4),
                         Icon(
@@ -331,22 +306,19 @@ class _ChatRoomItem extends ConsumerWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      if (room.otherUserDeleted)
-                        Text(
-                          '탈퇴한 사용자',
+                      Flexible(
+                        child: Text(
+                          room.otherUserDeleted ? '탈퇴한 사용자' : counterpartName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.labelSmall.copyWith(
                             fontSize: 12,
-                            color: c.textMuted,
-                          ),
-                        )
-                      else
-                        Text(
-                          '틴플러',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            fontSize: 12,
-                            color: Color(0xFF1DA1F2),
+                            color: room.otherUserDeleted
+                                ? c.textMuted
+                                : const Color(0xFF1DA1F2),
                           ),
                         ),
+                      ),
                       if (room.lastPreview.isNotEmpty) ...[
                         Text(
                           '  ·  ',
@@ -386,43 +358,9 @@ class _ChatRoomItem extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 if (room.unreadCount > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1DA1F2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      room.unreadCount > 99 ? '99+' : '${room.unreadCount}',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
+                  _UnreadBadge(count: room.unreadCount)
                 else if (room.blocked)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: c.subtleBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '차단',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: c.textTertiary,
-                      ),
-                    ),
-                  ),
+                  _StatusChip(label: '차단', muted: true),
               ],
             ),
           ],
@@ -441,5 +379,102 @@ class _ChatRoomItem extends ConsumerWidget {
     if (diff.inHours < 24) return '${diff.inHours}시간 전';
     if (diff.inDays < 7) return '${diff.inDays}일 전';
     return '${dt.month}/${dt.day}';
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final String? imageUrl;
+  final bool deleted;
+
+  const _Avatar({required this.imageUrl, required this.deleted});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final hasImage = imageUrl != null && imageUrl!.trim().isNotEmpty;
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: deleted ? c.subtleBg : const Color(0xFFE3F2FD),
+        shape: BoxShape.circle,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: hasImage
+          ? Image.network(
+              imageUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => _AvatarIcon(deleted: deleted),
+            )
+          : _AvatarIcon(deleted: deleted),
+    );
+  }
+}
+
+class _AvatarIcon extends StatelessWidget {
+  final bool deleted;
+
+  const _AvatarIcon({required this.deleted});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Icon(
+      Icons.person_rounded,
+      color: deleted ? c.textMuted : const Color(0xFF1DA1F2),
+      size: 28,
+    );
+  }
+}
+
+class _UnreadBadge extends StatelessWidget {
+  final int count;
+
+  const _UnreadBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1DA1F2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String label;
+  final bool muted;
+
+  const _StatusChip({required this.label, this.muted = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: c.subtleBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.bodyMedium.copyWith(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: muted ? c.textTertiary : c.textBody,
+        ),
+      ),
+    );
   }
 }

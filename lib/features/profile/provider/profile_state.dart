@@ -1,7 +1,9 @@
+import '../models/board_display_profile_model.dart';
 import '../models/profile_model.dart';
 
 class ProfileState {
   final ProfileModel? profile;
+  final List<BoardDisplayProfileModel> boardProfiles;
   final bool isLoading;
   final bool isSaving;
   final String? errorMessage;
@@ -10,6 +12,7 @@ class ProfileState {
 
   const ProfileState({
     this.profile,
+    this.boardProfiles = const [],
     this.isLoading = false,
     this.isSaving = false,
     this.errorMessage,
@@ -19,6 +22,7 @@ class ProfileState {
 
   ProfileState copyWith({
     ProfileModel? profile,
+    List<BoardDisplayProfileModel>? boardProfiles,
     bool? isLoading,
     bool? isSaving,
     String? errorMessage,
@@ -29,6 +33,7 @@ class ProfileState {
   }) {
     return ProfileState(
       profile: profile ?? this.profile,
+      boardProfiles: boardProfiles ?? this.boardProfiles,
       isLoading: isLoading ?? this.isLoading,
       isSaving: isSaving ?? this.isSaving,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),

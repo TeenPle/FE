@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/time_format.dart';
 import '../../models/post_detail.dart';
@@ -94,6 +95,7 @@ class _MediaGallery extends StatelessWidget {
 
 class _SingleImage extends StatelessWidget {
   final String url;
+
   const _SingleImage({required this.url});
 
   @override
@@ -118,6 +120,7 @@ class _SingleImage extends StatelessWidget {
 class _ImageRow extends StatelessWidget {
   final List<String> urls;
   final Color placeholderColor;
+
   const _ImageRow({required this.urls, required this.placeholderColor});
 
   @override
@@ -170,6 +173,7 @@ class _ImageRow extends StatelessWidget {
 
 class _FileAttachmentChip extends StatelessWidget {
   final String url;
+
   const _FileAttachmentChip({required this.url});
 
   String get _filename {
@@ -180,7 +184,6 @@ class _FileAttachmentChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Container(
@@ -294,10 +297,7 @@ class _PostMetaRow extends StatelessWidget {
     final c = context.colors;
     final profileUrl = post.authorProfileImageUrl;
     final showNetworkAvatar =
-        !post.anonymous &&
-        !post.authorDeleted &&
-        profileUrl != null &&
-        profileUrl.isNotEmpty;
+        !post.authorDeleted && profileUrl != null && profileUrl.isNotEmpty;
 
     return Row(
       children: [

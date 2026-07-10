@@ -1,27 +1,27 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/active_page_provider.dart';
 import '../../../core/config/feature_flags.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_snack_bar.dart';
+import '../../../core/widgets/school_main_ad_card.dart';
+import '../../chat/provider/chat_room_list_provider.dart';
+import '../../penalty/provider/penalty_provider.dart';
+import '../../profile/provider/block_provider.dart';
 import '../form/comment_input_bar.dart';
 import '../models/comment_model.dart';
 import '../models/post_detail.dart';
 import '../provider/post_detail_provider.dart';
 import '../provider/post_detail_providers.dart';
-import '../../../core/widgets/app_snack_bar.dart';
-import '../../chat/provider/chat_room_list_provider.dart';
-import '../../penalty/provider/penalty_provider.dart';
-import '../../profile/provider/block_provider.dart';
 import 'widgets/comment_item.dart';
+import 'widgets/poll_card.dart';
 import 'widgets/post_action_bar.dart';
 import 'widgets/post_content_card.dart';
-import 'widgets/poll_card.dart';
 import 'write_post_page.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../core/widgets/school_main_ad_card.dart';
 
-/// 게시글 상세 페이지
 class PostDetailPage extends ConsumerStatefulWidget {
   final int postId;
 
@@ -45,7 +45,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      // 이 게시글을 보고 있음을 알림 억제 로직에 알린다.
       _activePageNotifier.state = ActivePage(postId: widget.postId);
       _detailNotifier.loadPostDetail();
     });
@@ -55,9 +54,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
   void dispose() {
     _scrollController.dispose();
     Future<void>(() {
-      if (_detailNotifier.mounted) {
-        _detailNotifier.cancelReply();
-      }
+      if (_detailNotifier.mounted) _detailNotifier.cancelReply();
       if (_activePageNotifier.mounted &&
           _activePageNotifier.state.postId == widget.postId) {
         _activePageNotifier.state = const ActivePage();
@@ -78,20 +75,16 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
     ref.listen(postDetailProvider(widget.postId), (previous, next) async {
       if (!mounted) return;
-
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         showAppSnackBar(next.errorMessage!);
         notifier.clearMessages();
       }
-
       if (next.successMessage != null &&
           next.successMessage != previous?.successMessage) {
         showAppSnackBar(next.successMessage!);
         notifier.clearMessages();
       }
-
-      /// 게시글 삭제 후 이전 화면으로 이동
       if (next.shouldClosePage &&
           next.shouldClosePage != previous?.shouldClosePage) {
         notifier.clearClosePageFlag();
@@ -120,7 +113,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   showAppSnackBar('제재 중에는 게시글을 수정할 수 없어요.');
                   return;
                 }
-
                 final updated = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (_) => WritePostPage(
@@ -130,7 +122,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                       postId: post.postId,
                       initialTitle: post.title,
                       initialContent: post.content,
-                      initialAnonymous: post.anonymous,
+                      initialAnonymous: false,
                       initialMediaList: post.mediaList,
                       initialPollOptions: post.poll?.options
                           .map((e) => e.text)
@@ -138,10 +130,9 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                     ),
                   ),
                 );
-
                 if (updated == true) {
                   await notifier.loadPostDetail();
-                  showAppSnackBar('게시글을 수정했어요.');
+                  showAppSnackBar('게시글이 수정되었어요.');
                 }
               } else if (value == 'delete') {
                 final confirmed = await _showDeleteConfirmDialog(
@@ -149,10 +140,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   title: '게시글을 삭제할까요?',
                   description: '삭제한 게시글은 되돌릴 수 없습니다.',
                 );
-
-                if (confirmed == true) {
-                  await notifier.deletePost();
-                }
+                if (confirmed == true) await notifier.deletePost();
               } else if (value == 'chat') {
                 if (post == null) return;
                 if (isPenalized) {
@@ -178,9 +166,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                   post.canReportAuthor) {
                 _showReportSheet(
                   context,
-                  onSubmit: (reason) {
-                    notifier.reportPost(reason);
-                  },
+                  onSubmit: (reason) => notifier.reportPost(reason),
                 );
               } else if (value == 'block' &&
                   post != null &&
@@ -194,7 +180,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                         .read(blockActionProvider)
                         .block(post.authorUserId!);
                     if (mounted) {
-                      showAppSnackBar('해당 사용자를 차단했어요.');
+                      showAppSnackBar('사용자를 차단했어요.');
                       router.pop(true);
                     }
                   } catch (_) {
@@ -298,7 +284,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             commentCount: state.comments.length,
                             likedByMe: state.likedByMe,
                             bookmarkedByMe: state.bookmarkedByMe,
-                            onBookmarkTap: () => notifier.toggleBookmark(),
+                            onBookmarkTap: notifier.toggleBookmark,
                             onLikeTap: () {
                               if (isPenalized) {
                                 showAppSnackBar('제재 중에는 공감할 수 없어요.');
@@ -339,7 +325,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                               replyingToCommentId: state.replyingToCommentId,
                               onReplyTap: (commentId, isReply) {
                                 if (isPenalized) {
-                                  showAppSnackBar('제재 중에는 댓글을 작성할 수 없어요.');
+                                  showAppSnackBar('제재 중에는 답글을 작성할 수 없어요.');
                                   return;
                                 }
                                 notifier.startReply(
@@ -385,9 +371,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                 );
                               },
                               onCommentEditTap: (comment) {
-                                if (!commentEditingEnabled) {
-                                  return;
-                                }
+                                if (!commentEditingEnabled) return;
                                 if (isPenalized) {
                                   showAppSnackBar('제재 중에는 댓글을 수정할 수 없어요.');
                                   return;
@@ -395,12 +379,11 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                 _showEditCommentDialog(
                                   context,
                                   initialContent: comment.content,
-                                  initialAnonymous: comment.anonymous,
-                                  onSubmit: (content, anonymous) {
+                                  onSubmit: (content) {
                                     notifier.updateComment(
                                       commentId: comment.commentId,
                                       content: content,
-                                      anonymous: anonymous,
+                                      anonymous: false,
                                     );
                                   },
                                 );
@@ -412,7 +395,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                       title: '댓글을 삭제할까요?',
                                       description: '삭제한 댓글은 되돌릴 수 없습니다.',
                                     );
-
                                 if (confirmed == true) {
                                   await notifier.deleteComment(commentId);
                                 }
@@ -427,7 +409,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                                         .read(blockActionProvider)
                                         .block(authorUserId);
                                     if (mounted) {
-                                      showAppSnackBar('해당 사용자를 차단했어요.');
+                                      showAppSnackBar('사용자를 차단했어요.');
                                       await notifier.loadPostDetail();
                                     }
                                   } catch (_) {
@@ -451,10 +433,10 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           ),
           if (!isPenalized)
             CommentInputBar(
-              anonymous: state.commentAnonymous,
+              anonymous: false,
               isSubmitting: state.isSubmittingComment,
               replyingToCommentId: state.replyingToCommentId,
-              onAnonymousChanged: notifier.toggleCommentAnonymous,
+              onAnonymousChanged: (_) {},
               onSubmit: notifier.submitComment,
               onCancelReply: notifier.cancelReply,
             ),
@@ -463,7 +445,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     );
   }
 
-  /// 부모 댓글과 대댓글을 묶어서 화면에 구성
   List<Widget> _buildCommentWidgets({
     required List<CommentModel> comments,
     required int? replyingToCommentId,
@@ -477,7 +458,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     required void Function(int authorUserId) onCommentBlockTap,
   }) {
     final parents = comments.where((e) => e.parentId == null).toList();
-
     if (parents.isEmpty) {
       return [
         Padding(
@@ -487,7 +467,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               '아직 댓글이 없어요.\n첫 댓글을 남겨보세요.',
               textAlign: TextAlign.center,
               style: AppTextStyles.captionLarge.copyWith(
-                color: const Color(0xFF7D8790),
+                color: context.colors.textMuted,
                 height: 1.5,
               ),
             ),
@@ -550,7 +530,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     final reservedInputHeight = media.viewInsets.bottom > 0 ? 130.0 : 88.0;
     final visibleBottom = keyboardTop - reservedInputHeight;
     final overflow = bottom - visibleBottom;
-
     if (overflow <= 0) return;
 
     final position = _scrollController.position;
@@ -567,7 +546,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     );
   }
 
-  // 채팅방 생성/조회 후 이동
   Future<void> _startChat({
     required BuildContext context,
     required WidgetRef ref,
@@ -581,8 +559,6 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
         sourcePostId: post.postId,
         roomTitle: post.title,
       );
-
-      // 채팅방 목록 갱신
       ref.read(chatRoomListProvider.notifier).load();
 
       if (context.mounted) {
@@ -590,7 +566,18 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
           '/chat/rooms/${result['roomId']}',
           extra: {
             'otherUserId': result['otherUserId'],
-            'displayName': result['displayName'] as String? ?? post.title,
+            'displayName':
+                result['roomTitle'] as String? ??
+                result['displayName'] as String? ??
+                post.title,
+            'roomTitle':
+                result['roomTitle'] as String? ??
+                result['displayName'] as String? ??
+                post.title,
+            'counterpartDisplayName':
+                result['counterpartDisplayName'] as String? ?? '상대방',
+            'counterpartProfileImageUrl':
+                result['counterpartProfileImageUrl'] as String?,
             'blocked': result['blocked'] as bool? ?? false,
             'blockedByMe': result['blockedByMe'] as bool? ?? false,
             'blockedByOther': result['blockedByOther'] as bool? ?? false,
@@ -603,14 +590,13 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
       }
     } catch (e) {
       showAppSnackBar(
-        '채팅을 시작할 수 없어요: $e',
+        '채팅을 시작할 수 없어요. $e',
         backgroundColor: const Color(0xFFE05C7B),
       );
     }
   }
 }
 
-/// 댓글 섹션 헤더
 class _CommentSectionHeader extends StatelessWidget {
   final int commentCount;
 
@@ -654,24 +640,25 @@ class _CompactMenuText extends StatelessWidget {
   }
 }
 
-/// 차단 확인 다이얼로그
 Future<bool?> _showBlockConfirmDialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('사용자 차단'),
-      content: Text('이 사용자를 차단하면 해당 사용자의 게시글과 댓글이 보이지 않습니다.\n차단하시겠습니까?'),
+      title: const Text('사용자를 차단할까요?'),
+      content: const Text('차단하면 해당 사용자의 게시글과 댓글이 보이지 않습니다.\n차단하시겠습니까?'),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: Text('취소'),
+          child: const Text('취소'),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
           child: Text(
             '차단하기',
-            style: AppTextStyles.bodyMedium.copyWith(color: Color(0xFFE05C5C)),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: const Color(0xFFE05C5C),
+            ),
           ),
         ),
       ],
@@ -679,7 +666,6 @@ Future<bool?> _showBlockConfirmDialog(BuildContext context) {
   );
 }
 
-/// 신고 사유 선택 바텀시트
 void _showReportSheet(
   BuildContext context, {
   required ValueChanged<String> onSubmit,
@@ -693,8 +679,8 @@ void _showReportSheet(
     builder: (context) {
       const reasons = [
         ('SPAM', '스팸'),
-        ('ABUSE', '욕설/모욕'),
-        ('OBSCENE', '음란물/선정적 내용'),
+        ('ABUSE', '욕설/비방'),
+        ('OBSCENE', '음란물 또는 선정적인 내용'),
         ('ILLEGAL', '불법 콘텐츠'),
         ('HARASSMENT', '괴롭힘'),
         ('ETC', '기타'),
@@ -714,7 +700,8 @@ void _showReportSheet(
               ),
               const SizedBox(height: 4),
               Text(
-                '신고 즉시 해당 사용자가 차단되며, 운영자가 24시간 내 콘텐츠 제거와 작성자 퇴출을 검토합니다.',
+                '신고 즉시 해당 사용자를 차단하며, 운영자가 24시간 내 콘텐츠를 검토합니다.',
+                textAlign: TextAlign.center,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   color: context.colors.textMuted,
@@ -724,7 +711,10 @@ void _showReportSheet(
               ...reasons.map(
                 (r) => ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(r.$2),
+                  title: Text(
+                    r.$2,
+                    style: TextStyle(color: context.colors.textPrimary),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onSubmit(r.$1);
@@ -739,7 +729,6 @@ void _showReportSheet(
   );
 }
 
-/// 삭제 확인 다이얼로그
 Future<bool?> _showDeleteConfirmDialog(
   BuildContext context, {
   required String title,
@@ -754,11 +743,11 @@ Future<bool?> _showDeleteConfirmDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('취소'),
+            child: const Text('취소'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('삭제'),
+            child: const Text('삭제'),
           ),
         ],
       );
@@ -766,31 +755,24 @@ Future<bool?> _showDeleteConfirmDialog(
   );
 }
 
-/// 댓글 수정 다이얼로그
 Future<void> _showEditCommentDialog(
   BuildContext context, {
   required String initialContent,
-  required bool initialAnonymous,
-  required void Function(String content, bool anonymous) onSubmit,
+  required void Function(String content) onSubmit,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (_) => _CommentEditDialog(
-      initialContent: initialContent,
-      initialAnonymous: initialAnonymous,
-      onSubmit: onSubmit,
-    ),
+    builder: (_) =>
+        _CommentEditDialog(initialContent: initialContent, onSubmit: onSubmit),
   );
 }
 
 class _CommentEditDialog extends StatefulWidget {
   final String initialContent;
-  final bool initialAnonymous;
-  final void Function(String content, bool anonymous) onSubmit;
+  final void Function(String content) onSubmit;
 
   const _CommentEditDialog({
     required this.initialContent,
-    required this.initialAnonymous,
     required this.onSubmit,
   });
 
@@ -800,13 +782,11 @@ class _CommentEditDialog extends StatefulWidget {
 
 class _CommentEditDialogState extends State<_CommentEditDialog> {
   late final TextEditingController _controller;
-  late bool _anonymous;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialContent);
-    _anonymous = widget.initialAnonymous;
   }
 
   @override
@@ -820,30 +800,15 @@ class _CommentEditDialogState extends State<_CommentEditDialog> {
     return AlertDialog(
       title: const Text('댓글 수정'),
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              maxLines: 4,
-              minLines: 2,
-              decoration: const InputDecoration(
-                hintText: '댓글 내용을 입력하세요',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Checkbox(
-                  value: !_anonymous,
-                  onChanged: (v) => setState(() => _anonymous = !(v ?? false)),
-                ),
-                const Text('닉네임 공개'),
-              ],
-            ),
-          ],
+        child: TextField(
+          controller: _controller,
+          autofocus: true,
+          maxLines: 4,
+          minLines: 2,
+          decoration: const InputDecoration(
+            hintText: '댓글 내용을 입력하세요',
+            border: OutlineInputBorder(),
+          ),
         ),
       ),
       actions: [
@@ -856,7 +821,7 @@ class _CommentEditDialogState extends State<_CommentEditDialog> {
             final content = _controller.text.trim();
             if (content.isEmpty) return;
             Navigator.pop(context);
-            widget.onSubmit(content, _anonymous);
+            widget.onSubmit(content);
           },
           child: const Text('수정'),
         ),

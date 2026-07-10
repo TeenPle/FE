@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teenple_frontend/core/theme/app_text_styles.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../pages/widgets/crisis_banner.dart';
 
@@ -37,8 +38,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
   }
 
   void _handleTextChanged() {
-    if (!mounted) return;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -52,19 +52,13 @@ class _CommentInputBarState extends State<CommentInputBar> {
   @override
   void didUpdateWidget(covariant CommentInputBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    final previousReplyId = oldWidget.replyingToCommentId;
-    final currentReplyId = widget.replyingToCommentId;
-
-    if (currentReplyId != null && currentReplyId != previousReplyId) {
+    if (widget.replyingToCommentId != null &&
+        widget.replyingToCommentId != oldWidget.replyingToCommentId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _focusNode.requestFocus();
+        if (mounted) _focusNode.requestFocus();
       });
-      return;
-    }
-
-    if (previousReplyId != null && currentReplyId == null) {
+    } else if (oldWidget.replyingToCommentId != null &&
+        widget.replyingToCommentId == null) {
       _focusNode.unfocus();
     }
   }
@@ -85,8 +79,6 @@ class _CommentInputBarState extends State<CommentInputBar> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = isDark ? const Color(0xFF6EA8D8) : const Color(0xFF14A3F7);
     final media = MediaQuery.of(context);
     final keyboard = media.viewInsets.bottom;
     final safeBottom = media.viewPadding.bottom;
@@ -124,7 +116,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                           style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: accent,
+                            color: const Color(0xFF14A3F7),
                           ),
                         ),
                       ),
@@ -140,7 +132,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                   ),
                 ),
               Container(
-                padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
+                padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
                 decoration: BoxDecoration(
                   color: c.cardBg,
                   borderRadius: BorderRadius.circular(20),
@@ -149,38 +141,6 @@ class _CommentInputBarState extends State<CommentInputBar> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    InkWell(
-                      onTap: () => widget.onAnonymousChanged(!widget.anonymous),
-                      borderRadius: BorderRadius.circular(999),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              !widget.anonymous
-                                  ? Icons.check_circle_rounded
-                                  : Icons.radio_button_unchecked_rounded,
-                              size: 15,
-                              color: !widget.anonymous ? accent : c.textMuted,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '닉네임 공개',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: !widget.anonymous ? accent : c.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
                     Expanded(
                       child: TextField(
                         controller: _controller,
@@ -201,12 +161,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
                             fontSize: 13,
                             height: 1.25,
                           ),
-                          filled: false,
-                          fillColor: Colors.transparent,
                           border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
                           isCollapsed: true,
                           contentPadding: EdgeInsets.zero,
                         ),

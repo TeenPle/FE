@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/network/api_exception.dart';
+import '../../profile/provider/block_provider.dart';
 import '../api/post_repository.dart';
 import '../models/comment_model.dart';
 import '../models/create_comment_request.dart';
 import '../models/update_comment_request.dart';
 import '../models/update_post_request.dart';
-import '../../profile/provider/block_provider.dart';
 import 'post_detail_state.dart';
 
-/// 게시글 상세 화면 상태 관리 Notifier
 class PostDetailNotifier extends StateNotifier<PostDetailState> {
   final PostRepository repository;
   final BlockAction blockAction;
@@ -20,7 +20,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     required this.blockAction,
   }) : super(PostDetailState.initial(postId));
 
-  /// 게시글 상세 데이터를 조회
   Future<void> loadPostDetail({bool isRefresh = false}) async {
     state = state.copyWith(
       isLoading: !isRefresh && state.post == null,
@@ -31,7 +30,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
     try {
       final post = await repository.getPostDetail(state.postId);
-
       state = state.copyWith(
         post: post,
         comments: post.comments,
@@ -40,7 +38,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         bookmarkedByMe: post.isBookmarked,
         likedByMe: post.likedByMe,
       );
-    } catch (e) {
+    } catch (_) {
       state = state.copyWith(
         isLoading: false,
         isRefreshing: false,
@@ -49,12 +47,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 당겨서 새로고침 시 상세 데이터를 다시 조회
   Future<void> refresh() {
     return loadPostDetail(isRefresh: true);
   }
 
-  /// 게시글 공감 처리
   Future<void> toggleLike() async {
     if (state.post == null || state.isSubmittingReaction) return;
 
@@ -67,7 +63,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       final result = await repository.applyPostLike(state.postId);
       final currentPost = state.post!;
-
       final updatedPost = currentPost.copyWith(
         likeCount: result.likeCount,
         dislikeCount: result.dislikeCount,
@@ -81,7 +76,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         likedByMe: result.liked,
         isSubmittingReaction: false,
       );
-    } catch (e) {
+    } catch (_) {
       state = state.copyWith(
         isSubmittingReaction: false,
         errorMessage: '공감 처리에 실패했어요.',
@@ -89,7 +84,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 댓글 공감 처리
   Future<void> likeComment(int commentId) async {
     if (state.isSubmittingReaction) return;
 
@@ -101,10 +95,8 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
     try {
       final result = await repository.applyCommentLike(commentId);
-
       final updatedComments = state.comments.map((comment) {
         if (comment.commentId != commentId) return comment;
-
         return CommentModel(
           commentId: comment.commentId,
           authorUserId: comment.authorUserId,
@@ -136,12 +128,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         updatedLikedCommentIds.remove(commentId);
       }
 
-      final currentPost = state.post;
-
       state = state.copyWith(
         comments: updatedComments,
         likedCommentIds: updatedLikedCommentIds,
-        post: currentPost?.copyWith(comments: updatedComments),
+        post: state.post?.copyWith(comments: updatedComments),
         isSubmittingReaction: false,
       );
     } catch (_) {
@@ -152,15 +142,12 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 댓글 작성자 표시 방식 토글
   void toggleCommentAnonymous(bool value) {
-    state = state.copyWith(commentAnonymous: value);
+    state = state.copyWith(commentAnonymous: false);
   }
 
-  /// 답글 작성 대상을 설정 (같은 댓글 재탭 시 취소)
   void startReply(int commentId, {required bool isReply}) {
     if (isReply) return;
-
     if (state.replyingToCommentId == commentId) {
       cancelReply();
       return;
@@ -173,12 +160,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     );
   }
 
-  /// 답글 작성 상태를 해제
   void cancelReply() {
     state = state.copyWith(clearReplying: true);
   }
 
-  /// 댓글 작성 요청 후 상세 재조회
   Future<void> submitComment(String content) async {
     if (content.trim().isEmpty || state.isSubmittingComment) return;
 
@@ -191,18 +176,15 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       final request = CreateCommentRequest(
         content: content.trim(),
-        anonymous: state.commentAnonymous,
+        anonymous: false,
         parentId: state.replyingToCommentId,
       );
-
       await repository.createComment(postId: state.postId, request: request);
-
       await loadPostDetail();
-
       state = state.copyWith(
         isSubmittingComment: false,
         clearReplying: true,
-        successMessage: '댓글을 등록했어요.',
+        successMessage: '댓글이 등록되었어요.',
       );
     } catch (e) {
       if (e is ApiException) {
@@ -219,7 +201,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 게시글 신고 요청
   Future<void> reportPost(String reportReason) async {
     if (state.post == null || state.isReporting) return;
     final post = state.post!;
@@ -233,9 +214,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.reportPost(state.postId, reportReason);
       final shouldBlock = post.canBlockAuthor && post.authorUserId != null;
-      if (shouldBlock) {
-        await blockAction.block(post.authorUserId!);
-      }
+      if (shouldBlock) await blockAction.block(post.authorUserId!);
 
       state = state.copyWith(
         isReporting: false,
@@ -251,7 +230,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 댓글 신고 요청
   Future<void> reportComment(int commentId, String reportReason) async {
     if (state.isReporting) return;
     final comment = _findComment(commentId);
@@ -267,9 +245,7 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
       final blockedUserId = comment?.authorUserId;
       final shouldBlock =
           comment?.canBlockAuthor == true && blockedUserId != null;
-      if (shouldBlock) {
-        await blockAction.block(comment!.authorUserId!);
-      }
+      if (shouldBlock) await blockAction.block(comment!.authorUserId!);
 
       state = state.copyWith(
         isReporting: false,
@@ -297,11 +273,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
   }
 
   static const String _reportAndBlockMessage =
-      '신고가 접수되고 해당 사용자가 차단됐어요.\n운영자가 24시간 내 검토해 콘텐츠 제거와 작성자 퇴출을 처리합니다.';
+      '신고가 접수되고 해당 사용자가 차단되었어요.\n운영자가 24시간 내 검토해 콘텐츠 삭제나 작성자 제재를 처리합니다.';
   static const String _reportOnlyMessage =
-      '신고가 접수됐어요.\n운영자가 24시간 내 검토해 콘텐츠 제거와 작성자 퇴출을 처리합니다.';
+      '신고가 접수되었어요.\n운영자가 24시간 내 검토해 콘텐츠 삭제나 작성자 제재를 처리합니다.';
 
-  /// 게시글 수정 요청 후 상세 재조회
   Future<void> updatePost({
     required String title,
     required String content,
@@ -321,19 +296,16 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
         request: UpdatePostRequest(
           title: title,
           content: content,
-          anonymous: anonymous,
+          anonymous: false,
         ),
       );
-
       await loadPostDetail();
-
-      state = state.copyWith(isUpdating: false, successMessage: '게시글을 수정했어요.');
+      state = state.copyWith(isUpdating: false, successMessage: '게시글이 수정되었어요.');
     } catch (_) {
       state = state.copyWith(isUpdating: false, errorMessage: '게시글 수정에 실패했어요.');
     }
   }
 
-  /// 게시글 삭제 요청 후 화면 종료 플래그를 올림
   Future<void> deletePost() async {
     if (state.isDeleting) return;
 
@@ -345,10 +317,9 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
 
     try {
       await repository.deletePost(state.postId);
-
       state = state.copyWith(
         isDeleting: false,
-        successMessage: '게시글을 삭제했어요.',
+        successMessage: '게시글이 삭제되었어요.',
         shouldClosePage: true,
       );
     } catch (_) {
@@ -356,7 +327,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 댓글 수정 요청 후 상세 재조회
   Future<void> updateComment({
     required int commentId,
     required String content,
@@ -373,12 +343,10 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.updateComment(
         commentId: commentId,
-        request: UpdateCommentRequest(content: content, anonymous: anonymous),
+        request: UpdateCommentRequest(content: content, anonymous: false),
       );
-
       await loadPostDetail();
-
-      state = state.copyWith(isUpdating: false, successMessage: '댓글을 수정했어요.');
+      state = state.copyWith(isUpdating: false, successMessage: '댓글이 수정되었어요.');
     } catch (e) {
       if (e is ApiException) {
         state = state.copyWith(isUpdating: false, errorMessage: e.message);
@@ -388,7 +356,6 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     }
   }
 
-  /// 댓글 삭제 요청 후 상세 재조회
   Future<void> deleteComment(int commentId) async {
     if (state.isDeleting) return;
 
@@ -401,24 +368,20 @@ class PostDetailNotifier extends StateNotifier<PostDetailState> {
     try {
       await repository.deleteComment(commentId);
       await loadPostDetail();
-
-      state = state.copyWith(isDeleting: false, successMessage: '댓글을 삭제했어요.');
+      state = state.copyWith(isDeleting: false, successMessage: '댓글이 삭제되었어요.');
     } catch (_) {
       state = state.copyWith(isDeleting: false, errorMessage: '댓글 삭제에 실패했어요.');
     }
   }
 
-  /// 에러/성공 메시지를 초기화
   void clearMessages() {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
 
-  /// 페이지 종료 플래그를 해제
   void clearClosePageFlag() {
     state = state.copyWith(shouldClosePage: false);
   }
 
-  /// 북마크 토글
   Future<void> toggleBookmark() async {
     if (state.post == null || state.isBookmarking) return;
 

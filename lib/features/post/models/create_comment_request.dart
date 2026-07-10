@@ -5,11 +5,11 @@ class CreateCommentRequest {
 
   const CreateCommentRequest({
     required this.content,
-    required this.anonymous,
+    this.anonymous = false,
     required this.parentId,
   });
 
   Map<String, dynamic> toJson() {
-    return {'content': content, 'anonymous': anonymous, 'parentId': parentId};
+    return {'content': content, 'anonymous': false, 'parentId': parentId};
   }
 }

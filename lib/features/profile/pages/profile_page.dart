@@ -561,7 +561,7 @@ class _BoardProfileTile extends ConsumerWidget {
       showAppSnackBar('${profile.remainingDays}일 후에 변경할 수 있어요.');
       return;
     }
-    final result = await showModalBottomSheet<File?>(
+    final result = await showModalBottomSheet<_BoardProfileEditResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.colors.cardBg,
@@ -570,13 +570,13 @@ class _BoardProfileTile extends ConsumerWidget {
       ),
       builder: (_) => _BoardProfileEditSheet(profile: profile),
     );
-    if (!context.mounted) return;
+    if (result == null || !context.mounted) return;
     await ref
         .read(profileProvider.notifier)
         .updateBoardDisplayProfile(
           boardId: profile.boardId,
           displayName: '',
-          imageFile: result,
+          imageFile: result.imageFile,
         );
   }
 
@@ -642,6 +642,12 @@ class _BoardProfileEditSheet extends StatefulWidget {
 
   @override
   State<_BoardProfileEditSheet> createState() => _BoardProfileEditSheetState();
+}
+
+class _BoardProfileEditResult {
+  final File? imageFile;
+
+  const _BoardProfileEditResult({this.imageFile});
 }
 
 class _BoardProfileEditSheetState extends State<_BoardProfileEditSheet> {
@@ -760,7 +766,10 @@ class _BoardProfileEditSheetState extends State<_BoardProfileEditSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context, _imageFile),
+              onPressed: () => Navigator.pop(
+                context,
+                _BoardProfileEditResult(imageFile: _imageFile),
+              ),
               child: const Text('랜덤 닉네임으로 변경 저장'),
             ),
           ),

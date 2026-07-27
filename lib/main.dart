@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'app/app.dart';
+import 'core/config/feature_flags.dart';
 import 'features/notification/service/fcm_service.dart';
 import 'firebase_options.dart';
 
@@ -41,6 +43,9 @@ void main() async {
   );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (_isMobile && adsEnabled && admobEnabled) {
+    await MobileAds.instance.initialize();
+  }
   if (_isMobile) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }

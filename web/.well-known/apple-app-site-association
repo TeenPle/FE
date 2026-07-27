@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "2HT77KJAY2.com.teenple.teenpleFrontend"
+        ],
+        "components": [
+          {
+            "/": "/post/*"
+          }
+        ]
+      }
+    ]
+  }
+}

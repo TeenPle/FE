@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.teenple.teenple_frontend",
+      "sha256_cert_fingerprints": [
+        "70:E6:67:27:3D:5D:CB:DB:30:3A:16:04:49:5A:CF:DC:85:66:62:B7:55:DF:0A:A7:59:1E:41:17:81:1F:C1:9B"
+      ]
+    }
+  }
+]

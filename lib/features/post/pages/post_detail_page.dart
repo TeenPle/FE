@@ -1,13 +1,15 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/active_page_provider.dart';
+import '../../../core/config/admob_config.dart';
 import '../../../core/config/feature_flags.dart';
+import '../../../core/services/share_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
-import '../../../core/widgets/school_main_ad_card.dart';
+import '../../../core/widgets/teenple_ad_slot.dart';
 import '../../chat/provider/chat_room_list_provider.dart';
 import '../../penalty/provider/penalty_provider.dart';
 import '../../profile/provider/block_provider.dart';
@@ -32,6 +34,8 @@ class PostDetailPage extends ConsumerStatefulWidget {
 }
 
 class _PostDetailPageState extends ConsumerState<PostDetailPage> {
+  static const _shareService = ShareService();
+
   late final PostDetailNotifier _detailNotifier;
   late final StateController<ActivePage> _activePageNotifier;
   final ScrollController _scrollController = ScrollController();
@@ -292,7 +296,20 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                               }
                               notifier.toggleLike();
                             },
-                            onShareTap: () {},
+                            onShareTap: () async {
+                              try {
+                                await _shareService.sharePost(
+                                  postId: post.postId,
+                                );
+                              } catch (_) {
+                                if (mounted) {
+                                  showAppSnackBar(
+                                    '공유를 시작할 수 없어요.',
+                                    backgroundColor: const Color(0xFFE05C7B),
+                                  );
+                                }
+                              }
+                            },
                           ),
                         ),
                         Padding(
@@ -304,9 +321,9 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                           ),
                         ),
                         if (adsEnabled) ...[
-                          const SchoolMainAdCard(
+                          const TeenpleAdSlot(
                             fullBleed: true,
-                            placement: 'POST_DETAIL',
+                            placement: AdMobPlacement.postDetail,
                           ),
                           const SizedBox(height: 8),
                         ],

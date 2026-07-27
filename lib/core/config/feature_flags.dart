@@ -3,6 +3,16 @@ const bool adsEnabled = bool.fromEnvironment(
   defaultValue: false,
 );
 
+const bool admobEnabled = bool.fromEnvironment(
+  'ADMOB_ENABLED',
+  defaultValue: false,
+);
+
+const bool partnerAdsEnabled = bool.fromEnvironment(
+  'PARTNER_ADS_ENABLED',
+  defaultValue: false,
+);
+
 const bool commentEditingEnabled = bool.fromEnvironment(
   'COMMENT_EDITING_ENABLED',
   defaultValue: false,
@@ -10,5 +20,5 @@ const bool commentEditingEnabled = bool.fromEnvironment(
 
 const bool postSharingEnabled = bool.fromEnvironment(
   'POST_SHARING_ENABLED',
-  defaultValue: false,
+  defaultValue: true,
 );

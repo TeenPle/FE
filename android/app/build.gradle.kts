@@ -14,6 +14,18 @@ if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
+
+val admobAndroidAppId =
+    (findProperty("ADMOB_ANDROID_APP_ID") as String?)
+        ?: System.getenv("ADMOB_ANDROID_APP_ID")
+        ?: localProperties.getProperty("admob.android.appId")
+        ?: "ca-app-pub-3940256099942544~3347511713"
+
 gradle.taskGraph.whenReady {
     val isReleaseTask = allTasks.any { it.name.contains("Release", ignoreCase = true) }
     val requiredSigningKeys = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
@@ -49,6 +61,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["admobApplicationId"] = admobAndroidAppId
     }
 
     signingConfigs {

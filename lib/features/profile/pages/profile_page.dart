@@ -210,8 +210,10 @@ class _ProfileHeaderCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final isSaving = ref.watch(profileProvider).isSaving;
-    final realName = profile.username.isNotEmpty
-        ? profile.username
+    final profileName = profile.nickname.trim().isNotEmpty
+        ? profile.nickname.trim()
+        : profile.username.trim().isNotEmpty
+        ? profile.username.trim()
         : profile.email;
 
     return _ProfileSettingsCard(
@@ -258,7 +260,7 @@ class _ProfileHeaderCard extends ConsumerWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                realName,
+                profileName,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,

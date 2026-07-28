@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,9 +22,11 @@ class SignupSchoolPage extends ConsumerStatefulWidget {
 class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
   /// 학교명 입력 컨트롤러
   final TextEditingController _schoolController = TextEditingController();
+  Timer? _searchDebounce;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _schoolController.dispose();
     super.dispose();
   }
@@ -60,11 +64,11 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4A67F2),
-            disabledBackgroundColor:
-                isDark ? const Color(0xFF2D3460) : const Color(0xFFD7DEFF),
+            disabledBackgroundColor: isDark
+                ? const Color(0xFF2D3460)
+                : const Color(0xFFD7DEFF),
             foregroundColor: Colors.white,
-            disabledForegroundColor:
-                isDark ? Colors.white38 : Colors.white70,
+            disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -163,15 +167,14 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
           TextField(
             controller: _schoolController,
             onChanged: (value) {
-              /// 검색어 상태 갱신
               ref.read(signupSchoolProvider.notifier).updateKeyword(value);
-
-              /// 텍스트가 바뀌면 이전에 선택한 학교/학년/아이디를 초기화
-              /// 현재 provider에는 clearSchool, clearGrade가 없으므로 clear() 사용
               ref.read(signupFormProvider.notifier).clear();
 
-              /// 디바운스 없이 바로 학교 검색 API 호출
-              ref.read(signupSchoolProvider.notifier).searchSchools(value);
+              _searchDebounce?.cancel();
+              _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+                if (!mounted) return;
+                ref.read(signupSchoolProvider.notifier).searchSchools(value);
+              });
 
               setState(() {});
             },
@@ -194,6 +197,7 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
               suffixIcon: _schoolController.text.isNotEmpty
                   ? IconButton(
                       onPressed: () {
+                        _searchDebounce?.cancel();
                         _schoolController.clear();
 
                         /// 검색어 상태 초기화
@@ -411,8 +415,8 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? (isDark
-                                          ? const Color(0xFF1E2C46)
-                                          : const Color(0xFFF2F5FF))
+                                            ? const Color(0xFF1E2C46)
+                                            : const Color(0xFFF2F5FF))
                                       : context.colors.cardBg,
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(

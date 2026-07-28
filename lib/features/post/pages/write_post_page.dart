@@ -645,6 +645,7 @@ class _PostWritingGuidelines extends StatelessWidget {
   static const List<String> _rules = [
     '실명, 연락처, 주소, 학교 등 개인정보를 올리지 마세요.',
     '욕설, 괴롭힘, 성적 표현, 혐오 표현은 삭제될 수 있어요.',
+    '친구나 선생님을 특정해 비난하거나 소문을 퍼뜨리지 마세요.',
     '위험한 상황이거나 도움이 필요하면 믿을 수 있는 어른에게 알려주세요.',
   ];
 

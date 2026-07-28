@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/storage/token_storage.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_snack_bar.dart';
@@ -21,6 +22,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _rememberEmail = true;
   bool _keepLoggedIn = false;
 
   /// 회원가입 완료 안내 스낵바를 한 번만 띄우기 위한 플래그
@@ -31,6 +33,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     super.initState();
     _emailController.addListener(_refreshSubmitState);
     _passwordController.addListener(_refreshSubmitState);
+    _loadSavedEmail();
+  }
+
+  Future<void> _loadSavedEmail() async {
+    final storage = ref.read(tokenStorageProvider);
+    final rememberEmail = await storage.getRememberEmail();
+    final savedEmail = rememberEmail ? await storage.getSavedEmail() : null;
+
+    if (!mounted) return;
+
+    setState(() {
+      _rememberEmail = rememberEmail;
+      if (savedEmail != null && savedEmail.trim().isNotEmpty) {
+        _emailController.text = savedEmail.trim();
+      }
+    });
   }
 
   @override
@@ -61,7 +79,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
-        showAppSnackBar('회원가입이 완료되었습니다.');
+        showAppSnackBar('회원가입 요청이 접수되었어요.');
       });
     }
 
@@ -87,6 +105,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+
+    final storage = ref.read(tokenStorageProvider);
+    await storage.saveRememberEmail(_rememberEmail);
+    if (_rememberEmail && email.isNotEmpty) {
+      await storage.saveSavedEmail(email);
+    } else {
+      await storage.clearSavedEmail();
+    }
 
     await ref
         .read(loginProvider.notifier)
@@ -128,6 +154,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final loginState = ref.watch(loginProvider);
 
     final c = context.colors;
+    final isSignupRequestComplete =
+        GoRouterState.of(context).uri.queryParameters['signup'] == 'success';
+    final signupNoticeBg = isDark
+        ? const Color(0xFF1E2C46)
+        : const Color(0xFFEFF3FF);
+    final signupNoticeBorder = isDark
+        ? const Color(0xFF2E4268)
+        : const Color(0xFFD7DEFF);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -221,6 +255,55 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
 
                           const SizedBox(height: 36),
+
+                          if (isSignupRequestComplete) ...[
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: signupNoticeBg,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: signupNoticeBorder),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.schedule_rounded,
+                                    size: 20,
+                                    color: Color(0xFF4A67F2),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '회원가입 요청이 완료되었어요',
+                                          style: AppTextStyles.labelMedium
+                                              .copyWith(
+                                                color: c.textPrimary,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          '학교 인증 확인 후 서비스 이용이 가능해요. 보통 24시간 이내에 승인 또는 반려 결과를 알려드릴게요.',
+                                          style: AppTextStyles.captionLarge
+                                              .copyWith(
+                                                height: 1.5,
+                                                color: c.textSecondary,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                          ],
 
                           TextField(
                             controller: _emailController,
@@ -337,87 +420,151 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                           const SizedBox(height: 14),
 
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              InkWell(
-                                borderRadius: BorderRadius.circular(8),
-                                onTap: () => setState(
-                                  () => _keepLoggedIn = !_keepLoggedIn,
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: Checkbox(
-                                        value: _keepLoggedIn,
-                                        onChanged: (value) => setState(
-                                          () => _keepLoggedIn = value ?? false,
-                                        ),
-                                        activeColor: const Color(0xFF4A67F2),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            4,
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(8),
+                                      onTap: () => setState(
+                                        () => _rememberEmail = !_rememberEmail,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: Checkbox(
+                                              value: _rememberEmail,
+                                              onChanged: (value) => setState(
+                                                () => _rememberEmail =
+                                                    value ?? true,
+                                              ),
+                                              activeColor: const Color(
+                                                0xFF4A67F2,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              side: BorderSide(
+                                                color: c.textTertiary,
+                                                width: 1.2,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        side: BorderSide(
-                                          color: c.textTertiary,
-                                          width: 1.2,
-                                        ),
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Text(
+                                              '아이디 저장',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTextStyles.captionSmall
+                                                  .copyWith(
+                                                    color: c.textSecondary,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '로그인 상태 유지',
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(8),
+                                      onTap: () => setState(
+                                        () => _keepLoggedIn = !_keepLoggedIn,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: Checkbox(
+                                              value: _keepLoggedIn,
+                                              onChanged: (value) => setState(
+                                                () => _keepLoggedIn =
+                                                    value ?? false,
+                                              ),
+                                              activeColor: const Color(
+                                                0xFF4A67F2,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              side: BorderSide(
+                                                color: c.textTertiary,
+                                                width: 1.2,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Text(
+                                              '로그인 상태 유지',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTextStyles.captionSmall
+                                                  .copyWith(
+                                                    color: c.textSecondary,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        context.push(AppRoutes.findEmail),
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: Text(
+                                      '아이디 찾기',
                                       style: AppTextStyles.captionSmall
                                           .copyWith(color: c.textSecondary),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              const Spacer(),
-                              TextButton(
-                                onPressed: () =>
-                                    context.push(AppRoutes.findEmail),
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: Size.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  '아이디 찾기',
-                                  style: AppTextStyles.captionSmall.copyWith(
-                                    color: c.textSecondary,
                                   ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: Text(
-                                  '|',
-                                  style: AppTextStyles.captionSmall.copyWith(
-                                    color: c.textTertiary,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: Text(
+                                      '|',
+                                      style: AppTextStyles.captionSmall
+                                          .copyWith(color: c.textTertiary),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    context.push(AppRoutes.findPassword),
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: Size.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  '비밀번호 찾기',
-                                  style: AppTextStyles.captionSmall.copyWith(
-                                    color: c.textSecondary,
+                                  TextButton(
+                                    onPressed: () =>
+                                        context.push(AppRoutes.findPassword),
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: Text(
+                                      '비밀번호 찾기',
+                                      style: AppTextStyles.captionSmall
+                                          .copyWith(color: c.textSecondary),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
                           ),
@@ -444,9 +591,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               onPressed: loginState.isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4A67F2),
-                                disabledBackgroundColor: isDark ? const Color(0xFF2D3460) : const Color(0xFFBFC8FF),
+                                disabledBackgroundColor: isDark
+                                    ? const Color(0xFF2D3460)
+                                    : const Color(0xFFBFC8FF),
                                 foregroundColor: Colors.white,
-                                disabledForegroundColor: isDark ? Colors.white38 : Colors.white70,
+                                disabledForegroundColor: isDark
+                                    ? Colors.white38
+                                    : Colors.white70,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),

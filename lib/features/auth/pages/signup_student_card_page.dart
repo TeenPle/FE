@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'auth_bottom_action_area.dart';
 import '../../../app/routes.dart';
+import '../../../core/storage/token_storage.dart';
 import '../../../core/services/ios_image_upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -98,6 +99,14 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
                   /// 성공 시 로그인 화면 이동
                   if (latestSubmitState.isSuccess && context.mounted) {
+                    final tokenStorage = ref.read(tokenStorageProvider);
+                    await tokenStorage.saveRememberEmail(true);
+                    await tokenStorage.saveSavedEmail(
+                      signupFormState.email.trim(),
+                    );
+
+                    if (!context.mounted) return;
+
                     SignupSecretStore.clear();
                     ref.read(signupFormProvider.notifier).clear();
                     ref.read(signupSchoolProvider.notifier).clearSearch();

@@ -21,6 +21,8 @@ class TokenStorage {
   static const _userRoleKey = 'user_role';
   static const _schoolIdKey = 'school_id';
   static const _classRoomKey = 'class_room';
+  static const _rememberEmailKey = 'remember_email';
+  static const _savedEmailKey = 'saved_email';
 
   Future<void> saveAccessToken(String token) =>
       _storage.write(key: _accessTokenKey, value: token);
@@ -39,6 +41,21 @@ class TokenStorage {
     final val = await _storage.read(key: _autoLoginKey);
     return val == 'true';
   }
+
+  Future<void> saveRememberEmail(bool value) =>
+      _storage.write(key: _rememberEmailKey, value: value.toString());
+
+  Future<bool> getRememberEmail() async {
+    final val = await _storage.read(key: _rememberEmailKey);
+    return val == null ? true : val == 'true';
+  }
+
+  Future<void> saveSavedEmail(String email) =>
+      _storage.write(key: _savedEmailKey, value: email);
+
+  Future<String?> getSavedEmail() => _storage.read(key: _savedEmailKey);
+
+  Future<void> clearSavedEmail() => _storage.delete(key: _savedEmailKey);
 
   Future<void> saveUserId(int userId) =>
       _storage.write(key: _userIdKey, value: userId.toString());
@@ -86,7 +103,15 @@ class TokenStorage {
   Future<String?> getClassRoom() => _storage.read(key: _classRoomKey);
 
   Future<void> clearAll() async {
+    final rememberEmail = await getRememberEmail();
+    final savedEmail = rememberEmail ? await getSavedEmail() : null;
+
     await _storage.deleteAll();
+
+    await saveRememberEmail(rememberEmail);
+    if (rememberEmail && savedEmail != null && savedEmail.trim().isNotEmpty) {
+      await saveSavedEmail(savedEmail);
+    }
     // 레거시 SharedPreferences 잔여 데이터 정리
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userIdKey);

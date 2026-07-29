@@ -91,6 +91,18 @@ void main() {
     expect(school.regionId, 9);
     expect(school.regionName, '경기도');
   });
+
+  test('학교명이 완전히 같은 결과에만 지역 구분 표시를 활성화한다', () {
+    final schools = markDuplicateSchoolNames(const [
+      SchoolModel(id: 239, name: '오산고등학교', regionName: '서울특별시'),
+      SchoolModel(id: 1224, name: '오산고등학교', regionName: '경기도'),
+      SchoolModel(id: 1223, name: '오남고등학교', regionName: '경기도'),
+    ]);
+
+    expect(schools[0].hasDuplicateName, isTrue);
+    expect(schools[1].hasDuplicateName, isTrue);
+    expect(schools[2].hasDuplicateName, isFalse);
+  });
 }
 
 class _ControllableSchoolApi extends SchoolApi {

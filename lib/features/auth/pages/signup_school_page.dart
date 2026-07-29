@@ -447,7 +447,8 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                                       .textPrimary,
                                                 ),
                                           ),
-                                          if (school.regionName != null &&
+                                          if (school.hasDuplicateName &&
+                                              school.regionName != null &&
                                               school
                                                   .regionName!
                                                   .trim()

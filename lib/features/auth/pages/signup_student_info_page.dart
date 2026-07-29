@@ -372,7 +372,8 @@ class SignupStudentInfoPage extends ConsumerWidget {
                               : context.colors.textTertiary,
                         ),
                       ),
-                      if (selectedSchool?.regionName != null &&
+                      if (selectedSchool?.hasDuplicateName == true &&
+                          selectedSchool?.regionName != null &&
                           selectedSchool!.regionName!.trim().isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(

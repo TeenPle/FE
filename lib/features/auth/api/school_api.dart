@@ -25,9 +25,12 @@ class SchoolApi {
     /// 백엔드 응답에서 실제 리스트 추출
     final list = _extractSchoolList(response.data);
 
-    return list
+    final schools = list
         .map((e) => SchoolModel.fromJson(Map<String, dynamic>.from(e)))
         .toList();
+
+    // 지역명은 모든 결과에 노출하지 않고, 동명 학교를 구분할 때만 사용한다.
+    return markDuplicateSchoolNames(schools);
   }
 
   /// 백엔드 응답이

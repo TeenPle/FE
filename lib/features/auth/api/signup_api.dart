@@ -108,6 +108,9 @@ class SignupApi {
 
     /// 백엔드 UserRequestDTO.SignUp 필드명에 맞게 JSON 구성
     final dataJson = jsonEncode({
+      // 동명 학교가 존재하므로 사용자가 선택한 고유 ID를 반드시 함께 보낸다.
+      // school은 구버전 백엔드 호환과 요청 검증을 위해 계속 유지한다.
+      'schoolId': formState.selectedSchool!.id,
       'school': formState.selectedSchool!.name,
       'username': formState.username.trim(),
       'password': password.trim(),

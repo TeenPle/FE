@@ -423,99 +423,87 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Row(
+                              Wrap(
+                                spacing: 20,
+                                runSpacing: 10,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
-                                  Expanded(
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(8),
-                                      onTap: () => setState(
-                                        () => _rememberEmail = !_rememberEmail,
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SizedBox(
-                                            width: 22,
-                                            height: 22,
-                                            child: Checkbox(
-                                              value: _rememberEmail,
-                                              onChanged: (value) => setState(
-                                                () => _rememberEmail =
-                                                    value ?? true,
-                                              ),
-                                              activeColor: const Color(
-                                                0xFF4A67F2,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              side: BorderSide(
-                                                color: c.textTertiary,
-                                                width: 1.2,
-                                              ),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () => setState(
+                                      () => _rememberEmail = !_rememberEmail,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: Checkbox(
+                                            value: _rememberEmail,
+                                            onChanged: (value) => setState(
+                                              () => _rememberEmail =
+                                                  value ?? true,
+                                            ),
+                                            activeColor: const Color(
+                                              0xFF4A67F2,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            side: BorderSide(
+                                              color: c.textTertiary,
+                                              width: 1.2,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              '아이디 저장',
-                                              overflow: TextOverflow.ellipsis,
-                                              style: AppTextStyles.captionSmall
-                                                  .copyWith(
-                                                    color: c.textSecondary,
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '아이디 저장',
+                                          style: AppTextStyles.captionSmall
+                                              .copyWith(color: c.textSecondary),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(8),
-                                      onTap: () => setState(
-                                        () => _keepLoggedIn = !_keepLoggedIn,
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SizedBox(
-                                            width: 22,
-                                            height: 22,
-                                            child: Checkbox(
-                                              value: _keepLoggedIn,
-                                              onChanged: (value) => setState(
-                                                () => _keepLoggedIn =
-                                                    value ?? false,
-                                              ),
-                                              activeColor: const Color(
-                                                0xFF4A67F2,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              side: BorderSide(
-                                                color: c.textTertiary,
-                                                width: 1.2,
-                                              ),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () => setState(
+                                      () => _keepLoggedIn = !_keepLoggedIn,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: Checkbox(
+                                            value: _keepLoggedIn,
+                                            onChanged: (value) => setState(
+                                              () => _keepLoggedIn =
+                                                  value ?? false,
+                                            ),
+                                            activeColor: const Color(
+                                              0xFF4A67F2,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            side: BorderSide(
+                                              color: c.textTertiary,
+                                              width: 1.2,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              '로그인 상태 유지',
-                                              overflow: TextOverflow.ellipsis,
-                                              style: AppTextStyles.captionSmall
-                                                  .copyWith(
-                                                    color: c.textSecondary,
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '로그인 상태 유지',
+                                          style: AppTextStyles.captionSmall
+                                              .copyWith(color: c.textSecondary),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],

@@ -591,13 +591,11 @@ class _MessageBox extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-              child: Row(
-                children: [
-                  for (final item in footerItems) ...[
-                    if (item != footerItems.first) const Spacer(),
-                    item,
-                  ],
-                ],
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: footerItems,
               ),
             ),
           ],
@@ -617,27 +615,20 @@ class _MetaItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
 
-    return Flexible(
-      fit: FlexFit.loose,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: c.iconSecondary),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 12,
-                color: c.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15, color: c.iconSecondary),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 12,
+            color: c.textSecondary,
+            fontWeight: FontWeight.w600,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

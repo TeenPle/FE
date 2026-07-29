@@ -574,12 +574,7 @@ class _MessageBox extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
             child: Text(
               body,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 15,
-                height: 1.65,
-                color: c.textBody,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyles.bodyLarge.copyWith(color: c.textBody),
             ),
           ),
           if (footerItems.isNotEmpty) ...[

@@ -145,6 +145,56 @@ class AdminPostSummaryModel {
   }
 }
 
+/// 관리자 게시판의 페이지 데이터와 서버 기준 상태별 전체 개수.
+///
+/// 숨김 게시글은 [totalCount]에 포함되며, 삭제 게시글은 모든 집계에서 제외된다.
+class AdminPostPageModel {
+  final List<AdminPostSummaryModel> posts;
+  final int totalCount;
+  final int visibleCount;
+  final int hiddenCount;
+  final bool isLast;
+
+  const AdminPostPageModel({
+    required this.posts,
+    required this.totalCount,
+    required this.visibleCount,
+    required this.hiddenCount,
+    required this.isLast,
+  });
+
+  factory AdminPostPageModel.fromJson(Map<String, dynamic> json) {
+    final content = json['content'] as List<dynamic>? ?? const [];
+    final posts = content
+        .map(
+          (item) =>
+              AdminPostSummaryModel.fromJson(item as Map<String, dynamic>),
+        )
+        .toList(growable: false);
+
+    // 새 집계 필드가 없는 구버전 백엔드 응답도 안전하게 표시한다.
+    final fallbackHiddenCount = posts
+        .where((post) => post.postStatus == 'HIDDEN')
+        .length;
+    final totalCount =
+        (json['totalCount'] as num?)?.toInt() ??
+        (json['totalElements'] as num?)?.toInt() ??
+        posts.length;
+    final hiddenCount =
+        (json['hiddenCount'] as num?)?.toInt() ?? fallbackHiddenCount;
+
+    return AdminPostPageModel(
+      posts: posts,
+      totalCount: totalCount,
+      visibleCount:
+          (json['visibleCount'] as num?)?.toInt() ??
+          (totalCount - hiddenCount).clamp(0, totalCount).toInt(),
+      hiddenCount: hiddenCount,
+      isLast: json['last'] as bool? ?? posts.length < 20,
+    );
+  }
+}
+
 class AdminMediaModel {
   final int mediaId;
   final String url;

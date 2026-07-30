@@ -96,10 +96,9 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
                       return _BoardPostsHeader(
                         boardTitle: widget.boardTitle,
                         schoolName: widget.schoolName,
-                        totalCount: state.posts.length,
-                        hiddenCount: state.posts
-                            .where((post) => post.postStatus == 'HIDDEN')
-                            .length,
+                        totalCount: state.totalCount,
+                        visibleCount: state.visibleCount,
+                        hiddenCount: state.hiddenCount,
                       );
                     }
                     final postIndex = index - 1;
@@ -112,8 +111,19 @@ class _AdminBoardPostsPageState extends ConsumerState<AdminBoardPostsPage> {
                     final post = state.posts[postIndex];
                     return _PostTile(
                       post: post,
-                      onTap: () =>
-                          context.push(AppRoutes.adminPostDetail(post.postId)),
+                      onTap: () async {
+                        await context.push(
+                          AppRoutes.adminPostDetail(post.postId),
+                        );
+                        if (!mounted) return;
+
+                        // 상세에서 숨김/복원한 뒤 돌아오면 목록과 집계를 함께 갱신한다.
+                        await ref
+                            .read(
+                              adminPostListProvider(widget.boardId).notifier,
+                            )
+                            .load();
+                      },
                     );
                   },
                 ),
@@ -127,12 +137,14 @@ class _BoardPostsHeader extends StatelessWidget {
   final String boardTitle;
   final String? schoolName;
   final int totalCount;
+  final int visibleCount;
   final int hiddenCount;
 
   const _BoardPostsHeader({
     required this.boardTitle,
     required this.schoolName,
     required this.totalCount,
+    required this.visibleCount,
     required this.hiddenCount,
   });
 
@@ -146,51 +158,73 @@ class _BoardPostsHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: c.borderBlue),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: c.tintBg,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.forum_outlined, color: Color(0xFF1477F8)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  schoolName ?? '지역/공통 게시판',
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 11,
-                    color: c.textMuted,
-                  ),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: c.tintBg,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  boardTitle,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: c.textPrimary,
-                  ),
+                child: const Icon(
+                  Icons.forum_outlined,
+                  color: Color(0xFF1477F8),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      schoolName ?? '지역/공통 게시판',
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 11,
+                        color: c.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      boardTitle,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _CountPill(label: '전체', value: totalCount, c: c),
+                _CountPill(
+                  label: '노출',
+                  value: visibleCount,
+                  c: c,
+                  accent: const Color(0xFF16A34A),
+                ),
+                _CountPill(
+                  label: '숨김',
+                  value: hiddenCount,
+                  c: c,
+                  accent: const Color(0xFFF59E0B),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 10),
-          _CountPill(label: '목록', value: totalCount, c: c),
-          const SizedBox(width: 6),
-          _CountPill(
-            label: '숨김',
-            value: hiddenCount,
-            c: c,
-            accent: const Color(0xFFF59E0B),
           ),
         ],
       ),

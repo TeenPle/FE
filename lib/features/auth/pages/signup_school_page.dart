@@ -391,10 +391,11 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                       ),
                                     );
 
-                                /// 검색 키워드도 선택 학교명으로 변경
+                                /// 검색 키워드를 선택 학교명으로 맞추고,
+                                /// 진행 중인 이전 검색 응답은 무효화
                                 ref
                                     .read(signupSchoolProvider.notifier)
-                                    .updateKeyword(school.name);
+                                    .selectSchoolName(school.name);
 
                                 /// 최종 회원가입 상태에 학교 저장
                                 ref
@@ -429,16 +430,43 @@ class _SignupSchoolPageState extends ConsumerState<SignupSchoolPage> {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: Text(
-                                        school.name,
-                                        style: AppTextStyles.bodyMedium
-                                            .copyWith(
-                                              fontSize: 13,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.w700
-                                                  : FontWeight.w500,
-                                              color: context.colors.textPrimary,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            school.name,
+                                            style: AppTextStyles.bodyMedium
+                                                .copyWith(
+                                                  fontSize: 13,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.w700
+                                                      : FontWeight.w500,
+                                                  color: context
+                                                      .colors
+                                                      .textPrimary,
+                                                ),
+                                          ),
+                                          if (school.hasDuplicateName &&
+                                              school.regionName != null &&
+                                              school
+                                                  .regionName!
+                                                  .trim()
+                                                  .isNotEmpty) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              school.regionName!,
+                                              style: AppTextStyles.bodyMedium
+                                                  .copyWith(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: context
+                                                        .colors
+                                                        .textMuted,
+                                                  ),
                                             ),
+                                          ],
+                                        ],
                                       ),
                                     ),
                                     if (isSelected)

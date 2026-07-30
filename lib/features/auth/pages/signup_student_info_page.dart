@@ -357,17 +357,35 @@ class SignupStudentInfoPage extends ConsumerWidget {
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  child: Text(
-                    selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
-                      fontWeight: selectedSchool != null
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                      color: selectedSchool != null
-                          ? context.colors.textPrimary
-                          : context.colors.textTertiary,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        selectedSchool?.name ?? '학교를 먼저 선택해주세요.',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontSize: 12,
+                          fontWeight: selectedSchool != null
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: selectedSchool != null
+                              ? context.colors.textPrimary
+                              : context.colors.textTertiary,
+                        ),
+                      ),
+                      if (selectedSchool?.hasDuplicateName == true &&
+                          selectedSchool?.regionName != null &&
+                          selectedSchool!.regionName!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedSchool.regionName!,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: context.colors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],

@@ -59,7 +59,7 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
       body: RefreshIndicator(
         onRefresh: () => ref.read(inquiryListProvider.notifier).load(),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
           children: [
             _InquiryHeroCard(
               onTap: () async {
@@ -72,13 +72,12 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
                 }
               },
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             const _InquiryWebSupportCard(
-              title: '더 자세한 문의가 필요하신가요?',
-              body:
-                  '앱 내 문의는 아래에서 접수하고 답변을 확인할 수 있어요. 이메일 문의 주소는 공식 웹 문의 페이지에서 확인해 주세요.',
+              title: '다른 문의 방법이 필요하신가요?',
+              body: '공식 웹 페이지에서 이메일 문의 주소와 추가 지원 정보를 확인할 수 있어요.',
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             _InquirySectionHeader(
               total: state.inquiries.length,
               pending: state.inquiries.where((item) => !item.isAnswered).length,
@@ -86,7 +85,7 @@ class _InquiryPageState extends ConsumerState<InquiryPage> {
               selected: _filter,
               onChanged: (filter) => setState(() => _filter = filter),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             if (state.isLoading && state.inquiries.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(top: 80),
@@ -141,10 +140,10 @@ class _InquiryWebSupportCard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 560),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: c.cardBg,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDark ? c.border : const Color(0xFFDDEEFF),
             ),
@@ -153,19 +152,19 @@ class _InquiryWebSupportCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAF3FF),
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: const Icon(
                   Icons.mail_outline_rounded,
-                  size: 19,
+                  size: 18,
                   color: Color(0xFF1677FF),
                 ),
               ),
-              const SizedBox(width: 13),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,21 +172,21 @@ class _InquiryWebSupportCard extends StatelessWidget {
                     Text(
                       title,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
                         color: c.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
                     Text(
                       body,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12.5,
-                        height: 1.45,
+                        fontSize: 11.5,
+                        height: 1.5,
                         color: c.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     TextButton.icon(
                       onPressed: () =>
                           openExternalLink(context, teenpleSupportUrl),
@@ -201,8 +200,8 @@ class _InquiryWebSupportCard extends StatelessWidget {
                       label: Text(
                         '웹 문의 페이지 보기',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
                           color: const Color(0xFF1677FF),
                         ),
                       ),
@@ -231,252 +230,91 @@ class _InquiryHeroCard extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 560),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final compact = constraints.maxWidth < 360;
-            return Container(
-              width: double.infinity,
-              padding: EdgeInsets.fromLTRB(18, compact ? 18 : 20, 18, 18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: isDark
-                      ? const [Color(0xFF182334), Color(0xFF132033)]
-                      : const [Color(0xFFF4FAFF), Color(0xFFEAF6FF)],
-                ),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: isDark ? c.borderBlue : const Color(0xFFDCEEFF),
-                ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: c.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? c.borderBlue : const Color(0xFFDDE8F5),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.08 : 0.025),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
-              child: Column(
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: Stack(
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF1D3552)
+                          : const Color(0xFFEDF5FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.support_agent_rounded,
+                      size: 21,
+                      color: Color(0xFF2B83F6),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Positioned(
-                          right: compact ? -16 : 2,
-                          top: compact ? 2 : 8,
-                          child: Transform.scale(
-                            scale: compact ? 0.62 : 0.76,
-                            alignment: Alignment.topRight,
-                            child: const _InquiryBubbleGraphic(),
+                        Text(
+                          '도움이 필요하신가요?',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: c.textPrimary,
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(right: compact ? 72 : 116),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '무엇을 ',
-                                      style: TextStyle(color: c.textPrimary),
-                                    ),
-                                    const TextSpan(
-                                      text: '도와드릴까요?',
-                                      style: TextStyle(
-                                        color: Color(0xFF2B83F6),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                style: AppTextStyles.displaySmall.copyWith(
-                                  // 제목 폰트 한 단계 축소: compact 17→15, 일반 19→17
-                                  fontSize: compact ? 16 : 18,
-                                  fontWeight: FontWeight.w900,
-                                  height: 1.25,
-                                  letterSpacing: 0,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                '앱 이용 중 불편한 점이나 궁금한 내용을\n빠르게 확인하고 답변해 드릴게요.',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontSize: compact ? 11.5 : 12.5,
-                                  height: 1.7,
-                                  color: c.textSecondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                        const SizedBox(height: 4),
+                        Text(
+                          '불편한 점이나 궁금한 내용을 남겨주시면 확인 후 답변해 드릴게요.',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 11.5,
+                            height: 1.5,
+                            color: c.textSecondary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _InquiryEntryCard(onTap: onTap),
                 ],
               ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _InquiryBubbleGraphic extends StatelessWidget {
-  const _InquiryBubbleGraphic();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 112,
-      height: 92,
-      child: Stack(
-        children: [
-          Positioned(
-            right: 28,
-            top: 0,
-            child: Container(
-              width: 76,
-              height: 58,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF7EB3FF), Color(0xFF4D8EF7)],
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF2B83F6).withValues(alpha: 0.18),
-                    blurRadius: 16,
-                    offset: const Offset(0, 7),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _InquiryBubbleDot(),
-                  SizedBox(width: 7),
-                  _InquiryBubbleDot(),
-                  SizedBox(width: 7),
-                  _InquiryBubbleDot(),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 10,
-            child: Container(
-              width: 60,
-              height: 48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.94),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 13,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Text(
-                '?',
-                style: AppTextStyles.displaySmall.copyWith(
-                  color: const Color(0xFF7C91AA),
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InquiryBubbleDot extends StatelessWidget {
-  const _InquiryBubbleDot();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 9,
-      height: 9,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
-        shape: BoxShape.circle,
-      ),
-    );
-  }
-}
-
-class _InquiryEntryCard extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _InquiryEntryCard({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: c.cardBg,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: c.border),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.035),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: c.tintBg,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.edit_square,
-                  color: Color(0xFF2B83F6),
-                  size: 23,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '새 문의 작성',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: c.textPrimary,
-                      ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                height: 42,
+                child: FilledButton.icon(
+                  onPressed: onTap,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF2B83F6),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '앱 이용 중 불편한 점이나 궁금한 내용을 남겨주세요.',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12,
-                        height: 1.45,
-                        color: c.textMuted,
-                      ),
+                    textStyle: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ],
+                  ),
+                  icon: const Icon(Icons.edit_outlined, size: 17),
+                  label: const Text('새 문의 작성'),
                 ),
               ),
             ],

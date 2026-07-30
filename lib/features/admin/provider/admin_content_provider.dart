@@ -161,6 +161,9 @@ final adminBoardListProvider =
 class AdminPostListState {
   final List<AdminPostSummaryModel> posts;
   final int page;
+  final int totalCount;
+  final int visibleCount;
+  final int hiddenCount;
   final bool isLoading;
   final bool isLoadingMore;
   final bool hasMore;
@@ -169,6 +172,9 @@ class AdminPostListState {
   const AdminPostListState({
     this.posts = const [],
     this.page = 0,
+    this.totalCount = 0,
+    this.visibleCount = 0,
+    this.hiddenCount = 0,
     this.isLoading = false,
     this.isLoadingMore = false,
     this.hasMore = true,
@@ -178,6 +184,9 @@ class AdminPostListState {
   AdminPostListState copyWith({
     List<AdminPostSummaryModel>? posts,
     int? page,
+    int? totalCount,
+    int? visibleCount,
+    int? hiddenCount,
     bool? isLoading,
     bool? isLoadingMore,
     bool? hasMore,
@@ -186,6 +195,9 @@ class AdminPostListState {
     return AdminPostListState(
       posts: posts ?? this.posts,
       page: page ?? this.page,
+      totalCount: totalCount ?? this.totalCount,
+      visibleCount: visibleCount ?? this.visibleCount,
+      hiddenCount: hiddenCount ?? this.hiddenCount,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
@@ -209,11 +221,14 @@ class AdminPostListNotifier extends StateNotifier<AdminPostListState> {
       error: null,
     );
     try {
-      final posts = await _api.getPostsByBoard(boardId: boardId);
+      final result = await _api.getPostsByBoard(boardId: boardId);
       state = state.copyWith(
-        posts: posts,
+        posts: result.posts,
+        totalCount: result.totalCount,
+        visibleCount: result.visibleCount,
+        hiddenCount: result.hiddenCount,
         isLoading: false,
-        hasMore: posts.length == 20,
+        hasMore: !result.isLast,
       );
     } catch (_) {
       state = state.copyWith(isLoading: false, error: '게시글 목록을 불러오지 못했어요.');
@@ -225,12 +240,18 @@ class AdminPostListNotifier extends StateNotifier<AdminPostListState> {
     final nextPage = state.page + 1;
     state = state.copyWith(isLoadingMore: true, error: null);
     try {
-      final more = await _api.getPostsByBoard(boardId: boardId, page: nextPage);
-      state = state.copyWith(
-        posts: [...state.posts, ...more],
+      final result = await _api.getPostsByBoard(
+        boardId: boardId,
         page: nextPage,
+      );
+      state = state.copyWith(
+        posts: [...state.posts, ...result.posts],
+        page: nextPage,
+        totalCount: result.totalCount,
+        visibleCount: result.visibleCount,
+        hiddenCount: result.hiddenCount,
         isLoadingMore: false,
-        hasMore: more.length == 20,
+        hasMore: !result.isLast,
       );
     } catch (_) {
       state = state.copyWith(isLoadingMore: false, error: '추가 게시글을 불러오지 못했어요.');

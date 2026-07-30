@@ -42,7 +42,7 @@ class AdminContentApi {
         .toList();
   }
 
-  Future<List<AdminPostSummaryModel>> getPostsByBoard({
+  Future<AdminPostPageModel> getPostsByBoard({
     required int boardId,
     int page = 0,
     int size = 20,
@@ -51,10 +51,8 @@ class AdminContentApi {
       '/api/admin/content/boards/$boardId/posts',
       queryParameters: {'page': '$page', 'size': '$size'},
     );
-    final content = res['result']?['content'] as List<dynamic>? ?? [];
-    return content
-        .map((e) => AdminPostSummaryModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final result = res['result'] as Map<String, dynamic>? ?? const {};
+    return AdminPostPageModel.fromJson(result);
   }
 
   Future<AdminPostDetailModel> getPostDetail(int postId) async {

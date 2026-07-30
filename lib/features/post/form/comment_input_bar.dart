@@ -161,6 +161,8 @@ class _CommentInputBarState extends State<CommentInputBar> {
                             fontSize: 13,
                             height: 1.25,
                           ),
+                          filled: false,
+                          fillColor: Colors.transparent,
                           border: InputBorder.none,
                           isCollapsed: true,
                           contentPadding: EdgeInsets.zero,

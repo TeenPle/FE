@@ -70,6 +70,14 @@ class _SchoolVerificationRejectedPageState
         .setSelectedFilePath(uploadPath);
   }
 
+  /// 반려 화면은 로그인 화면에서 `go`로 진입하므로 이전 화면 스택이 없다.
+  /// 상단/시스템 뒤로가기 모두 명시적으로 상태를 정리한 뒤 로그인으로 이동한다.
+  void _returnToLogin() {
+    ref.read(loginProvider.notifier).reset();
+    ref.read(verificationReapplyProvider.notifier).reset();
+    context.go(AppRoutes.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -90,9 +98,28 @@ class _SchoolVerificationRejectedPageState
         selectedFilePath.isNotEmpty &&
         !reapplyState.isSubmitLoading;
 
-    return Scaffold(
-      backgroundColor: context.colors.pageBg,
-      bottomNavigationBar: AuthBottomActionArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _returnToLogin();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: context.colors.pageBg,
+        appBar: AppBar(
+          backgroundColor: context.colors.pageBg,
+          foregroundColor: context.colors.textPrimary,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            onPressed: _returnToLogin,
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            tooltip: '로그인 화면으로',
+          ),
+        ),
+        bottomNavigationBar: AuthBottomActionArea(
         child: SizedBox(
           height: 54,
           child: ElevatedButton(
@@ -143,21 +170,6 @@ class _SchoolVerificationRejectedPageState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// 뒤로가기
-                    IconButton(
-                      onPressed: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        }
-                      },
-                      icon: Icon(Icons.arrow_back_ios_new_rounded),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.centerLeft,
-                      splashRadius: 22,
-                    ),
-
-                    SizedBox(height: 8),
-
                     /// 상태 아이콘
                     Container(
                       width: 64,
@@ -485,6 +497,7 @@ class _SchoolVerificationRejectedPageState
                   ],
                 ),
               ),
+        ),
       ),
     );
   }

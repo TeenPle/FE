@@ -17,7 +17,7 @@ import '../provider/signup_school_provider.dart';
 import '../provider/signup_secret_store.dart';
 import '../provider/signup_submit_provider.dart';
 
-/// 회원가입 마지막 단계 - 학생증 업로드 페이지
+/// 회원가입 마지막 단계 - 재학 인증 사진 업로드 페이지
 class SignupStudentCardPage extends ConsumerStatefulWidget {
   const SignupStudentCardPage({super.key});
 
@@ -67,7 +67,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
     /// 회원가입 요청 상태
     final submitState = ref.watch(signupSubmitProvider);
 
-    /// 선택한 학생증 파일 경로
+    /// 선택한 재학 인증 사진 파일 경로
     final studentCardFilePath = signupFormState.studentCardFilePath;
 
     /// 선택한 파일명
@@ -180,7 +180,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
           /// 제목
           Text(
-            '학생증을 업로드해주세요',
+            '재학 인증에 사용할\n사진을 올려주세요',
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -194,7 +194,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
           /// 보조 문구
           Text(
-            '마지막 단계예요. 재학 확인에 사용할 사진이에요.',
+            '현재 학교에 다니고 있음을 확인할 수 있는 사진이면 괜찮아요.',
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 13,
               height: 1.5,
@@ -204,9 +204,9 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
           SizedBox(height: 28),
 
-          /// 학생증 업로드 라벨
+          /// 재학 인증 사진 업로드 라벨
           Text(
-            '학생증 이미지',
+            '재학 인증 사진',
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -250,7 +250,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      selectedFileName.isEmpty ? '학생증 사진 선택' : selectedFileName,
+                      selectedFileName.isEmpty ? '사진 선택' : selectedFileName,
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 13,
                         fontWeight: selectedFileName.isEmpty
@@ -271,7 +271,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
 
           /// 안내 문구
           Text(
-            '학생증 정보가 잘 보이는 사진을 올려주세요.',
+            '예) 학생증, 명찰, 학교에서 발급한 재학 확인 자료',
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               color: context.colors.textMuted,
@@ -279,7 +279,7 @@ class _SignupStudentCardPageState extends ConsumerState<SignupStudentCardPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            '개인정보나 얼굴은 가리고 올려도 괜찮아요.',
+            '이름과 학교 정보가 확인되면 불필요한 개인정보나 얼굴은 가려도 괜찮아요.',
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 11,
               color: context.colors.textMuted,

@@ -7,15 +7,19 @@ enum AdMobPlacement { homeFeed, postDetail }
 class AdMobConfig {
   static const _androidHomeFeedBannerUnitId = String.fromEnvironment(
     'ADMOB_ANDROID_HOME_FEED_BANNER_UNIT_ID',
+    defaultValue: 'ca-app-pub-5668203347859275/1431868251',
   );
   static const _androidPostDetailBannerUnitId = String.fromEnvironment(
     'ADMOB_ANDROID_POST_DETAIL_BANNER_UNIT_ID',
+    defaultValue: 'ca-app-pub-5668203347859275/8053116920',
   );
   static const _iosHomeFeedBannerUnitId = String.fromEnvironment(
     'ADMOB_IOS_HOME_FEED_BANNER_UNIT_ID',
+    defaultValue: 'ca-app-pub-5668203347859275/7185600266',
   );
   static const _iosPostDetailBannerUnitId = String.fromEnvironment(
     'ADMOB_IOS_POST_DETAIL_BANNER_UNIT_ID',
+    defaultValue: 'ca-app-pub-5668203347859275/4559436927',
   );
 
   static const _testBannerUnitId = 'ca-app-pub-3940256099942544/6300978111';

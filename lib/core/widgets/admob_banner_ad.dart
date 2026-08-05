@@ -39,8 +39,8 @@ class _AdMobBannerAdState extends State<AdMobBannerAd> {
     }
 
     final adSize = switch (widget.placement) {
-      AdMobPlacement.homeFeed => AdSize.banner,
-      AdMobPlacement.postDetail => AdSize.mediumRectangle,
+      AdMobPlacement.homeFeed => AdSize.largeBanner,
+      AdMobPlacement.postDetail => AdSize.largeBanner,
     };
 
     final banner = BannerAd(

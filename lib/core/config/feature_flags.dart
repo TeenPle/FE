@@ -1,11 +1,8 @@
-const bool adsEnabled = bool.fromEnvironment(
-  'ADS_ENABLED',
-  defaultValue: false,
-);
+const bool adsEnabled = bool.fromEnvironment('ADS_ENABLED', defaultValue: true);
 
 const bool admobEnabled = bool.fromEnvironment(
   'ADMOB_ENABLED',
-  defaultValue: false,
+  defaultValue: true,
 );
 
 const bool partnerAdsEnabled = bool.fromEnvironment(

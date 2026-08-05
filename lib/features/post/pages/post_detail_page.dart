@@ -273,14 +273,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             ),
                           ),
                         ],
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
-                          child: Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: c.divider,
-                          ),
-                        ),
+                        const SizedBox(height: 14),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: PostActionBar(

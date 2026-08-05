@@ -24,7 +24,7 @@ val admobAndroidAppId =
     (findProperty("ADMOB_ANDROID_APP_ID") as String?)
         ?: System.getenv("ADMOB_ANDROID_APP_ID")
         ?: localProperties.getProperty("admob.android.appId")
-        ?: "ca-app-pub-3940256099942544~3347511713"
+        ?: "ca-app-pub-5668203347859275~2215643912"
 
 gradle.taskGraph.whenReady {
     val isReleaseTask = allTasks.any { it.name.contains("Release", ignoreCase = true) }
